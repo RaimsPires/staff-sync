@@ -38,7 +38,7 @@ The stack favours async I/O end to end, typed models, and maintained libraries. 
 | --- | --- | --- |
 | Web framework | FastAPI, Uvicorn (Gunicorn with Uvicorn workers in production) | Async, OpenAPI docs, dependency injection |
 | Validation / settings | Pydantic v2, pydantic-settings | Request/response schemas, typed env config |
-| ORM / DB driver | SQLAlchemy 2.0 (async), asyncpg | Typed models, async sessions, unit of work |
+| ORM / DB driver | SQLModel (built on SQLAlchemy 2.0, async sessions), asyncpg | One class hierarchy for tables and Pydantic schemas; full SQLAlchemy power underneath for PostGIS, events and complex queries |
 | Migrations | Alembic | Versioned schema changes |
 | Geospatial | PostGIS, GeoAlchemy2, Shapely | Geofence storage, ST\_Covers / ST\_Distance, polygon validation |
 | Auth tokens | PyJWT | Access and refresh JWTs |
@@ -62,6 +62,7 @@ The stack favours async I/O end to end, typed models, and maintained libraries. 
 | Metrics | prometheus-fastapi-instrumentator | Request metrics |
 | Testing | pytest, pytest-asyncio, httpx, factory-boy, testcontainers, freezegun | Unit and integration tests |
 | Quality | Ruff, mypy, pre-commit, Bandit, pip-audit | Lint, types, security scans |
+| Payments | stripe (official Python SDK) | Subscriptions, Checkout, Customer Portal, invoices, webhook signature verification |
 
 ## 3. Project structure and design patterns
 
@@ -76,12 +77,12 @@ app/
     auth/  companies/  branches/  sites/  employees/  devices/
     schedules/  attendance/  alerts/  corrections/  leave/
     users_roles/  reports/  audit/  notifications/  settings/
-    billing/  webhooks/  realtime/
+    billing/ (Stripe)  webhooks/  realtime/
       router.py           # endpoints
-      schemas.py          # Pydantic request/response models
+      schemas.py          # SQLModel non-table models: Create / Update / Read
       service.py          # use cases, business rules
-      repository.py       # SQLAlchemy queries
-      models.py           # ORM tables
+      repository.py       # SQLModel select() queries
+      models.py           # SQLModel table models (table=True)
       events.py           # domain events emitted by the module
   workers/                # job definitions and periodic tasks
   migrations/             # Alembic
@@ -104,7 +105,7 @@ tests/
 | Specification / policy objects | Permission and scope checks | Reusable rules such as `CanApproveLeave(scope)` |
 | Factory | Notification channels (push, SMS, email), export formats | Pick an implementation from settings |
 | Adapter | SMS, email, push, storage providers | Swap vendors without touching services |
-| DTO | Pydantic schemas | ORM models never leak to clients |
+| DTO | SQLModel non-table models | Table models never leak to clients |
 | Idempotency key | Check-in, offline sync, payments | Safe retries from flaky mobile networks |
 
 ## 4. Data model
@@ -113,7 +114,7 @@ Every business table carries `company_id` (the tenant), UUID primary keys, `crea
 
 | Table | Key columns | Relations |
 | --- | --- | --- |
-| companies | name, logo\_url, country, timezone, locale, plan, status | has branches, users, settings |
+| companies | name, logo\_url, country, timezone, locale, plan, status, stripe\_customer\_id, stripe\_subscription\_id, subscription\_status, current\_period\_end, seat\_limit | has branches, users, settings |
 | branches | name, code, address, timezone, holiday\_calendar\_id | company; has sites |
 | sites | name, code, address, location (geography Point), geofence (geography Polygon), radius\_m, timezone, require\_selfie, require\_qr, device\_binding, allow\_offline, min\_accuracy\_m, qr\_secret, status | branch; managers, employees |
 | users | email, phone (E.164), password\_hash, totp\_secret (encrypted), locale, status, last\_login\_at | one user per person; employee profile optional |
@@ -164,7 +165,7 @@ Business records are never physically removed by a normal delete: they get `dele
 
 ### How it is implemented
 
-- **Mixin**: a `SoftDeleteMixin` adds `deleted_at` (timestamptz, nullable), `deleted_by` (user id) and `delete_reason` to the models above.
+- **Mixin**: a `SoftDeleteMixin` (a SQLModel base class the table models inherit) adds `deleted_at` (timestamptz, nullable), `deleted_by` (user id) and `delete_reason` to the models above.
 - **Automatic filtering**: a SQLAlchemy `do_orm_execute` event applies `with_loader_criteria(SoftDeleteMixin, lambda cls: cls.deleted_at.is_(None))` to every query, including relationships. Repositories opt out explicitly with `execution_options(include_deleted=True)`, used only by restore, trash views, audit and reports that request it.
 - **Delete in the service**: `service.soft_delete(ctx, id, reason)` checks permission and blocking rules, sets the three columns, runs side effects (revoke sessions, cancel future shifts), writes the audit entry and emits a `<Entity>Deleted` event, all in one transaction.
 - **Restore**: clears the columns after re-checking constraints (for example a restored employee whose employee number was reused gets a 409 asking to change it). Emits `<Entity>Restored` and writes an audit entry.
@@ -554,9 +555,23 @@ Leave requests move through a state machine with one or two approval steps; bala
 | Method | Path | Permission | What it does |
 | --- | --- | --- | --- |
 | GET | /billing | billing.manage | Plan, usage, limits |
-| POST | /billing/checkout | billing.manage | Start upgrade with the payment provider (card or mobile money) |
+| POST | /billing/checkout | billing.manage | Create a Stripe Checkout Session for the chosen plan and seat count; returns the Checkout URL |
 | GET | /billing/invoices | billing.manage | Invoices |
-| POST | /billing/webhook | provider signature | Payment provider callbacks (signature verified, idempotent) |
+| POST | /billing/webhook | provider signature | Stripe webhook events, verified with the Stripe-Signature header, processed once per event id |
+| POST | /billing/portal | billing.manage | Open the Stripe Customer Portal to change plan, payment method, or cancel |
+| GET | /billing/plans | authenticated | Plans and prices (Stripe Price ids cached from Stripe) |
+
+#### How Stripe billing works
+
+- **Products and prices** live in Stripe (one Product per plan, monthly and yearly Prices, priced per employee seat). The backend stores only Stripe ids.
+- **Customer**: a Stripe Customer is created for each company at sign-up; its id is saved on `companies.stripe_customer_id` and its `metadata.company_id` points back.
+- **Checkout**: `/billing/checkout` creates a Checkout Session in `subscription` mode with the chosen Price and quantity (seats), `client_reference_id` = company id, and success/cancel URLs back to the dashboard. A free trial uses `trial_period_days`.
+- **Self-service**: `/billing/portal` creates a Customer Portal session for upgrades, downgrades, card changes, invoice downloads and cancellation, so the dashboard never handles card data.
+- **Webhooks are the source of truth**: the app updates the company's plan only from webhook events, never from the redirect. Handled events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.trial_will_end`.
+- **Webhook processing**: read the raw body, verify with `stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)`, store the event id in a `stripe_events` table (unique), return 200 at once, then process in the worker. Duplicate events are ignored.
+- **Seat sync**: when employees are added or deactivated, the subscription item quantity is updated through the API (with proration), and `seat_limit` blocks new employees above the plan.
+- **Payment failure**: `invoice.payment_failed` sets `subscription_status = past_due`, notifies the owner and starts a grace period; after it, the company becomes read-only (attendance keeps being recorded, admin edits blocked) until payment succeeds.
+- **Security**: secret key and webhook secret come from the secret manager, separate keys for test and live mode, and all Stripe API calls send an idempotency key.
 
 ### Webhooks for integrations
 
@@ -620,7 +635,7 @@ The two biggest risks are one company seeing another's data and employees faking
 | Authentication | Argon2id password hashing, password strength and breached-password check, TOTP 2FA for admins (enforceable per company), short-lived JWTs, rotating refresh tokens with reuse detection, session revocation on password change or deactivation |
 | Brute force and abuse | slowapi rate limits on login, OTP, PIN, check-in and exports; lockouts on OTP/PIN; per-phone SMS daily caps; generic responses on forgot password and login |
 | Attendance fraud | Server-side geofence check (client result never trusted), mock-location and attestation (Play Integrity / App Attest), device binding, signed and rotating site QR codes, optional selfie, impossible-travel and time checks, flags instead of silent acceptance |
-| Input validation | Pydantic strict models, max lengths, enums, coordinate ranges, geometry validation, no raw SQL string building (SQLAlchemy parameters) |
+| Input validation | Pydantic strict models, max lengths, enums, coordinate ranges, geometry validation, no raw SQL string building (SQLModel select() with bound parameters) |
 | File uploads | Presigned URLs with size and content-type limits, MIME sniffing, image re-encoding with Pillow (strips EXIF and payloads), private buckets, short-lived download URLs, optional antivirus scan |
 | Data protection | TLS 1.2+ everywhere, HSTS; encryption at rest for DB and storage; TOTP secrets and provider keys encrypted with a KMS-managed key; PINs and device ids hashed; secrets from env/secret manager, never in code |
 | Privacy | Location captured only at check-in/out (no background tracking), data minimisation, selfie retention limit, employee data export and deletion on request, consent text in the app |
