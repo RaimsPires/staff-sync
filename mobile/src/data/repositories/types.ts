@@ -1,0 +1,190 @@
+import type {
+  AppNotification,
+  Assignment,
+  AttendanceRecord,
+  AttendanceStatus,
+  Company,
+  CorrectionKind,
+  CorrectionRequest,
+  Flag,
+  HalfDay,
+  IsoDate,
+  LeaveBalance,
+  LeaveRequest,
+  LeaveType,
+  LeaveWarning,
+  UserProfile,
+} from '@/domain';
+
+/** Domain-level failure the UI can map to a translated message. */
+export class AppError extends Error {
+  constructor(
+    public readonly code:
+      | 'ACCOUNT_NOT_FOUND'
+      | 'ACCOUNT_DISABLED'
+      | 'OTP_INVALID'
+      | 'OTP_EXPIRED'
+      | 'OTP_LOCKED'
+      | 'DEVICE_BOUND'
+      | 'PIN_INVALID'
+      | 'PIN_LOCKED'
+      | 'NOT_FOUND'
+      | 'CONFLICT'
+      | 'VALIDATION',
+    public readonly meta?: { attemptsLeft?: number },
+  ) {
+    super(code);
+  }
+}
+
+export type Session = { accessToken: string; refreshToken: string; user: UserProfile };
+
+export interface AuthRepository {
+  requestOtp(identifier: string): Promise<void>;
+  /** Returns companies to choose from when the account belongs to several. */
+  verifyOtp(identifier: string, code: string): Promise<{ companies: Company[]; session: Session }>;
+  selectCompany(companyId: string): Promise<Session>;
+  registerDevice(deviceId: string): Promise<void>;
+  logout(): Promise<void>;
+}
+
+export type GeoPoint = { lat: number; lng: number; accuracyM: number; mocked: boolean; capturedAt: string };
+
+export type CheckEvent = {
+  /** Idempotency key generated on the phone, also used for offline sync de-duplication. */
+  clientEventId: string;
+  type: 'check_in' | 'check_out';
+  assignmentId: string;
+  position: GeoPoint;
+  method: 'self' | 'qr';
+  selfieUri?: string;
+  qrPayload?: string;
+  /** Check-out: reason for leaving early. Check-in: nothing. */
+  note?: string;
+  /** User chose "check in anyway" for an unscheduled site. */
+  acceptUnscheduled?: boolean;
+};
+
+export type CheckResult = { record: AttendanceRecord; flags: Flag[] };
+
+export type MonthSummary = {
+  present: number;
+  late: number;
+  absent: number;
+  hoursWorked: number;
+  leaveDays: number;
+  overtimeHours: number;
+};
+
+export type CorrectionInput = {
+  recordId: string;
+  kind: CorrectionKind;
+  proposedTime?: string;
+  comment: string;
+  attachmentName?: string;
+};
+
+export interface AttendanceRepository {
+  getMonth(month: string): Promise<{ records: AttendanceRecord[]; summary: MonthSummary }>;
+  getRecord(id: string): Promise<AttendanceRecord>;
+  /** Today's record for one assignment, or `null` before check-in. */
+  getForAssignment(assignmentId: string): Promise<AttendanceRecord | null>;
+  getWeekSummary(): Promise<{ present: number; late: number; hoursWorked: number }>;
+  checkIn(event: CheckEvent): Promise<CheckResult>;
+  checkOut(event: CheckEvent): Promise<CheckResult>;
+  /** Replays offline events; one result per `clientEventId`. */
+  sync(events: readonly CheckEvent[]): Promise<Record<string, CheckResult | AppError>>;
+  addComment(recordId: string, comment: string): Promise<void>;
+  requestCorrection(input: CorrectionInput): Promise<CorrectionRequest>;
+  listCorrections(recordId: string): Promise<CorrectionRequest[]>;
+}
+
+export interface ScheduleRepository {
+  getRange(from: IsoDate, to: IsoDate): Promise<Assignment[]>;
+  getAssignment(id: string): Promise<Assignment>;
+  /** Assignments for today, ordered by start time. */
+  getToday(): Promise<Assignment[]>;
+  getHolidays(from: IsoDate, to: IsoDate): Promise<IsoDate[]>;
+  /** Approved leave ranges that intersect the window. */
+  getApprovedLeave(from: IsoDate, to: IsoDate): Promise<{ start: IsoDate; end: IsoDate; typeId: string }[]>;
+}
+
+export type LeaveDraft = {
+  typeId: string;
+  start: IsoDate;
+  end: IsoDate;
+  startHalf?: HalfDay;
+  endHalf?: HalfDay;
+  reason: string;
+  attachmentName?: string;
+};
+
+export type LeavePreview = { days: number; remainingAfter: number; warnings: LeaveWarning[]; reviewer: string };
+
+export interface LeaveRepository {
+  getTypes(): Promise<LeaveType[]>;
+  getBalances(year: number): Promise<LeaveBalance[]>;
+  list(): Promise<LeaveRequest[]>;
+  get(id: string): Promise<LeaveRequest>;
+  preview(draft: LeaveDraft): Promise<LeavePreview>;
+  submit(draft: LeaveDraft): Promise<LeaveRequest>;
+  update(id: string, draft: LeaveDraft): Promise<LeaveRequest>;
+  cancel(id: string, reason?: string): Promise<LeaveRequest>;
+}
+
+export interface NotificationRepository {
+  list(): Promise<AppNotification[]>;
+  markRead(id: string): Promise<void>;
+  markAllRead(): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
+export interface ProfileRepository {
+  get(): Promise<UserProfile>;
+  /** Raised with the admin, who resets it. */
+  getDevice(): Promise<{ model: string; registeredAt: string }>;
+}
+
+export type RosterEntry = {
+  employeeId: string;
+  name: string;
+  scheduled: { start: string; end: string };
+  checkInAt?: string;
+  checkOutAt?: string;
+  status: AttendanceStatus | 'not_arrived' | 'left';
+  hasSmartphone: boolean;
+  phone: string;
+  note?: string;
+};
+
+export type ManagerSummary = {
+  expected: number;
+  present: number;
+  notArrived: number;
+  left: number;
+  absent: number;
+  onLeave: number;
+  flagged: number;
+  alerts: { kind: 'late' | 'flag' | 'missing_checkout' | 'leave_request'; text: string }[];
+};
+
+export type ProxyInput = {
+  employeeId?: string;
+  badgeToken?: string;
+  pin?: string;
+  note?: string;
+  managerPosition: GeoPoint;
+  type: 'check_in' | 'check_out';
+  acceptUnscheduled?: boolean;
+};
+
+export interface ManagerRepository {
+  getSites(): Promise<{ id: string; name: string }[]>;
+  getSummary(siteId: string): Promise<ManagerSummary>;
+  getRoster(siteId: string): Promise<RosterEntry[]>;
+  findByBadge(token: string): Promise<RosterEntry>;
+  proxyCheck(input: ProxyInput): Promise<{ entry: RosterEntry; flags: Flag[] }>;
+  addNote(employeeId: string, note: string): Promise<void>;
+  leaveInbox(siteId: string): Promise<(LeaveRequest & { coverage: string[] })[]>;
+  recommend(id: string, decision: 'approve' | 'reject', comment: string): Promise<void>;
+}

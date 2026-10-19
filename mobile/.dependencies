@@ -1,0 +1,3 @@
+cd mobile
+npm install --legacy-peer-deps zustand @tanstack/react-query react-hook-form @hookform/resolvers i18next react-i18next date-fns
+npm install --legacy-peer-deps -D jest-expo jest @types/jest @testing-library/react-native

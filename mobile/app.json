@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "staffsync",
+    "name": "StaffSync",
     "slug": "staffsync",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,31 +8,62 @@
     "scheme": "staffsync",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "app.staffsync.mobile",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "app.staffsync.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_CALENDAR", "WRITE_CALENDAR"],
+      "blockedPermissions": ["RECORD_AUDIO", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
+      "expo-localization",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/logo.png",
+          "imageWidth": 160
         }
-      ]
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "StaffSync uses your precise location only to verify you are on site when you check in or out, and to show your distance to the site."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "StaffSync uses the camera only when your site requires a selfie or a QR scan to check in.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "StaffSync adds your shifts to your calendar only when you ask it to."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "StaffSync accesses your photos only to attach a document to a leave or correction request."
+        }
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,
