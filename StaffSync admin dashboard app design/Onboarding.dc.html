@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- ===== ONBOARDING ===== -->
+<div data-theme="{{ ob.theme }}" style="min-height:100vh;background:var(--bg);color:var(--text);display:flex;font-size:14px;line-height:1.45">
+
+<sc-if value="{{ ob.showRail }}" hint-placeholder-val="{{ true }}">
+<aside style="width:300px;flex:none;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;box-sizing:border-box;padding:24px 20px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px">
+    <div style="width:34px;height:34px;border-radius:9px;background:#fff;border:1px solid var(--border);display:grid;place-items:center;overflow:hidden"><img src="assets/staffsync-logo.png" alt="StaffSync" style="width:30px;height:30px;object-fit:contain"></div>
+    <div style="font-weight:700;font-size:16px;letter-spacing:-.01em">StaffSync</div>
+  </div>
+  <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Set up your workspace</div>
+  <div style="display:flex;flex-direction:column;flex:1">
+    <sc-for list="{{ ob.steps }}" as="s" hint-placeholder-count="8">
+      <button onClick="{{ s.go }}" disabled="{{ s.locked }}" style="display:flex;gap:12px;align-items:flex-start;border:0;background:transparent;text-align:left;padding:0;cursor:{{ s.cursor }};color:inherit">
+        <div style="display:flex;flex-direction:column;align-items:center;align-self:stretch">
+          <span style="width:26px;height:26px;border-radius:50%;box-sizing:border-box;display:grid;place-items:center;font:600 12px 'Geist Mono',monospace;flex:none;background:{{ s.dotBg }};color:{{ s.dotFg }};border:{{ s.dotBd }}">
+            <sc-if value="{{ s.done }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></sc-if>
+            <sc-if value="{{ s.notDone }}">{{ s.n }}</sc-if>
+          </span>
+          <sc-if value="{{ s.notLast }}"><span style="width:2px;flex:1;min-height:14px;margin:3px 0;border-radius:2px;background:{{ s.lineC }}"></span></sc-if>
+        </div>
+        <div style="padding:3px 0 16px"><div style="font-weight:{{ s.weight }};font-size:13.5px;color:{{ s.labelC }}">{{ s.label }}</div><div style="font-size:12px;color:var(--text-3)">{{ s.sub }}</div></div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="border-top:1px solid var(--border);padding-top:16px;font-size:12.5px;color:var(--text-3)">Need help? <a href="#">Book a 15-min setup call</a></div>
+</aside>
+</sc-if>
+
+<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+  <header style="height:60px;flex:none;display:flex;align-items:center;gap:14px;padding:0 28px;border-bottom:1px solid var(--border);background:var(--surface)">
+    <sc-if value="{{ ob.compact }}"><img src="assets/staffsync-logo.png" alt="StaffSync" style="width:28px;height:28px;object-fit:contain"></sc-if>
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1;max-width:340px">
+      <div style="font-size:12.5px;color:var(--text-2)">{{ ob.progressLabel }}</div>
+      <div style="height:4px;border-radius:4px;background:var(--neutral-bg);overflow:hidden"><div style="height:100%;width:{{ ob.progressPct }};background:var(--accent);border-radius:4px;transition:width .3s"></div></div>
+    </div>
+    <div style="flex:1"></div>
+    <sc-if value="{{ ob.canSave }}">
+      <button onClick="{{ ob.saveLater }}" style="display:flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-7h8v7"></path></svg>Save and continue later</button>
+    </sc-if>
+    <button onClick="{{ ob.toggleTheme }}" title="Theme" style="width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--text-2);display:grid;place-items:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ ob.themeIcon }}"></path></svg></button>
+  </header>
+
+  <main style="flex:1;display:flex;justify-content:center;padding:36px 28px 56px;box-sizing:border-box">
+  <div style="width:100%;max-width:{{ ob.contentMax }};display:flex;flex-direction:column;gap:22px;animation:ssIn .25s ease-out" key="{{ ob.step }}">
+
+  <sc-if value="{{ ob.inWizard }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="font:500 12px 'Geist Mono',monospace;color:var(--accent);margin-bottom:6px">{{ ob.stepEyebrow }}</div>
+      <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em">{{ ob.stepTitle }}</h1>
+      <div style="margin-top:6px;color:var(--text-2);font-size:14px;text-wrap:pretty">{{ ob.stepDesc }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ob.showSummary }}">
+    <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;border-radius:10px;background:var(--bad-bg);color:var(--bad);font-size:13px;font-weight:500"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2zM12 10v4M12 17h.01"></path></svg>{{ ob.summaryText }}</div>
+  </sc-if>
+
+  <!-- STEP 1 -->
+  <sc-if value="{{ ob.is1 }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+        <button onClick="{{ ob.sso }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:42px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><span style="width:18px;height:18px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#4285F4">G</span>Sign up with Google</button>
+        <button onClick="{{ ob.sso }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:42px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><span style="display:grid;grid-template-columns:7px 7px;gap:1.5px"><span style="width:7px;height:7px;background:#F25022"></span><span style="width:7px;height:7px;background:#7FBA00"></span><span style="width:7px;height:7px;background:#00A4EF"></span><span style="width:7px;height:7px;background:#FFB900"></span></span>Sign up with Microsoft</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;color:var(--text-3);font-size:12px"><span style="flex:1;height:1px;background:var(--border)"></span>or with your work email<span style="flex:1;height:1px;background:var(--border)"></span></div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Full name</span>
+        <input value="{{ ob.f.name }}" onChange="{{ ob.on.name }}" placeholder="Claire Vasseur" autocomplete="name" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.name }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        <sc-if value="{{ ob.has.name }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.name }}</span></sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Work email</span>
+        <input value="{{ ob.f.email }}" onChange="{{ ob.on.email }}" type="email" placeholder="claire@batiplus.fr" autocomplete="email" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.email }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        <sc-if value="{{ ob.has.email }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.email }}</span></sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Password</span>
+        <div style="position:relative;display:flex">
+          <input value="{{ ob.f.password }}" onChange="{{ ob.on.password }}" type="{{ ob.pwType }}" placeholder="At least 8 characters" autocomplete="new-password" style="flex:1;height:40px;padding:0 64px 0 12px;border-radius:9px;border:1px solid {{ ob.bd.password }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <button onClick="{{ ob.togglePw }}" type="button" style="position:absolute;right:6px;top:6px;height:28px;padding:0 9px;border:0;border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;cursor:pointer">{{ ob.pwToggleLabel }}</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px"><sc-for list="{{ ob.pwBars }}" as="b" hint-placeholder-count="4"><span style="height:4px;border-radius:4px;background:{{ b }}"></span></sc-for></div>
+          <span style="font-size:12px;font-weight:500;min-width:52px;text-align:right;color:{{ ob.pwColor }}">{{ ob.pwLabel }}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px"><sc-for list="{{ ob.pwRules }}" as="r" hint-placeholder-count="4"><span style="display:flex;align-items:center;gap:5px;color:{{ r.c }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="{{ r.icon }}"></path></svg>{{ r.label }}</span></sc-for></div>
+        <sc-if value="{{ ob.has.password }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.password }}</span></sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Phone <span style="color:var(--text-3);font-weight:400">· for account recovery</span></span>
+        <div style="display:flex;gap:8px">
+          <select value="{{ ob.f.dial }}" onChange="{{ ob.on.dial }}" style="height:40px;padding:0 8px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px"><option value="+33">🇫🇷 +33</option><option value="+32">🇧🇪 +32</option><option value="+41">🇨🇭 +41</option><option value="+1">🇨🇦 +1</option><option value="+44">🇬🇧 +44</option></select>
+          <input value="{{ ob.f.phone }}" onChange="{{ ob.on.phone }}" type="tel" placeholder="6 12 34 56 78" style="flex:1;min-width:0;height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.phone }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        </div>
+        <sc-if value="{{ ob.has.phone }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.phone }}</span></sc-if>
+      </label>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13.5px;color:var(--text-2)">
+          <input type="checkbox" checked="{{ ob.f.terms }}" onChange="{{ ob.on.terms }}" style="width:16px;height:16px;margin:2px 0 0;accent-color:#0B67DD">
+          <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>, including processing of employee location data during check-ins.</span>
+        </label>
+        <sc-if value="{{ ob.has.terms }}"><span style="font-size:12.5px;color:var(--bad);padding-left:26px">{{ ob.err.terms }}</span></sc-if>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text-3);text-align:center">Already have an account? <a href="#" onClick="{{ ob.goSignIn }}">Sign in</a></div>
+  </sc-if>
+
+  <!-- STEP 2 -->
+  <sc-if value="{{ ob.is2 }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3zM3 6l9 7 9-7"></path></svg></div>
+      <div style="font-size:14px;color:var(--text-2)">We sent a 6-digit code to <strong style="color:var(--text)">{{ ob.emailShown }}</strong></div>
+      <div style="display:flex;gap:8px" onPaste="{{ ob.onPaste }}">
+        <sc-for list="{{ ob.codeBoxes }}" as="c" hint-placeholder-count="6">
+          <input ref="{{ c.ref }}" value="{{ c.v }}" onChange="{{ c.change }}" onKeyDown="{{ c.key }}" inputmode="numeric" maxlength="1" aria-label="{{ c.aria }}" style="width:48px;height:56px;text-align:center;border-radius:10px;border:1px solid {{ c.bd }};background:var(--surface);color:var(--text);font:600 22px 'Geist Mono',monospace;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        </sc-for>
+      </div>
+      <sc-if value="{{ ob.has.code }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.code }}</span></sc-if>
+      <div style="font-size:13px;color:var(--text-3)">
+        <sc-if value="{{ ob.resendWaiting }}"><span>Resend code in <span style="font-family:'Geist Mono',monospace;color:var(--text-2)">{{ ob.resendClock }}</span></span></sc-if>
+        <sc-if value="{{ ob.resendReady }}"><span>Didn’t get it? <a href="#" onClick="{{ ob.resend }}">Resend code</a></span></sc-if>
+        <span> · <a href="#" onClick="{{ ob.changeEmail }}">Change email</a></span>
+      </div>
+      <div style="font-size:12px;color:var(--text-3);padding:8px 12px;background:var(--surface-2);border-radius:8px">Prototype: any 6 digits work except 000000</div>
+    </div>
+  </sc-if>
+
+  <!-- STEP 3 -->
+  <sc-if value="{{ ob.is3 }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;gap:16px;align-items:center">
+        <label style="width:72px;height:72px;border-radius:14px;border:1.5px dashed var(--border-strong);background:var(--surface-2);display:grid;place-items:center;cursor:pointer;overflow:hidden;flex:none;color:var(--text-3)" style-hover="border-color:var(--accent)">
+          <input type="file" accept="image/*" onChange="{{ ob.onLogo }}" style="display:none">
+          <sc-if value="{{ ob.hasLogo }}"><div role="img" aria-label="Logo" style="width:100%;height:100%;background:center/contain no-repeat;background-image:{{ ob.logoBg }}"></div></sc-if>
+          <sc-if value="{{ ob.noLogo }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg></sc-if>
+        </label>
+        <div><div style="font-weight:500;font-size:13.5px">Company logo <span style="color:var(--text-3);font-weight:400">· optional</span></div><div style="font-size:12.5px;color:var(--text-3)">Shown in the mobile app and on reports. PNG or SVG, square, up to 2 MB.</div></div>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Company name</span>
+        <input value="{{ ob.f.company }}" onChange="{{ ob.on.company }}" placeholder="Batiplus Group" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.company }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        <sc-if value="{{ ob.has.company }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.company }}</span></sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Industry</span>
+        <select value="{{ ob.f.industry }}" onChange="{{ ob.on.industry }}" style="height:40px;padding:0 10px;border-radius:9px;border:1px solid {{ ob.bd.industry }};background:var(--surface);color:var(--text);font-size:14px">
+          <option value="">Select an industry</option><option>Construction</option><option>Logistics &amp; warehousing</option><option>Cleaning &amp; facility services</option><option>Security</option><option>Retail</option><option>Manufacturing</option><option>Healthcare</option><option>Other</option>
+        </select>
+        <sc-if value="{{ ob.has.industry }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.industry }}</span></sc-if>
+      </label>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Company size</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ ob.sizes }}" as="z" hint-placeholder-count="5"><button onClick="{{ z.go }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ z.bd }};background:{{ z.bg }};color:{{ z.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ z.label }}</button></sc-for>
+        </div>
+        <sc-if value="{{ ob.has.size }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.size }}</span></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Country</span>
+          <select value="{{ ob.f.country }}" onChange="{{ ob.onCountry }}" style="height:40px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px"><option>France</option><option>Belgium</option><option>Switzerland</option><option>Canada</option><option>United Kingdom</option></select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Default timezone</span>
+          <select value="{{ ob.f.tz }}" onChange="{{ ob.on.tz }}" style="height:40px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px"><option>Europe/Paris (UTC+2)</option><option>Europe/Brussels (UTC+2)</option><option>Europe/Zurich (UTC+2)</option><option>America/Montreal (UTC−4)</option><option>Europe/London (UTC+1)</option></select>
+        </label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Default language <span style="color:var(--text-3);font-weight:400">· employees can change it in the app</span></span>
+        <div style="display:flex;padding:3px;border:1px solid var(--border);border-radius:10px;gap:3px;align-self:flex-start;background:var(--surface-2)">
+          <button onClick="{{ ob.setLangEn }}" style="border:0;height:32px;padding:0 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;background:{{ ob.langEn.bg }};color:{{ ob.langEn.fg }};box-shadow:{{ ob.langEn.sh }}">English</button>
+          <button onClick="{{ ob.setLangFr }}" style="border:0;height:32px;padding:0 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;background:{{ ob.langFr.bg }};color:{{ ob.langFr.fg }};box-shadow:{{ ob.langFr.sh }}">Français</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- STEP 4 -->
+  <sc-if value="{{ ob.is4 }}">
+    <div style="display:flex;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--text-2)">
+      <div style="display:flex;align-items:center;gap:6px;font:500 12px 'Geist Mono',monospace;white-space:nowrap;flex-wrap:wrap"><span style="padding:3px 8px;border-radius:6px;background:var(--neutral-bg)">{{ ob.companyShown }}</span><span>→</span><span style="padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)">Branch</span><span>→</span><span style="padding:3px 8px;border-radius:6px;background:var(--neutral-bg)">Sites</span></div>
+      <span style="text-wrap:pretty">Branches group sites, usually by city or region. Branch managers only see their own branch.</span>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:18px">
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Branch name</span>
+        <input value="{{ ob.f.branch }}" onChange="{{ ob.on.branch }}" placeholder="Lyon" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.branch }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        <sc-if value="{{ ob.has.branch }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.branch }}</span></sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Street address</span>
+        <input value="{{ ob.f.street }}" onChange="{{ ob.on.street }}" placeholder="17 Boulevard Vivier-Merle" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.street }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        <sc-if value="{{ ob.has.street }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.street }}</span></sc-if>
+      </label>
+      <div style="display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr);gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Postal code</span>
+          <input value="{{ ob.f.zip }}" onChange="{{ ob.on.zip }}" placeholder="69003" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.zip }};background:var(--surface);color:var(--text);font-size:14px;outline:none;min-width:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <sc-if value="{{ ob.has.zip }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.zip }}</span></sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">City</span>
+          <input value="{{ ob.f.city }}" onChange="{{ ob.on.city }}" placeholder="Lyon" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.city }};background:var(--surface);color:var(--text);font-size:14px;outline:none;min-width:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <sc-if value="{{ ob.has.city }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.city }}</span></sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Country</span>
+          <input value="{{ ob.f.country }}" readonly style="height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);font-size:14px;outline:none;min-width:0">
+        </label>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- STEP 5 -->
+  <sc-if value="{{ ob.is5 }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-wrap:wrap">
+      <div style="flex:1 1 300px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Site name</span>
+          <input value="{{ ob.f.siteName }}" onChange="{{ ob.on.siteName }}" placeholder="Part-Dieu Tower" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.siteName }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <sc-if value="{{ ob.has.siteName }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.siteName }}</span></sc-if>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;position:relative"><span style="font-size:13px;font-weight:500">Address</span>
+          <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.siteAddr }};background:var(--surface);color:var(--text-3)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-4.3-4.3"></path></svg>
+            <input value="{{ ob.f.siteAddr }}" onChange="{{ ob.onAddr }}" onFocus="{{ ob.openSug }}" placeholder="Search an address" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:14px">
+          </div>
+          <sc-if value="{{ ob.showSug }}">
+            <div style="position:absolute;top:70px;left:0;right:0;z-index:5;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);overflow:hidden">
+              <sc-for list="{{ ob.sugs }}" as="g" hint-placeholder-count="4">
+                <button onClick="{{ g.pick }}" style="display:flex;gap:10px;align-items:flex-start;width:100%;padding:10px 12px;border:0;background:transparent;text-align:left;cursor:pointer;color:var(--text)" style-hover="background:var(--hover)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-3);margin-top:2px;flex:none"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path></svg>
+                  <span><span style="display:block;font-size:13.5px;font-weight:500">{{ g.line1 }}</span><span style="display:block;font-size:12px;color:var(--text-3)">{{ g.line2 }}</span></span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ ob.has.siteAddr }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.siteAddr }}</span></sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px;font-weight:500">Geofence radius</span><span style="font:600 15px 'Geist Mono',monospace;color:var(--accent)">{{ ob.f.radius }} m</span></div>
+          <input type="range" min="50" max="500" step="10" value="{{ ob.f.radius }}" onChange="{{ ob.on.radius }}" style="width:100%">
+          <div style="display:flex;justify-content:space-between;font:400 11px 'Geist Mono',monospace;color:var(--text-3)"><span>50 m</span><span>500 m</span></div>
+          <div style="font-size:12.5px;color:var(--text-2);padding:10px 12px;border-radius:9px;background:var(--surface-2);text-wrap:pretty">{{ ob.radiusHint }}</div>
+        </div>
+      </div>
+      <div style="flex:1.4 1 380px;min-height:360px;position:relative;background:var(--map-bg);border-left:1px solid var(--border);cursor:crosshair;overflow:hidden" onClick="{{ ob.onMapClick }}" ref="{{ ob.mapRef }}">
+        <svg viewBox="0 0 600 420" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">
+          <rect x="30" y="24" width="120" height="70" rx="4" style="fill:var(--map-block)"></rect><rect x="200" y="20" width="150" height="60" rx="4" style="fill:var(--map-block)"></rect><rect x="420" y="110" width="150" height="90" rx="4" style="fill:var(--map-block)"></rect><rect x="30" y="140" width="110" height="100" rx="4" style="fill:var(--map-block)"></rect><rect x="390" y="16" width="190" height="56" rx="4" style="fill:var(--map-block)"></rect><rect x="200" y="250" width="130" height="60" rx="4" style="fill:var(--map-block)"></rect>
+          <path d="M0 340 C 120 310, 220 400, 360 370 S 540 320, 600 344 L600 420 L0 420Z" style="fill:var(--map-water)"></path>
+          <g style="stroke:var(--map-road);fill:none" stroke-linecap="round"><path d="M0 106 L600 92" stroke-width="10"></path><path d="M170 0 L184 420" stroke-width="10"></path><path d="M0 236 L600 222" stroke-width="7"></path><path d="M370 0 L452 420" stroke-width="7"></path><path d="M260 92 L272 236" stroke-width="4"></path><path d="M0 170 L600 160" stroke-width="4"></path><path d="M520 0 L534 230" stroke-width="4"></path></g>
+          <circle cx="{{ ob.pinX }}" cy="{{ ob.pinY }}" r="{{ ob.fenceR }}" style="fill:var(--fence);stroke:var(--accent);stroke-width:2;stroke-dasharray:7 5;transition:r .15s"></circle>
+          <circle cx="{{ ob.pinX }}" cy="{{ ob.pinY }}" r="4" style="fill:var(--accent)"></circle>
+          <path d="{{ ob.pinPath }}" style="fill:var(--accent);stroke:var(--surface);stroke-width:2.5"></path>
+          <circle cx="{{ ob.pinX }}" cy="{{ ob.pinHeadY }}" r="5" style="fill:#fff"></circle>
+        </svg>
+        <div style="position:absolute;left:14px;top:14px;padding:7px 11px;border-radius:9px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);font-size:12.5px;color:var(--text-2);display:flex;gap:7px;align-items:center;pointer-events:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path></svg>Click the map to move the pin</div>
+        <div style="position:absolute;right:14px;bottom:14px;padding:6px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:500 11.5px 'Geist Mono',monospace;color:var(--text-2);pointer-events:none">{{ ob.coords }}</div>
+        <div style="position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:6px;pointer-events:none"><span style="width:60px;height:4px;border:1.5px solid var(--text-2);border-top:0;box-sizing:border-box"></span><span style="font:500 11px 'Geist Mono',monospace;color:var(--text-2)">100 m</span></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- STEP 6 -->
+  <sc-if value="{{ ob.is6 }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:500">Working days</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ ob.days }}" as="dy" hint-placeholder-count="7"><button onClick="{{ dy.go }}" style="width:52px;height:44px;border-radius:10px;border:1px solid {{ dy.bd }};background:{{ dy.bg }};color:{{ dy.fg }};font-size:13px;font-weight:600;cursor:pointer">{{ dy.label }}</button></sc-for>
+        </div>
+        <sc-if value="{{ ob.has.days }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.days }}</span></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Start time</span>
+          <input type="time" value="{{ ob.f.start }}" onChange="{{ ob.on.start }}" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:500 14px 'Geist Mono',monospace;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">End time</span>
+          <input type="time" value="{{ ob.f.end }}" onChange="{{ ob.on.end }}" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ ob.bd.end }};background:var(--surface);color:var(--text);font:500 14px 'Geist Mono',monospace;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+        </label>
+      </div>
+      <sc-if value="{{ ob.has.end }}"><span style="font-size:12.5px;color:var(--bad);margin-top:-14px">{{ ob.err.end }}</span></sc-if>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px;font-weight:500">Grace period for lateness</span><span style="font:600 15px 'Geist Mono',monospace;color:var(--accent)">{{ ob.f.grace }} min</span></div>
+        <input type="range" min="0" max="30" step="5" value="{{ ob.f.grace }}" onChange="{{ ob.on.grace }}" style="width:100%">
+        <div style="display:flex;justify-content:space-between;font:400 11px 'Geist Mono',monospace;color:var(--text-3)"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span></div>
+      </div>
+      <div style="border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--surface-2);display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em">How check-ins will be classified</div>
+        <div style="position:relative;height:28px;border-radius:7px;overflow:hidden;display:flex;font:500 11.5px 'Geist Mono',monospace">
+          <div style="flex:1;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center">On time</div>
+          <div style="width:{{ ob.graceW }};background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;border-left:1px dashed var(--ok-dot)"></div>
+          <div style="flex:1.4;background:var(--warn-bg);color:var(--warn);display:grid;place-items:center">Late</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-2)">
+          <span style="display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--ok-dot)"></span>{{ ob.ruleOnTime }}</span>
+          <span style="display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--warn-dot)"></span>{{ ob.ruleLate }}</span>
+          <span style="display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-3)"></span>{{ ob.ruleHours }}</span>
+        </div>
+      </div>
+      <div style="font-size:12.5px;color:var(--text-3)">These are company defaults. You can override them per site or per employee schedule later.</div>
+    </div>
+  </sc-if>
+
+  <!-- STEP 7 -->
+  <sc-if value="{{ ob.is7 }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+      <div style="display:flex;gap:20px;padding:0 24px;border-bottom:1px solid var(--border)">
+        <button onClick="{{ ob.modeManual }}" style="border:0;background:transparent;padding:14px 0 12px;margin-bottom:-1px;border-bottom:2px solid {{ ob.tabManual.bd }};color:{{ ob.tabManual.fg }};font-size:13.5px;font-weight:500;cursor:pointer">Add manually</button>
+        <button onClick="{{ ob.modeCsv }}" style="border:0;background:transparent;padding:14px 0 12px;margin-bottom:-1px;border-bottom:2px solid {{ ob.tabCsv.bd }};color:{{ ob.tabCsv.fg }};font-size:13.5px;font-weight:500;cursor:pointer">Upload CSV</button>
+      </div>
+      <sc-if value="{{ ob.isManual }}">
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 160px 36px;gap:10px;font-size:12px;color:var(--text-3);font-weight:500"><span>Full name</span><span>Phone or email</span><span>Role</span><span></span></div>
+          <sc-for list="{{ ob.people }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 160px 36px;gap:10px">
+                <input value="{{ p.name }}" onChange="{{ p.onName }}" placeholder="Name" style="height:38px;padding:0 10px;border-radius:9px;border:1px solid {{ p.bdName }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none;min-width:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+                <input value="{{ p.contact }}" onChange="{{ p.onContact }}" placeholder="+33 6… or name@company.com" style="height:38px;padding:0 10px;border-radius:9px;border:1px solid {{ p.bdContact }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none;min-width:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+                <select value="{{ p.role }}" onChange="{{ p.onRole }}" style="height:38px;padding:0 8px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px;min-width:0"><option value="employee">Employee</option><option value="site">Site manager</option><option value="branch">Branch manager</option><option value="admin">Admin</option></select>
+                <button onClick="{{ p.remove }}" title="Remove" style="width:36px;height:38px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text-3);display:grid;place-items:center;cursor:pointer" style-hover="color:var(--bad);background:var(--bad-bg)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
+              </div>
+              <sc-if value="{{ p.hasErr }}"><span style="font-size:12.5px;color:var(--bad)">{{ p.err }}</span></sc-if>
+            </div>
+          </sc-for>
+          <button onClick="{{ ob.addPerson }}" style="align-self:flex-start;display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;border:1px dashed var(--border-strong);background:transparent;color:var(--accent);font-size:13px;font-weight:500;cursor:pointer;margin-top:4px" style-hover="background:var(--accent-soft)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add another person</button>
+          <div style="font-size:12.5px;color:var(--text-3);margin-top:6px;text-wrap:pretty">People with a phone number get an SMS invite to the mobile app. Employees without a smartphone can be checked in by their site manager.</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ ob.isCsv }}">
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:32px 20px;border:1.5px dashed {{ ob.csvBd }};border-radius:12px;background:var(--surface-2);cursor:pointer;text-align:center" style-hover="border-color:var(--accent)">
+            <input type="file" accept=".csv,text/csv" onChange="{{ ob.onCsv }}" style="display:none">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg></div>
+            <div style="font-weight:600">{{ ob.csvTitle }}</div>
+            <div style="font-size:12.5px;color:var(--text-3)">{{ ob.csvSub }}</div>
+          </label>
+          <sc-if value="{{ ob.hasCsvRows }}">
+            <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:13px">
+              <sc-for list="{{ ob.csvRows }}" as="cr"><div style="display:grid;grid-template-columns:1fr 1.3fr .8fr;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border)"><span>{{ cr.a }}</span><span style="color:var(--text-2)">{{ cr.b }}</span><span style="color:var(--text-2)">{{ cr.c }}</span></div></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ ob.has.csv }}"><span style="font-size:12.5px;color:var(--bad)">{{ ob.err.csv }}</span></sc-if>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"></path></svg>Columns: name, phone_or_email, role, site · <a href="#" onClick="{{ ob.downloadTemplate }}">Download CSV template</a></div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- STEP 8 -->
+  <sc-if value="{{ ob.is8 }}">
+    <div style="display:flex;justify-content:center">
+      <div style="display:flex;padding:3px;border:1px solid var(--border);border-radius:11px;gap:3px;background:var(--surface)">
+        <button onClick="{{ ob.billMonthly }}" style="border:0;height:34px;padding:0 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:{{ ob.billM.bg }};color:{{ ob.billM.fg }}">Monthly</button>
+        <button onClick="{{ ob.billYearly }}" style="border:0;height:34px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:{{ ob.billY.bg }};color:{{ ob.billY.fg }};display:flex;align-items:center;gap:8px">Yearly<span style="font-size:11px;font-weight:600;padding:2px 6px;border-radius:999px;background:var(--ok-bg);color:var(--ok)">−20%</span></button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+      <sc-for list="{{ ob.plans }}" as="pl" hint-placeholder-count="4">
+        <button onClick="{{ pl.go }}" style="position:relative;text-align:left;display:flex;flex-direction:column;gap:14px;padding:20px 18px;border-radius:14px;border:{{ pl.bd }};background:var(--surface);color:var(--text);cursor:pointer;box-shadow:{{ pl.sh }}">
+          <sc-if value="{{ pl.rec }}"><span style="position:absolute;top:-10px;left:18px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--accent);color:#fff">Recommended for {{ ob.sizeShown }}</span></sc-if>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:15px">{{ pl.name }}</span><span style="width:18px;height:18px;border-radius:50%;box-sizing:border-box;border:{{ pl.radio }};background:var(--surface)"></span></div>
+          <div><div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:28px;font-weight:600;letter-spacing:-.02em">{{ pl.price }}</span><span style="font-size:12.5px;color:var(--text-3)">{{ pl.unit }}</span></div><div style="font-size:12.5px;color:var(--text-2);min-height:18px">{{ pl.note }}</div></div>
+          <div style="font-size:12.5px;font-weight:500;padding:6px 10px;border-radius:8px;background:var(--surface-2);color:var(--text-2)">{{ pl.cap }}</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ pl.feats }}" as="ft"><span style="display:flex;gap:8px;font-size:12.5px;color:var(--text-2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ok-dot);flex:none;margin-top:2px"><path d="M5 12l5 5L20 7"></path></svg>{{ ft }}</span></sc-for>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+    <div style="font-size:12.5px;color:var(--text-3);text-align:center">Every plan starts with a 14-day trial. No card needed until it ends. Prices exclude VAT.</div>
+  </sc-if>
+
+  <!-- FINISH -->
+  <sc-if value="{{ ob.isDone }}">
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:12px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></div>
+      <h1 style="margin:8px 0 0;font-size:28px;font-weight:600;letter-spacing:-.02em">{{ ob.doneTitle }}</h1>
+      <div style="color:var(--text-2);max-width:460px;text-wrap:pretty">{{ ob.doneSub }}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+      <sc-for list="{{ ob.recap }}" as="rc" hint-placeholder-count="4"><div style="padding:12px 14px;border-radius:11px;background:var(--surface);border:1px solid var(--border)"><div style="font-size:12px;color:var(--text-3)">{{ rc.k }}</div><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rc.v }}</div></div></sc-for>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)"><span style="font-weight:600">Next steps</span><span style="font:500 12px 'Geist Mono',monospace;color:var(--text-3)">{{ ob.checkDone }}/3</span></div>
+      <sc-for list="{{ ob.checklist }}" as="ck" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border)">
+          <button onClick="{{ ck.toggle }}" style="width:22px;height:22px;border-radius:50%;border:{{ ck.bd }};background:{{ ck.bg }};color:#fff;display:grid;place-items:center;cursor:pointer;flex:none;padding:0"><sc-if value="{{ ck.done }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></sc-if></button>
+          <div style="flex:1;min-width:0"><div style="font-weight:500;text-decoration:{{ ck.deco }};color:{{ ck.fg }}">{{ ck.title }}</div><div style="font-size:12.5px;color:var(--text-3)">{{ ck.sub }}</div></div>
+          <button onClick="{{ ck.act }}" style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap" style-hover="background:var(--hover)">{{ ck.cta }}</button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;justify-content:center"><a href="#" onClick="{{ ob.goDash }}" style="display:flex;align-items:center;gap:8px;height:42px;padding:0 20px;border-radius:10px;background:var(--accent);color:#fff;font-weight:500;text-decoration:none">Go to dashboard<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+  </sc-if>
+
+  <sc-if value="{{ ob.inWizard }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;align-items:center;gap:10px;padding-top:4px">
+      <sc-if value="{{ ob.canBack }}"><button onClick="{{ ob.back }}" style="display:flex;align-items:center;gap:6px;height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</button></sc-if>
+      <div style="flex:1"></div>
+      <sc-if value="{{ ob.is7 }}"><button onClick="{{ ob.skip }}" style="height:42px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:var(--text-2);font-size:14px;font-weight:500;cursor:pointer" style-hover="color:var(--text)">Skip for now</button></sc-if>
+      <button onClick="{{ ob.next }}" style="display:flex;align-items:center;gap:8px;height:42px;padding:0 20px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;opacity:{{ ob.nextOpacity }}" style-hover="background:var(--accent-hover)">{{ ob.nextLabel }}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+    </div>
+  </sc-if>
+  </div>
+  </main>
+</div>
+
+<div style="position:fixed;right:20px;bottom:20px;z-index:40;display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+  <sc-for list="{{ ob.toasts }}" as="tt">
+    <div style="display:flex;align-items:center;gap:10px;min-width:280px;max-width:400px;padding:12px 14px;border-radius:11px;background:var(--text);color:var(--surface);box-shadow:var(--shadow-lg);font-size:13.5px;animation:ssIn .2s ease-out">
+      <span style="width:20px;height:20px;border-radius:50%;background:{{ tt.c }};display:grid;place-items:center;flex:none;color:#fff"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></span>
+      <span style="flex:1">{{ tt.msg }}</span>
+    </div>
+  </sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const STEPS=[
+  ['Create account','Your admin login','Create your account','Start your 14-day free trial. No card required.'],
+  ['Verify email','6-digit code','Check your inbox','Enter the code to verify your work email.'],
+  ['Company','Name, size, locale','Tell us about your company','We use this to set defaults for your workspace and mobile app.'],
+  ['First branch','Region or city','Add your first branch','A branch groups the sites in one region. You can add more later.'],
+  ['First site','Location & geofence','Add your first site','Employees can check in only from inside this geofence. Check-ins from outside are recorded and flagged.'],
+  ['Working hours','Days & lateness','Set default working hours','These hours apply to new schedules unless a site or employee overrides them.'],
+  ['Invite team','Employees & managers','Invite your team','Add people now or import a CSV. You can always do this later.'],
+  ['Choose plan','Billed per employee','Choose a plan','Pick what fits now. You can change plans at any time.']
+];
+const SIZES=['1–25','26–50','51–250','251–1000','1000+'];
+const ADDR=[['17 Boulevard Vivier-Merle','69003 Lyon, France'],['52 Quai Rambaud','69002 Lyon, France'],['8 Rue du Landy','93200 Saint-Denis, France'],['Zone Cargo 4, Rue du Te','95700 Roissy-en-France, France'],['Quai de Rive Neuve','13007 Marseille, France'],['14 Rue de la Part-Dieu','69003 Lyon, France']];
+const FREE=/@(gmail|yahoo|hotmail|outlook|live|icloud|orange|free|laposte)\./i;
+const CHECK='M5 12l5 5L20 7', DOT='M12 12h.01';
+const SUN='M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4', MOON='M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z';
+const toMin=s=>{const [h,m]=(s||'0:0').split(':').map(Number);return h*60+m;}, fmt=m=>String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+
+class Component extends DCLogic {
+  renderVals(){ return {ob:this.renderVals0()}; }
+  state={step:null,maxStep:1,tried:{},theme:null,showPw:false,code:['','','','','',''],resendAt:0,now:Date.now(),sugOpen:false,toasts:[],w:1440,
+    f:{name:'',email:'',password:'',dial:'+33',phone:'',terms:false,company:'',logo:'',industry:'',size:'',country:'France',tz:'Europe/Paris (UTC+2)',lang:'fr',
+       branch:'',street:'',zip:'',city:'',siteName:'',siteAddr:'',pin:[300,210],radius:150,days:[1,1,1,1,1,0,0],start:'08:00',end:'17:00',grace:10,
+       mode:'manual',people:[{name:'',contact:'',role:'site'},{name:'',contact:'',role:'employee'}],csvName:'',csvRows:[],csvCount:0,billing:'yearly',plan:''},
+    checks:[false,false,false]};
+  codeRefs=[0,1,2,3,4,5].map(()=>React.createRef());
+  mapRef=React.createRef();
+  componentDidMount(){ this.onR=()=>this.setState({w:window.innerWidth}); this.onR(); window.addEventListener('resize',this.onR); this.tick=setInterval(()=>this.setState({now:Date.now()}),1000); }
+  componentWillUnmount(){ window.removeEventListener('resize',this.onR); clearInterval(this.tick); }
+  componentDidUpdate(pp){ if(pp.theme!==this.props.theme) this.setState({theme:null}); if(pp.startStep!==this.props.startStep) this.setState({step:null}); }
+  cur(){ return this.state.step ?? Math.min(9,Math.max(1,this.props.startStep||1)); }
+  nav(r){ if(this.props.onNavigate) this.props.onNavigate(r); else window.location.href='StaffSync.dc.html'; }
+  set(k,v){ this.setState(s=>({f:Object.assign({},s.f,{[k]:v})})); }
+  toast(msg,c){ const id=Math.random(); this.setState(s=>({toasts:[...s.toasts,{id,msg,c:c||'#16A34A'}]})); setTimeout(()=>this.setState(s=>({toasts:s.toasts.filter(x=>x.id!==id)})),3600); }
+  pwScore(p){ const r=[p.length>=8,/[a-z]/.test(p)&&/[A-Z]/.test(p),/\d/.test(p),/[^A-Za-z0-9]/.test(p)]; let sc=r.filter(Boolean).length; if(p.length>=12&&sc>=3) sc=4; if(p.length<8) sc=Math.min(sc,1); return {sc:p?sc:0,r}; }
+  personErr(p){ const any=p.name.trim()||p.contact.trim(); if(!any) return null; if(!p.name.trim()) return {k:'name',m:'Add a name for this person.'}; if(!p.contact.trim()) return {k:'contact',m:'Add a phone number or email so we can send the invite.'};
+    const c=p.contact.trim(); if(c.includes('@')?!/^\S+@\S+\.\S+$/.test(c):c.replace(/[^\d]/g,'').length<8) return {k:'contact',m:'That doesn’t look like a valid phone number or email.'}; return null; }
+  validate(step){
+    const f=this.state.f,e={};
+    if(step===1){ if(!f.name.trim()) e.name='Enter your full name.'; else if(f.name.trim().split(/\s+/).length<2) e.name='Enter your first and last name.';
+      if(!f.email.trim()) e.email='Enter your work email.'; else if(!/^\S+@\S+\.\S+$/.test(f.email)) e.email='Enter a valid email address, like name@company.com.'; else if(FREE.test(f.email)) e.email='Use your work email. Personal addresses (Gmail, Outlook…) can’t create a company workspace.';
+      const p=this.pwScore(f.password); if(!f.password) e.password='Create a password.'; else if(p.sc<2) e.password='Password is too weak. Use at least 8 characters with a mix of letters and numbers.';
+      if(f.phone.replace(/\D/g,'').length<8) e.phone='Enter a valid phone number.'; if(!f.terms) e.terms='You need to accept the terms to continue.'; }
+    if(step===2){ const c=this.state.code.join(''); if(c.length<6) e.code='Enter all 6 digits.'; else if(c==='000000') e.code='That code is incorrect. Check the latest email or request a new code.'; }
+    if(step===3){ if(!f.company.trim()) e.company='Enter your company name.'; if(!f.industry) e.industry='Select an industry.'; if(!f.size) e.size='Select your company size.'; }
+    if(step===4){ if(!f.branch.trim()) e.branch='Give this branch a name.'; if(!f.street.trim()) e.street='Enter the street address.'; if(!/^\d{4,5}$/.test(f.zip.trim())) e.zip='Enter a valid postal code.'; if(!f.city.trim()) e.city='Enter the city.'; }
+    if(step===5){ if(!f.siteName.trim()) e.siteName='Give this site a name.'; if(!f.siteAddr.trim()) e.siteAddr='Search and select the site address.'; }
+    if(step===6){ if(!f.days.some(Boolean)) e.days='Select at least one working day.'; if(toMin(f.end)<=toMin(f.start)) e.end='End time must be after start time. For night shifts, create a custom schedule after setup.'; }
+    if(step===7){ if(f.mode==='manual'){ f.people.forEach((p,i)=>{const pe=this.personErr(p); if(pe) e['p'+i]=pe;}); } }
+    if(step===8){ if(!f.plan) e.plan='Select a plan to continue.'; }
+    return e;
+  }
+  goStep(n){ this.setState(s=>({step:n,maxStep:Math.max(s.maxStep,n)})); if(n===2&&this.state.resendAt<Date.now()) this.setState({resendAt:Date.now()+30000}); if(typeof window!=='undefined') window.scrollTo(0,0); }
+  next(){ const st=this.cur(), e=this.validate(st); if(Object.keys(e).length){ this.setState(s=>({tried:Object.assign({},s.tried,{[st]:true})})); return; } this.goStep(st+1); }
+
+  renderVals0(){
+    const s=this.state,f=s.f,step=this.cur(),theme=s.theme||this.props.theme||'light',dark=theme==='dark',compact=s.w<1000;
+    const errs=s.tried[step]?this.validate(step):{}, nErr=Object.keys(errs).length;
+    const keys=['name','email','password','phone','terms','code','company','industry','size','branch','street','zip','city','siteName','siteAddr','days','end','plan','csv'];
+    const err={},has={},bd={},on={}; keys.forEach(k=>{err[k]=errs[k]||'';has[k]=!!errs[k];bd[k]=errs[k]?'var(--bad-dot)':'var(--border-strong)';});
+    ['name','email','password','dial','phone','company','industry','tz','branch','street','zip','city','siteName','start','end'].forEach(k=>on[k]=e=>this.set(k,e.target.value));
+    on.terms=e=>this.set('terms',e.target.checked); on.radius=e=>this.set('radius',+e.target.value); on.grace=e=>this.set('grace',+e.target.value);
+    const steps=STEPS.map((x,i)=>{const n=i+1,done=n<step||step===9,curr=n===step,locked=n>s.maxStep||step===9||(step>=3&&n<=2);
+      return {n,label:x[0],sub:x[1],done,notDone:!done,notLast:n<8,locked,cursor:locked?'default':'pointer',go:()=>{if(!locked&&n!==step)this.goStep(n);},
+        dotBg:done?'var(--accent)':curr?'var(--surface)':'var(--surface-2)',dotFg:done?'#fff':curr?'var(--accent)':'var(--text-3)',dotBd:done?'0':curr?'2px solid var(--accent)':'1px solid var(--border-strong)',
+        lineC:done?'var(--accent)':'var(--border)',weight:curr?600:500,labelC:curr||done?'var(--text)':'var(--text-3)'};});
+    const pw=this.pwScore(f.password), pwCols=['var(--bad-dot)','var(--bad-dot)','var(--warn-dot)','var(--ok-dot)','var(--ok-dot)'];
+    const pwLabel=f.password?['Too weak','Weak','Fair','Good','Strong'][pw.sc]:'';
+    const pwRules=[['8+ characters',pw.r[0]],['Upper & lowercase',pw.r[1]],['A number',pw.r[2]],['A symbol',pw.r[3]]].map(([label,ok])=>({label,c:ok?'var(--ok)':'var(--text-3)',icon:ok?CHECK:DOT}));
+    const code=s.code;
+    const setCode=(i,v)=>{const c=[...this.state.code];c[i]=v;this.setState({code:c});};
+    const codeBoxes=code.map((v,i)=>({v,ref:this.codeRefs[i],aria:'Digit '+(i+1),bd:has.code?'var(--bad-dot)':v?'var(--accent)':'var(--border-strong)',
+      change:e=>{const d=e.target.value.replace(/\D/g,'').slice(-1);setCode(i,d);if(d&&i<5)this.codeRefs[i+1].current&&this.codeRefs[i+1].current.focus();},
+      key:e=>{if(e.key==='Backspace'&&!this.state.code[i]&&i>0){this.codeRefs[i-1].current.focus();}}}));
+    const left=Math.max(0,Math.ceil((s.resendAt-s.now)/1000));
+    const sugQ=f.siteAddr.trim().toLowerCase();
+    const sugs=ADDR.filter(a=>!sugQ||(a[0]+' '+a[1]).toLowerCase().includes(sugQ)||sugQ.length<3).slice(0,4).map((a,i)=>({line1:a[0],line2:a[1],pick:()=>{this.set('siteAddr',a[0]+', '+a[1]);this.set('pin',[260+i*24,190+(i%2)*30]);this.setState({sugOpen:false});}}));
+    const [px,py]=f.pin, fenceR=f.radius/100*60/ (600/600);
+    const pinPath=`M${px} ${py-4} C ${px-14} ${py-22}, ${px-14} ${py-40}, ${px} ${py-40} C ${px+14} ${py-40}, ${px+14} ${py-22}, ${px} ${py-4}Z`;
+    const lat=(45.7605+(210-py)*0.00002).toFixed(5), lng=(4.8590+(px-300)*0.00003).toFixed(5);
+    const dayL=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const days=dayL.map((l,i)=>({label:l,bd:f.days[i]?'var(--accent)':'var(--border-strong)',bg:f.days[i]?'var(--accent-soft)':'var(--surface)',fg:f.days[i]?'var(--accent)':'var(--text-2)',go:()=>{const d=[...f.days];d[i]=d[i]?0:1;this.set('days',d);}}));
+    const st=toMin(f.start),en=toMin(f.end),dur=Math.max(0,en-st);
+    const workDays=dayL.filter((_,i)=>f.days[i]); const dayRange=workDays.length===5&&f.days.slice(0,5).every(Boolean)?'Mon–Fri':workDays.join(', ')||'no days';
+    const people=f.people.map((p,i)=>{const pe=s.tried[7]?this.personErr(p):null; const upd=(k,v)=>{const arr=f.people.map((q,j)=>j===i?Object.assign({},q,{[k]:v}):q);this.set('people',arr);};
+      return {name:p.name,contact:p.contact,role:p.role,onName:e=>upd('name',e.target.value),onContact:e=>upd('contact',e.target.value),onRole:e=>upd('role',e.target.value),
+        remove:()=>this.set('people',f.people.length>1?f.people.filter((_,j)=>j!==i):[{name:'',contact:'',role:'employee'}]),
+        hasErr:!!pe,err:pe?pe.m:'',bdName:pe&&pe.k==='name'?'var(--bad-dot)':'var(--border-strong)',bdContact:pe&&pe.k==='contact'?'var(--bad-dot)':'var(--border-strong)'};});
+    const invited=f.mode==='manual'?f.people.filter(p=>p.name.trim()&&p.contact.trim()).length:f.csvCount;
+    const yearly=f.billing==='yearly', sizeIdx=SIZES.indexOf(f.size);
+    const recId=sizeIdx<=0?'trial':sizeIdx===1?'starter':sizeIdx<=2?'business':'enterprise';
+    const PL=[
+      {id:'trial',name:'Free trial',price:'€0',unit:'for 14 days',note:'Full Business features',cap:'Up to 25 employees',feats:['1 branch, 3 sites','Mobile check-in with geofence','Leave requests']},
+      {id:'starter',name:'Starter',price:yearly?'€2.40':'€3',unit:'/ employee / mo',note:yearly?'Billed yearly':'Billed monthly',cap:'Up to 50 employees',feats:['Unlimited sites','Fraud flags & GPS proof','Check-in on behalf']},
+      {id:'business',name:'Business',price:yearly?'€4':'€5',unit:'/ employee / mo',note:yearly?'Billed yearly':'Billed monthly',cap:'Up to 250 employees',feats:['Everything in Starter','Branch & site-level roles','Polygon geofences','Payroll exports']},
+      {id:'enterprise',name:'Enterprise',price:'Custom',unit:'',note:'Volume pricing',cap:'250+ employees',feats:['SSO & SCIM','Custom data retention','Dedicated success manager']}];
+    const plans=PL.map(p=>{const sel=f.plan===p.id;return Object.assign({},p,{rec:p.id===recId&&!!f.size,go:()=>this.set('plan',p.id),bd:sel?'2px solid var(--accent)':has.plan?'1px solid var(--bad-dot)':'1px solid var(--border)',sh:sel?'0 0 0 4px var(--accent-soft)':'var(--shadow)',radio:sel?'5px solid var(--accent)':'1.5px solid var(--border-strong)'});});
+    const planName=(PL.find(p=>p.id===f.plan)||{}).name||'—';
+    const first=(f.name.trim().split(/\s+/)[0])||'there';
+    const ck=s.checks, CK=[['Download the mobile app','Send employees the iOS and Android links by SMS','Send links'],['Invite site managers','They can check in employees who don’t have a smartphone','Invite'],['Create schedules','Assign employees to '+(f.siteName||'your site')+' with recurring shifts or one-off interventions','Open planner']];
+    const checklist=CK.map((c,i)=>({title:c[0],sub:c[1],cta:c[2],done:ck[i],bd:ck[i]?'0':'1.5px solid var(--border-strong)',bg:ck[i]?'var(--ok-dot)':'transparent',deco:ck[i]?'line-through':'none',fg:ck[i]?'var(--text-3)':'var(--text)',
+      toggle:()=>{const a=[...this.state.checks];a[i]=!a[i];this.setState({checks:a});},act:()=>{const a=[...this.state.checks];a[i]=true;this.setState({checks:a});this.toast(i===0?'Download links sent':i===1?'Invite sent':'Planner opens in the admin dashboard');}}));
+    const csvSample='name,phone_or_email,role,site\nCamille Durand,+33612345678,employee,Part-Dieu Tower\nYanis Benali,yanis@batiplus.fr,site_manager,Part-Dieu Tower\n';
+    const seg=on=>({bg:on?'var(--surface)':'transparent',fg:on?'var(--text)':'var(--text-2)',sh:on?'0 1px 2px rgba(0,0,0,.1)':'none'});
+    const tab=on=>({bd:on?'var(--accent)':'transparent',fg:on?'var(--text)':'var(--text-3)'});
+    return {
+      theme,compact,showRail:!compact,steps,step,toggleTheme:()=>this.setState({theme:dark?'light':'dark'}),themeIcon:dark?SUN:MOON,
+      progressLabel:step===9?'Setup complete':`Step ${step} of 8 · ${STEPS[step-1][0]}`,progressPct:(step===9?100:Math.round((step-1)/8*100))+'%',
+      canSave:step>=3&&step<=8,saveLater:()=>this.toast(`Progress saved. We emailed ${f.email||'you'} a link to resume.`),
+      contentMax:step===5||step===8?'960px':step===7?'760px':step===9?'720px':'580px',
+      inWizard:step<=8,isDone:step===9,stepEyebrow:`STEP ${step} / 8`,stepTitle:(STEPS[step-1]||[])[2]||'',stepDesc:(STEPS[step-1]||[])[3]||'',
+      showSummary:nErr>0,summaryText:nErr===1?'Fix 1 field to continue.':`Fix ${nErr} fields to continue.`,
+      is1:step===1,is2:step===2,is3:step===3,is4:step===4,is5:step===5,is6:step===6,is7:step===7,is8:step===8,
+      f,on,err,has,bd,
+      sso:()=>{this.set('name',this.state.f.name||'Claire Vasseur');this.set('email','claire@batiplus.fr');this.toast('Signed in with SSO — email already verified');this.setState({step:3,maxStep:3});},
+      pwType:s.showPw?'text':'password',pwToggleLabel:s.showPw?'Hide':'Show',togglePw:()=>this.setState({showPw:!s.showPw}),
+      pwBars:[1,2,3,4].map(i=>pw.sc>=i?pwCols[pw.sc]:'var(--neutral-bg)'),pwLabel,pwColor:pwCols[pw.sc],pwRules,
+      emailShown:f.email||'your email',codeBoxes,
+      onPaste:e=>{const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);if(d.length){e.preventDefault();this.setState({code:[0,1,2,3,4,5].map(i=>d[i]||'')});}},
+      resendWaiting:left>0,resendReady:left===0,resendClock:'0:'+String(left).padStart(2,'0'),
+      resend:e=>{e.preventDefault();this.setState({resendAt:Date.now()+30000,code:['','','','','','']});this.toast('New code sent to '+(f.email||'your email'));},
+      changeEmail:e=>{e.preventDefault();this.goStep(1);},
+      hasLogo:!!f.logo,logoBg:f.logo?'url('+f.logo+')':'none',noLogo:!f.logo,onLogo:e=>{const file=e.target.files&&e.target.files[0];if(file)this.set('logo',URL.createObjectURL(file));},
+      sizes:SIZES.map(z=>({label:z,go:()=>this.set('size',z),bd:f.size===z?'var(--accent)':has.size?'var(--bad-dot)':'var(--border-strong)',bg:f.size===z?'var(--accent-soft)':'var(--surface)',fg:f.size===z?'var(--accent)':'var(--text-2)'})),
+      onCountry:e=>{const c=e.target.value;const tz={France:'Europe/Paris (UTC+2)',Belgium:'Europe/Brussels (UTC+2)',Switzerland:'Europe/Zurich (UTC+2)',Canada:'America/Montreal (UTC−4)','United Kingdom':'Europe/London (UTC+1)'}[c];this.setState(s2=>({f:Object.assign({},s2.f,{country:c,tz})}));},
+      langEn:seg(f.lang==='en'),langFr:seg(f.lang==='fr'),setLangEn:()=>this.set('lang','en'),setLangFr:()=>this.set('lang','fr'),
+      companyShown:f.company||'Company',
+      onAddr:e=>{this.set('siteAddr',e.target.value);this.setState({sugOpen:true});},openSug:()=>this.setState({sugOpen:true}),showSug:s.sugOpen&&sugs.length>0,sugs,
+      radiusHint:f.radius<100?'Tight fence. Good for a single building, but GPS drift indoors may cause false flags.':f.radius>300?'Wide fence. Covers large yards or depots, but people nearby could check in without being on site.':'Recommended for most sites. Covers the building plus a margin for GPS accuracy.',
+      mapRef:this.mapRef,onMapClick:e=>{if(e.target.closest&&e.target.closest('input'))return;const r=this.mapRef.current.getBoundingClientRect();const sc=Math.max(600/r.width,420/r.height);const offX=(r.width*sc-600)/2,offY=(r.height*sc-420)/2;
+        const x=(e.clientX-r.left)*sc-offX,y=(e.clientY-r.top)*sc-offY;this.set('pin',[Math.round(x),Math.round(y)]);this.setState({sugOpen:false});},
+      pinX:px,pinY:py,pinHeadY:py-27,pinPath,fenceR:Math.round(fenceR),coords:`${lat}° N, ${lng}° E`,
+      days,graceW:Math.max(2,f.grace*2.4)+'px',ruleOnTime:`On time: check-in before ${fmt(st+f.grace)} (${f.start} + ${f.grace} min grace)`,ruleLate:`Late: check-in from ${fmt(st+f.grace+1)} onwards`,
+      ruleHours:`${dayRange}, ${f.start}–${f.end} · ${Math.floor(dur/60)}h${dur%60?String(dur%60).padStart(2,'0'):''} per day`,
+      tabManual:tab(f.mode==='manual'),tabCsv:tab(f.mode==='csv'),modeManual:()=>this.set('mode','manual'),modeCsv:()=>this.set('mode','csv'),isManual:f.mode==='manual',isCsv:f.mode==='csv',
+      people,addPerson:()=>this.set('people',[...f.people,{name:'',contact:'',role:'employee'}]),
+      csvBd:f.csvName?'var(--ok-dot)':'var(--border-strong)',csvTitle:f.csvName?`${f.csvName} · ${f.csvCount} people found`:'Drop a CSV file or click to browse',csvSub:f.csvName?'Click to replace the file':'Up to 5,000 rows · UTF-8',
+      hasCsvRows:f.csvRows.length>0,csvRows:f.csvRows,
+      onCsv:e=>{const file=e.target.files&&e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const lines=String(rd.result).trim().split(/\r?\n/).slice(1).filter(Boolean);
+        this.setState(s2=>({f:Object.assign({},s2.f,{csvName:file.name,csvCount:lines.length,csvRows:lines.slice(0,4).map(l=>{const c=l.split(',');return {a:c[0]||'',b:c[1]||'',c:c[2]||''};})})}));};rd.readAsText(file);},
+      downloadTemplate:e=>{e.preventDefault();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csvSample],{type:'text/csv'}));a.download='staffsync-team-template.csv';a.click();},
+      billM:seg(!yearly),billY:seg(yearly),billMonthly:()=>this.set('billing','monthly'),billYearly:()=>this.set('billing','yearly'),plans,sizeShown:f.size?f.size+' people':'',
+      doneTitle:`You’re all set, ${first}!`,doneSub:`${f.company||'Your company'} is ready. Employees can start checking in at ${f.siteName||'your first site'} as soon as they install the app.`,
+      recap:[{k:'Company',v:f.company||'—'},{k:'Branch → Site',v:(f.branch||'—')+' → '+(f.siteName||'—')},{k:'Hours',v:`${dayRange} ${f.start}–${f.end}`},{k:'Invited · Plan',v:`${invited} · ${planName}`}],
+      checklist,checkDone:ck.filter(Boolean).length,
+      canBack:step>1&&step!==3,back:()=>this.goStep(step-1),skip:()=>{this.set('people',[{name:'',contact:'',role:'employee'}]);this.goStep(8);},
+      next:()=>this.next(),nextOpacity:1,
+      nextLabel:step===1?'Create account':step===2?'Verify':step===7?(invited?`Send ${invited} invite${invited>1?'s':''}`:'Continue'):step===8?(f.plan==='trial'||!f.plan?'Start free trial':'Start trial on '+planName):'Continue',
+      goSignIn:e=>{e.preventDefault();this.nav('signin');},goDash:e=>{e.preventDefault();this.nav('dashboard');},
+      toasts:s.toasts
+    };
+  }
+}
+
+</script>
+</body>
+</html>

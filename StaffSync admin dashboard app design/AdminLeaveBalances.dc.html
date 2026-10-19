@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:12px;position:relative">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;align-items:center;gap:4px"><button onClick="{{ b.yPrev }}" aria-label="Previous year" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);cursor:pointer;font-size:16px">‹</button><div style="min-width:64px;text-align:center;font-weight:600;font-size:15px">{{ b.year }}</div><button onClick="{{ b.yNext }}" aria-label="Next year" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);cursor:pointer;font-size:16px">›</button></div>
+    <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3);flex:1 1 180px;max-width:260px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input value="{{ b.q }}" onInput="{{ b.onQ }}" placeholder="Search employee" style="border:0;outline:0;background:transparent;color:var(--text);font-size:13px;width:100%"></div>
+    <sc-for list="{{ b.filters }}" as="f" hint-placeholder-count="3"><select value="{{ f.val }}" onChange="{{ f.on }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;max-width:170px"><sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></sc-for>
+    <button onClick="{{ b.togLow }}" style="height:34px;padding:0 12px;border-radius:999px;border:1px solid {{ b.lowBd }};background:{{ b.lowBg }};color:{{ b.lowFg }};font-size:13px;font-weight:500;cursor:pointer">Low balance · {{ b.lowN }}</button>
+    <div style="flex:1"></div>
+    <button onClick="{{ b.export }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Export CSV</button>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto"><div style="min-width:{{ b.minW }}px">
+    <div style="display:flex;background:var(--surface-2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0">
+      <div style="flex:none;width:210px;position:sticky;left:0;z-index:2;background:var(--surface-2);padding:8px 14px;font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:flex-end;box-sizing:border-box;border-right:1px solid var(--border)">Employee</div>
+      <sc-for list="{{ b.heads }}" as="h" hint-placeholder-count="4"><div style="flex:1;min-width:0;border-left:1px solid var(--border)"><div style="padding:6px 0;text-align:center;font-size:12px;font-weight:600;color:{{ h.fg }}"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:{{ h.fg }};margin-right:6px"></span>{{ h.l }}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);padding:0 4px 6px;text-align:right;font-size:10.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.03em"><span>Ent.</span><span>Used</span><span>Pend.</span><span>Left</span></div></div></sc-for>
+      <div style="flex:none;width:88px"></div>
+    </div>
+    <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="8">
+      <div style="display:flex;border-bottom:1px solid var(--border);align-items:center" style-hover="background:var(--hover)">
+        <div style="flex:none;width:210px;position:sticky;left:0;z-index:1;background:var(--surface);padding:9px 14px;box-sizing:border-box;border-right:1px solid var(--border);display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11.5px;font-weight:600;background:{{ r.avBg }};color:{{ r.avFg }}">{{ r.ini }}</div><div style="min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div><div style="font-size:11.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.sub }}</div></div></div>
+        <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="4"><div style="flex:1;min-width:0;border-left:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);padding:9px 4px;text-align:right;font:12.5px 'Geist Mono',monospace;color:var(--text-2)"><span>{{ c.e }}</span><span>{{ c.u }}</span><span style="color:{{ c.pc }}">{{ c.p }}</span><span style="font-weight:600;color:{{ c.rc }}">{{ c.r }}</span></div></sc-for>
+        <div style="flex:none;width:88px;padding:0 10px;text-align:center"><button onClick="{{ r.adjust }}" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:12.5px;cursor:pointer">Adjust</button></div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ b.empty }}"><div style="padding:48px 16px;text-align:center;color:var(--text-3);font-size:13.5px">No employees match the filters.</div></sc-if>
+  </div></div>
+
+  <sc-if value="{{ b.hasLog }}"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden"><div style="padding:12px 16px;font-weight:600;font-size:14px;border-bottom:1px solid var(--border)">Adjustments logged in the audit trail</div><sc-for list="{{ b.log }}" as="l" hint-placeholder-count="2"><div style="display:flex;gap:12px;align-items:center;padding:10px 16px;border-top:{{ l.bt }};font-size:13px;flex-wrap:wrap"><span style="font:600 12.5px 'Geist Mono',monospace;color:{{ l.c }};width:60px">{{ l.d }}</span><span style="flex:1;min-width:200px"><b style="font-weight:500">{{ l.who }}</b> · {{ l.type }} <span style="color:var(--text-3)">· {{ l.reason }}</span></span><span style="color:var(--text-3);font-size:12.5px">Claire Vasseur · just now</span></div></sc-for></div></sc-if>
+
+  <sc-if value="{{ b.m }}">
+    <div style="position:fixed;inset:0;background:var(--overlay);z-index:55;display:grid;place-items:center;padding:16px"><div style="width:100%;max-width:440px;background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;font-size:16px">Adjust balance</div><div style="font-size:12.5px;color:var(--text-3)">{{ b.m.name }} · {{ b.year }}</div></div><button onClick="{{ b.mClose }}" aria-label="Close" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:20px;cursor:pointer">×</button></div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Leave type<select value="{{ b.m.type }}" onChange="{{ b.m.onType }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ b.m.types }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Days (+ add, − deduct)<div style="display:flex;gap:8px;align-items:center"><button onClick="{{ b.m.minus }}" aria-label="Subtract half day" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer">−</button><input type="number" step="0.5" value="{{ b.m.n }}" onInput="{{ b.m.onN }}" style="height:36px;width:100px;text-align:center;padding:0 8px;border-radius:9px;border:1px solid {{ b.m.nBd }};background:var(--surface);color:var(--text);font:14px 'Geist Mono',monospace;outline:none"><button onClick="{{ b.m.plus }}" aria-label="Add half day" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer">+</button><div style="margin-left:auto;flex:none;white-space:nowrap;font:13px 'Geist Mono',monospace;color:var(--text-2)">{{ b.m.pre }} → <b style="color:{{ b.m.postC }}">{{ b.m.post }}</b></div></div><span style="font-size:12px;color:var(--bad);font-weight:400">{{ b.m.nE }}</span></div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Reason *<textarea rows="3" value="{{ b.m.reason }}" onInput="{{ b.m.onReason }}" placeholder="e.g. Carry-over from last year, correction after audit" style="resize:vertical;padding:9px 10px;border-radius:9px;border:1px solid {{ b.m.rBd }};background:var(--surface);color:var(--text);font-size:13px;outline:none"></textarea><span style="font-size:12px;color:var(--bad);font-weight:400">{{ b.m.rE }}</span></label>
+        <div style="font-size:12.5px;color:var(--text-3)">This change is recorded in the audit log with your name and the reason.</div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ b.mClose }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Cancel</button><button onClick="{{ b.mSave }}" style="height:36px;padding:0 16px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Apply adjustment</button></div>
+    </div></div>
+  </sc-if>
+
+  <sc-if value="{{ b.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ b.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;items&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;}}">
+const SN={pd:['Part-Dieu Tower','Lyon'],cf:['Confluence Depot','Lyon'],sd:['Saint-Denis Hub','Paris Nord'],rl:['Roissy Logistics','Paris Nord'],pv:['Port Vieux Yard','Marseille']};
+const TY={annual:['Annual leave','var(--info)',25],rtt:['RTT','var(--violet)',10],sick:['Sick leave','var(--orange)',5],family:['Family event','var(--ok)',4]};
+const AV=[['var(--info-bg)','var(--info)'],['var(--violet-bg)','var(--violet)'],['var(--orange-bg)','var(--orange)'],['var(--ok-bg)','var(--ok)'],['var(--warn-bg)','var(--warn)']];
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
+const f1=n=>(Math.round(n*10)/10).toString();
+class Component extends DCLogic {
+  state={year:2026,q:'',br:'all',site:'all',type:'all',low:false,adj:{},log:[],m:null,toast:null};
+  componentWillUnmount(){clearTimeout(this.tt);}
+  say(m){this.setState({toast:m});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2600);}
+  bal(name,type,year){
+    const s=this.state,ent=TY[type][2]+(s.adj[year+'|'+name+'|'+type]||0),h=hash(name+type+year);
+    const base=Math.min(ent,Math.round((type==='annual'?8+h%10:type==='rtt'?h%5:type==='sick'?h%3:h%2)*(year===2026?(type==='annual'?.8:1):1)));
+    let used=base,pend=0;
+    if(year===2026)(this.props.items||[]).filter(r=>r.emp===name&&r.type===type&&r.from.startsWith('2026')).forEach(r=>{if(r.status==='approved'&&r.from>'2026-10-15')used+=r.days;else if(r.status==='pending')pend+=r.days;});
+    if(year===2027){used=0;pend=0;}
+    return {e:ent,u:used,p:pend,r:ent-used-pend};
+  }
+  people(){const m={};(this.props.items||[]).forEach(r=>{if(!m[r.emp])m[r.emp]={name:r.emp,site:r.site,role:r.role};});return Object.values(m);}
+  renderVals(){return {b:this.rv()};}
+  rv(){
+    const s=this.state,T=this,yr=s.year,set=k=>ev=>this.setState({[k]:ev.target.value});
+    const types=s.type==='all'?Object.keys(TY):[s.type],sitesA=Object.keys(SN).filter(k=>s.br==='all'||SN[k][1]===s.br);
+    const all=this.people().filter(x=>(s.br==='all'||SN[x.site][1]===s.br)&&(s.site==='all'||x.site===s.site)&&(!s.q.trim()||x.name.toLowerCase().includes(s.q.trim().toLowerCase())));
+    const isLow=x=>types.some(t=>{const b=this.bal(x.name,t,yr);return b.r<=(t==='annual'?3:1);});
+    const lowN=all.filter(isLow).length,list=all.filter(x=>!s.low||isLow(x));
+    const rc=(r,t)=>r<0?'var(--bad)':r<=(t==='annual'?3:1)?'var(--warn)':'var(--text)';
+    const rows=list.map(x=>{const av=AV[(x.name.charCodeAt(0)+x.name.length)%AV.length];return {name:x.name,sub:x.role+' · '+SN[x.site][0].split(' ')[0],ini:x.name.split(' ').map(w=>w[0]).join('').slice(0,2),avBg:av[0],avFg:av[1],
+      cells:types.map(t=>{const b=this.bal(x.name,t,yr);return {e:f1(b.e),u:f1(b.u),p:b.p?f1(b.p):'–',pc:b.p?'var(--info)':'var(--text-3)',r:b.r<0?'−'+f1(Math.abs(b.r)):f1(b.r),rc:rc(b.r,t)};}),
+      adjust:()=>this.setState({m:{name:x.name,type:types[0],n:'',reason:'',tried:false}})};});
+    const m=s.m,nv=m?parseFloat(m.n):NaN,cur=m?this.bal(m.name,m.type,yr):null,okN=!isNaN(nv)&&nv!==0,okR=m&&m.reason.trim().length>=3,post=cur&&okN?cur.r+nv:null;
+    const setM=k=>ev=>{const v=ev.target.value;this.setState(x=>({m:Object.assign({},x.m,{[k]:v})}));};
+    const bump=d=>()=>this.setState(x=>({m:Object.assign({},x.m,{n:String(f1((parseFloat(x.m.n)||0)+d))})}));
+    return {
+      year:yr,yPrev:()=>this.setState({year:yr-1}),yNext:()=>this.setState({year:yr+1}),q:s.q,onQ:set('q'),
+      filters:[{val:s.br,on:ev=>this.setState({br:ev.target.value,site:'all'}),opts:[{v:'all',l:'All branches'}].concat(['Lyon','Paris Nord','Marseille'].map(x=>({v:x,l:x})))},{val:s.site,on:set('site'),opts:[{v:'all',l:'All sites'}].concat(sitesA.map(k=>({v:k,l:SN[k][0]})))},{val:s.type,on:set('type'),opts:[{v:'all',l:'All leave types'}].concat(Object.keys(TY).map(k=>({v:k,l:TY[k][0]})))}],
+      lowN,lowBg:s.low?'var(--accent)':'var(--surface)',lowFg:s.low?'#fff':'var(--text-2)',lowBd:s.low?'var(--accent)':'var(--border-strong)',togLow:()=>this.setState({low:!s.low}),
+      heads:types.map(t=>({l:TY[t][0],fg:TY[t][1]})),minW:210+88+types.length*230,rows,empty:rows.length===0,
+      export:()=>{try{const hd=['Employee','Site'].concat(...types.map(t=>['Entitled','Used','Pending','Remaining'].map(k=>TY[t][0]+' '+k)));const body=list.map(x=>[x.name,SN[x.site][0]].concat(...types.map(t=>{const b=this.bal(x.name,t,yr);return[b.e,b.u,b.p,b.r];})));const csv=[hd].concat(body).map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='leave-balances-'+yr+'.csv';a.click();this.say('Exported '+list.length+' employees');}catch(e){this.say('Export unavailable');}},
+      hasLog:s.log.length>0,log:s.log.map((l,i)=>({d:(l.n>0?'+':'−')+f1(Math.abs(l.n))+' d',c:l.n>0?'var(--ok)':'var(--bad)',who:l.name,type:TY[l.type][0]+' '+l.year,reason:l.reason,bt:i?'1px solid var(--border)':'0'})),
+      m:m?{name:m.name,type:m.type,types:Object.keys(TY).map(k=>({v:k,l:TY[k][0]})),onType:setM('type'),n:m.n,onN:setM('n'),plus:bump(.5),minus:bump(-.5),nBd:m.tried&&!okN?'var(--bad-dot)':'var(--border-strong)',nE:m.tried&&!okN?'Enter a non-zero number of days':'',pre:f1(cur.r),post:post==null?'—':f1(post),postC:post!=null&&post<0?'var(--bad)':'var(--text)',reason:m.reason,onReason:setM('reason'),rBd:m.tried&&!okR?'var(--bad-dot)':'var(--border-strong)',rE:m.tried&&!okR?'A reason is required':''}:null,
+      mClose:()=>this.setState({m:null}),
+      mSave:()=>{if(!okN||!okR){this.setState(x=>({m:Object.assign({},x.m,{tried:true})}));return;}const k=yr+'|'+m.name+'|'+m.type;this.setState(x=>({adj:Object.assign({},x.adj,{[k]:(x.adj[k]||0)+nv}),log:[{name:m.name,type:m.type,n:nv,reason:m.reason.trim(),year:yr}].concat(x.log),m:null}));this.say(TY[m.type][0]+' adjusted by '+(nv>0?'+':'−')+f1(Math.abs(nv))+' d · logged in audit');},
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

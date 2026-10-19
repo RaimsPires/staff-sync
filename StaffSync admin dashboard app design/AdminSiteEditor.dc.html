@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:16px;position:relative">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <button onClick="{{ ed.cancel }}" style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 6px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>Sites</button>
+    <h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em">{{ ed.title }}</h2>
+    <div style="flex:1"></div>
+    <button onClick="{{ ed.cancel }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Cancel</button>
+    <button onClick="{{ ed.save }}" style="height:36px;padding:0 18px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">{{ ed.saveL }}</button>
+  </div>
+  <sc-if value="{{ ed.hasErr }}"><div style="padding:11px 14px;border-radius:10px;background:var(--bad-bg);color:var(--bad);font-size:13px;font-weight:500">{{ ed.errN }} thing{{ ed.errPl }} to fix before saving — highlighted below.</div></sc-if>
+  <sc-if value="{{ ed.overlap }}"><div style="padding:11px 14px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:13px"><b>Overlapping geofence.</b> This area overlaps {{ ed.overlapNames }}. Employees inside the overlap could check in to either site. You can still save.</div></sc-if>
+
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:1 1 400px;max-width:480px;min-width:0;display:flex;flex-direction:column;gap:16px">
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-weight:600;font-size:14.5px">Details</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Site name *<input value="{{ ed.name }}" onInput="{{ ed.onName }}" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ ed.bd.name }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ ed.e.name }}</span></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Code *<input value="{{ ed.code }}" onInput="{{ ed.onCode }}" maxlength="6" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ ed.bd.code }};background:var(--surface);color:var(--text);font:13.5px 'Geist Mono',monospace;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ ed.e.code }}</span></label>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Branch<select value="{{ ed.br }}" onChange="{{ ed.onBr }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ ed.brOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+        <div style="position:relative;display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Address *
+          <input value="{{ ed.addr }}" onInput="{{ ed.onAddr }}" onFocus="{{ ed.addrFocus }}" placeholder="Search an address" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ ed.bd.addr }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none">
+          <sc-if value="{{ ed.sugOpen }}"><div style="position:absolute;left:0;right:0;top:62px;z-index:15;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:4px;max-height:220px;overflow-y:auto"><sc-for list="{{ ed.sugs }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.go }}" style="display:block;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--text);font-size:13px;font-weight:400;cursor:pointer" style-hover="background:var(--hover)">{{ s.l }}</button></sc-for></div></sc-if>
+          <span style="font-size:12px;color:var(--bad);font-weight:400">{{ ed.e.addr }}</span></div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Timezone<select value="{{ ed.tz }}" onChange="{{ ed.onTz }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ ed.tzOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Site managers</div><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ ed.mgrChips }}" as="a" hint-placeholder-count="5"><button onClick="{{ a.go }}" style="height:30px;padding:0 11px;border-radius:999px;border:1px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};font-size:12.5px;font-weight:500;cursor:pointer">{{ a.n }}</button></sc-for></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:500;color:var(--text-2)"><span>Assigned employees</span><span style="color:var(--text-3);font-weight:400">{{ ed.empN }} selected</span></div>
+          <div style="border:1px solid var(--border-strong);border-radius:10px;overflow:hidden"><input value="{{ ed.empQ }}" onInput="{{ ed.onEmpQ }}" placeholder="Search employees" style="width:100%;box-sizing:border-box;height:34px;padding:0 11px;border:0;border-bottom:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:13px;outline:none"><div style="max-height:150px;overflow-y:auto"><sc-for list="{{ ed.emps }}" as="p" hint-placeholder-count="5"><div onClick="{{ p.go }}" style="display:flex;align-items:center;gap:10px;padding:7px 11px;cursor:pointer;font-size:13px" style-hover="background:var(--hover)"><div style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ p.bd }};background:{{ p.bg }};display:grid;place-items:center;color:#fff"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ p.op }}"><path d="M5 12l5 5 9-10"></path></svg></div>{{ p.n }}</div></sc-for></div></div></div>
+      </section>
+
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-weight:600;font-size:14.5px">Attendance rules</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Start<input type="time" value="{{ ed.hs }}" onInput="{{ ed.onHs }}" style="height:34px;padding:0 8px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text)"></label><label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">End<input type="time" value="{{ ed.he }}" onInput="{{ ed.onHe }}" style="height:34px;padding:0 8px;border-radius:9px;border:1px solid {{ ed.bd.hours }};background:var(--surface);color:var(--text)"></label><label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Break (min)<input type="number" min="0" step="5" value="{{ ed.hb }}" onInput="{{ ed.onHb }}" style="height:34px;padding:0 8px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:'Geist Mono',monospace"></label></div>
+        <span style="font-size:12px;color:var(--bad);margin-top:-8px">{{ ed.e.hours }}</span>
+        <sc-for list="{{ ed.toggles }}" as="t" hint-placeholder-count="4"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:13.5px;font-weight:500">{{ t.l }}</div><div style="font-size:12.5px;color:var(--text-3)">{{ t.h }}</div></div><div onClick="{{ t.go }}" role="switch" style="width:40px;height:23px;border-radius:12px;background:{{ t.bg }};position:relative;cursor:pointer;flex:none"><div style="position:absolute;top:2px;left:{{ t.left }};width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)"></div></div></div></sc-for>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Minimum GPS accuracy (meters)<div style="display:flex;align-items:center;gap:10px"><input type="number" min="5" step="5" value="{{ ed.acc }}" onInput="{{ ed.onAcc }}" style="height:34px;width:110px;padding:0 10px;border-radius:9px;border:1px solid {{ ed.bd.acc }};background:var(--surface);color:var(--text);font:13.5px 'Geist Mono',monospace;outline:none"><span style="font-size:12.5px;color:var(--text-3);font-weight:400">Check-ins less accurate than ±{{ ed.acc }} m are flagged.</span></div><span style="font-size:12px;color:var(--bad);font-weight:400">{{ ed.e.acc }}</span></label>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Status</div><div style="display:flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden;align-self:flex-start"><sc-for list="{{ ed.statuses }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" style="height:32px;padding:0 16px;border:0;background:{{ o.bg }};color:{{ o.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ o.l }}</button></sc-for></div></div>
+      </section>
+    </div>
+
+    <div style="flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px">
+      <section style="background:var(--surface);border:1px solid {{ ed.geoBd }};border-radius:12px;box-shadow:var(--shadow);overflow:hidden">
+        <div style="padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+          <div style="font-weight:600;font-size:14.5px;margin-right:6px">Geofence *</div>
+          <div style="display:flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden"><sc-for list="{{ ed.shapes }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" style="height:32px;padding:0 13px;border:0;background:{{ o.bg }};color:{{ o.fg }};font-size:13px;cursor:pointer">{{ o.l }}</button></sc-for></div>
+          <div style="flex:1"></div>
+          <button onClick="{{ ed.locate }}" style="height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Use my location</button>
+          <div style="display:flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden"><sc-for list="{{ ed.mapTypes }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" style="height:32px;padding:0 12px;border:0;background:{{ o.bg }};color:{{ o.fg }};font-size:13px;cursor:pointer">{{ o.l }}</button></sc-for></div>
+        </div>
+        <div style="position:relative;background:{{ ed.mp.bg }}">
+          <svg viewBox="0 0 760 480" width="100%" style="display:block;cursor:{{ ed.cursor }};user-select:none" onClick="{{ ed.mapClick }}" onMouseMove="{{ ed.mapMove }}" onMouseUp="{{ ed.mapUp }}" onMouseLeave="{{ ed.mapUp }}">
+            <rect width="760" height="480" fill="{{ ed.mp.bg }}"></rect>
+            <g transform="{{ ed.world }}">
+              <path d="M-200 700 Q 250 640 330 720 L 330 900 L -200 900Z" fill="{{ ed.mp.water }}"></path><path d="M440 680 Q 580 690 700 665 L 900 665 L900 900 L440 900Z" fill="{{ ed.mp.water }}"></path>
+              <sc-if value="{{ ed.mp.sat }}"><path d="M380 380 h90 v50 h-90z M600 120 h80 v70 h-80z M450 100 h60 v40 h-60z M480 160 h30 v28 h-30z M600 400 h60 v40 h-60z" fill="{{ ed.mp.block }}"></path></sc-if>
+              <path d="M-100 160 L 1100 150 M -100 430 L 1100 410 M 520 -200 L 560 900 M 330 -200 L 390 900 M 740 -200 L 700 900 M 300 560 L 800 520" stroke="{{ ed.mp.road }}" stroke-width="5" fill="none" vector-effect="non-scaling-stroke"></path>
+            </g>
+            <sc-for list="{{ ed.others }}" as="o" hint-placeholder-count="3"><g><circle cx="{{ o.x }}" cy="{{ o.y }}" r="{{ o.r }}" fill="rgba(150,160,175,.18)" stroke="{{ ed.mp.ofc }}" stroke-width="1.2" stroke-dasharray="4 4"></circle><circle cx="{{ o.x }}" cy="{{ o.y }}" r="4" fill="{{ ed.mp.ofc }}"></circle><text x="{{ o.x }}" y="{{ o.ty }}" font-size="11" text-anchor="middle" fill="{{ ed.mp.ofc }}">{{ o.n }}</text></g></sc-for>
+            <sc-if value="{{ ed.showCircle }}"><circle cx="{{ ed.cx }}" cy="{{ ed.cy }}" r="{{ ed.crp }}" fill="rgba(11,103,221,.18)" stroke="#2F7DF0" stroke-width="2.2"></circle><line x1="{{ ed.cx }}" y1="{{ ed.cy }}" x2="{{ ed.hx }}" y2="{{ ed.cy }}" stroke="#2F7DF0" stroke-width="1.4" stroke-dasharray="4 3"></line><circle cx="{{ ed.hx }}" cy="{{ ed.cy }}" r="7" fill="#fff" stroke="#2F7DF0" stroke-width="2.5" style="cursor:ew-resize" onMouseDown="{{ ed.dragHandle }}" onClick="{{ ed.stop }}"></circle></sc-if>
+            <sc-if value="{{ ed.showPoly }}"><polygon points="{{ ed.polyPts }}" fill="{{ ed.polyFill }}" stroke="#2F7DF0" stroke-width="2.2" stroke-linejoin="round"></polygon></sc-if>
+            <sc-if value="{{ ed.showLine }}"><polyline points="{{ ed.polyPts }}" fill="none" stroke="#2F7DF0" stroke-width="2.2" stroke-dasharray="5 4"></polyline></sc-if>
+            <sc-for list="{{ ed.verts }}" as="v" hint-placeholder-count="6"><circle cx="{{ v.x }}" cy="{{ v.y }}" r="{{ v.r }}" fill="{{ v.fill }}" stroke="#2F7DF0" stroke-width="2.5" style="cursor:{{ v.cur }}" onMouseDown="{{ v.down }}" onClick="{{ v.click }}" onContextMenu="{{ v.del }}"></circle></sc-for>
+            <sc-if value="{{ ed.showPin }}"><g onMouseDown="{{ ed.dragPin }}" onClick="{{ ed.stop }}" style="cursor:move"><circle cx="{{ ed.cx }}" cy="{{ ed.cy }}" r="9" fill="var(--accent)" stroke="#fff" stroke-width="3"></circle><circle cx="{{ ed.cx }}" cy="{{ ed.cy }}" r="3" fill="#fff"></circle></g></sc-if>
+          </svg>
+          <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:5px"><button onClick="{{ ed.zIn }}" aria-label="Zoom in" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:17px;cursor:pointer">+</button><button onClick="{{ ed.zOut }}" aria-label="Zoom out" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:17px;cursor:pointer">−</button></div>
+          <div style="position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--text-2);max-width:calc(100% - 80px)">{{ ed.hint }}</div>
+        </div>
+        <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:14px 22px;flex-wrap:wrap;align-items:flex-end">
+          <sc-if value="{{ ed.isCircle }}"><div style="display:flex;flex-direction:column;gap:6px;flex:1 1 240px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Radius</div><div style="display:flex;align-items:center;gap:10px"><input type="range" min="30" max="1000" step="10" value="{{ ed.r }}" onInput="{{ ed.onR }}" style="flex:1"><input type="number" min="30" step="10" value="{{ ed.r }}" onInput="{{ ed.onR }}" style="height:32px;width:84px;padding:0 8px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:13px 'Geist Mono',monospace"><span style="font-size:12.5px;color:var(--text-3)">m</span></div></div></sc-if>
+          <sc-if value="{{ ed.isPoly }}"><div style="display:flex;gap:8px;flex-wrap:wrap;flex:1 1 240px;align-items:center"><button onClick="{{ ed.finish }}" style="height:32px;padding:0 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-size:12.5px;font-weight:500;cursor:pointer;opacity:{{ ed.finOp }}">Finish shape</button><button onClick="{{ ed.redraw }}" style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:12.5px;cursor:pointer">Redraw</button><span style="font-size:12.5px;color:var(--text-3)">{{ ed.vN }} vertices</span></div></sc-if>
+          <div style="display:flex;gap:18px;flex-wrap:wrap"><sc-for list="{{ ed.measures }}" as="m" hint-placeholder-count="3"><div><div style="font-size:11.5px;color:var(--text-3)">{{ m.k }}</div><div style="font:600 13.5px 'Geist Mono',monospace">{{ m.v }}</div></div></sc-for></div>
+        </div>
+        <div style="padding:0 14px 12px;font-size:12px;color:var(--bad)">{{ ed.e.geo }}</div>
+      </section>
+    </div>
+  </div>
+
+  <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+    <div style="width:132px;height:132px;border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff;flex:none"><svg viewBox="0 0 21 21" width="100%" height="100%" shape-rendering="crispEdges"><sc-for list="{{ ed.qr }}" as="c" hint-placeholder-count="20"><rect x="{{ c.x }}" y="{{ c.y }}" width="1" height="1" fill="#0D1B2E"></rect></sc-for></svg></div>
+    <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><div style="font-weight:600;font-size:14.5px">Site QR code</div><div style="font-size:13px;color:var(--text-2)">{{ ed.qrNote }}</div><div style="font:12px 'Geist Mono',monospace;color:var(--text-3)">{{ ed.qrUrl }}</div>
+      <div style="display:flex;gap:8px;margin-top:4px"><button onClick="{{ ed.qrPrint }}" style="height:34px;padding:0 14px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Print</button><button onClick="{{ ed.qrDl }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Download SVG</button></div></div>
+  </section>
+
+  <sc-if value="{{ ed.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ ed.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;emp&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;sites&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;onSave&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;},&quot;onCancel&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;}}">
+const W=760,H=480,Z=[1,2,4,8,16,32,64],BASE=0.62;
+const BR=['Lyon','Paris Nord','Marseille','Bordeaux'];
+const MG=['Nadia Koné','Julien Roche','Marc Olivier','Sarah Benoît','Hugo Martel'];
+const EMP=['Amélie Fontaine','Karim Benali','Léa Moreau','Thomas Girard','Inès Haddad','Paul Lambert','Sofia Rossi','Hugo Petit','Nora Diallo','Yanis Boucher','Camille Roux','Mehdi Cherif','Elena Marchand','Bastien Leroy','Georges Aubert','Monique Vidal'];
+const TZ=[['Europe/Paris','Europe/Paris (UTC+1/+2)'],['Europe/London','Europe/London (UTC+0/+1)'],['Europe/Brussels','Europe/Brussels (UTC+1/+2)'],['Europe/Madrid','Europe/Madrid (UTC+1/+2)'],['Indian/Reunion','Indian/Reunion (UTC+4)']];
+const ADDR=[['12 Rue de la Part-Dieu, 69003 Lyon',560,420],['4 Quai Rambaud, 69002 Lyon',545,447],['88 Avenue du Président Wilson, 93210 Saint-Denis',520,150],['Zone Cargo 4, 95700 Roissy-en-France',578,118],['21 Quai du Port, 13002 Marseille',580,640],['5 Cours du Médoc, 33300 Bordeaux',330,520],['17 Rue Solférino, 59000 Lille',540,38],['30 Rue de la République, 69002 Lyon',552,432],['2 Boulevard de la Villette, 75019 Paris',510,168],['45 Avenue du Prado, 13008 Marseille',572,652]];
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
+const hex=(x,y,rm)=>{const r=rm/100,k=[1,.88,1.08,.94,1.04,.9];return k.map((m,i)=>{const t=i/6*Math.PI*2;return {x:x+Math.cos(t)*r*m,y:y+Math.sin(t)*r*m};});};
+const init=(site)=>{const e=!!site;const g=e?{shape:site.gt==='circle'?'circle':'poly',cx:site.x,cy:site.y,r:site.r,pts:site.gt==='circle'?[]:hex(site.x,site.y,site.r),set:true,drawing:false}:{shape:'circle',cx:null,cy:null,r:150,pts:[],set:false,drawing:false};
+  return {name:e?site.name:'',code:e?(site.code||site.id.toUpperCase().slice(0,3)):'',codeTouched:e,br:e?site.br:'Lyon',addr:e?site.addr:'',tz:e&&site.tz||'Europe/Paris',mgrs:e?[].concat(site.mgrs||site.mgr?(site.mgrs||[site.mgr]):[]):[],emps:[],empQ:'',hs:'08:00',he:'16:00',hb:'30',selfie:e?site.selfie:true,qr:e?site.qr:true,dev:false,offline:true,acc:'50',active:e?site.active:true,
+    geo:g,mcx:e?site.x:550,mcy:e?site.y:300,mz:e?5:0,mapType:'street',tried:false,sugOpen:false,toast:null};};
+class Component extends DCLogic {
+  state=init(this.props.emp);
+  componentWillUnmount(){ clearTimeout(this.tt); }
+  say(m){ this.setState({toast:m}); clearTimeout(this.tt); this.tt=setTimeout(()=>this.setState({toast:null}),2600); }
+  sc(){ return BASE*Z[this.state.mz]; }
+  w2s(x,y){ const sc=this.sc(); return {x:W/2+(x-this.state.mcx)*sc,y:H/2+(y-this.state.mcy)*sc}; }
+  evW(ev){ const b=ev.currentTarget.getBoundingClientRect?ev.currentTarget.ownerSVGElement||ev.currentTarget:ev.currentTarget; const svg=ev.currentTarget.closest?ev.currentTarget.closest('svg'):b; const r=svg.getBoundingClientRect(),sc=this.sc(); return {x:this.state.mcx+((ev.clientX-r.left)/r.width*W-W/2)/sc,y:this.state.mcy+((ev.clientY-r.top)/r.height*H-H/2)/sc}; }
+  geoSet(p){ this.setState(s=>({geo:Object.assign({},s.geo,p)})); }
+  poly(p){ return p.pts.length>=3&&!p.drawing; }
+  geoInfo(){ const g=this.state.geo,o={ok:false,area:0,per:0};
+    if(g.shape==='circle'){ if(g.set&&g.r>=30){o.ok=true;o.area=Math.PI*g.r*g.r;o.per=2*Math.PI*g.r;o.cx=g.cx;o.cy=g.cy;o.rad=g.r;} }
+    else if(g.pts.length>=3&&!g.drawing){ o.ok=true;const p=g.pts;let a=0,pr=0,mx=0,my=0;p.forEach((q,i)=>{const n=p[(i+1)%p.length];a+=q.x*n.y-n.x*q.y;pr+=Math.hypot(n.x-q.x,n.y-q.y);mx+=q.x;my+=q.y;});mx/=p.length;my/=p.length;o.area=Math.abs(a/2)*1e4;o.per=pr*100;o.cx=mx;o.cy=my;o.rad=Math.sqrt(o.area/Math.PI); }
+    return o; }
+  errs(){ const s=this.state,e={},sites=this.props.sites||[],gi=this.geoInfo();
+    if(!s.name.trim()) e.name='Name is required'; else if(sites.some(x=>x.id!==(this.props.emp&&this.props.emp.id)&&x.name.toLowerCase()===s.name.trim().toLowerCase())) e.name='A site with this name exists';
+    if(!s.code.trim()) e.code='Code is required'; else if(sites.some(x=>x.id!==(this.props.emp&&this.props.emp.id)&&(x.code||'').toUpperCase()===s.code.trim().toUpperCase())) e.code='Code already in use';
+    if(!s.addr.trim()) e.addr='Choose or type an address';
+    if(!gi.ok) e.geo=s.geo.shape==='circle'?(s.geo.set?'Radius must be at least 30 m':'Place the pin on the map to define the geofence'):'Draw at least 3 points and finish the shape';
+    const a=+s.acc; if(!(a>=5&&a<=500)) e.acc='Enter between 5 and 500 m';
+    if(s.he<=s.hs) e.hours='End time must be after start time';
+    return e; }
+  overl(){ const gi=this.geoInfo(),id=this.props.emp&&this.props.emp.id; if(!gi.ok) return []; return (this.props.sites||[]).filter(x=>x.id!==id&&x.active!==false&&Math.hypot(x.x-gi.cx,x.y-gi.cy)*100<x.r+gi.rad); }
+  setAddrQuery(v){ this.setState({addr:v,sugOpen:v.trim().length>=2}); }
+  pickAddr(a){ const g=this.state.geo; const upd={addr:a[0],sugOpen:false,mcx:a[1],mcy:a[2],mz:5}; this.setState(Object.assign(upd,{geo:g.shape==='circle'?Object.assign({},g,{cx:a[1],cy:a[2],set:true}):g.pts.length?Object.assign({},g,{pts:g.pts.map(p=>({x:p.x+a[1]-(g.pts.reduce((t,q)=>t+q.x,0)/g.pts.length),y:p.y+a[2]-(g.pts.reduce((t,q)=>t+q.y,0)/g.pts.length)}))}):g})); }
+  renderVals(){ return {ed:this.rv()}; }
+  rv(){
+    const s=this.state,p=this.props,add=!p.emp,g=s.geo,sc=this.sc(),e=s.tried?this.errs():{},T=this;
+    const gi=this.geoInfo(),ov=this.overl();
+    const bd=k=>e[k]?'var(--bad-dot)':'var(--border-strong)';
+    const sat=s.mapType==='sat',mp=sat?{sat:true,bg:'#2E3B31',block:'#3A4A3D',road:'#6B7A6F',water:'#1D3445',ofc:'#E8EDF2'}:{sat:false,bg:'var(--map-bg)',block:'var(--map-block)',road:'var(--map-road)',water:'var(--map-water)',ofc:'#4A5668'};
+    const sp=this.w2s.bind(this);
+    const c=g.shape==='circle'&&g.set?sp(g.cx,g.cy):null,crp=g.shape==='circle'?g.r/100*sc:0;
+    const sv=g.pts.map(q=>sp(q.x,q.y));
+    const ptsStr=sv.map(q=>q.x.toFixed(1)+','+q.y.toFixed(1)).join(' ');
+    const closed=g.shape==='poly'&&g.pts.length>=3&&!g.drawing;
+    const verts=g.shape==='poly'?sv.map((q,i)=>({x:q.x.toFixed(1),y:q.y.toFixed(1),r:g.drawing&&i===0&&g.pts.length>=3?10:7,fill:g.drawing&&i===0&&g.pts.length>=3?'#2F7DF0':'#fff',cur:g.drawing?(i===0?'pointer':'default'):'move',
+      down:ev=>{ if(g.drawing) return; ev.stopPropagation(); this._drag={t:'v',i}; this._moved=false; },
+      click:ev=>{ ev.stopPropagation(); if(g.drawing&&i===0&&g.pts.length>=3) this.geoSet({drawing:false}); },
+      del:ev=>{ ev.preventDefault(); ev.stopPropagation(); if(!g.drawing&&g.pts.length>3) this.geoSet({pts:g.pts.filter((_,j)=>j!==i)}); else this.say('A polygon needs at least 3 vertices'); }})):[];
+    const others=(p.sites||[]).filter(x=>!(p.emp&&x.id===p.emp.id)).map(x=>{const q=sp(x.x,x.y);return {x:q.x.toFixed(1),y:q.y.toFixed(1),r:Math.max(5,x.r/100*sc).toFixed(1),n:x.name,ty:(q.y-Math.max(5,x.r/100*sc)-5).toFixed(0)};}).filter(o=>o.x>-40&&o.x<W+40&&o.y>-40&&o.y<H+40);
+    const fmtA=a=>a>=10000?(a/10000).toFixed(2)+' ha':Math.round(a).toLocaleString('en')+' m²',fmtP=m=>m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m';
+    const code=s.code.trim().toUpperCase(),qrUrl='staffsync://site/'+(code||'NEW');
+    const cells=[];let r=hash(qrUrl+s.name)||1;const rnd=()=>{r^=r<<13;r^=r>>>17;r^=r<<5;r>>>=0;return r;};
+    for(let y=0;y<21;y++)for(let x=0;x<21;x++){const f=x<7&&y<7||x>13&&y<7||x<7&&y>13;if(f){const ox=x>13?x-14:x,oy=y>13?y-14:y;if(ox===0||ox===6||oy===0||oy===6||(ox>=2&&ox<=4&&oy>=2&&oy<=4))cells.push({x,y});}else if(!(x===7||y===7||(x===13&&y<8)||(y===13&&x<8))&&rnd()%2)cells.push({x,y});}
+    const set=k=>ev=>this.setState({[k]:ev.target.value});
+    const sugs=ADDR.filter(a=>a[0].toLowerCase().includes(s.addr.trim().toLowerCase())).slice(0,5).map(a=>({l:a[0],go:()=>this.pickAddr(a)}));
+    const tg=k=>()=>this.setState(x=>({[k]:!x[k]}));
+    const TG=[['selfie','Require selfie','Employees take a photo at check-in.'],['qr','Require QR scan','Check-in only after scanning the site QR code.'],['dev','Registered device only','Block check-ins from unregistered phones.'],['offline','Allow offline check-in','Records sync when the phone is back online.']];
+    const ids=Object.keys(e),nn=ids.length;
+    const overlapNames=ov.map(x=>x.name).join(', ');
+    return {
+      title:add?'Add site':'Edit '+s.name,saveL:add?'Create site':'Save changes',cancel:()=>p.onCancel&&p.onCancel(),stop:ev=>ev.stopPropagation(),
+      hasErr:nn>0,errN:nn,errPl:nn===1?'':'s',overlap:ov.length>0,overlapNames,e,bd:{name:bd('name'),code:bd('code'),addr:bd('addr'),acc:bd('acc'),hours:bd('hours')},geoBd:e.geo?'var(--bad-dot)':'var(--border)',
+      name:s.name,onName:ev=>{const v=ev.target.value;this.setState(x=>({name:v,code:x.codeTouched?x.code:v.replace(/[^A-Za-z]/g,'').slice(0,4).toUpperCase()}));},
+      code:s.code,onCode:ev=>this.setState({code:ev.target.value.toUpperCase().replace(/[^A-Z0-9]/g,''),codeTouched:true}),
+      br:s.br,onBr:set('br'),brOpts:BR.map(b=>({v:b,l:b})),tz:s.tz,onTz:set('tz'),tzOpts:TZ.map(([v,l])=>({v,l})),
+      addr:s.addr,onAddr:ev=>this.setAddrQuery(ev.target.value),addrFocus:()=>{if(s.addr.trim().length>=2)this.setState({sugOpen:true});},sugOpen:s.sugOpen&&sugs.length>0,sugs,
+      mgrChips:MG.map(n=>{const on=s.mgrs.includes(n);return {n,bg:on?'var(--accent)':'var(--surface)',fg:on?'#fff':'var(--text-2)',bd:on?'var(--accent)':'var(--border-strong)',go:()=>this.setState(x=>({mgrs:on?x.mgrs.filter(i=>i!==n):x.mgrs.concat(n)}))};}),
+      empN:s.emps.length,empQ:s.empQ,onEmpQ:set('empQ'),emps:EMP.filter(n=>n.toLowerCase().includes(s.empQ.toLowerCase())).map(n=>{const on=s.emps.includes(n);return {n,bg:on?'var(--accent)':'transparent',bd:on?'var(--accent)':'var(--border-strong)',op:on?1:0,go:()=>this.setState(x=>({emps:on?x.emps.filter(i=>i!==n):x.emps.concat(n)}))};}),
+      hs:s.hs,he:s.he,hb:s.hb,onHs:set('hs'),onHe:set('he'),onHb:set('hb'),
+      toggles:TG.map(([k,l,h])=>({l,h,bg:s[k]?'var(--accent)':'var(--border-strong)',left:s[k]?'19px':'2px',go:tg(k)})),
+      acc:s.acc,onAcc:set('acc'),statuses:[[true,'Active'],[false,'Inactive']].map(([v,l])=>({l,bg:s.active===v?'var(--accent)':'var(--surface)',fg:s.active===v?'#fff':'var(--text-2)',go:()=>this.setState({active:v})})),
+      shapes:[['circle','Circle'],['poly','Polygon']].map(([k,l])=>({l,bg:g.shape===k?'var(--accent)':'var(--surface)',fg:g.shape===k?'#fff':'var(--text-2)',
+        go:()=>{ if(g.shape===k) return; if(k==='poly'){ const cx=g.set?g.cx:s.mcx,cy=g.set?g.cy:s.mcy; this.setState({geo:g.set?Object.assign({},g,{shape:'poly',pts:hex(cx,cy,g.r),drawing:false}):Object.assign({},g,{shape:'poly',pts:[],drawing:true})}); } else this.setState({geo:Object.assign({},g,{shape:'circle',cx:gi.ok&&g.shape==='poly'?gi.cx:g.cx,cy:gi.ok&&g.shape==='poly'?gi.cy:g.cy,set:gi.ok||g.set,r:gi.ok&&g.shape==='poly'?Math.max(30,Math.round(gi.rad/10)*10):g.r,drawing:false})}); }})),
+      mapTypes:[['street','Street'],['sat','Satellite']].map(([k,l])=>({l,bg:s.mapType===k?'var(--accent)':'var(--surface)',fg:s.mapType===k?'#fff':'var(--text-2)',go:()=>this.setState({mapType:k})})),
+      locate:()=>{ const fb=()=>{const b=ADDR[0];this.pickAddr(b);this.say('Location unavailable here — placed at a sample position');}; if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{const x=(pos.coords.longitude+2)*100,y=(51.2-pos.coords.latitude)*87.5;this.setState(st=>({mcx:x,mcy:y,mz:5,geo:st.geo.shape==='circle'?Object.assign({},st.geo,{cx:x,cy:y,set:true}):st.geo}));this.say('Pin moved to your location');},fb,{timeout:4000}); } else fb(); },
+      mp,world:'translate('+(W/2-s.mcx*sc).toFixed(1)+' '+(H/2-s.mcy*sc).toFixed(1)+') scale('+sc.toFixed(3)+')',others,
+      cursor:g.shape==='poly'&&g.drawing?'crosshair':g.shape==='circle'&&!g.set?'crosshair':'grab',
+      showCircle:!!c&&g.shape==='circle',showPin:!!c&&g.shape==='circle',cx:c?c.x.toFixed(1):0,cy:c?c.y.toFixed(1):0,crp:crp.toFixed(1),hx:c?(c.x+crp).toFixed(1):0,
+      showPoly:closed,showLine:g.shape==='poly'&&g.drawing&&g.pts.length>1,polyPts:ptsStr,polyFill:'rgba(11,103,221,.18)',verts,
+      dragPin:ev=>{ev.stopPropagation();this._drag={t:'pin'};this._moved=false;},dragHandle:ev=>{ev.stopPropagation();this._drag={t:'h'};this._moved=false;},
+      mapMove:ev=>{ const d=this._drag; if(!d) return; const w=this.evW(ev); this._moved=true;
+        if(d.t==='pin') this.geoSet({cx:w.x,cy:w.y});
+        else if(d.t==='h') this.geoSet({r:Math.max(30,Math.min(2000,Math.round(Math.hypot(w.x-g.cx,w.y-g.cy)*100/10)*10))});
+        else this.setState(st=>({geo:Object.assign({},st.geo,{pts:st.geo.pts.map((q,i)=>i===d.i?{x:w.x,y:w.y}:q)})})); },
+      mapUp:()=>{ if(this._drag){ this._drag=null; this._justDragged=this._moved; } },
+      mapClick:ev=>{ if(this._justDragged){this._justDragged=false;return;} const w=this.evW(ev);
+        if(g.shape==='circle') this.geoSet({cx:w.x,cy:w.y,set:true});
+        else if(g.drawing) this.geoSet({pts:g.pts.concat({x:w.x,y:w.y})}); },
+      zIn:()=>this.setState({mz:Math.min(6,s.mz+1)}),zOut:()=>this.setState({mz:Math.max(0,s.mz-1)}),
+      hint:g.shape==='circle'?(g.set?'Drag the pin to move it · drag the white handle to resize':'Click the map to place the pin'):g.drawing?(g.pts.length<3?'Click to add points ('+g.pts.length+'/3 minimum)':'Click the first point or “Finish shape” to close'):'Drag vertices to reshape · right-click a vertex to delete it',
+      isCircle:g.shape==='circle',isPoly:g.shape==='poly',r:g.r,onR:ev=>this.geoSet({r:Math.max(0,+ev.target.value||0)}),
+      finish:()=>{ if(g.pts.length>=3) this.geoSet({drawing:false}); },finOp:g.drawing&&g.pts.length>=3?1:.45,redraw:()=>this.geoSet({pts:[],drawing:true}),vN:g.pts.length,
+      measures:[{k:'Area',v:gi.ok?fmtA(gi.area):'—'},{k:'Perimeter',v:gi.ok?fmtP(gi.per):'—'},{k:'Center',v:gi.ok?(51.2-gi.cy/87.5).toFixed(5)+', '+(gi.cx/100-2).toFixed(5):'—'}],
+      qr:cells,qrUrl,qrNote:add&&!s.code?'Preview only. Enter a site code to generate the real code.':'Post this at the entrance. Employees scan it for QR check-in'+(s.qr?'.':' — currently QR is not required, but still works as a fallback.'),
+      qrPrint:()=>this.say('Sent to the printer'),
+      qrDl:()=>{ try{const rects=cells.map(c=>'<rect x="'+c.x+'" y="'+c.y+'" width="1" height="1"/>').join('');const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 25 25" width="400" height="400"><rect x="-2" y="-2" width="25" height="25" fill="#fff"/><g fill="#0D1B2E">'+rects+'</g></svg>';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));a.download='qr-'+(code||'site')+'.svg';a.click();this.say('QR code downloaded');}catch(err){this.say('Download unavailable');} },
+      save:()=>{ const er=this.errs(); if(Object.keys(er).length){this.setState({tried:true});return;}
+        p.onSave&&p.onSave({id:p.emp?p.emp.id:null,name:s.name.trim(),code:s.code.trim().toUpperCase(),br:s.br,addr:s.addr.trim(),tz:s.tz,mgrs:s.mgrs,emp:s.emps.length,gt:g.shape==='circle'?'circle':'poly',r:Math.round(gi.rad),x:gi.cx,y:gi.cy,selfie:s.selfie,qr:s.qr,dev:s.dev,offline:s.offline,acc:+s.acc,active:s.active,hours:s.hs+'–'+s.he}); },
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

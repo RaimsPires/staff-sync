@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+    <div style="min-height:60vh;display:grid;place-items:center;text-align:center">
+      <div style="max-width:360px">
+        <div style="width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ ad.otherIcon }}"></path></svg></div>
+        <div style="font-weight:600;font-size:17px">{{ ad.otherTitle }}</div>
+        <div style="color:var(--text-3);font-size:13.5px;margin:6px 0 18px">{{ ad.t.notBuiltDesc }}</div>
+        <button onClick="{{ ad.goDash }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:500 13px 'Geist',sans-serif;cursor:pointer">{{ ad.t.backDash }}</button>
+      </div>
+    </div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
