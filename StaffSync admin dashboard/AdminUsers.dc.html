@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:14px;position:relative" onClick="{{ u.closeMenu }}">
+  <div style="display:{{ u.mainDisp }};flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em">Users &amp; roles</h1><div style="margin-top:4px;color:var(--text-2);font-size:13.5px">{{ u.sub }}</div></div>
+    <button onClick="{{ u.primary }}" style="height:36px;padding:0 15px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">{{ u.primaryL }}</button></div>
+
+  <div style="display:flex;gap:2px;border-bottom:1px solid var(--border)"><sc-for list="{{ u.tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.go }}" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:0;border-bottom:2px solid {{ t.bd }};margin-bottom:-1px;background:transparent;color:{{ t.fg }};font-size:13.5px;font-weight:{{ t.fw }};cursor:pointer">{{ t.l }}<span style="min-width:20px;height:20px;padding:0 6px;border-radius:10px;display:grid;place-items:center;font:600 11px 'Geist Mono',monospace;background:{{ t.nbg }};color:{{ t.nfg }}">{{ t.n }}</span></button></sc-for></div>
+
+  <sc-if value="{{ u.isUsers }}">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3);flex:1 1 200px;max-width:300px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input value="{{ u.q }}" onInput="{{ u.onQ }}" placeholder="Search name or email" style="border:0;outline:0;background:transparent;color:var(--text);font-size:13px;width:100%"></div>
+      <sc-for list="{{ u.filters }}" as="f" hint-placeholder-count="2"><select value="{{ f.val }}" onChange="{{ f.on }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></sc-for>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto"><div style="min-width:900px">
+      <div style="display:grid;grid-template-columns:minmax(220px,1.6fr) 150px minmax(150px,1fr) 120px 100px 36px;gap:12px;align-items:center;padding:0 16px;height:38px;border-bottom:1px solid var(--border);background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;border-radius:12px 12px 0 0"><div>User</div><div>Role</div><div>Scope</div><div>Last active</div><div>Status</div><div></div></div>
+      <sc-for list="{{ u.rows }}" as="r" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:minmax(220px,1.6fr) 150px minmax(150px,1fr) 120px 100px 36px;gap:12px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;position:relative;opacity:{{ r.op }}" style-hover="background:var(--hover)">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;background:{{ r.avBg }};color:{{ r.avFg }}">{{ r.ini }}</div><div style="min-width:0"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}<span style="color:var(--text-3);font-weight:400">{{ r.you }}</span></div><div style="font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.email }}</div></div></div>
+        <div><span style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ r.rBg }};color:{{ r.rFg }}">{{ r.role }}</span></div>
+        <div style="color:var(--text-2)" title="{{ r.scopeTip }}">{{ r.scope }}</div>
+        <div style="color:var(--text-3);font-size:12.5px">{{ r.last }}</div>
+        <div><span style="padding:3px 8px;border-radius:6px;font-size:12px;font-weight:500;background:{{ r.stBg }};color:{{ r.stFg }}">{{ r.st }}</span></div>
+        <button onClick="{{ r.menu }}" aria-label="Row actions" style="width:30px;height:30px;border-radius:8px;border:0;background:{{ r.mbg }};color:var(--text-2);cursor:pointer;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="12" cy="19" r="1.8"></circle></svg></button>
+        <sc-if value="{{ r.menuOpen }}"><div onClick="{{ u.stop }}" style="position:absolute;right:16px;top:{{ r.mtop }};z-index:20;width:190px;padding:6px;border-radius:12px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><sc-for list="{{ r.acts }}" as="a" hint-placeholder-count="3"><button onClick="{{ a.go }}" style="display:block;width:100%;text-align:left;height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:{{ a.c }};font-size:13px;cursor:pointer" style-hover="background:var(--hover)">{{ a.l }}</button></sc-for></div></sc-if>
+      </div></sc-for>
+      <sc-if value="{{ u.noRows }}"><div style="padding:44px 16px;text-align:center;color:var(--text-3);font-size:13.5px">No users match.</div></sc-if>
+    </div></div>
+  </sc-if>
+
+  <sc-if value="{{ u.isRoles }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px">
+      <sc-for list="{{ u.roles }}" as="r" hint-placeholder-count="6"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ r.bg }};color:{{ r.fg }}">{{ r.name }}</span><span style="font-size:11.5px;color:var(--text-3)">{{ r.kind }}</span><div style="flex:1"></div><span style="font-size:12.5px;color:var(--text-2)">{{ r.users }} user{{ r.pl }}</span></div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.45;min-height:36px">{{ r.desc }}</div>
+        <div style="font-size:12px;color:var(--text-3)">{{ r.perms }} of {{ u.permTotal }} permissions · {{ r.scopeK }}</div>
+        <sc-if value="{{ r.blocked }}"><div style="padding:8px 10px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-size:12.5px">{{ r.users }} user{{ r.pl }} still {{ r.has }} this role. Reassign them before deleting it.<div style="margin-top:6px"><a href="#" onClick="{{ r.seeUsers }}" style="font-size:12.5px">Show these users</a></div></div></sc-if>
+        <sc-if value="{{ r.asking }}"><div style="padding:8px 10px;border-radius:8px;background:var(--bad-bg);color:var(--bad);font-size:12.5px;display:flex;gap:8px;align-items:center">Delete “{{ r.name }}”?<div style="flex:1"></div><button onClick="{{ r.yes }}" style="height:26px;padding:0 10px;border:0;border-radius:7px;background:var(--bad-dot);color:#fff;font-size:12.5px;cursor:pointer">Delete</button><button onClick="{{ r.no }}" style="height:26px;padding:0 8px;border:0;background:transparent;color:var(--bad);font-size:12.5px;cursor:pointer">Cancel</button></div></sc-if>
+        <div style="display:flex;gap:6px;margin-top:2px"><button onClick="{{ r.edit }}" style="height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:12.5px;cursor:pointer">{{ r.editL }}</button><button onClick="{{ r.dup }}" style="height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:12.5px;cursor:pointer">Duplicate</button><sc-if value="{{ r.custom }}"><button onClick="{{ r.del }}" style="height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--bad);font-size:12.5px;cursor:pointer">Delete</button></sc-if></div>
+      </div></sc-for>
+    </div>
+  </sc-if>
+
+  </div>
+
+  <sc-if value="{{ u.inv }}">
+    <div style="position:fixed;inset:0;background:var(--overlay);z-index:55;display:grid;place-items:center;padding:16px"><div style="width:100%;max-width:520px;max-height:calc(100vh - 32px);background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600;font-size:16px">{{ u.inv.title }}</div><button onClick="{{ u.invNo }}" aria-label="Close" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:20px;cursor:pointer">×</button></div>
+      <div style="padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{ u.inv.isNew }}"><label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Email *<input value="{{ u.inv.email }}" onInput="{{ u.inv.onEmail }}" placeholder="name@company.com" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ u.inv.eBd }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ u.inv.eErr }}</span></label></sc-if>
+        <sc-if value="{{ u.inv.isEdit }}"><div style="font-size:13.5px"><b style="font-weight:600">{{ u.inv.who }}</b> <span style="color:var(--text-3)">· {{ u.inv.mail }}</span></div></sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:500;color:var(--text-2)">Role<div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ u.inv.roles }}" as="o" hint-placeholder-count="5"><div onClick="{{ o.go }}" style="display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:10px;border:1.5px solid {{ o.bd }};background:{{ o.bg }};cursor:pointer"><span style="width:16px;height:16px;border-radius:50%;border:1.5px solid {{ o.rb }};margin-top:2px;flex:none;display:grid;place-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:{{ o.dot }}"></span></span><span><span style="font-size:13.5px;font-weight:500;color:var(--text)">{{ o.l }}</span><span style="display:block;font-size:12px;color:var(--text-3);font-weight:400">{{ o.d }}</span></span></div></sc-for></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;font-weight:500;color:var(--text-2)">Scope
+          <sc-if value="{{ u.inv.fixed }}"><div style="padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-weight:400">{{ u.inv.fixedL }}</div></sc-if>
+          <sc-if value="{{ u.inv.pick }}"><div style="display:flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden;align-self:flex-start"><sc-for list="{{ u.inv.kinds }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" style="height:32px;padding:0 13px;border:0;background:{{ o.bg }};color:{{ o.fg }};font-size:12.5px;cursor:pointer">{{ o.l }}</button></sc-for></div>
+            <sc-if value="{{ u.inv.chips.length }}"><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ u.inv.chips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.go }}" style="height:30px;padding:0 11px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:12.5px;font-weight:500;cursor:pointer">{{ c.l }}</button></sc-for></div></sc-if></sc-if>
+          <span style="font-size:12px;color:var(--bad);font-weight:400">{{ u.inv.sErr }}</span></div>
+        <sc-if value="{{ u.inv.isNew }}"><label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Message <span style="font-weight:400;color:var(--text-3)">optional</span><textarea rows="3" value="{{ u.inv.msg }}" onInput="{{ u.inv.onMsg }}" style="resize:vertical;padding:9px 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;outline:none"></textarea></label></sc-if>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ u.invNo }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Cancel</button><button onClick="{{ u.invGo }}" style="height:36px;padding:0 16px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">{{ u.inv.btn }}</button></div>
+    </div></div>
+  </sc-if>
+
+  <sc-if value="{{ u.rm }}">
+    <div style="position:fixed;inset:0;background:var(--overlay);z-index:55;display:grid;place-items:center;padding:16px"><div style="width:100%;max-width:400px;background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);padding:20px;display:flex;flex-direction:column;gap:12px"><div style="font-weight:600;font-size:16px">Revoke access for {{ u.rm.name }}?</div><div style="font-size:13.5px;color:var(--text-2)">They will be signed out and can no longer open the dashboard. Their activity history is kept, and you can restore access later.</div><div style="display:flex;gap:8px;justify-content:flex-end"><button onClick="{{ u.rmNo }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Cancel</button><button onClick="{{ u.rmYes }}" style="height:34px;padding:0 14px;border-radius:9px;border:0;background:var(--bad-dot);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Revoke access</button></div></div></div>
+  </sc-if>
+
+  <sc-if value="{{ u.reOpen }}"><dc-import name="AdminRoleEditor" role="{{ u.reRole }}" mode="{{ u.reMode }}" roles="{{ u.rolesAll }}" user-count="{{ u.reUsers }}" on-save="{{ u.reSave }}" on-cancel="{{ u.reCancel }}" on-duplicate="{{ u.reDup }}" hint-size="100%,900px"></dc-import></sc-if>
+
+  <sc-if value="{{ u.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ u.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const BR=['Lyon','Paris Nord','Marseille'];
+const SITES=[['pd','Part-Dieu Tower'],['cf','Confluence Depot'],['sd','Saint-Denis Hub'],['rl','Roissy Logistics'],['pv','Port Vieux Yard']];
+const MK={att:['view','create','edit','delete'],proxy:['view','create'],fraud:['view','approve'],emp:['view','create','edit','delete'],site:['view','create','edit','delete'],branch:['view','create','edit','delete'],sch:['view','create','edit','delete'],lva:['view','approve'],lvs:['view','edit'],rep:['view'],exp:['create'],usr:['view','create','edit','delete'],audit:['view'],set:['view','edit'],bill:['view','edit']};
+const PALL=[].concat(...Object.keys(MK).map(m=>MK[m].map(a=>m+'.'+a)));
+const A=(m,...x)=>x.map(y=>m+'.'+y);
+const SCK={company:'Whole company',branches:'Selected branches',ownBranch:'Own branch',sites:'Selected sites',ownSite:'Own site',self:'Self only'};
+const KIND={company:'company',branches:'branch',ownBranch:'branch',sites:'site',ownSite:'site',self:'company'};
+const CLR=['info','violet','orange','ok','warn','neutral'];
+const R0=[
+ {id:'admin',name:'Company admin',desc:'Full access to every branch, site and setting, including users and billing.',scope:'company',scopeK:'company',scopeIds:[],def:true,perms:PALL.slice()},
+ {id:'hr',name:'HR manager',desc:'Manages people, leave and attendance across the company. No user administration.',scope:'company',scopeK:'company',scopeIds:[],def:true,perms:[].concat(A('att','view','create','edit'),A('fraud','view','approve'),A('emp','view','create','edit'),A('site','view'),A('branch','view'),A('sch','view','create','edit'),A('lva','view','approve'),A('lvs','view'),A('rep','view'),A('exp','create'),A('audit','view'))},
+ {id:'branch',name:'Branch manager',desc:'Runs one or more branches: schedules, approvals, employees and sites inside their scope.',scope:'branch',scopeK:'ownBranch',scopeIds:[],def:true,perms:[].concat(A('att','view','create','edit'),A('proxy','view','create'),A('fraud','view','approve'),A('emp','view','create','edit'),A('site','view'),A('sch','view','create','edit'),A('lva','view','approve'),A('rep','view'),A('exp','create'))},
+ {id:'site',name:'Site manager',desc:'Handles daily operations on assigned sites, including proxy check-ins.',scope:'site',scopeK:'ownSite',scopeIds:[],def:true,perms:[].concat(A('att','view'),A('proxy','view','create'),A('emp','view'),A('site','view'),A('sch','view'),A('lva','view'))},
+ {id:'viewer',name:'Read-only viewer',desc:'Can see data within their scope but cannot change anything.',scope:'any',scopeK:'branches',scopeIds:['Lyon','Paris Nord','Marseille'],def:true,perms:[].concat(A('att','view'),A('emp','view'),A('site','view'),A('branch','view'),A('sch','view'),A('lva','view'),A('rep','view'))},
+ {id:'payroll',name:'Payroll officer',desc:'Reads timesheets and reports for payroll runs across the company.',scope:'company',scopeK:'company',scopeIds:[],def:false,perms:[].concat(A('att','view'),A('emp','view'),A('lva','view'),A('rep','view'),A('exp','create'))}];
+const U0=[
+ {id:'u1',name:'Claire Vasseur',email:'claire.vasseur@staffsync.io',role:'admin',scope:{k:'company',ids:[]},last:'Active now',status:'active',me:true},
+ {id:'u2',name:'Julien Roche',email:'julien.roche@staffsync.io',role:'admin',scope:{k:'company',ids:[]},last:'Today, 09:41',status:'active'},
+ {id:'u3',name:'Marc Olivier',email:'marc.olivier@staffsync.io',role:'branch',scope:{k:'branch',ids:['Paris Nord']},last:'Today, 08:12',status:'active'},
+ {id:'u4',name:'Nadia Koné',email:'nadia.kone@staffsync.io',role:'branch',scope:{k:'branch',ids:['Lyon','Marseille']},last:'Yesterday',status:'active'},
+ {id:'u5',name:'Sarah Benoît',email:'sarah.benoit@staffsync.io',role:'site',scope:{k:'site',ids:['pv']},last:'Oct 13',status:'active'},
+ {id:'u6',name:'Hugo Martel',email:'hugo.martel@staffsync.io',role:'site',scope:{k:'site',ids:['pd','cf']},last:'Oct 9',status:'active'},
+ {id:'u7',name:'Lucie Perrin',email:'lucie.perrin@staffsync.io',role:'payroll',scope:{k:'company',ids:[]},last:'Oct 2',status:'active'},
+ {id:'u8',name:'Théo Gauthier',email:'theo.gauthier@acme-hr.fr',role:'hr',scope:{k:'company',ids:[]},last:'—',status:'invited'},
+ {id:'u9',name:'Camille Duval',email:'camille.duval@staffsync.io',role:'viewer',scope:{k:'branch',ids:['Lyon']},last:'Aug 21',status:'revoked'}];
+const AV=[['var(--info-bg)','var(--info)'],['var(--violet-bg)','var(--violet)'],['var(--orange-bg)','var(--orange)'],['var(--ok-bg)','var(--ok)'],['var(--warn-bg)','var(--warn)']];
+const ST={active:['Active','var(--ok-bg)','var(--ok)'],invited:['Invited','var(--info-bg)','var(--info)'],revoked:['Revoked','var(--neutral-bg)','var(--neutral)']};
+const siteN=id=>(SITES.find(s=>s[0]===id)||[0,id])[1];
+class Component extends DCLogic {
+  state={tab:'users',roles:R0,users:U0,q:'',frole:'all',fst:'all',menu:null,inv:null,rm:null,re:null,rdel:null,toast:null};
+  componentWillUnmount(){clearTimeout(this.tt);}
+  say(m){this.setState({toast:m});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2600);}
+  role(id){return this.state.roles.find(r=>r.id===id)||R0[0];}
+  scopeL(s,role){if(s.k==='company')return 'Whole company';if(s.k==='branch')return s.ids.length===1?s.ids[0]:s.ids.length+' branches';return s.ids.length===1?siteN(s.ids[0]):s.ids.length+' sites';}
+  scopeTip(s){return s.k==='company'?'All branches and sites':s.k==='branch'?s.ids.join(', '):s.ids.map(siteN).join(', ');}
+  admins(){return this.state.users.filter(u=>u.role==='admin'&&u.status!=='revoked');}
+  renderVals(){return{u:this.rv()};}
+  rv(){
+    const s=this.state,T=this,set=k=>ev=>this.setState({[k]:ev.target.value});
+    const cntOf=id=>s.users.filter(u=>u.role===id&&u.status!=='revoked').length;
+    const clr=id=>{const i=s.roles.findIndex(r=>r.id===id),c=CLR[(i<0?5:i)%CLR.length];return['var(--'+c+'-bg)','var(--'+c+')'];};
+    const q=s.q.trim().toLowerCase();
+    const list=s.users.filter(u=>(s.frole==='all'||u.role===s.frole)&&(s.fst==='all'||u.status===s.fst)&&(!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)));
+    const rows=list.map((u,i)=>{const av=AV[(u.name.charCodeAt(0)+u.name.length)%AV.length],rc=clr(u.role),st=ST[u.status],open=s.menu===u.id;
+      const lastAdmin=u.role==='admin'&&u.status!=='revoked'&&this.admins().length<=1;
+      const acts=[];
+      if(u.status!=='revoked')acts.push({l:'Change role',c:'var(--text)',go:()=>this.setState({menu:null,inv:{mode:'edit',id:u.id,role:u.role,kind:u.scope.k,ids:u.scope.ids.slice(),tried:false}})});
+      if(u.status==='invited')acts.push({l:'Resend invite',c:'var(--text)',go:()=>{this.setState({menu:null});this.say('Invite resent to '+u.email);}});
+      if(u.status==='revoked')acts.push({l:'Restore access',c:'var(--ok)',go:()=>{this.setState(st=>({menu:null,users:st.users.map(x=>x.id===u.id?Object.assign({},x,{status:'active',last:'—'}):x)}));this.say(u.name+' can sign in again');}});
+      else if(u.me)acts.push({l:'You can’t revoke yourself',c:'var(--text-3)',go:()=>this.setState({menu:null})});
+      else acts.push({l:'Revoke access',c:'var(--bad)',go:()=>{if(lastAdmin){this.setState({menu:null});this.say('Keep at least one Company admin');return;}this.setState({menu:null,rm:u.id});}});
+      return{name:u.name,you:u.me?' (you)':'',email:u.email,ini:u.name.split(' ').map(w=>w[0]).join('').slice(0,2),avBg:av[0],avFg:av[1],role:s.roles.find(r=>r.id===u.role)?s.roles.find(r=>r.id===u.role).name:'—',rBg:rc[0],rFg:rc[1],scope:this.scopeL(u.scope),scopeTip:this.scopeTip(u.scope),last:u.last,st:st[0],stBg:st[1],stFg:st[2],op:u.status==='revoked'?.6:1,
+        menu:ev=>{ev.stopPropagation();this.setState({menu:open?null:u.id});},mbg:open?'var(--hover)':'transparent',menuOpen:open,mtop:i>=list.length-2&&list.length>3?'-100px':'46px',acts};});
+    // invite modal
+    const iv=s.inv,ir=iv?this.role(iv.role):null,taken=iv&&iv.mode==='new'&&s.users.some(u=>u.email.toLowerCase()===(iv.email||'').trim().toLowerCase());
+    const eErr=iv&&iv.tried&&iv.mode==='new'?(!(iv.email||'').trim()?'Email is required':!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(iv.email.trim())?'Enter a valid email address':taken?'This person already has access':''):'';
+    const needK=ir?(ir.scope==='any'?iv.kind:ir.scope):null,sErr=iv&&iv.tried&&needK!=='company'&&!iv.ids.length?'Select at least one '+(needK==='branch'?'branch':'site'):'';
+    const setIv=p=>this.setState(st=>({inv:Object.assign({},st.inv,p)}));
+    const invOpt=ir?(needK==='branch'?BR.map(b=>[b,b]):needK==='site'?SITES:[]):[];
+    const invV=iv&&{title:iv.mode==='new'?'Invite user':'Change role & scope',isNew:iv.mode==='new',isEdit:iv.mode==='edit',email:iv.email||'',onEmail:ev=>setIv({email:ev.target.value}),eBd:eErr?'var(--bad-dot)':'var(--border-strong)',eErr,
+      who:iv.mode==='edit'?s.users.find(u=>u.id===iv.id).name:'',mail:iv.mode==='edit'?s.users.find(u=>u.id===iv.id).email:'',
+      roles:s.roles.map(r=>({l:r.name,d:r.desc,bg:iv.role===r.id?'var(--accent-soft)':'var(--surface)',bd:iv.role===r.id?'var(--accent)':'var(--border)',rb:iv.role===r.id?'var(--accent)':'var(--border-strong)',dot:iv.role===r.id?1:0,go:()=>setIv({role:r.id,kind:r.scope==='any'?(iv.kind==='company'?'branch':iv.kind):r.scope,ids:[]})})),
+      fixed:needK==='company',fixedL:'Whole company — this role isn’t limited to branches or sites.',pick:needK!=='company',
+      kinds:ir&&ir.scope==='any'?[['company','Whole company'],['branch','Branches'],['site','Sites']].map(([k,l])=>({l,bg:iv.kind===k?'var(--accent)':'var(--surface)',fg:iv.kind===k?'#fff':'var(--text-2)',go:()=>setIv({kind:k,ids:[]})})):[{l:needK==='branch'?'Branches':'Sites',bg:'var(--accent)',fg:'#fff',go:()=>{}}],
+      chips:invOpt.map(([k,l])=>{const on=iv.ids.includes(k);return{l,bg:on?'var(--accent)':'var(--surface)',fg:on?'#fff':'var(--text-2)',bd:on?'var(--accent)':'var(--border-strong)',go:()=>setIv({ids:on?iv.ids.filter(x=>x!==k):iv.ids.concat(k)})};}),sErr,
+      msg:iv.msg==null?'You’ve been invited to manage attendance on StaffSync. Accept to set your password.':iv.msg,onMsg:ev=>setIv({msg:ev.target.value}),btn:iv.mode==='new'?'Send invite':'Save changes'};
+    const rm=s.rm&&s.users.find(u=>u.id===s.rm);
+    const adminsN=this.admins().length;
+    return{
+      sub:s.tab==='users'?s.users.filter(u=>u.status==='active').length+' active · '+s.users.filter(u=>u.status==='invited').length+' invited · '+adminsN+' Company admin'+(adminsN===1?'':'s'):s.roles.length+' roles · '+s.roles.filter(r=>!r.def).length+' custom',
+      tabs:[['users','Dashboard users',s.users.length],['roles','Roles',s.roles.length]].map(([k,l,n])=>({l,n,bd:s.tab===k?'var(--accent)':'transparent',fg:s.tab===k?'var(--text)':'var(--text-2)',fw:s.tab===k?600:500,nbg:s.tab===k?'var(--accent)':'var(--neutral-bg)',nfg:s.tab===k?'#fff':'var(--neutral)',go:()=>this.setState({tab:k,menu:null})})),
+      isUsers:s.tab==='users',isRoles:s.tab==='roles',stop:ev=>ev.stopPropagation(),closeMenu:()=>{if(s.menu)this.setState({menu:null});},
+      primaryL:s.tab==='users'?'Invite user':'Create role',primary:()=>s.tab==='users'?this.setState({inv:{mode:'new',email:'',role:'site',kind:'site',ids:[],tried:false}}):this.setState({re:{mode:'create',role:null}}),
+      q:s.q,onQ:set('q'),filters:[{val:s.frole,on:set('frole'),opts:[{v:'all',l:'All roles'}].concat(s.roles.map(r=>({v:r.id,l:r.name})))},{val:s.fst,on:set('fst'),opts:[{v:'all',l:'Any status'},{v:'active',l:'Active'},{v:'invited',l:'Invited'},{v:'revoked',l:'Revoked'}]}],rows,noRows:rows.length===0,
+      inv:invV,invNo:()=>this.setState({inv:null}),
+      invGo:()=>{const e=eErr||sErr;if(e||(iv.mode==='new'&&(!(iv.email||'').trim()||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(iv.email.trim())||taken))||(needK!=='company'&&!iv.ids.length)){setIv({tried:true});return;}
+        const sc={k:needK==='any'?iv.kind:needK,ids:needK==='company'||iv.kind==='company'&&ir.scope==='any'?[]:iv.ids.slice()};
+        if(ir.scope==='any'&&iv.kind==='company'){sc.k='company';sc.ids=[];}
+        if(iv.mode==='new'){const em=iv.email.trim();this.setState(st=>({users:st.users.concat({id:'u'+Date.now(),name:em.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),email:em,role:iv.role,scope:sc,last:'—',status:'invited'}),inv:null}));this.say('Invite sent to '+em);}
+        else{const cur=s.users.find(u=>u.id===iv.id);if(cur.role==='admin'&&iv.role!=='admin'&&adminsN<=1){this.say('Keep at least one Company admin');return;}this.setState(st=>({users:st.users.map(u=>u.id===iv.id?Object.assign({},u,{role:iv.role,scope:sc}):u),inv:null}));this.say(cur.name+' is now '+ir.name);}},
+      rm:rm?{name:rm.name}:null,rmNo:()=>this.setState({rm:null}),rmYes:()=>{const n=rm.name;this.setState(st=>({users:st.users.map(u=>u.id===rm.id?Object.assign({},u,{status:'revoked'}):u),rm:null}));this.say('Access revoked for '+n);},
+      permTotal:PALL.length,
+      roles:s.roles.map(r=>{const c=clr(r.id),n=cntOf(r.id),ask=s.rdel===r.id;return{name:r.name,desc:r.desc,bg:c[0],fg:c[1],kind:r.def?'Default':'Custom',users:n,pl:n===1?'':'s',has:n===1?'has':'have',perms:r.perms.length,scopeK:SCK[r.scopeK||'company'],custom:!r.def,
+        blocked:ask&&n>0,asking:ask&&n===0,edit:()=>this.setState({re:{mode:r.def?'view':'edit',role:r}}),editL:r.def?'View':'Edit',
+        dup:()=>this.setState({re:{mode:'duplicate',role:r}}),
+        del:()=>this.setState({rdel:ask?null:r.id}),no:()=>this.setState({rdel:null}),yes:()=>{this.setState(st=>({roles:st.roles.filter(x=>x.id!==r.id),rdel:null}));this.say('Role “'+r.name+'” deleted');},
+        seeUsers:ev=>{ev.preventDefault();this.setState({tab:'users',frole:r.id,rdel:null});}};}),
+      reOpen:!!s.re,mainDisp:s.re?'none':'flex',reRole:s.re&&s.re.role||null,reMode:s.re?s.re.mode:'create',rolesAll:s.roles,reUsers:s.re&&s.re.role?cntOf(s.re.role.id):0,reCancel:()=>this.setState({re:null}),
+      reDup:()=>{const role=s.re&&s.re.role;this.setState({re:null},()=>this.setState({re:{mode:'duplicate',role}}));},
+      reSave:d=>{const data={name:d.name,desc:d.desc||'Custom role.',perms:d.perms,scopeK:d.scopeK,scopeIds:d.scopeIds,scope:KIND[d.scopeK]};
+        if(d.id)this.setState(st=>({roles:st.roles.map(r=>r.id===d.id?Object.assign({},r,data):r),re:null}));else this.setState(st=>({roles:st.roles.concat(Object.assign({id:'c'+Date.now(),def:false},data)),re:null}));this.say(d.id?'Role updated':'Role created');},
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

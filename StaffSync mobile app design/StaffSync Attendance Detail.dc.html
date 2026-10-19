@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}button,input,textarea{font-family:inherit}</style></helmet>
+<div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px">
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:640px"><sc-for list="{{ scens }}" as="sc" hint-placeholder-count="7"><button onClick="{{ sc.go }}" style="min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #0B2A52;background:{{ sc.bg }};color:{{ sc.fg }};font-weight:700;font-size:13px;cursor:pointer">{{ sc.label }}</button></sc-for></div>
+<div style="width:390px;height:800px;background:#F5F8FC;color:#0B2A52;border-radius:36px;box-shadow:0 20px 60px rgba(11,42,82,.3);overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:15px;font-weight:600"><span>09:41</span><span>●●● 4G</span></div>
+<div style="flex:1;overflow:auto;padding:0 20px 16px;display:flex;flex-direction:column;gap:14px">
+<div style="flex:none;display:flex;align-items:center;gap:8px"><button aria-label="Back" style="width:44px;height:44px;border-radius:50%;border:1px solid #DCE4EF;background:#fff;color:#0B2A52;font-size:22px;cursor:pointer">‹</button><div style="font-size:20px;font-weight:800">Attendance</div></div>
+<div style="flex:none"><span style="padding:4px 12px;border-radius:999px;background:{{ r.sbg }};color:{{ r.sfg }};font-size:13px;font-weight:700">{{ r.status }}</span><div style="font-size:24px;font-weight:800;line-height:1.15;margin-top:10px">{{ r.date }}</div><div style="font-size:16px;color:#51627D;margin-top:4px">{{ r.site }}</div></div>
+<sc-if value="{{ corr }}" hint-placeholder-val="{{ false }}"><div style="flex:none;border-radius:16px;padding:12px 14px;background:{{ corr.bg }};color:{{ corr.fg }};display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15px">Correction request</b><span style="padding:3px 10px;border-radius:999px;background:#fff;color:{{ corr.fg }};font-size:13px;font-weight:800">{{ corr.label }}</span></div><div style="font-size:14px;line-height:1.35">{{ corr.reason }} · proposed {{ corr.proposed }}</div><div style="font-size:14px;line-height:1.35;font-weight:700">{{ corr.response }}</div></div></sc-if>
+<div style="flex:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div style="background:#fff;border:1px solid #DCE4EF;border-radius:16px;padding:12px"><div style="font-size:12px;color:#51627D">Check-in</div><div style="font-size:20px;font-weight:800">{{ r.in }}</div></div>
+<div style="background:#fff;border:1px solid #DCE4EF;border-radius:16px;padding:12px"><div style="font-size:12px;color:#51627D">Check-out</div><div style="font-size:20px;font-weight:800;color:{{ r.outCol }}">{{ r.out }}</div></div>
+<div style="background:#fff;border:1px solid #DCE4EF;border-radius:16px;padding:12px"><div style="font-size:12px;color:#51627D">Hours</div><div style="font-size:20px;font-weight:800">{{ r.hrs }}</div></div></div>
+<div style="flex:none;background:#fff;border:1px solid #DCE4EF;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span style="color:#51627D">Scheduled</span><b>08:00 – 17:00</b></div>
+<div style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span style="color:#51627D">Method</span><b style="text-align:right">{{ r.method }}</b></div>
+<div style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span style="color:#51627D">Position</span><b style="text-align:right">{{ r.dist }}</b></div></div>
+<div style="flex:none;height:120px;border-radius:18px;position:relative;overflow:hidden;background:#CFE0F5;background-image:linear-gradient(#ffffffaa 2px,transparent 2px),linear-gradient(90deg,#ffffffaa 2px,transparent 2px);background-size:34px 34px"><div style="position:absolute;left:135px;top:20px;width:80px;height:80px;border-radius:50%;border:2px dashed #0A6AE6;background:#0A6AE61A;box-sizing:border-box"></div><div style="position:absolute;left:167px;top:52px;width:16px;height:16px;border-radius:4px;background:#0A6AE6;border:2px solid #fff;transform:rotate(45deg)"></div><div style="position:absolute;left:{{ r.px }};top:{{ r.py }};width:16px;height:16px;border-radius:50%;background:#0BC152;border:3px solid #fff;box-sizing:border-box"></div><div style="position:absolute;left:8px;bottom:8px;background:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700">Check-in snapshot · {{ r.in }}</div></div>
+<sc-if value="{{ hasFlags }}" hint-placeholder-val="{{ false }}"><div style="flex:none;display:flex;flex-direction:column;gap:8px"><div style="font-size:15px;font-weight:800;color:#51627D">Flags</div>
+<sc-for list="{{ flags }}" as="f" hint-placeholder-count="1"><div style="background:#fff;border:1px solid #DCE4EF;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;gap:10px;align-items:flex-start"><span style="color:#B91C1C;font-size:18px">⚑</span><div style="flex:1;font-size:15px;font-weight:700;line-height:1.3">{{ f.text }}</div><span style="padding:3px 10px;border-radius:999px;background:{{ f.bg }};color:{{ f.fg }};font-size:13px;font-weight:800">{{ f.out }}</span></div><div style="font-size:14px;color:#51627D;padding-left:28px">{{ f.sub }}</div></div></sc-for></div></sc-if>
+<sc-if value="{{ r.note }}" hint-placeholder-val="{{ false }}"><div style="flex:none;background:#fff;border:1px solid #DCE4EF;border-radius:18px;padding:14px"><div style="font-size:14px;font-weight:800;margin-bottom:4px">Admin notes</div><div style="font-size:15px;line-height:1.45;color:#51627D">{{ r.note }}</div></div></sc-if>
+<button onClick="{{ openForm }}" style="flex:none;min-height:56px;border-radius:16px;border:0;background:{{ btn.bg }};color:{{ btn.fg }};font-size:16px;font-weight:800;cursor:pointer">{{ btn.label }}</button>
+</div>
+
+<sc-if value="{{ form }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(11,42,82,.45);display:flex;flex-direction:column;justify-content:flex-end"><div style="background:#F5F8FC;border-radius:28px 28px 0 0;padding:16px 20px 24px;display:flex;flex-direction:column;gap:12px;max-height:700px;overflow:auto">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:800">Request correction</div><button onClick="{{ closeForm }}" aria-label="Close" style="width:44px;height:44px;border-radius:50%;border:1px solid #DCE4EF;background:#fff;color:#0B2A52;font-size:18px;cursor:pointer">✕</button></div>
+<div style="font-size:14px;font-weight:800;color:#51627D">What's wrong?</div>
+<div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ reasons }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" style="min-height:48px;text-align:left;border-radius:14px;border:{{ o.bd }};background:{{ o.bg }};color:#0B2A52;padding:0 14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #0A6AE6;box-sizing:border-box;display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ o.dot }}"></span></span>{{ o.label }}</button></sc-for></div>
+<sc-if value="{{ needsTime }}" hint-placeholder-val="{{ true }}"><label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800;color:#51627D">{{ timeLabel }}<input type="time" value="{{ time }}" onChange="{{ setTime }}" style="min-height:48px;border-radius:14px;border:1px solid #DCE4EF;background:#fff;padding:0 14px;font-size:17px;font-weight:700;color:#0B2A52"></label></sc-if>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800;color:#51627D">Comment<textarea rows="3" placeholder="Explain what happened" onChange="{{ setComment }}" style="border-radius:14px;border:1px solid #DCE4EF;background:#fff;padding:12px 14px;font-size:15px;color:#0B2A52;resize:none"></textarea></label>
+<button onClick="{{ toggleFile }}" style="min-height:48px;border-radius:14px;border:1.5px dashed #0A6AE6;background:#fff;color:#0A6AE6;font-size:15px;font-weight:800;cursor:pointer">{{ fileLabel }}</button>
+<button onClick="{{ submit }}" style="min-height:56px;border-radius:16px;border:0;background:#0A6AE6;color:#fff;font-size:16px;font-weight:800;cursor:pointer">Submit request</button>
+</div></div></sc-if>
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sc: 'flagOk', form: false, reason: 0, time: '17:00', comment: '', file: false, sent: false };
+  renderVals() {
+    const { sc, form, reason, time, file, sent } = this.state;
+    const ST = { present: ['Present', '#DCFCE7', '#14532D'], late: ['Late', '#FEF3C7', '#7C3A06'], absent: ['Absent', '#FEE2E2', '#991B1B'] };
+    const OUT = { approved: ['Approved', '#DCFCE7', '#14532D'], rejected: ['Rejected', '#FEE2E2', '#991B1B'] };
+    const D = {
+      flagOk: { st: 'late', date: 'Thu 8 October', in: '08:14', out: '17:10', hrs: '7h 56', method: 'Self check-in', dist: '140 m — outside zone', px: '240px', py: '70px', flags: [['Checked in 140 m from the site zone', 'approved', 'Admin confirmed GPS drift near the gate.']], note: 'GPS accuracy was poor at the gate. Lateness stays recorded; no deduction.' },
+      flagNo: { st: 'present', date: 'Tue 13 October', in: '09:00', out: '17:30', hrs: '7h 30', method: 'Self check-in', dist: '12 m — inside zone', px: '170px', py: '60px', flags: [['Check-out 30 min after shift end', 'rejected', 'Overtime was not pre-approved and is not counted.']], note: '' },
+      pending: { st: 'present', date: 'Mon 12 October', in: '07:57', out: 'Missing', hrs: '—', method: 'Self check-in', dist: '12 m — inside zone', px: '170px', py: '60px', flags: [['No check-out recorded', null, '']], note: '', corr: ['pending', 'Forgot to check out', '17:00', 'Awaiting review by admin. Usually within 24 h.'] },
+      accepted: { st: 'present', date: 'Mon 12 October', in: '07:57', out: '17:00', hrs: '8h 03', method: 'Self check-in', dist: '12 m — inside zone', px: '170px', py: '60px', flags: [['No check-out recorded', 'approved', 'Resolved by correction.']], note: 'Check-out set to 17:00 after confirming with site manager.', corr: ['accepted', 'Forgot to check out', '17:00', 'Accepted by admin · 13 Oct'] },
+      declined: { st: 'late', date: 'Fri 2 October', in: '08:22', out: '17:05', hrs: '7h 43', method: 'Self check-in', dist: '9 m — inside zone', px: '172px', py: '64px', flags: [], note: '', corr: ['declined', 'Wrong time', '08:00', 'Declined · Badge log confirms arrival at 08:22.'] },
+      mgr: { st: 'present', date: 'Wed 7 October', in: '08:00', out: '17:04', hrs: '8h 04', method: 'Checked in by Koffi Traoré', dist: 'Manager on site', px: '175px', py: '56px', flags: [], note: 'Phone battery dead; manager recorded the check-in.' },
+      qr: { st: 'present', date: 'Thu 1 October', in: '07:58', out: '17:02', hrs: '8h 04', method: 'QR code scan', dist: 'Gate QR · inside zone', px: '168px', py: '58px', flags: [], note: '' }
+    };
+    const d = D[sc];
+    const reasons = ['Forgot to check out', 'Wrong time', 'Flagged incorrectly'];
+    const CS = { pending: ['Pending', '#FEF3C7', '#7C3A06'], accepted: ['Accepted', '#DCFCE7', '#14532D'], declined: ['Declined', '#FEE2E2', '#991B1B'] };
+    let c = d.corr; if (sent) c = ['pending', reasons[reason], reason === 2 ? '—' : time, 'Awaiting review by admin. Usually within 24 h.'];
+    const corr = c && { label: CS[c[0]][0], bg: CS[c[0]][1], fg: CS[c[0]][2], reason: c[1], proposed: c[2], response: c[3] };
+    const pend = c && c[0] === 'pending';
+    const flags = d.flags.map(f => { const o = f[1] ? OUT[f[1]] : ['Under review', '#FEF3C7', '#7C3A06']; return { text: f[0], out: o[0], bg: o[1], fg: o[2], sub: f[2] || 'Waiting for an admin decision.' }; });
+    const s = ST[d.st];
+    const ids = [['flagOk', 'Flag approved'], ['flagNo', 'Flag rejected'], ['pending', 'Correction pending'], ['accepted', 'Accepted'], ['declined', 'Declined'], ['mgr', 'By manager'], ['qr', 'QR']];
+    return {
+      scens: ids.map(i => ({ label: i[1], bg: sc === i[0] ? '#0B2A52' : '#fff', fg: sc === i[0] ? '#fff' : '#0B2A52', go: () => this.setState({ sc: i[0], sent: false, form: false }) })),
+      r: Object.assign({}, d, { status: s[0], sbg: s[1], sfg: s[2], outCol: d.out === 'Missing' ? '#B91C1C' : '#0B2A52' }),
+      corr, flags, hasFlags: flags.length > 0,
+      btn: pend ? { label: 'Correction pending review', bg: '#E5E7EB', fg: '#51627D' } : { label: c ? 'Request another correction' : 'Request correction', bg: '#0A6AE6', fg: '#fff' },
+      openForm: () => !pend && this.setState({ form: true, file: false }), closeForm: () => this.setState({ form: false }),
+      form, reasons: reasons.map((l, i) => ({ label: l, dot: reason === i ? '#0A6AE6' : 'transparent', bg: reason === i ? '#E6EEFA' : '#fff', bd: reason === i ? '1.5px solid #0A6AE6' : '1px solid #DCE4EF', go: () => this.setState({ reason: i }) })),
+      needsTime: reason !== 2, timeLabel: reason === 0 ? 'Proposed check-out time' : 'Proposed time', time, setTime: e => this.setState({ time: e.target.value }), setComment: e => this.setState({ comment: e.target.value }),
+      fileLabel: file ? '📎︎ proof-of-presence.jpg · 320 KB (tap to remove)' : '＋ Add attachment', toggleFile: () => this.setState({ file: !file }),
+      submit: () => this.setState({ sent: true, form: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

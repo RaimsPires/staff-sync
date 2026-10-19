@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}</style></helmet>
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px">
+<div style="display:flex;gap:8px">
+<button onClick="{{ toggleDark }}" style="padding:10px 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">{{ s.themeBtn }}</button>
+<button onClick="{{ toggleLang }}" style="padding:10px 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">EN / FR</button>
+<button onClick="{{ toggleOffline }}" style="padding:10px 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">{{ s.offlineBtn }}</button>
+</div>
+<div style="width:390px;height:800px;background:{{ c.bg }};color:{{ c.ink }};border-radius:36px;box-shadow:0 20px 60px rgba(11,42,82,.3);overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:15px;font-weight:600"><span>09:41</span><span>●●● 4G</span></div>
+<sc-if value="{{ offline }}" hint-placeholder-val="{{ false }}"><div style="flex:none;background:#B45309;color:#fff;padding:10px 16px;font-size:14px;font-weight:600;display:flex;gap:8px;align-items:center">⚠ {{ s.offlineMsg }}</div></sc-if>
+<div style="flex:1;overflow:auto;padding:8px 20px 20px;display:flex;flex-direction:column;gap:16px">
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;color:{{ c.muted }}">{{ s.hello }}</div><div style="font-size:26px;font-weight:800">Amina Diallo</div></div><div style="width:44px;height:44px;border-radius:50%;background:#0A6AE6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">AD</div></div>
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">{{ s.today }} · 08:00–17:00</div><span style="background:#DCFCE7;color:#14532D;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700">{{ s.inZone }}</span></div>
+<div style="font-size:14px;color:{{ c.muted }}">Chantier Plateau — Abidjan Nord</div>
+<div style="height:150px;border-radius:14px;background:#CFE0F5;position:relative;overflow:hidden;background-image:linear-gradient(#fff6 2px,transparent 2px),linear-gradient(90deg,#fff6 2px,transparent 2px);background-size:30px 30px">
+<div style="position:absolute;left:95px;top:15px;width:120px;height:120px;border-radius:50%;background:#0A6AE633;border:3px solid #0A6AE6"></div>
+<div style="position:absolute;left:146px;top:66px;width:18px;height:18px;border-radius:50%;background:#0BC152;border:3px solid #fff;box-shadow:0 0 0 6px #0BC15240"></div>
+<div style="position:absolute;right:8px;bottom:8px;background:#fff;color:#0B2A52;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:700">GPS ±8 m</div></div>
+<button onClick="{{ openSheet }}" style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ s.checkIn }}</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:16px;padding:14px"><div style="font-size:13px;color:{{ c.muted }}">{{ s.hoursWeek }}</div><div style="font-size:24px;font-weight:800">24h 30</div></div>
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:16px;padding:14px"><div style="font-size:13px;color:{{ c.muted }}">{{ s.leaveLeft }}</div><div style="font-size:24px;font-weight:800">12 {{ s.days }}</div></div>
+</div>
+</sc-if>
+</div>
+<div style="flex:none;display:flex;border-top:1px solid {{ c.line }};background:{{ c.card }};padding:8px 4px 20px">
+<sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5"><button onClick="{{ tb.go }}" style="flex:1;min-height:52px;border:0;background:none;color:{{ tb.color }};font-weight:{{ tb.weight }};font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer"><span style="font-size:20px">{{ tb.icon }}</span>{{ tb.label }}</button></sc-for>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'home', dark: false, fr: false, offline: false, sheet: false };
+  renderVals() {
+    const { tab, dark, fr, offline } = this.state;
+    const L = {
+      en: { themeBtn: dark ? 'Light mode' : 'Dark mode', offlineBtn: offline ? 'Go online' : 'Go offline', offlineMsg: 'Offline — check-ins will sync later', hello: 'Good morning', today: 'Today', inZone: 'Inside zone', checkIn: 'Check in', hoursWeek: 'Hours this week', leaveLeft: 'Leave left', days: 'days', tabs: ['Home', 'Schedule', 'Attendance', 'Leave', 'Profile'] },
+      fr: { themeBtn: dark ? 'Mode clair' : 'Mode sombre', offlineBtn: offline ? 'En ligne' : 'Hors ligne', offlineMsg: 'Hors ligne — pointages synchronisés plus tard', hello: 'Bonjour', today: "Aujourd'hui", inZone: 'Dans la zone', checkIn: 'Pointer', hoursWeek: 'Heures cette semaine', leaveLeft: 'Congés restants', days: 'jours', tabs: ['Accueil', 'Planning', 'Présence', 'Congés', 'Profil'] }
+    };
+    const s = L[fr ? 'fr' : 'en'];
+    const c = dark ? { bg: '#0B1220', card: '#142036', ink: '#F4F7FB', muted: '#A9B6CA', line: '#26385A' } : { bg: '#F5F8FC', card: '#FFFFFF', ink: '#0B2A52', muted: '#51627D', line: '#DCE4EF' };
+    const ids = ['home', 'schedule', 'attendance', 'leave', 'profile'], ic = ['⌂', '▦', '◷', '✈', '☺'];
+    return {
+      s, c, offline, isHome: tab === 'home',
+      tabs: ids.map((id, i) => ({ label: s.tabs[i], icon: ic[i], color: tab === id ? '#0A6AE6' : c.muted, weight: tab === id ? 800 : 600, go: () => this.setState({ tab: id }) })),
+      toggleDark: () => this.setState(x => ({ dark: !x.dark })),
+      toggleLang: () => this.setState(x => ({ fr: !x.fr })),
+      toggleOffline: () => this.setState(x => ({ offline: !x.offline })),
+      openSheet: () => this.setState({ sheet: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

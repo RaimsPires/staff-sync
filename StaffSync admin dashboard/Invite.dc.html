@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- ===== INVITE ===== -->
+<div data-theme="{{ iv.theme }}" style="min-height:100vh;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:14px;line-height:1.45">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 28px">
+    <div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:8px;background:#fff;border:1px solid var(--border);display:grid;place-items:center;overflow:hidden"><img src="assets/staffsync-logo.png" alt="StaffSync" style="width:26px;height:26px;object-fit:contain"></div><span style="font-weight:700;font-size:15px">StaffSync</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onClick="{{ iv.toggleTheme }}" title="Theme" style="width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-2);display:grid;place-items:center;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ iv.themeIcon }}"></path></svg></button>
+      <div style="display:flex;padding:3px;border:1px solid var(--border);border-radius:9px;gap:2px;background:var(--surface)">
+        <button onClick="{{ iv.setEn }}" style="border:0;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:{{ iv.en.bg }};color:{{ iv.en.fg }}">EN</button>
+        <button onClick="{{ iv.setFr }}" style="border:0;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:{{ iv.fr.bg }};color:{{ iv.fr.fg }}">FR</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="flex:1;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px 56px">
+  <div style="width:100%;max-width:{{ iv.cardMax }};animation:ssIn .25s ease-out">
+
+  <sc-if value="{{ iv.isValid }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-wrap:wrap">
+      <div style="flex:1 1 300px;padding:28px;background:var(--surface-2);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:56px;height:56px;border-radius:14px;background:#0D1B2E;color:#fff;display:grid;place-items:center;font-weight:700;font-size:22px;flex:none">B</div>
+          <div><div style="font-weight:600;font-size:17px">Batiplus Group</div><div style="font-size:12.5px;color:var(--text-3)">{{ iv.t.coMeta }}</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding:12px;border-radius:12px;background:var(--surface);border:1px solid var(--border)">
+          <div style="width:34px;height:34px;border-radius:50%;background:oklch(0.93 0.045 250);color:oklch(0.42 0.1 250);display:grid;place-items:center;font-size:12.5px;font-weight:600;flex:none">MO</div>
+          <div style="font-size:13.5px;text-wrap:pretty"><strong>Marc Olivier</strong> <span style="color:var(--text-2)">{{ iv.t.invitedYou }}</span><div style="font-size:12px;color:var(--text-3)">{{ iv.t.sent }}</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em">{{ iv.t.yourRole }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+            <span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>{{ iv.t.roleName }}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;background:var(--neutral-bg);color:var(--text-2);font-size:13px;font-weight:500"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path></svg>Part-Dieu Tower</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px">
+            <sc-for list="{{ iv.perms }}" as="p" hint-placeholder-count="4">
+              <div style="display:flex;gap:9px;font-size:13px;color:{{ p.c }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;color:{{ p.ic }}"><path d="{{ p.icon }}"></path></svg>{{ p.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="margin-top:auto;font-size:12px;color:var(--text-3)">{{ iv.t.expires }}</div>
+      </div>
+
+      <form onSubmit="{{ iv.accept }}" style="flex:1 1 340px;padding:28px;display:flex;flex-direction:column;gap:16px;box-sizing:border-box">
+        <div><h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">{{ iv.t.title }}</h1><div style="margin-top:4px;color:var(--text-2);font-size:13.5px">{{ iv.t.sub }}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button type="button" onClick="{{ iv.sso }}" style="display:flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><span style="font-weight:700;font-size:15px;color:#4285F4">G</span>Google</button>
+          <button type="button" onClick="{{ iv.sso }}" style="display:flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)"><span style="display:grid;grid-template-columns:6px 6px;gap:1.5px"><span style="width:6px;height:6px;background:#F25022"></span><span style="width:6px;height:6px;background:#7FBA00"></span><span style="width:6px;height:6px;background:#00A4EF"></span><span style="width:6px;height:6px;background:#FFB900"></span></span>Microsoft</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--text-3);font-size:12px"><span style="flex:1;height:1px;background:var(--border)"></span>{{ iv.t.orPw }}<span style="flex:1;height:1px;background:var(--border)"></span></div>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">{{ iv.t.email }}</span>
+          <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2)"><span style="flex:1">nadia.kone@batiplus.fr</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-3)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">{{ iv.t.name }}</span>
+          <input value="{{ iv.name }}" onChange="{{ iv.onName }}" disabled="{{ iv.loading }}" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid {{ iv.nameBd }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <sc-if value="{{ iv.hasNameErr }}"><span style="font-size:12.5px;color:var(--bad)">{{ iv.nameErr }}</span></sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">{{ iv.t.password }}</span>
+          <div style="position:relative;display:flex">
+            <input value="{{ iv.pw }}" onChange="{{ iv.onPw }}" type="{{ iv.pwType }}" autocomplete="new-password" placeholder="{{ iv.t.pwPh }}" disabled="{{ iv.loading }}" style="flex:1;min-width:0;height:40px;padding:0 44px 0 12px;border-radius:9px;border:1px solid {{ iv.pwBd }};background:var(--surface);color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+            <button type="button" onClick="{{ iv.togglePw }}" title="{{ iv.pwAria }}" style="position:absolute;right:5px;top:5px;width:30px;height:30px;border:0;border-radius:7px;background:transparent;color:var(--text-3);display:grid;place-items:center;cursor:pointer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ iv.eyeIcon }}"></path></svg></button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px"><sc-for list="{{ iv.bars }}" as="b" hint-placeholder-count="4"><span style="height:4px;border-radius:4px;background:{{ b }}"></span></sc-for></div><span style="font-size:12px;font-weight:500;min-width:52px;text-align:right;color:{{ iv.pwColor }}">{{ iv.pwLabel }}</span></div>
+          <sc-if value="{{ iv.hasPwErr }}"><span style="font-size:12.5px;color:var(--bad)">{{ iv.pwErr }}</span></sc-if>
+        </label>
+        <button type="submit" disabled="{{ iv.loading }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:44px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;margin-top:4px" style-hover="background:var(--accent-hover)">
+          <sc-if value="{{ iv.loading }}"><span style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:ssSpin .7s linear infinite;box-sizing:border-box"></span></sc-if>{{ iv.btnLabel }}
+        </button>
+        <div style="font-size:12px;color:var(--text-3);text-align:center;text-wrap:pretty">{{ iv.t.legal }} <a href="#">{{ iv.t.terms }}</a></div>
+        <div style="font-size:12.5px;color:var(--text-2);text-align:center">{{ iv.t.notYou }} <a href="#" onClick="{{ iv.decline }}">{{ iv.t.decline }}</a></div>
+      </form>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ iv.isDead }}">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:36px 32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="position:relative;margin-bottom:6px">
+        <div style="width:60px;height:60px;border-radius:15px;background:#0D1B2E;color:#fff;display:grid;place-items:center;font-weight:700;font-size:24px;opacity:.5">B</div>
+        <div style="position:absolute;right:-8px;bottom:-8px;width:28px;height:28px;border-radius:50%;background:{{ iv.dead.badgeBg }};color:#fff;border:3px solid var(--surface);display:grid;place-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="{{ iv.dead.icon }}"></path></svg></div>
+      </div>
+      <h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">{{ iv.dead.title }}</h1>
+      <div style="color:var(--text-2);max-width:380px;text-wrap:pretty">{{ iv.dead.desc }}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:6px 0 4px;padding:10px 14px;border-radius:10px;background:var(--surface-2);font-size:12.5px;color:var(--text-2)">
+        <span>Batiplus Group</span><span style="color:var(--text-3)">·</span><span>{{ iv.t.roleName }}</span><span style="color:var(--text-3)">·</span><span>nadia.kone@batiplus.fr</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+        <button onClick="{{ iv.dead.secondary }}" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)">{{ iv.dead.secondaryLabel }}</button>
+        <button onClick="{{ iv.dead.primary }}" style="height:40px;padding:0 16px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:var(--accent-hover)">{{ iv.dead.primaryLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+  </div>
+  </main>
+
+  <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center">
+    <sc-for list="{{ iv.toasts }}" as="tt"><div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:11px;background:var(--text);color:var(--surface);box-shadow:var(--shadow-lg);font-size:13.5px;animation:ssIn .2s ease-out"><span style="width:8px;height:8px;border-radius:50%;background:#16A34A"></span>{{ tt.msg }}</div></sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const T={
+  coMeta:['Construction · 198 employees · 5 sites','Construction · 198 employés · 5 sites'],
+  invitedYou:['invited you to join the workspace','vous invite à rejoindre l’espace'],sent:['Branch manager · sent 13 Oct','Responsable d’agence · envoyée le 13 oct.'],
+  yourRole:['Your role','Votre rôle'],roleName:['Site manager','Chef de site'],
+  p1:['View attendance for Part-Dieu Tower','Voir les présences de Part-Dieu Tower'],p2:['Check in employees without a smartphone','Pointer pour les employés sans smartphone'],p3:['View leave requests for your site','Voir les demandes de congé de votre site'],p4:['Approve leave or resolve fraud flags','Approuver les congés ou traiter les fraudes'],
+  expires:['This invitation expires on 20 Oct 2026.','Cette invitation expire le 20 oct. 2026.'],
+  title:['Accept your invitation','Accepter l’invitation'],sub:['Set up your login to start managing your site.','Créez vos identifiants pour gérer votre site.'],
+  orPw:['or set a password','ou choisissez un mot de passe'],email:['Email','E-mail'],name:['Full name','Nom complet'],password:['Password','Mot de passe'],pwPh:['At least 8 characters','8 caractères minimum'],
+  accept:['Accept and join Batiplus Group','Accepter et rejoindre Batiplus Group'],joining:['Joining…','Connexion…'],
+  legal:['By accepting, you agree to the','En acceptant, vous acceptez les'],terms:['Terms of Service','Conditions d’utilisation'],
+  notYou:['Not Nadia?','Vous n’êtes pas Nadia ?'],decline:['Decline invitation','Refuser l’invitation'],
+  eName:['Enter your full name.','Saisissez votre nom complet.'],ePw:['Use at least 8 characters with letters and numbers.','Au moins 8 caractères avec lettres et chiffres.'],
+  show:['Show password','Afficher'],hide:['Hide password','Masquer'],
+  expTitle:['This invitation has expired','Cette invitation a expiré'],expDesc:['Invitations are valid for 7 days. Marc Olivier sent this one on 3 Oct. Ask for a new link to join.','Les invitations sont valables 7 jours. Marc Olivier l’a envoyée le 3 oct. Demandez un nouveau lien.'],
+  expPrimary:['Request a new invitation','Demander une nouvelle invitation'],toSignIn:['Go to sign in','Aller à la connexion'],
+  usedTitle:['This invitation was already used','Cette invitation a déjà été utilisée'],usedDesc:['It was accepted on 14 Oct at 09:21. If that was you, sign in with the same email.','Elle a été acceptée le 14 oct. à 09:21. Si c’était vous, connectez-vous avec le même e-mail.'],
+  usedPrimary:['Sign in as nadia.kone@batiplus.fr','Se connecter (nadia.kone@batiplus.fr)'],usedSecondary:['It wasn’t me','Ce n’était pas moi']
+};
+const EYE='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', EYEOFF='M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2';
+const SUN='M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4', MOON='M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z';
+class Component extends DCLogic {
+  renderVals(){ return {iv:this.renderVals0()}; }
+  state={lang:null,theme:null,name:'Nadia Koné',pw:'',showPw:false,tried:false,loading:false,toasts:[],declined:false};
+  componentDidUpdate(pp){ if(pp.theme!==this.props.theme) this.setState({theme:null}); if(pp.lang!==this.props.lang) this.setState({lang:null}); }
+  componentWillUnmount(){ clearTimeout(this.lt); }
+  nav(r,o){ if(this.props.onNavigate) this.props.onNavigate(r,o); else window.location.href='StaffSync.dc.html'; }
+  toast(msg){ const id=Math.random(); this.setState(s=>({toasts:[...s.toasts,{id,msg}]})); setTimeout(()=>this.setState(s=>({toasts:s.toasts.filter(x=>x.id!==id)})),3200); }
+  renderVals0(){
+    const s=this.state,L=(s.lang||this.props.lang||'en')==='fr'?1:0,theme=s.theme||this.props.theme||'light',dark=theme==='dark';
+    const t={}; for(const k in T) t[k]=T[k][L];
+    const st=this.props.inviteState||'valid';
+    const p=s.pw, r=[p.length>=8,/[a-z]/.test(p)&&/[A-Z]/.test(p),/\d/.test(p),/[^A-Za-z0-9]/.test(p)]; let sc=p?r.filter(Boolean).length:0; if(p.length<8) sc=Math.min(sc,1);
+    const cols=['var(--bad-dot)','var(--bad-dot)','var(--warn-dot)','var(--ok-dot)','var(--ok-dot)'];
+    const nameErr=s.tried&&s.name.trim().split(/\s+/).length<2?t.eName:'', pwErr=s.tried&&(sc<2||p.length<8)?t.ePw:'';
+    const seg=on=>({bg:on?'var(--accent-soft)':'transparent',fg:on?'var(--accent)':'var(--text-3)'});
+    const join=()=>{ this.setState({loading:true}); this.lt=setTimeout(()=>{ this.setState({loading:false}); this.nav('dashboard',{role:'site'}); },1200); };
+    const dead=st==='expired'?{title:t.expTitle,desc:t.expDesc,icon:'M12 7v5l3 2',badgeBg:'var(--warn-dot)',primaryLabel:t.expPrimary,secondaryLabel:t.toSignIn,
+        primary:()=>this.toast(L?'Demande envoyée à Marc Olivier':'Request sent to Marc Olivier'),secondary:()=>this.nav('signin')}
+      :{title:t.usedTitle,desc:t.usedDesc,icon:'M5 12l5 5L20 7',badgeBg:'var(--accent)',primaryLabel:t.usedPrimary,secondaryLabel:t.usedSecondary,
+        primary:()=>this.nav('signin'),secondary:()=>this.toast(L?'Signalé à la sécurité StaffSync':'Reported to StaffSync security')};
+    return {
+      theme,t,toggleTheme:()=>this.setState({theme:dark?'light':'dark'}),themeIcon:dark?SUN:MOON,en:seg(!L),fr:seg(!!L),setEn:()=>this.setState({lang:'en'}),setFr:()=>this.setState({lang:'fr'}),
+      isValid:st==='valid',isDead:st!=='valid',cardMax:st==='valid'?'860px':'520px',dead,
+      perms:[[t.p1,1],[t.p2,1],[t.p3,1],[t.p4,0]].map(([label,ok])=>({label,icon:ok?'M5 12l5 5L20 7':'M18 6L6 18M6 6l12 12',ic:ok?'var(--ok-dot)':'var(--text-3)',c:ok?'var(--text)':'var(--text-3)'})),
+      name:s.name,onName:e=>this.setState({name:e.target.value}),pw:s.pw,onPw:e=>this.setState({pw:e.target.value}),
+      hasNameErr:!!nameErr,nameErr,hasPwErr:!!pwErr,pwErr,nameBd:nameErr?'var(--bad-dot)':'var(--border-strong)',pwBd:pwErr?'var(--bad-dot)':'var(--border-strong)',
+      pwType:s.showPw?'text':'password',eyeIcon:s.showPw?EYEOFF:EYE,pwAria:s.showPw?t.hide:t.show,togglePw:()=>this.setState({showPw:!s.showPw}),
+      bars:[1,2,3,4].map(i=>sc>=i?cols[sc]:'var(--neutral-bg)'),pwColor:cols[sc],pwLabel:p?(L?['Trop faible','Faible','Moyen','Bon','Fort']:['Too weak','Weak','Fair','Good','Strong'])[sc]:'',
+      loading:s.loading,btnLabel:s.loading?t.joining:t.accept,
+      accept:e=>{e.preventDefault(); if(s.loading) return; if(s.name.trim().split(/\s+/).length<2||sc<2||p.length<8){this.setState({tried:true});return;} join();},
+      sso:()=>{ if(!s.loading) join(); },
+      decline:e=>{e.preventDefault();this.toast(L?'Invitation refusée':'Invitation declined');setTimeout(()=>this.nav('signin'),900);},
+      toasts:s.toasts
+    };
+  }
+}
+
+</script>
+</body>
+</html>

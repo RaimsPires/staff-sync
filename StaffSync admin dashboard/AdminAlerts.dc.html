@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:14px;position:relative">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap">
+    <div><h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em">Fraud &amp; alerts center</h1><div style="margin-top:4px;color:var(--text-2);font-size:13.5px">{{ al.sub }}</div></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input value="{{ al.q }}" onInput="{{ al.onQ }}" placeholder="Search employee" style="border:0;outline:0;background:transparent;color:var(--text);font-size:13px;width:150px"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:2px;border-bottom:1px solid var(--border);overflow-x:auto">
+    <sc-for list="{{ al.tabs }}" as="tb" hint-placeholder-count="5">
+      <button onClick="{{ tb.go }}" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:0;border-bottom:2px solid {{ tb.bd }};margin-bottom:-1px;background:transparent;color:{{ tb.fg }};font-size:13.5px;font-weight:{{ tb.fw }};cursor:pointer;white-space:nowrap">{{ tb.label }}<span style="min-width:20px;height:20px;padding:0 6px;border-radius:10px;display:grid;place-items:center;font:600 11px 'Geist Mono',monospace;background:{{ tb.nbg }};color:{{ tb.nfg }}">{{ tb.n }}</span></button>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <select value="{{ al.br }}" onChange="{{ al.onBr }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ al.brOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+    <select value="{{ al.site }}" onChange="{{ al.onSite }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ al.siteOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+    <select value="{{ al.rs }}" onChange="{{ al.onRs }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ al.rsOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+    <select value="{{ al.dt }}" onChange="{{ al.onDt }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ al.dtOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+    <sc-if value="{{ al.hasFilter }}"><button onClick="{{ al.clearF }}" style="height:34px;padding:0 10px;border:0;background:transparent;color:var(--accent);font-size:13px;cursor:pointer">Clear filters</button></sc-if>
+  </div>
+
+  <sc-if value="{{ al.hasSel }}">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent)">
+      <span style="font-weight:600;font-size:13.5px;color:var(--accent)">{{ al.selLabel }}</span>
+      <sc-if value="{{ al.bulkIdle }}">
+        <button onClick="{{ al.bulkApprove }}" style="height:32px;padding:0 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Resolve as valid</button>
+        <button onClick="{{ al.bulkReject }}" style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--bad);font-size:13px;font-weight:500;cursor:pointer">Reject all</button>
+      </sc-if>
+      <sc-if value="{{ al.bulkOpen }}">
+        <input value="{{ al.txt }}" onInput="{{ al.onTxt }}" placeholder="{{ al.bulkPh }}" style="flex:1 1 220px;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px">
+        <button onClick="{{ al.bulkConfirm }}" style="height:32px;padding:0 12px;border-radius:8px;border:0;background:{{ al.bulkBg }};color:#fff;font-size:13px;font-weight:500;cursor:pointer;opacity:{{ al.bulkOp }}">{{ al.bulkBtn }}</button>
+        <button onClick="{{ al.bulkCancel }}" style="height:32px;padding:0 10px;border:0;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer">Cancel</button>
+      </sc-if>
+      <button onClick="{{ al.clearSel }}" style="margin-left:auto;height:32px;padding:0 10px;border:0;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer">Clear selection</button>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:1 1 560px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto">
+      <div style="min-width:700px">
+        <div style="display:grid;grid-template-columns:28px minmax(150px,1.2fr) minmax(120px,1fr) 104px minmax(160px,1.3fr) 70px 82px;gap:12px;align-items:center;padding:0 14px;height:38px;border-bottom:1px solid var(--border);background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;border-radius:12px 12px 0 0">
+          <div onClick="{{ al.selAll }}" style="width:18px;height:18px;border-radius:5px;border:1.5px solid {{ al.allBd }};background:{{ al.allBg }};display:grid;place-items:center;cursor:pointer;color:#fff"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ al.allOp }}"><path d="M5 12l5 5 9-10"></path></svg></div>
+          <div>Employee</div><div>Site</div><div>Date / time</div><div>Reason</div><div>Severity</div><div>Status</div>
+        </div>
+        <sc-for list="{{ al.rows }}" as="r" hint-placeholder-count="6">
+          <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:28px minmax(150px,1.2fr) minmax(120px,1fr) 104px minmax(160px,1.3fr) 70px 82px;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);background:{{ r.bg }};cursor:pointer;font-size:13px" style-hover="background:var(--hover)">
+            <div onClick="{{ r.toggle }}" style="width:18px;height:18px;border-radius:5px;border:1.5px solid {{ r.ckBd }};background:{{ r.ckBg }};display:grid;place-items:center;color:#fff;visibility:{{ r.ckVis }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ r.ckOp }}"><path d="M5 12l5 5 9-10"></path></svg></div>
+            <div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;background:{{ r.avBg }};color:{{ r.avFg }}">{{ r.ini }}</div><div style="min-width:0"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div><div style="font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.role }}</div></div></div>
+            <div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.site }}</div><div style="font-size:12px;color:var(--text-3)">{{ r.branch }}</div></div>
+            <div style="color:var(--text-2);line-height:1.35">{{ r.dt }}</div>
+            <div><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ r.cBg }};color:{{ r.cFg }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.cDot }};flex:none"></span>{{ r.chip }}</span></div>
+            <div style="display:flex;align-items:center;gap:6px;color:var(--text-2);font-size:12.5px"><span style="width:8px;height:8px;border-radius:50%;background:{{ r.sevDot }}"></span>{{ r.sev }}</div>
+            <div><span style="padding:3px 8px;border-radius:6px;font-size:12px;font-weight:500;background:{{ r.stBg }};color:{{ r.stFg }}">{{ r.st }}</span></div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ al.empty }}"><div style="padding:56px 24px;text-align:center;color:var(--text-3);font-size:13.5px"><div style="font-weight:600;color:var(--text);font-size:15px;margin-bottom:4px">{{ al.emptyT }}</div>{{ al.emptyD }}</div></sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ al.hasD }}">
+    <aside style="flex:1 1 360px;max-width:480px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;align-self:flex-start;animation:ssIn .16s ease-out">
+      <div style="padding:16px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border)">
+        <div style="width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:600;background:{{ al.d.avBg }};color:{{ al.d.avFg }}">{{ al.d.ini }}</div>
+        <div style="min-width:0;flex:1"><div style="font-weight:600;font-size:15.5px">{{ al.d.name }}</div><div style="font-size:12.5px;color:var(--text-3)">{{ al.d.role }} · {{ al.d.site }}, {{ al.d.branch }}</div></div>
+        <span style="padding:3px 8px;border-radius:6px;font-size:12px;font-weight:500;background:{{ al.d.stBg }};color:{{ al.d.stFg }}">{{ al.d.st }}</span>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="display:inline-flex;align-self:flex-start;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:500;background:{{ al.d.cBg }};color:{{ al.d.cFg }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ al.d.cDot }}"></span>{{ al.d.chip }}</span>
+          <div style="font-size:13px;color:var(--text-2)">{{ al.d.desc }}</div>
+          <div style="font-size:12px;color:var(--text-3)">{{ al.d.dt }} · Severity {{ al.d.sev }}</div>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <svg viewBox="0 0 340 210" width="100%" style="display:block;background:var(--map-bg)">
+            <rect x="0" y="0" width="340" height="210" fill="var(--map-bg)"></rect>
+            <rect x="0" y="150" width="340" height="60" fill="var(--map-water)"></rect>
+            <rect x="12" y="10" width="92" height="56" rx="4" fill="var(--map-block)"></rect><rect x="12" y="84" width="92" height="52" rx="4" fill="var(--map-block)"></rect>
+            <rect x="130" y="10" width="76" height="56" rx="4" fill="var(--map-block)"></rect><rect x="236" y="10" width="92" height="56" rx="4" fill="var(--map-block)"></rect>
+            <rect x="236" y="84" width="92" height="52" rx="4" fill="var(--map-block)"></rect><rect x="130" y="130" width="76" height="14" rx="4" fill="var(--map-block)"></rect>
+            <path d="M0 75H340M0 143H340M117 0V150M222 0V150" stroke="var(--map-road)" stroke-width="7" fill="none"></path>
+            <circle cx="170" cy="105" r="{{ al.d.fr }}" fill="var(--fence)" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="5 4"></circle>
+            <circle cx="170" cy="105" r="3.5" fill="var(--accent)"></circle>
+            <sc-if value="{{ al.d.hasPos }}">
+              <line x1="170" y1="105" x2="{{ al.d.px }}" y2="{{ al.d.py }}" stroke="{{ al.d.pinC }}" stroke-width="1.6" stroke-dasharray="3 3"></line>
+              <circle cx="{{ al.d.px }}" cy="{{ al.d.py }}" r="{{ al.d.accPx }}" fill="{{ al.d.pinC }}" fill-opacity=".14" stroke="{{ al.d.pinC }}" stroke-opacity=".5" stroke-width="1"></circle>
+              <circle cx="{{ al.d.px }}" cy="{{ al.d.py }}" r="6.5" fill="{{ al.d.pinC }}" stroke="#fff" stroke-width="2"></circle>
+            </sc-if>
+          </svg>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;padding:9px 12px;font-size:12px;color:var(--text-2);border-top:1px solid var(--border);background:var(--surface-2)">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;border:1.5px dashed var(--accent);background:var(--fence)"></span>Geofence · {{ al.d.fenceR }} m</span>
+            <sc-if value="{{ al.d.hasPos }}"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:{{ al.d.pinC }}"></span>Reported position</span></sc-if>
+            <sc-if value="{{ al.d.noPos }}"><span>No GPS point — nobody checked in</span></sc-if>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <sc-for list="{{ al.d.facts }}" as="f" hint-placeholder-count="6"><div style="background:var(--surface);padding:10px 12px"><div style="font-size:11.5px;color:var(--text-3)">{{ f.k }}</div><div style="font-size:13px;font-weight:500;margin-top:2px;color:{{ f.c }}">{{ f.v }}</div></div></sc-for>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="width:72px;height:72px;border-radius:10px;flex:none;border:1px solid var(--border);background:repeating-linear-gradient(135deg,var(--surface-2) 0 8px,var(--hover) 8px 16px);display:grid;place-items:center;color:var(--text-3);font:500 10px 'Geist Mono',monospace;text-align:center;padding:4px">{{ al.d.selfieL }}</div>
+          <div style="font-size:13px;color:var(--text-2)"><div style="font-weight:500;color:var(--text)">Selfie</div>{{ al.d.selfieD }}</div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:13.5px">Employee flag history</div><span style="font:600 11px 'Geist Mono',monospace;padding:3px 7px;border-radius:6px;background:{{ al.d.fhBg }};color:{{ al.d.fhFg }}">{{ al.d.flagCount }} in 90 days</span></div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:6px">Previous records nearby</div>
+          <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+            <sc-for list="{{ al.d.prev }}" as="p" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-top:{{ p.bt }};font-size:12.5px"><span style="width:7px;height:7px;border-radius:50%;background:{{ p.dot }};flex:none"></span><span style="width:78px;color:var(--text-2)">{{ p.d }}</span><span style="font-family:'Geist Mono',monospace;font-size:12px">{{ p.t }}</span><span style="margin-left:auto;color:var(--text-3);text-align:right">{{ p.n }}</span></div></sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{ al.d.notes.length }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-weight:600;font-size:13.5px">Notes</div>
+            <sc-for list="{{ al.d.notes }}" as="n" hint-placeholder-count="1"><div style="padding:9px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-size:13px"><div style="font-size:11.5px;color:var(--text-3);margin-bottom:2px">{{ n.who }} · {{ n.t }}</div>{{ n.txt }}</div></sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ al.d.resolved }}">
+          <div style="padding:12px;border-radius:10px;background:{{ al.d.stBg }};color:{{ al.d.stFg }};font-size:13px"><div style="font-weight:600">{{ al.d.resTitle }}</div><div style="margin-top:2px">{{ al.d.resDesc }}</div></div>
+        </sc-if>
+
+        <sc-if value="{{ al.d.open }}">
+          <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:14px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onClick="{{ al.goApprove }}" style="height:34px;padding:0 12px;border-radius:9px;border:0;background:var(--ok-dot);color:#fff;font-size:13px;font-weight:500;cursor:pointer;outline:{{ al.oApprove }};outline-offset:2px">Approve as valid</button>
+              <button onClick="{{ al.goReject }}" style="height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--bad-dot);background:var(--bad-bg);color:var(--bad);font-size:13px;font-weight:500;cursor:pointer;outline:{{ al.oReject }};outline-offset:2px">Reject</button>
+              <button onClick="{{ al.goContact }}" style="height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:{{ al.bContact }};color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Contact</button>
+              <button onClick="{{ al.goNote }}" style="height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:{{ al.bNote }};color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Add note</button>
+              <button onClick="{{ al.goEscalate }}" style="height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:{{ al.bEsc }};color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Escalate</button>
+            </div>
+
+            <sc-if value="{{ al.aContact }}">
+              <div style="padding:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:13px;color:var(--text-2)">{{ al.d.name }} · {{ al.d.phone }}</div>
+                <div style="display:flex;gap:8px"><button onClick="{{ al.doCall }}" style="flex:1;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Call</button><button onClick="{{ al.doMsg }}" style="flex:1;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Send message</button></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ al.aForm }}">
+              <div style="padding:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px">
+                <div style="font-weight:600;font-size:13.5px">{{ al.formT }}</div>
+                <sc-if value="{{ al.aReject }}">
+                  <div style="display:flex;gap:8px">
+                    <button onClick="{{ al.outAbsent }}" style="flex:1;height:34px;border-radius:9px;border:1.5px solid {{ al.bdAbsent }};background:{{ al.bgAbsent }};color:var(--text);font-size:13px;cursor:pointer">Mark absent</button>
+                    <button onClick="{{ al.outInvalid }}" style="flex:1;height:34px;border-radius:9px;border:1.5px solid {{ al.bdInvalid }};background:{{ al.bgInvalid }};color:var(--text);font-size:13px;cursor:pointer">Mark record invalid</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ al.aEsc }}">
+                  <select value="{{ al.esc }}" onChange="{{ al.onEsc }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><sc-for list="{{ al.admins }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.v }}</option></sc-for></select>
+                </sc-if>
+                <textarea value="{{ al.txt }}" onInput="{{ al.onTxt }}" rows="3" placeholder="{{ al.formPh }}" style="resize:vertical;padding:9px 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"></textarea>
+                <div style="display:flex;gap:8px;align-items:center"><button onClick="{{ al.confirm }}" style="height:34px;padding:0 14px;border-radius:9px;border:0;background:{{ al.confBg }};color:#fff;font-size:13px;font-weight:500;cursor:pointer;opacity:{{ al.confOp }}">{{ al.confL }}</button><button onClick="{{ al.cancel }}" style="height:34px;padding:0 10px;border:0;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer">Cancel</button><span style="font-size:12px;color:var(--text-3)">{{ al.reqNote }}</span></div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </aside>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ al.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg);animation:ssIn .16s ease-out">{{ al.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const BR={sd:'Paris Nord',rl:'Paris Nord',pd:'Lyon',cf:'Lyon',pv:'Marseille'};
+const SN={pd:'Part-Dieu Tower',cf:'Confluence Depot',sd:'Saint-Denis Hub',rl:'Roissy Logistics',pv:'Port Vieux Yard'};
+const FR={pd:150,cf:180,sd:200,rl:200,pv:160};
+const RS={geo:['Outside geofence','bad'],mock:['Mock location','bad'],acc:['Low GPS accuracy','warn'],tamper:['Time tampering','bad'],unas:['Unassigned site','orange'],dev:['Unregistered device','violet'],miss:['Missing check-out','info'],uns:['Unscheduled check-in','orange'],unc:['Uncovered intervention','neutral']};
+const SEV={high:['High','var(--bad-dot)'],med:['Medium','var(--warn-dot)'],low:['Low','var(--neutral-dot)']};
+const TABS=[['flagged','Flagged check-ins'],['miss','Missing check-outs'],['uns','Unscheduled check-ins'],['unc','Uncovered interventions'],['resolved','Resolved']];
+const ADMINS=['Claire Vasseur','Nadia Koné','Julien Roche','Marc Olivier'];
+const DT=[['all','Any date'],['0','Today'],['7','Last 7 days'],['30','Last 30 days']];
+const AV=[['var(--info-bg)','var(--info)'],['var(--violet-bg)','var(--violet)'],['var(--orange-bg)','var(--orange)'],['var(--ok-bg)','var(--ok)'],['var(--warn-bg)','var(--warn)']];
+const DEV='iPhone 14 · iOS 17.5 · app 3.8.2';
+const mk=(id,tab,rs,name,role,site,dt,days,sev,o)=>Object.assign({id,tab,rs,name,role,site,dt,days,sev,status:'open',dist:0,acc:12,dev:DEV,reg:true,sf:true,fc:0,phone:'+33 6 '+(10+id.length*7+days)+' 42 '+(30+days)+' 18',prev:[['Yesterday','07:58 → 16:03',1,''],['Oct 14','07:55 → 16:10',1,''],['Oct 9','08:02 → 16:00',1,'']],notes:[],desc:''},o);
+const ITEMS=[
+ mk('a1','flagged','geo','Amélie Fontaine','Machinist','sd','Today · 08:12',0,'high',{dist:620,acc:14,fc:3,desc:'Checked in 420 m beyond the geofence edge, 8 min before shift start.',prev:[['Yesterday','07:58 → 16:03',1,''],['Oct 14','07:55 → 16:10',1,''],['Oct 9','08:40 → 16:00',0,'180 m outside']]}),
+ mk('a2','flagged','mock','Karim Benali','Forklift operator','rl','Today · 07:49',0,'high',{dist:40,acc:2,fc:5,dev:'Pixel 7 · Android 14 · developer options on',desc:'Location provider reports a mock app. Accuracy of 2 m is implausible indoors.',prev:[['Yesterday','07:45 → 15:58',0,'Mock location'],['Oct 14','07:50 → 16:02',0,'Mock location'],['Oct 13','07:44 → 16:00',1,'']]}),
+ mk('a3','flagged','acc','Léa Moreau','Cleaner','pd','Today · 06:31',0,'med',{dist:90,acc:180,fc:1,sf:false,desc:'GPS accuracy of 180 m exceeds the 50 m limit. Position could not be confirmed.'}),
+ mk('a4','flagged','tamper','Thomas Girard','Technician','cf','Yesterday · 07:20',1,'high',{dist:60,fc:2,desc:'Device clock was 41 min behind the server at check-in. Recorded time was overridden.'}),
+ mk('a5','flagged','unas','Inès Haddad','Electrician','pv','Yesterday · 09:05',1,'med',{dist:30,fc:0,desc:'Assigned to Part-Dieu Tower but checked in at Port Vieux Yard.'}),
+ mk('a6','flagged','dev','Paul Lambert','Driver','sd','Oct 14 · 06:58',2,'low',{dist:70,fc:1,reg:false,dev:'Galaxy A54 · Android 14 · app 3.8.0',desc:'First check-in from a device not registered to this employee.'}),
+ mk('a7','flagged','geo','Sofia Rossi','Loader','rl','Oct 13 · 14:02',3,'med',{dist:460,acc:22,fc:2,desc:'Checked in 260 m beyond the geofence edge.'}),
+ mk('a8','flagged','geo','Hugo Petit','Welder','sd','Oct 9 · 07:41',7,'med',{dist:510,fc:4,desc:'Checked in 310 m beyond the geofence edge.'}),
+ mk('a9','flagged','acc','Nora Diallo','Inspector','cf','Sep 30 · 08:15',16,'low',{dist:120,acc:95,fc:0,desc:'GPS accuracy of 95 m exceeds the 50 m limit.'}),
+ mk('m1','miss','miss','Yanis Boucher','Machinist','sd','Today · in 07:52',0,'med',{dist:55,desc:'No check-out 3 h after scheduled end (16:00).'}),
+ mk('m2','miss','miss','Camille Roux','Warehouse agent','rl','Yesterday · in 08:01',1,'low',{dist:80,desc:'No check-out recorded. App closed while on site.'}),
+ mk('m3','miss','miss','Mehdi Cherif','Technician','pd','Oct 13 · in 06:02',3,'med',{dist:20,desc:'No check-out. Last GPS ping 14:20, 600 m from site.'}),
+ mk('u1','uns','uns','Elena Marchand','Cleaner','cf','Today · 10:02',0,'low',{dist:45,desc:'Checked in with no shift scheduled for this site today.'}),
+ mk('u2','uns','uns','Bastien Leroy','Driver','pv','Yesterday · 13:30',1,'med',{dist:100,desc:'Checked in outside any scheduled shift. Roster shows day off.'}),
+ mk('u3','uns','uns','Zoé Martin','Loader','rl','Oct 12 · 05:45',4,'low',{dist:30,desc:'Shift swap not recorded. Scheduled employee was Pierre Dumas.'}),
+ mk('i1','unc','unc','Boiler failure · planned: Lucas Fabre','Intervention 14:00–18:00','pd','Today · 14:00',0,'high',{sf:false,desc:'No one checked in. Lucas Fabre is on leave and no replacement is assigned.'}),
+ mk('i2','unc','unc','Night patrol · planned: Rémi Colin','Intervention 22:00–06:00','sd','Yesterday · 22:00',1,'high',{sf:false,desc:'Night patrol uncovered for the full slot. Planned employee never checked in.'}),
+ mk('i3','unc','unc','Dock inspection · planned: Maya Perrin','Intervention 09:00–11:00','pv','Oct 12 · 09:00',4,'med',{sf:false,desc:'Inspection slot uncovered. Late check-in at 11:40 after the slot closed.'}),
+ mk('r1','flagged','geo','Damien Lopez','Cleaner','pd','Oct 10 · 07:30',6,'med',{status:'approved',dist:310,fc:1,res:['Claire Vasseur','Employee was on a site-approved fuel stop.']}),
+ mk('r2','flagged','mock','Chloé Garnier','Technician','cf','Oct 8 · 08:00',8,'high',{status:'rejected',dist:30,acc:1,fc:4,out:'absent',res:['Nadia Koné','Mock location confirmed with device audit.']}),
+ mk('r3','miss','miss','Olivier Bernard','Driver','sd','Oct 6 · in 07:44',10,'low',{status:'approved',res:['Marc Olivier','Forgot to check out; confirmed by site manager.']}),
+ mk('r4','uns','uns','Sarah Fabre','Loader','rl','Oct 2 · 13:02',14,'low',{status:'rejected',out:'invalid',res:['Julien Roche','Employee not rostered; no manager approval.']})
+];
+class Component extends DCLogic {
+  state={items:ITEMS,tab:'flagged',sel:[],openId:'a1',br:'all',site:'all',rs:'all',dt:'all',q:'',act:null,txt:'',outcome:'absent',esc:'Claire Vasseur',bulk:null,toast:null};
+  componentWillUnmount(){ clearTimeout(this.tt); }
+  say(m){ this.setState({toast:m}); clearTimeout(this.tt); this.tt=setTimeout(()=>this.setState({toast:null}),2600); }
+  vis(){
+    const s=this.state,q=s.q.trim().toLowerCase();
+    return s.items.filter(it=>{
+      if(s.tab==='resolved'?it.status==='open':(it.status!=='open'||it.tab!==s.tab)) return false;
+      if(s.br!=='all'&&BR[it.site]!==s.br) return false;
+      if(s.site!=='all'&&it.site!==s.site) return false;
+      if(s.rs!=='all'&&it.rs!==s.rs) return false;
+      if(s.dt!=='all'&&it.days>+s.dt) return false;
+      return !q||it.name.toLowerCase().includes(q);
+    });
+  }
+  resolve(ids,status,reason,out){
+    this.setState(s=>({items:s.items.map(it=>ids.includes(it.id)?Object.assign({},it,{status,out,res:['Claire Vasseur',reason]}):it),sel:s.sel.filter(x=>!ids.includes(x)),act:null,txt:'',bulk:null}));
+  }
+  renderVals(){ return {al:this.rv()}; }
+  rv(){
+    const s=this.state,T=this;
+    const open=s.items.filter(i=>i.status==='open');
+    const vis=this.vis(),cur=s.items.find(i=>i.id===s.openId);
+    const chip=it=>{const r=RS[it.rs],g=it.rs==='geo'?'Outside geofence by '+Math.max(0,it.dist-FR[it.site])+' m':r[0];return {chip:g,cBg:'var(--'+r[1]+'-bg)',cFg:'var(--'+r[1]+')',cDot:'var(--'+r[1]+'-dot)'};};
+    const stl={open:['Open','var(--warn-bg)','var(--warn)'],approved:['Approved','var(--ok-bg)','var(--ok)'],rejected:['Rejected','var(--bad-bg)','var(--bad)']};
+    const av=it=>{const a=AV[(it.name.charCodeAt(0)+it.name.length)%AV.length];const w=it.name.split(' · ')[0].split(' ');return {avBg:a[0],avFg:a[1],ini:w.length>1&&!it.name.includes('·')?w[0][0]+w[1][0]:w[0].slice(0,2).toUpperCase()};};
+    const selOpen=vis.filter(i=>i.status==='open'),allOn=selOpen.length>0&&selOpen.every(i=>s.sel.includes(i.id));
+    const sites=Object.keys(SN).filter(k=>s.br==='all'||BR[k]===s.br);
+    const rows=vis.map(it=>{const on=s.sel.includes(it.id),st=stl[it.status],sv=SEV[it.sev];
+      return Object.assign({id:it.id,name:it.name,role:it.role,site:SN[it.site],branch:BR[it.site],dt:it.dt,sev:sv[0],sevDot:sv[1],st:st[0],stBg:st[1],stFg:st[2],bg:it.id===s.openId?'var(--accent-soft)':'transparent',
+        ckBg:on?'var(--accent)':'transparent',ckBd:on?'var(--accent)':'var(--border-strong)',ckOp:on?1:0,ckVis:it.status==='open'?'visible':'hidden',
+        open:()=>this.setState({openId:it.id,act:null,txt:''}),
+        toggle:e=>{e.stopPropagation();this.setState(x=>({sel:x.sel.includes(it.id)?x.sel.filter(y=>y!==it.id):x.sel.concat(it.id),bulk:null}));}},chip(it),av(it));});
+    let d=null;
+    if(cur){
+      const r=RS[cur.rs],c=chip(cur),sv=SEV[cur.sev],st=stl[cur.status],fr=FR[cur.site],k=0.3,hasPos=cur.tab!=='unc';
+      const ang=(cur.name.length*47+cur.days*31)%360*Math.PI/180,pxr=Math.min(cur.dist*k,150),px=170+Math.cos(ang)*pxr,py=Math.max(14,Math.min(140,105+Math.sin(ang)*pxr*0.7));
+      const outside=cur.dist>fr,badAcc=cur.acc>50,sus=cur.acc<4;
+      d=Object.assign({name:cur.name,role:cur.role,site:SN[cur.site],branch:BR[cur.site],st:st[0],stBg:st[1],stFg:st[2],desc:cur.desc,dt:cur.dt,sev:sv[0],
+        fr:fr*k,fenceR:fr,hasPos,noPos:!hasPos,px:px.toFixed(1),py:py.toFixed(1),pinC:cur.rs==='geo'||cur.rs==='mock'||cur.rs==='tamper'?'var(--bad-dot)':'var(--warn-dot)',accPx:Math.min(60,Math.max(6,cur.acc*k)),
+        facts:hasPos?[{k:'Distance from site centre',v:cur.dist+' m'+(outside?' · '+(cur.dist-fr)+' m outside':' · inside'),c:outside?'var(--bad)':'var(--text)'},{k:'GPS accuracy',v:'±'+cur.acc+' m'+(badAcc?' · poor':sus?' · suspicious':' · good'),c:badAcc||sus?'var(--warn)':'var(--text)'},{k:'Device',v:cur.dev,c:'var(--text)'},{k:'Device registered',v:cur.reg?'Yes':'No — new device',c:cur.reg?'var(--text)':'var(--violet)'}]:[{k:'Site',v:SN[cur.site],c:'var(--text)'},{k:'Slot',v:cur.role.replace('Intervention ',''),c:'var(--text)'},{k:'Coverage',v:'0 of 1 staffed',c:'var(--bad)'},{k:'Site manager',v:{sd:'Marc Olivier',rl:'Marc Olivier',pd:'Nadia Koné',cf:'Julien Roche',pv:'Sarah Benoît'}[cur.site],c:'var(--text)'}],
+        selfieL:cur.sf?'SELFIE\n'+cur.dt.split('· ').pop():'NONE',selfieD:cur.sf?'Captured at check-in.':hasPos?'Not captured — camera permission denied.':'Not applicable.',
+        flagCount:cur.fc,fhBg:cur.fc>=3?'var(--bad-bg)':cur.fc?'var(--warn-bg)':'var(--ok-bg)',fhFg:cur.fc>=3?'var(--bad)':cur.fc?'var(--warn)':'var(--ok)',
+        prev:cur.prev.map((p,i)=>({d:p[0],t:p[1],dot:p[2]?'var(--ok-dot)':'var(--bad-dot)',n:p[3]||'Valid',bt:i?'1px solid var(--border)':'0'})),
+        notes:cur.notes,phone:cur.phone,open:cur.status==='open',resolved:cur.status!=='open',
+        resTitle:cur.res?(cur.status==='approved'?'Approved as valid':'Rejected · '+(cur.out==='invalid'?'record invalid':'marked absent'))+' by '+cur.res[0]:'',resDesc:cur.res?cur.res[1]:''},c,av(cur));
+    }
+    const a=s.act,need=s.txt.trim().length<3;
+    const ob=x=>a===x?'2px solid var(--accent)':'none';
+    const mkB=x=>a===x?'var(--hover)':'var(--surface)';
+    const bulkApprove=s.bulk==='approve';
+    const openCount=k=>open.filter(i=>i.tab===k).length;
+    const dotAct=k=>this.setState({act:s.act===k?null:k,txt:''});
+    const done=(m)=>{ this.say(m); };
+    return {
+      sub:open.length+' open alerts across '+new Set(open.map(i=>i.site)).size+' sites · '+open.filter(i=>i.sev==='high').length+' high severity',
+      tabs:TABS.map(([k,l])=>{const on=s.tab===k,n=k==='resolved'?s.items.length-open.length:openCount(k);return {label:l,n,bd:on?'var(--accent)':'transparent',fg:on?'var(--text)':'var(--text-2)',fw:on?600:500,nbg:on?'var(--accent)':'var(--neutral-bg)',nfg:on?'#fff':'var(--neutral)',go:()=>this.setState({tab:k,sel:[],act:null,bulk:null})};}),
+      q:s.q,onQ:e=>this.setState({q:e.target.value}),br:s.br,site:s.site,rs:s.rs,dt:s.dt,
+      onBr:e=>this.setState({br:e.target.value,site:'all',sel:[]}),onSite:e=>this.setState({site:e.target.value,sel:[]}),onRs:e=>this.setState({rs:e.target.value,sel:[]}),onDt:e=>this.setState({dt:e.target.value,sel:[]}),
+      brOpts:[{v:'all',l:'All branches'}].concat(['Lyon','Paris Nord','Marseille'].map(b=>({v:b,l:b}))),
+      siteOpts:[{v:'all',l:'All sites'}].concat(sites.map(k=>({v:k,l:SN[k]}))),
+      rsOpts:[{v:'all',l:'All reasons'}].concat(Object.keys(RS).map(k=>({v:k,l:RS[k][0]}))),
+      dtOpts:DT.map(([v,l])=>({v,l})),
+      hasFilter:s.br!=='all'||s.site!=='all'||s.rs!=='all'||s.dt!=='all'||!!s.q,
+      clearF:()=>this.setState({br:'all',site:'all',rs:'all',dt:'all',q:''}),
+      hasSel:s.sel.length>0,selLabel:s.sel.length+' selected',bulkIdle:!s.bulk,bulkOpen:!!s.bulk,
+      bulkApprove:()=>this.setState({bulk:'approve',txt:''}),bulkReject:()=>this.setState({bulk:'reject',txt:''}),bulkCancel:()=>this.setState({bulk:null,txt:''}),clearSel:()=>this.setState({sel:[],bulk:null}),
+      bulkPh:bulkApprove?'Reason for approving (required)':'Reason for rejecting (required)',bulkBtn:bulkApprove?'Resolve '+s.sel.length+' as valid':'Reject '+s.sel.length+' (mark absent)',bulkBg:bulkApprove?'var(--ok-dot)':'var(--bad-dot)',bulkOp:need?.45:1,
+      bulkConfirm:()=>{ if(need) return; const n=s.sel.length; this.resolve(s.sel,bulkApprove?'approved':'rejected',s.txt.trim(),bulkApprove?undefined:'absent'); done(n+' alerts '+(bulkApprove?'approved':'rejected')); },
+      allBg:allOn?'var(--accent)':'transparent',allBd:allOn?'var(--accent)':'var(--border-strong)',allOp:allOn?1:0,
+      selAll:()=>this.setState({sel:allOn?[]:selOpen.map(i=>i.id),bulk:null}),
+      txt:s.txt,onTxt:e=>this.setState({txt:e.target.value}),
+      rows,empty:rows.length===0,emptyT:s.tab==='resolved'?'Nothing resolved yet':'All clear',emptyD:'No alerts match the current filters.',
+      hasD:!!d,d,
+      goApprove:()=>dotAct('approve'),goReject:()=>this.setState({act:s.act==='reject'?null:'reject',txt:'',outcome:'absent'}),goContact:()=>dotAct('contact'),goNote:()=>dotAct('note'),goEscalate:()=>dotAct('esc'),
+      oApprove:ob('approve'),oReject:ob('reject'),bContact:mkB('contact'),bNote:mkB('note'),bEsc:mkB('esc'),
+      aContact:a==='contact',aForm:a==='approve'||a==='reject'||a==='note'||a==='esc',aReject:a==='reject',aEsc:a==='esc',
+      doCall:()=>{done('Calling '+cur.name+'…');this.setState({act:null});},doMsg:()=>{done('Message sent to '+cur.name);this.setState({act:null});},
+      formT:{approve:'Approve as valid',reject:'Reject alert',note:'Add a note',esc:'Escalate to another admin'}[a]||'',
+      formPh:{approve:'Why is this check-in valid? (required)',reject:'Reason for rejection (required)',note:'Write a note…',esc:'Context for the next admin (required)'}[a]||'',
+      reqNote:a==='note'?'':'Reason is required',
+      outAbsent:()=>this.setState({outcome:'absent'}),outInvalid:()=>this.setState({outcome:'invalid'}),
+      bdAbsent:s.outcome==='absent'?'var(--bad-dot)':'var(--border-strong)',bgAbsent:s.outcome==='absent'?'var(--bad-bg)':'var(--surface)',bdInvalid:s.outcome==='invalid'?'var(--bad-dot)':'var(--border-strong)',bgInvalid:s.outcome==='invalid'?'var(--bad-bg)':'var(--surface)',
+      esc:s.esc,onEsc:e=>this.setState({esc:e.target.value}),admins:ADMINS.filter(n=>n!=='Claire Vasseur').map(v=>({v})),
+      confL:{approve:'Approve as valid',reject:s.outcome==='absent'?'Reject · mark absent':'Reject · mark invalid',note:'Save note',esc:'Escalate'}[a]||'',
+      confBg:a==='approve'?'var(--ok-dot)':a==='reject'?'var(--bad-dot)':'var(--accent)',confOp:need?.45:1,
+      cancel:()=>this.setState({act:null,txt:''}),
+      confirm:()=>{ if(need) return; const t=s.txt.trim(),id=cur.id;
+        if(a==='approve'){this.resolve([id],'approved',t);done('Approved as valid');}
+        else if(a==='reject'){this.resolve([id],'rejected',t,s.outcome);done('Rejected · '+(s.outcome==='absent'?'marked absent':'record invalid'));}
+        else if(a==='note'){this.setState(x=>({items:x.items.map(i=>i.id===id?Object.assign({},i,{notes:i.notes.concat({who:'Claire Vasseur',t:'just now',txt:t})}):i),act:null,txt:''}));done('Note added');}
+        else {this.setState(x=>({items:x.items.map(i=>i.id===id?Object.assign({},i,{notes:i.notes.concat({who:'Claire Vasseur',t:'just now',txt:'Escalated to '+x.esc+': '+t})}):i),act:null,txt:''}));done('Escalated to '+s.esc);}
+      },
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

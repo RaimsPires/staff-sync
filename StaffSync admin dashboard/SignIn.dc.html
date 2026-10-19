@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- ===== SIGNIN ===== -->
+<div data-theme="{{ si.theme }}" style="min-height:100vh;background:var(--surface);color:var(--text);display:flex;font-size:14px;line-height:1.45">
+
+<sc-if value="{{ si.showBrand }}" hint-placeholder-val="{{ true }}">
+<section style="flex:1 1 50%;position:relative;overflow:hidden;background:#0A2547;color:#fff;display:flex;flex-direction:column;padding:40px 48px;box-sizing:border-box;min-height:100vh">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:22px 22px"></div>
+  <div style="position:absolute;width:620px;height:620px;right:-220px;top:-160px;border-radius:50%;border:1px solid rgba(255,255,255,.08)"></div>
+  <div style="position:absolute;width:420px;height:420px;right:-120px;top:-60px;border-radius:50%;border:1px solid rgba(255,255,255,.1)"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:10px">
+    <div style="width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;overflow:hidden"><img src="assets/staffsync-logo.png" alt="StaffSync" style="width:34px;height:34px;object-fit:contain"></div>
+    <span style="font-weight:700;font-size:18px;letter-spacing:-.01em">StaffSync</span>
+  </div>
+
+  <div style="position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0">
+    <div style="position:relative;width:100%;max-width:440px;height:360px">
+      <div style="position:absolute;left:0;top:30px;width:300px;border-radius:16px;background:#fff;color:#0D1B2E;box-shadow:0 24px 60px rgba(0,0,0,.35);padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span style="font-weight:600;font-size:13px">{{ si.t.ilTitle }}</span><span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#0F7A3F;font-weight:500"><span style="width:7px;height:7px;border-radius:50%;background:#16A34A"></span>{{ si.t.ilLive }}</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:34px;font-weight:600;letter-spacing:-.02em">168</span><span style="font-size:12.5px;color:#6F7A8B">/ 198 {{ si.t.ilPresent }}</span></div>
+        <div style="display:flex;height:8px;border-radius:8px;overflow:hidden;gap:2px;margin:12px 0 14px"><span style="flex:152;background:#0B67DD"></span><span style="flex:16;background:#E59A00"></span><span style="flex:11;background:#E5372A"></span><span style="flex:19;background:#EEF1F5"></span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11.5px">
+          <div style="padding:8px;border-radius:8px;background:#E5F4EA;color:#0F7A3F"><div style="font-weight:600;font-size:15px">152</div>{{ si.t.ilOnTime }}</div>
+          <div style="padding:8px;border-radius:8px;background:#FCF0D6;color:#8F5300"><div style="font-weight:600;font-size:15px">16</div>{{ si.t.ilLate }}</div>
+          <div style="padding:8px;border-radius:8px;background:#FCE9E7;color:#B9241A"><div style="font-weight:600;font-size:15px">4</div>{{ si.t.ilFlag }}</div>
+        </div>
+      </div>
+      <div style="position:absolute;right:0;top:0;width:200px;height:170px;border-radius:16px;background:#E9EEF0;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:ssFloat 6s ease-in-out infinite">
+        <svg viewBox="0 0 200 170" style="position:absolute;inset:0;width:100%;height:100%">
+          <rect x="10" y="10" width="50" height="34" rx="3" fill="#DDE3DA"></rect><rect x="132" y="102" width="58" height="50" rx="3" fill="#DDE3DA"></rect>
+          <path d="M0 130 C 50 118, 90 160, 200 140 L200 170 L0 170Z" fill="#D3E4F2"></path>
+          <g stroke="#fff" fill="none" stroke-linecap="round"><path d="M0 56 L200 48" stroke-width="7"></path><path d="M74 0 L82 170" stroke-width="7"></path><path d="M0 104 L200 96" stroke-width="4"></path><path d="M150 0 L170 170" stroke-width="4"></path></g>
+          <circle cx="110" cy="76" r="40" fill="rgba(11,103,221,.14)" stroke="#0B67DD" stroke-width="1.6" stroke-dasharray="5 4"></circle>
+          <circle cx="100" cy="68" r="5" fill="#16A34A" stroke="#fff" stroke-width="2"></circle><circle cx="122" cy="82" r="5" fill="#16A34A" stroke="#fff" stroke-width="2"></circle><circle cx="108" cy="92" r="5" fill="#E59A00" stroke="#fff" stroke-width="2"></circle><circle cx="178" cy="22" r="5" fill="#E5372A" stroke="#fff" stroke-width="2"></circle>
+        </svg>
+      </div>
+      <div style="position:absolute;right:20px;bottom:0;width:250px;border-radius:14px;background:#fff;color:#0D1B2E;box-shadow:0 24px 60px rgba(0,0,0,.35);padding:12px 14px;display:flex;gap:12px;align-items:center;animation:ssFloat 6s ease-in-out -3s infinite">
+        <div style="width:36px;height:36px;border-radius:50%;background:oklch(0.93 0.045 150);color:oklch(0.42 0.1 150);display:grid;place-items:center;font-size:12.5px;font-weight:600;flex:none">CD</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Camille Durand</div><div style="font-size:11.5px;color:#6F7A8B">{{ si.t.ilCheckin }}</div></div>
+        <span style="font:500 11px 'Geist Mono',monospace;padding:3px 7px;border-radius:999px;background:#E5F4EA;color:#0F7A3F">07:54</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:relative;max-width:460px">
+    <h2 style="margin:0;font-size:30px;line-height:1.15;font-weight:600;letter-spacing:-.02em;text-wrap:balance">{{ si.t.vpTitle }}</h2>
+    <div style="margin-top:12px;font-size:15px;color:rgba(255,255,255,.78);text-wrap:pretty">{{ si.t.vpSub }}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <sc-for list="{{ si.vpChips }}" as="c" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7FB4FF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>{{ c }}</span></sc-for>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<section style="flex:1 1 50%;display:flex;flex-direction:column;min-height:100vh;box-sizing:border-box;padding:24px 32px;background:var(--surface)">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <sc-if value="{{ si.compact }}"><div style="display:flex;align-items:center;gap:8px"><img src="assets/staffsync-logo.png" alt="StaffSync" style="width:30px;height:30px;object-fit:contain"><span style="font-weight:700;font-size:16px">StaffSync</span></div></sc-if>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onClick="{{ si.toggleTheme }}" title="Theme" style="width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-2);display:grid;place-items:center;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ si.themeIcon }}"></path></svg></button>
+      <div style="display:flex;padding:3px;border:1px solid var(--border);border-radius:9px;gap:2px" role="group" aria-label="Language">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--text-3);margin:5px 4px 0 5px"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z"></path></svg>
+        <button onClick="{{ si.setEn }}" style="border:0;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:{{ si.en.bg }};color:{{ si.en.fg }}">EN</button>
+        <button onClick="{{ si.setFr }}" style="border:0;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:{{ si.fr.bg }};color:{{ si.fr.fg }}">FR</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 0">
+    <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px">
+      <sc-if value="{{ si.offline }}">
+        <div role="status" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--warn-bg);color:var(--warn);animation:ssIn .2s ease-out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M2 2l20 20M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5.2-2.7M19 12.9a10 10 0 0 0-2.3-1.6M1.4 9a15 15 0 0 1 4.4-2.6M22.6 9A15 15 0 0 0 10.7 5M12 20h.01"></path></svg>
+          <div style="flex:1"><div style="font-weight:600;font-size:13.5px">{{ si.t.offTitle }}</div><div style="font-size:12.5px">{{ si.t.offDesc }}</div></div>
+          <button onClick="{{ si.retry }}" style="height:28px;padding:0 10px;border-radius:7px;border:1px solid currentColor;background:transparent;color:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">{{ si.t.retry }}</button>
+        </div>
+      </sc-if>
+
+      <div>
+        <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em">{{ si.t.title }}</h1>
+        <div style="margin-top:6px;color:var(--text-2)">{{ si.t.sub }}</div>
+      </div>
+
+      <sc-if value="{{ si.isWrong }}">
+        <div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bad-bg);color:var(--bad);animation:ssIn .2s ease-out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 8v5M12 16h.01"></path></svg>
+          <div><div style="font-weight:600;font-size:13.5px">{{ si.t.wrongTitle }}</div><div style="font-size:12.5px">{{ si.wrongDesc }}</div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ si.isLocked }}">
+        <div role="alert" style="display:flex;gap:12px;padding:14px;border-radius:10px;background:var(--bad-bg);color:var(--bad);animation:ssIn .2s ease-out">
+          <div style="width:36px;height:36px;border-radius:9px;background:var(--bad-dot);color:#fff;display:grid;place-items:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+          <div style="flex:1"><div style="font-weight:600;font-size:13.5px">{{ si.t.lockTitle }}</div><div style="font-size:12.5px">{{ si.t.lockDesc }}</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px"><span style="font:600 20px 'Geist Mono',monospace;letter-spacing:.02em">{{ si.lockClock }}</span><div style="flex:1;height:4px;border-radius:4px;background:rgba(229,55,42,.2);overflow:hidden"><div style="height:100%;width:{{ si.lockPct }};background:var(--bad-dot)"></div></div></div>
+            <div style="font-size:12.5px;margin-top:8px"><a href="#" onClick="{{ si.forgot }}" style="color:inherit;text-decoration:underline">{{ si.t.lockReset }}</a></div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ si.isDeact }}">
+        <div role="alert" style="display:flex;gap:12px;padding:14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border-strong);animation:ssIn .2s ease-out">
+          <div style="width:36px;height:36px;border-radius:9px;background:var(--neutral-bg);color:var(--text-2);display:grid;place-items:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 4 1.5M16 17h6"></path></svg></div>
+          <div style="flex:1"><div style="font-weight:600;font-size:13.5px">{{ si.t.deTitle }}</div><div style="font-size:12.5px;color:var(--text-2)">{{ si.deDesc }}</div>
+            <div style="display:flex;gap:12px;margin-top:8px;font-size:12.5px"><a href="#" onClick="{{ si.contactAdmin }}">{{ si.t.deContact }}</a><a href="#" onClick="{{ si.useOther }}">{{ si.t.deOther }}</a></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <form onSubmit="{{ si.submit }}" novalidate="{{ true }}" style="display:flex;flex-direction:column;gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">{{ si.t.email }}</span>
+          <input value="{{ si.email }}" onChange="{{ si.onEmail }}" type="email" autocomplete="email" placeholder="name@company.com" disabled="{{ si.fieldsDisabled }}" style="height:42px;padding:0 12px;border-radius:9px;border:1px solid {{ si.emailBd }};background:{{ si.fieldBg }};color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <sc-if value="{{ si.hasEmailErr }}"><span style="font-size:12.5px;color:var(--bad)">{{ si.emailErr }}</span></sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px;font-weight:500">{{ si.t.password }}</span><a href="#" onClick="{{ si.forgot }}" style="font-size:12.5px;font-weight:500">{{ si.t.forgot }}</a></span>
+          <div style="position:relative;display:flex">
+            <input value="{{ si.password }}" onChange="{{ si.onPw }}" type="{{ si.pwType }}" autocomplete="current-password" placeholder="••••••••" disabled="{{ si.fieldsDisabled }}" style="flex:1;min-width:0;height:42px;padding:0 44px 0 12px;border-radius:9px;border:1px solid {{ si.pwBd }};background:{{ si.fieldBg }};color:var(--text);font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+            <button type="button" onClick="{{ si.togglePw }}" aria-label="{{ si.pwAria }}" title="{{ si.pwAria }}" style="position:absolute;right:6px;top:6px;width:30px;height:30px;border:0;border-radius:7px;background:transparent;color:var(--text-3);display:grid;place-items:center;cursor:pointer" style-hover="background:var(--hover);color:var(--text)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ si.eyeIcon }}"></path></svg></button>
+          </div>
+          <sc-if value="{{ si.hasPwErr }}"><span style="font-size:12.5px;color:var(--bad)">{{ si.pwErr }}</span></sc-if>
+        </label>
+        <label style="display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--text-2);cursor:pointer;align-self:flex-start">
+          <input type="checkbox" checked="{{ si.remember }}" onChange="{{ si.onRemember }}" style="width:16px;height:16px;margin:0;accent-color:#0B67DD">{{ si.t.remember }}
+        </label>
+        <button type="submit" disabled="{{ si.submitDisabled }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:44px;border:0;border-radius:10px;background:{{ si.btnBg }};color:{{ si.btnFg }};font-size:14.5px;font-weight:600;cursor:{{ si.btnCursor }}" style-hover="filter:brightness(1.06)">
+          <sc-if value="{{ si.loading }}"><span style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:ssSpin .7s linear infinite;box-sizing:border-box"></span></sc-if>
+          {{ si.btnLabel }}
+        </button>
+      </form>
+
+      <div style="display:flex;align-items:center;gap:12px;color:var(--text-3);font-size:12px"><span style="flex:1;height:1px;background:var(--border)"></span>{{ si.t.or }}<span style="flex:1;height:1px;background:var(--border)"></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{ si.ssoGoogle }}" disabled="{{ si.ssoDisabled }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:42px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;opacity:{{ si.ssoOpacity }}" style-hover="background:var(--hover)"><span style="width:18px;height:18px;display:grid;place-items:center;font-weight:700;font-size:16px;color:#4285F4">G</span>{{ si.t.google }}</button>
+        <button onClick="{{ si.ssoMs }}" disabled="{{ si.ssoDisabled }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:42px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;opacity:{{ si.ssoOpacity }}" style-hover="background:var(--hover)"><span style="display:grid;grid-template-columns:7px 7px;gap:1.5px"><span style="width:7px;height:7px;background:#F25022"></span><span style="width:7px;height:7px;background:#7FBA00"></span><span style="width:7px;height:7px;background:#00A4EF"></span><span style="width:7px;height:7px;background:#FFB900"></span></span>{{ si.t.ms }}</button>
+      </div>
+      <div style="text-align:center;font-size:13.5px;color:var(--text-2)">{{ si.t.noAccount }} <a href="#" onClick="{{ si.goCreate }}" style="font-weight:500">{{ si.t.create }}</a></div>
+      <div style="font-size:12px;color:var(--text-3);text-align:center;padding:8px 12px;border-radius:8px;background:var(--surface-2)">{{ si.t.demo }}</div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--text-3)">
+    <span>© 2026 StaffSync</span>
+    <div style="display:flex;gap:16px"><a href="#" style="color:var(--text-3)">{{ si.t.privacy }}</a><a href="#" style="color:var(--text-3)">{{ si.t.terms }}</a><a href="#" style="color:var(--text-3)">{{ si.t.status }}</a></div>
+  </div>
+</section>
+
+<div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center">
+  <sc-for list="{{ si.toasts }}" as="tt">
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:11px;background:var(--text);color:var(--surface);box-shadow:var(--shadow-lg);font-size:13.5px;animation:ssIn .2s ease-out"><span style="width:8px;height:8px;border-radius:50%;background:{{ tt.c }}"></span>{{ tt.msg }}</div>
+  </sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const T={
+  title:['Sign in to StaffSync','Connexion à StaffSync'],sub:['Welcome back. Sign in to your admin workspace.','Bon retour. Connectez-vous à votre espace administrateur.'],
+  email:['Work email','E-mail professionnel'],password:['Password','Mot de passe'],forgot:['Forgot password?','Mot de passe oublié ?'],remember:['Remember me for 30 days','Se souvenir de moi pendant 30 jours'],
+  signIn:['Sign in','Se connecter'],signingIn:['Signing in…','Connexion…'],or:['or','ou'],google:['Continue with Google','Continuer avec Google'],ms:['Continue with Microsoft','Continuer avec Microsoft'],
+  noAccount:['New to StaffSync?','Nouveau sur StaffSync ?'],create:['Create a company account','Créer un compte entreprise'],
+  wrongTitle:['Incorrect email or password','E-mail ou mot de passe incorrect'],
+  lockTitle:['Account temporarily locked','Compte temporairement verrouillé'],lockDesc:['Too many failed attempts. For your security, sign-in is paused.','Trop de tentatives échouées. Par sécurité, la connexion est suspendue.'],lockReset:['Reset your password instead','Réinitialiser le mot de passe'],lockBtn:['Locked','Verrouillé'],
+  deTitle:['This account has been deactivated','Ce compte a été désactivé'],deContact:['Contact your admin','Contacter votre administrateur'],deOther:['Use another account','Utiliser un autre compte'],
+  offTitle:['You’re offline','Vous êtes hors ligne'],offDesc:['Check your connection. You can sign in once you’re back online.','Vérifiez votre connexion. Vous pourrez vous connecter une fois en ligne.'],retry:['Retry','Réessayer'],offBtn:['Waiting for connection','En attente de connexion'],
+  eReq:['Enter your email.','Saisissez votre e-mail.'],eBad:['Enter a valid email, like name@company.com.','Saisissez un e-mail valide, ex. nom@entreprise.fr.'],pReq:['Enter your password.','Saisissez votre mot de passe.'],
+  show:['Show password','Afficher le mot de passe'],hide:['Hide password','Masquer le mot de passe'],
+  vpTitle:['Know who’s on site, right now.','Sachez qui est sur site, en temps réel.'],
+  vpSub:['Geofenced check-ins, live attendance across every branch and site, and fraud flags you can actually act on.','Pointages géolocalisés, présences en direct sur toutes vos agences et sites, et alertes de fraude exploitables.'],
+  c1:['GPS geofencing','Géorepérage GPS'],c2:['Leave approvals','Validation des congés'],c3:['Role-based access','Accès par rôle'],
+  ilTitle:['Today · all sites','Aujourd’hui · tous les sites'],ilLive:['Live','En direct'],ilPresent:['present','présents'],ilOnTime:['On time','À l’heure'],ilLate:['Late','Retards'],ilFlag:['Flagged','Signalés'],ilCheckin:['Checked in · Part-Dieu Tower','Arrivée · Part-Dieu Tower'],
+  demo:['Prototype: password “staffsync” signs in · emails starting with “former” are deactivated · 5 wrong tries locks the account','Prototype : mot de passe « staffsync » · e-mails commençant par « former » désactivés · 5 échecs verrouillent le compte'],
+  privacy:['Privacy','Confidentialité'],terms:['Terms','Conditions'],status:['System status','État du service']
+};
+const EYE='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', EYEOFF='M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2';
+const SUN='M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4', MOON='M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z';
+const LOCK_MS=15*60*1000, MAX=5;
+
+class Component extends DCLogic {
+  renderVals(){ return {si:this.renderVals0()}; }
+  state={lang:null,theme:null,email:'',password:'',remember:true,showPw:false,loading:false,tried:false,result:null,attempts:0,lockUntil:0,now:Date.now(),netOffline:false,toasts:[],w:1440,forced:null};
+  componentDidMount(){
+    this.onR=()=>this.setState({w:window.innerWidth}); this.onR(); window.addEventListener('resize',this.onR);
+    this.onOff=()=>this.setState({netOffline:true}); this.onOn=()=>this.setState({netOffline:false}); window.addEventListener('offline',this.onOff); window.addEventListener('online',this.onOn);
+    this.setState({netOffline:typeof navigator!=='undefined'&&navigator.onLine===false});
+    this.tick=setInterval(()=>{ if(this.state.lockUntil>Date.now()||this.state.lockUntil) this.setState({now:Date.now()}); },1000);
+    this.applyPreview();
+  }
+  componentWillUnmount(){ window.removeEventListener('resize',this.onR); window.removeEventListener('offline',this.onOff); window.removeEventListener('online',this.onOn); clearInterval(this.tick); clearTimeout(this.lt); }
+  componentDidUpdate(pp){
+    if(pp.theme!==this.props.theme) this.setState({theme:null});
+    if(pp.lang!==this.props.lang) this.setState({lang:null});
+    if(pp.previewState!==this.props.previewState) this.applyPreview();
+  }
+  applyPreview(){
+    const p=this.props.previewState||'default'; clearTimeout(this.lt);
+    const base={loading:false,result:null,tried:false,lockUntil:0,attempts:0,forced:p};
+    if(p==='loading') Object.assign(base,{email:'claire@batiplus.fr',password:'staffsync',loading:true});
+    if(p==='wrong') Object.assign(base,{email:'claire@batiplus.fr',password:'wrongpass',result:'wrong',attempts:3});
+    if(p==='locked') Object.assign(base,{email:'claire@batiplus.fr',password:'',result:'locked',attempts:MAX,lockUntil:Date.now()+LOCK_MS-92000});
+    if(p==='deactivated') Object.assign(base,{email:'former.lucas@batiplus.fr',password:'',result:'deactivated'});
+    if(p==='default') Object.assign(base,{email:'',password:''});
+    this.setState(base);
+  }
+  toast(msg,c){ const id=Math.random(); this.setState(s=>({toasts:[...s.toasts,{id,msg,c:c||'#16A34A'}]})); setTimeout(()=>this.setState(s=>({toasts:s.toasts.filter(x=>x.id!==id)})),3200); }
+  nav(r){ if(this.props.onNavigate) this.props.onNavigate(r); else window.location.href='StaffSync.dc.html'; }
+  renderVals0(){
+    const s=this.state, L=(s.lang||this.props.lang||'en')==='fr'?1:0, theme=s.theme||this.props.theme||'light', dark=theme==='dark';
+    const t={}; for(const k in T) t[k]=T[k][L];
+    const offline=s.netOffline||this.props.previewState==='offline';
+    const lockLeft=Math.max(0,s.lockUntil-s.now), locked=s.result==='locked'&&lockLeft>0;
+    if(s.result==='locked'&&lockLeft===0&&s.lockUntil){ setTimeout(()=>this.setState({result:null,lockUntil:0,attempts:0}),0); }
+    const eErr=!s.tried?'':!s.email.trim()?t.eReq:!/^\S+@\S+\.\S+$/.test(s.email.trim())?t.eBad:'';
+    const pErr=!s.tried?'':!s.password?t.pReq:'';
+    const isWrong=s.result==='wrong', left=MAX-s.attempts;
+    const blocked=s.loading||locked||offline;
+    const mm=Math.floor(lockLeft/60000), ss=Math.floor(lockLeft/1000)%60;
+    const seg=on=>({bg:on?'var(--accent-soft)':'transparent',fg:on?'var(--accent)':'var(--text-3)'});
+    const submit=e=>{
+      e.preventDefault(); if(blocked) return;
+      const em=s.email.trim();
+      if(!em||!/^\S+@\S+\.\S+$/.test(em)||!s.password){ this.setState({tried:true,result:null}); return; }
+      this.setState({tried:false,loading:true,result:null});
+      this.lt=setTimeout(()=>{
+        if(/^former/i.test(em)) return this.setState({loading:false,result:'deactivated',password:''});
+        if(s.password==='staffsync'){ this.setState({loading:false,attempts:0}); this.toast(L?'Connexion réussie — redirection…':'Signed in — redirecting…'); setTimeout(()=>this.nav('workspaces'),900); return; }
+        const a=this.state.attempts+1;
+        if(a>=MAX) this.setState({loading:false,attempts:a,result:'locked',lockUntil:Date.now()+LOCK_MS,now:Date.now(),password:''});
+        else this.setState({loading:false,attempts:a,result:'wrong',password:''});
+      },1300);
+    };
+    const sso=name=>()=>{ if(blocked) return; this.setState({loading:true,result:null}); this.lt=setTimeout(()=>{this.setState({loading:false});this.toast((L?'Redirection vers ':'Redirecting to ')+name+'…','#4F6BED');},900); };
+    return {
+      theme,t,compact:s.w<960,showBrand:s.w>=960,
+      toggleTheme:()=>this.setState({theme:dark?'light':'dark'}),themeIcon:dark?SUN:MOON,
+      en:seg(!L),fr:seg(!!L),setEn:()=>this.setState({lang:'en'}),setFr:()=>this.setState({lang:'fr'}),
+      vpChips:[t.c1,t.c2,t.c3],
+      offline,retry:()=>{ const on=typeof navigator==='undefined'||navigator.onLine!==false; this.setState({netOffline:!on}); this.toast(on?(L?'Connexion rétablie':'Back online'):(L?'Toujours hors ligne':'Still offline'),on?'#16A34A':'#E59A00'); },
+      isWrong,wrongDesc:left<=2?(L?`Plus que ${left} tentative${left>1?'s':''} avant le verrouillage du compte.`:`${left} attempt${left>1?'s':''} left before your account is locked.`):(L?'Vérifiez vos identifiants et réessayez.':'Check your details and try again.'),
+      isLocked:locked,lockClock:String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'),lockPct:(lockLeft/LOCK_MS*100)+'%',
+      isDeact:s.result==='deactivated',deDesc:L?`L’accès de ${s.email||'ce compte'} à Batiplus Group a été retiré par un administrateur.`:`Access for ${s.email||'this account'} to Batiplus Group was removed by an administrator.`,
+      contactAdmin:e=>{e.preventDefault();this.toast(L?'Demande envoyée à l’administrateur':'Request sent to your admin');},
+      useOther:e=>{e.preventDefault();this.setState({result:null,email:'',password:''});},
+      submit,email:s.email,password:s.password,onEmail:e=>this.setState({email:e.target.value,result:s.result==='deactivated'?null:s.result}),onPw:e=>this.setState({password:e.target.value}),
+      remember:s.remember,onRemember:e=>this.setState({remember:e.target.checked}),
+      hasEmailErr:!!eErr,emailErr:eErr,hasPwErr:!!pErr,pwErr:pErr,
+      emailBd:eErr||s.result==='deactivated'?'var(--bad-dot)':isWrong?'var(--bad-dot)':'var(--border-strong)',pwBd:pErr||isWrong?'var(--bad-dot)':'var(--border-strong)',
+      fieldsDisabled:s.loading||locked,fieldBg:s.loading||locked?'var(--surface-2)':'var(--surface)',
+      pwType:s.showPw?'text':'password',eyeIcon:s.showPw?EYEOFF:EYE,pwAria:s.showPw?t.hide:t.show,togglePw:()=>this.setState({showPw:!s.showPw}),
+      forgot:e=>{e.preventDefault();this.toast(L?`Lien de réinitialisation envoyé à ${s.email||'votre e-mail'}`:`Reset link sent to ${s.email||'your email'}`);},
+      loading:s.loading,submitDisabled:blocked,btnLabel:s.loading?t.signingIn:locked?t.lockBtn:offline?t.offBtn:t.signIn,
+      btnBg:locked||offline?'var(--neutral-bg)':'var(--accent)',btnFg:locked||offline?'var(--text-3)':'#fff',btnCursor:blocked?'not-allowed':'pointer',
+      ssoGoogle:sso('Google'),ssoMs:sso('Microsoft'),ssoDisabled:blocked,ssoOpacity:blocked?.55:1,
+      goCreate:e=>{e.preventDefault();this.nav('onboarding');},
+      toasts:s.toasts
+    };
+  }
+}
+
+</script>
+</body>
+</html>

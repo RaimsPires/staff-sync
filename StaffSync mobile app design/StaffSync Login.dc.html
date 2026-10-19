@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}input{font-family:inherit}</style></helmet>
+<div style="display:flex;gap:40px;padding:40px;align-items:flex-start">
+
+<section id="1a" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1a · Login</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;padding:48px 24px 32px;box-sizing:border-box;color:#0B2A52">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:22px;font-weight:800">Staff<span style="color:#0BC152">Sync</span></div><button onClick="{{ toggleLang }}" style="min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #DCE4EF;background:#fff;color:#0B2A52;font-weight:700;cursor:pointer">{{ L.langBtn }}</button></div>
+<div style="font-size:30px;font-weight:800;margin-top:48px;line-height:1.15">{{ L.welcome }}</div>
+<div style="font-size:16px;color:#51627D;margin-top:8px">{{ L.loginSub }}</div>
+<div style="display:flex;background:#E6EEFA;border-radius:14px;padding:4px;margin-top:28px">
+<button onClick="{{ setPhone }}" style="flex:1;height:48px;border:0;border-radius:11px;background:{{ tabP.bg }};color:{{ tabP.fg }};font-size:16px;font-weight:700;cursor:pointer">{{ L.phone }}</button>
+<button onClick="{{ setEmail }}" style="flex:1;height:48px;border:0;border-radius:11px;background:{{ tabE.bg }};color:{{ tabE.fg }};font-size:16px;font-weight:700;cursor:pointer">Email</button></div>
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}"><div style="margin-top:20px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">{{ L.phoneLabel }}</div>
+<div style="display:flex;gap:10px"><div style="height:60px;min-width:96px;border-radius:14px;background:#fff;border:1.5px solid #B8C6DB;display:flex;align-items:center;justify-content:center;gap:6px;font-size:18px;font-weight:700">+225 <span style="font-size:11px">▼</span></div>
+<input value="07 12 34 56 78" style="flex:1;min-width:0;height:60px;border-radius:14px;border:2px solid #0A6AE6;background:#fff;padding:0 16px;font-size:20px;font-weight:600;color:#0B2A52;box-sizing:border-box"/></div>
+<div style="font-size:13px;color:#51627D;margin-top:8px">{{ L.smsHint }}</div></div></sc-if>
+<sc-if value="{{ isEmail }}" hint-placeholder-val="{{ false }}"><div style="margin-top:20px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">{{ L.emailLabel }}</div>
+<input value="amina.diallo@company.com" style="width:100%;height:60px;border-radius:14px;border:2px solid #0A6AE6;background:#fff;padding:0 16px;font-size:18px;font-weight:600;color:#0B2A52;box-sizing:border-box"/>
+<div style="font-size:13px;color:#51627D;margin-top:8px">{{ L.mailHint }}</div></div></sc-if>
+<div style="flex:1"></div>
+<button style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ L.cont }}</button>
+<a href="#1a" style="text-align:center;margin-top:20px;font-size:15px;font-weight:700;padding:10px">{{ L.trouble }}</a></div></section>
+
+<section id="1b" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1b · OTP (type digits)</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;padding:48px 24px 32px;box-sizing:border-box;color:#0B2A52">
+<div style="min-height:44px;display:flex;align-items:center;font-size:18px;font-weight:700;color:#0A6AE6">‹ {{ L.back }}</div>
+<div style="font-size:30px;font-weight:800;margin-top:32px;line-height:1.15">{{ L.otpTitle }}</div>
+<div style="font-size:16px;color:#51627D;margin-top:8px">{{ L.otpSub }} <b style="color:#0B2A52">+225 07 •• •• 78</b></div>
+<a href="#1b" style="font-size:15px;font-weight:700;margin-top:6px;padding:6px 0">{{ L.change }}</a>
+<div style="display:flex;gap:8px;margin-top:28px"><sc-for list="{{ boxes }}" as="b" hint-placeholder-count="6"><input id="{{ b.id }}" value="{{ b.v }}" maxlength="1" inputmode="numeric" autocomplete="{{ b.ac }}" onInput="{{ b.on }}" style="flex:1;min-width:0;height:64px;border-radius:14px;border:2px solid {{ b.bd }};background:#fff;text-align:center;font-size:26px;font-weight:800;color:#0B2A52;box-sizing:border-box"/></sc-for></div>
+<sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:#FEE2E2;color:#7F1D1D;font-size:15px;font-weight:600">{{ L.err }}</div></sc-if>
+<div style="margin-top:20px;font-size:15px;color:#51627D">{{ L.resend }} <b style="color:#0B2A52">0:42</b></div>
+<div style="flex:1"></div>
+<button onClick="{{ verify }}" style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ L.verify }}</button>
+<div style="text-align:center;font-size:13px;color:#51627D;margin-top:14px">{{ L.demo }}</div></div></section>
+
+<section id="1c" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1c · Company selection</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;padding:92px 24px 32px;box-sizing:border-box;color:#0B2A52">
+<div style="font-size:30px;font-weight:800;line-height:1.15">{{ L.coTitle }}</div>
+<div style="font-size:16px;color:#51627D;margin-top:8px">{{ L.coSub }}</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:28px"><sc-for list="{{ cos }}" as="co" hint-placeholder-count="3"><button onClick="{{ co.pick }}" style="min-height:84px;border-radius:20px;background:#fff;border:{{ co.border }};display:flex;align-items:center;gap:14px;padding:0 16px;cursor:pointer;text-align:left;color:#0B2A52"><span style="width:52px;height:52px;border-radius:14px;background:{{ co.color }};color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center">{{ co.ini }}</span><span style="flex:1"><span style="display:block;font-size:18px;font-weight:800">{{ co.name }}</span><span style="display:block;font-size:14px;color:#51627D">{{ co.role }}</span></span><span style="font-size:22px;color:#0A6AE6">{{ co.mark }}</span></button></sc-for></div>
+<div style="flex:1"></div>
+<button style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ L.cont }}</button></div></section>
+
+<section id="1d" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1d · Not invited</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;align-items:center;padding:140px 28px 32px;box-sizing:border-box;color:#0B2A52;text-align:center">
+<div style="width:96px;height:96px;border-radius:50%;background:#E6EEFA;display:flex;align-items:center;justify-content:center;font-size:40px;color:#0A6AE6;font-weight:800">?</div>
+<div style="font-size:26px;font-weight:800;margin-top:28px">{{ S.t1 }}</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:10px">{{ S.b1 }}</div>
+<div style="flex:1"></div>
+<button style="width:100%;height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ S.a1 }}</button>
+<button style="width:100%;height:56px;margin-top:10px;border:0;background:none;color:#0A6AE6;font-size:17px;font-weight:700;cursor:pointer">{{ S.a1b }}</button></div></section>
+
+<section id="1e" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1e · Account deactivated</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;align-items:center;padding:140px 28px 32px;box-sizing:border-box;color:#0B2A52;text-align:center">
+<div style="width:96px;height:96px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:40px;color:#B91C1C;font-weight:800">⦸</div>
+<div style="font-size:26px;font-weight:800;margin-top:28px">{{ S.t2 }}</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:10px">{{ S.b2 }}</div>
+<div style="flex:1"></div>
+<button style="width:100%;height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ S.a2 }}</button>
+<button style="width:100%;height:56px;margin-top:10px;border:0;background:none;color:#0A6AE6;font-size:17px;font-weight:700;cursor:pointer">{{ S.a2b }}</button></div></section>
+
+<section id="1f" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1f · No internet</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;box-sizing:border-box;color:#0B2A52;overflow:hidden">
+<div style="background:#B45309;color:#fff;padding:54px 16px 12px;font-size:14px;font-weight:600">⚠ {{ S.off }}</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:100px 28px 32px;text-align:center">
+<div style="width:96px;height:96px;border-radius:50%;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:40px;color:#92400E;font-weight:800">≋</div>
+<div style="font-size:26px;font-weight:800;margin-top:28px">{{ S.t3 }}</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:10px">{{ S.b3 }}</div>
+<div style="flex:1"></div>
+<button style="width:100%;height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ S.a3 }}</button></div></div></section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fr: false, mode: 'phone', code: ['', '', '', '', '', ''], err: false, co: 0 };
+  renderVals() {
+    const { fr, mode, code, err, co } = this.state;
+    const T = {
+      en: { langBtn: 'Français', welcome: 'Welcome back', loginSub: 'Sign in to check in and manage your time.', phone: 'Phone', phoneLabel: 'Phone number', emailLabel: 'Email address', smsHint: 'We’ll text you a 6-digit code.', mailHint: 'We’ll email you a 6-digit code.', cont: 'Continue', trouble: 'Having trouble? Contact your admin',
+        back: 'Back', otpTitle: 'Enter your code', otpSub: 'Sent to', change: 'Change number', err: 'Invalid or expired code. Check it and try again.', resend: 'Resend code in', verify: 'Verify', demo: 'Demo: any code ending in 7 fails',
+        coTitle: 'Choose your company', coSub: 'Your account belongs to several companies.' , roles: ['Employee', 'Site Manager', 'Employee'] },
+      fr: { langBtn: 'English', welcome: 'Bon retour', loginSub: 'Connectez-vous pour pointer et gérer votre temps.', phone: 'Téléphone', phoneLabel: 'Numéro de téléphone', emailLabel: 'Adresse e-mail', smsHint: 'Nous vous enverrons un code à 6 chiffres.', mailHint: 'Nous vous enverrons un code à 6 chiffres par e-mail.', cont: 'Continuer', trouble: 'Un problème ? Contactez votre administrateur',
+        back: 'Retour', otpTitle: 'Saisissez votre code', otpSub: 'Envoyé au', change: 'Changer de numéro', err: 'Code invalide ou expiré. Vérifiez-le et réessayez.', resend: 'Renvoyer le code dans', verify: 'Vérifier', demo: 'Démo : un code finissant par 7 échoue',
+        coTitle: 'Choisissez votre entreprise', coSub: 'Votre compte appartient à plusieurs entreprises.', roles: ['Employé', 'Responsable de site', 'Employé'] }
+    };
+    const L = T[fr ? 'fr' : 'en'];
+    const tab = on => on ? { bg: '#fff', fg: '#0A6AE6' } : { bg: 'transparent', fg: '#51627D' };
+    const boxes = code.map((v, i) => ({
+      id: 'otp' + i, v, ac: i === 0 ? 'one-time-code' : 'off', bd: err ? '#DC2626' : v ? '#0A6AE6' : '#B8C6DB',
+      on: e => {
+        const d = e.target.value.replace(/\D/g, '').slice(-1), n = code.slice(); n[i] = d;
+        this.setState({ code: n, err: false });
+        if (d && i < 5) { const el = document.getElementById('otp' + (i + 1)); el && el.focus(); }
+      }
+    }));
+    const cs = [['Ivoire Bâtiment', 'IB', '#0A6AE6'], ['Sahel Logistique', 'SL', '#0B2A52'], ['Café du Port', 'CP', '#B45309']];
+    const ST = fr ? { t1: 'Compte introuvable', b1: 'Ce numéro n’est lié à aucune invitation. Demandez à votre administrateur de vous inviter, ou essayez un autre numéro.', a1: 'Essayer un autre numéro', a1b: 'Contacter mon administrateur', t2: 'Compte désactivé', b2: 'Votre accès à Ivoire Bâtiment a été désactivé. Contactez votre administrateur pour le réactiver.', a2: 'Contacter mon administrateur', a2b: 'Changer d’entreprise', off: 'Pas de connexion internet', t3: 'Vous êtes hors ligne', b3: 'La connexion est nécessaire pour vous identifier. Vérifiez vos données mobiles ou le Wi-Fi.', a3: 'Réessayer' }
+      : { t1: 'Account not found', b1: 'This number isn’t linked to an invitation. Ask your admin to invite you, or try another number.', a1: 'Try another number', a1b: 'Contact my admin', t2: 'Account deactivated', b2: 'Your access to Ivoire Bâtiment has been turned off. Contact your admin to restore it.', a2: 'Contact my admin', a2b: 'Switch company', off: 'No internet connection', t3: 'You’re offline', b3: 'We need a connection to sign you in. Check your mobile data or Wi-Fi.', a3: 'Try again' };
+    return {
+      S: ST, L, isPhone: mode === 'phone', isEmail: mode === 'email', tabP: tab(mode === 'phone'), tabE: tab(mode === 'email'),
+      setPhone: () => this.setState({ mode: 'phone' }), setEmail: () => this.setState({ mode: 'email' }),
+      toggleLang: () => this.setState(x => ({ fr: !x.fr })),
+      boxes, hasErr: err,
+      verify: () => this.setState({ err: code.join('').length < 6 || code[5] === '7' }),
+      cos: cs.map((c, i) => ({ name: c[0], ini: c[1], color: c[2], role: L.roles[i], mark: co === i ? '●' : '○', border: co === i ? '3px solid #0A6AE6' : '1px solid #DCE4EF', pick: () => this.setState({ co: i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

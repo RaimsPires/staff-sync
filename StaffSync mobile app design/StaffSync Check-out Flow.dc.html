@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}button,textarea{font-family:inherit}</style></helmet>
+<div style="display:flex;flex-wrap:wrap;gap:40px;padding:40px;align-items:flex-start;max-width:1700px">
+
+<sc-for list="{{ confirms }}" as="m" hint-placeholder-count="2">
+<section id="{{ m.id }}" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">{{ m.id }} · {{ m.label }}</div>
+<div style="width:390px;height:800px;border-radius:36px;overflow:hidden;position:relative;background:#CFE0F5;background-image:linear-gradient(#ffffffaa 2px,transparent 2px),linear-gradient(90deg,#ffffffaa 2px,transparent 2px);background-size:46px 46px;color:#0B2A52">
+<div style="position:absolute;inset:0;background:#0B2A5266"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:28px 28px 0 0;padding:10px 20px 28px;display:flex;flex-direction:column;gap:12px">
+<div style="width:40px;height:5px;border-radius:3px;background:#DCE4EF;align-self:center"></div>
+<div style="font-size:24px;font-weight:800">Confirm check-out</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div style="background:#EEF3FA;border-radius:14px;padding:10px 12px"><div style="font-size:12px;color:#51627D">On site for</div><div style="font-size:20px;font-weight:800">{{ m.dur }}</div></div>
+<div style="background:#EEF3FA;border-radius:14px;padding:10px 12px"><div style="font-size:12px;color:#51627D">Scheduled end</div><div style="font-size:20px;font-weight:800">17:00</div></div></div>
+<div style="font-size:15px;color:#51627D">Chantier Plateau · now {{ m.now }}</div>
+<sc-if value="{{ m.warn }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center;background:#FEF3C7;color:#7C3A06;border-radius:14px;padding:12px 14px;font-size:16px;font-weight:800"><span style="font-size:20px">⚠</span>{{ m.warn }}</div></sc-if>
+<div style="display:flex;align-items:center;gap:10px;background:#E6F6EC;color:#14532D;border-radius:14px;padding:10px 14px;font-size:14px;font-weight:700"><span style="width:22px;height:22px;border-radius:50%;background:#0BC152;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">✓</span>Location verified · on site · GPS ±8 m</div>
+<textarea placeholder="{{ m.ph }}" style="height:68px;border-radius:14px;border:2px solid #B8C6DB;padding:12px;font-size:15px;color:#0B2A52;box-sizing:border-box;resize:none"></textarea>
+<button style="min-height:64px;border:0;border-radius:20px;background:#0B2A52;color:#fff;font-size:20px;font-weight:800;cursor:pointer">Confirm check-out</button>
+<button style="min-height:44px;border:0;background:none;color:#51627D;font-size:16px;font-weight:700;cursor:pointer">Cancel</button></div></div></section>
+</sc-for>
+
+<section id="2" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">2 · Location not verified (same rules as check-in)</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;align-items:center;padding:72px 24px 32px;box-sizing:border-box;color:#0B2A52;text-align:center">
+<div style="width:120px;height:120px;border-radius:50%;background:#FEF3C7;color:#7C3A06;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:800">⚠</div>
+<div style="font-size:28px;font-weight:800;margin-top:20px;line-height:1.15">You’re not at the site</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:12px">You are 420 m from Chantier Plateau. You can still check out — it will be flagged and your admin will be notified.</div>
+<div style="width:100%;margin-top:16px;background:#fff;border:1px solid #DCE4EF;border-radius:14px;padding:12px 14px;box-sizing:border-box;text-align:left"><div style="font-size:12px;font-weight:700;color:#51627D;letter-spacing:.04em;text-transform:uppercase">Reason</div><div style="font-size:17px;font-weight:800;color:#B45309;margin-top:2px">Outside site by 420 m</div></div>
+<div style="flex:1"></div>
+<button style="width:100%;min-height:64px;border:0;border-radius:18px;background:#B45309;color:#fff;font-size:19px;font-weight:800;cursor:pointer">Check out anyway</button>
+<button style="width:100%;min-height:52px;margin-top:8px;border:0;background:none;color:#0A6AE6;font-size:17px;font-weight:700;cursor:pointer">Cancel</button></div></section>
+
+<sc-for list="{{ sums }}" as="m" hint-placeholder-count="3">
+<section id="{{ m.id }}" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">{{ m.id }} · {{ m.label }}</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;align-items:center;padding:72px 24px 32px;box-sizing:border-box;color:#0B2A52;text-align:center">
+<div style="width:96px;height:96px;border-radius:50%;background:{{ m.bg }};color:{{ m.fg }};display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800">✓</div>
+<div style="font-size:28px;font-weight:800;margin-top:20px">Checked out</div>
+<div style="margin-top:10px;padding:6px 14px;border-radius:999px;background:{{ m.bg }};color:{{ m.fg }};font-size:17px;font-weight:800">{{ m.status }}</div>
+<div style="width:100%;margin-top:24px;background:#fff;border:1px solid #DCE4EF;border-radius:20px;padding:6px 16px;box-sizing:border-box;text-align:left">
+<sc-for list="{{ m.rows }}" as="r" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:{{ r.bt }};font-size:16px"><span style="color:#51627D">{{ r.k }}</span><span style="font-size:{{ r.fs }};font-weight:800">{{ r.v }}</span></div></sc-for></div>
+<div style="font-size:14px;color:#51627D;margin-top:14px">Chantier Plateau · Sat 17 Oct</div>
+<div style="flex:1"></div>
+<button style="width:100%;min-height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:19px;font-weight:800;cursor:pointer">Done</button></div></section>
+</sc-for>
+
+<section id="4a" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">4a · Reminder notification</div>
+<div style="width:390px;height:800px;border-radius:36px;overflow:hidden;background:#101826;color:#fff;padding:96px 16px 0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:6px">
+<div style="font-size:72px;font-weight:300;line-height:1">09:41</div><div style="font-size:17px;color:#C9D4E5;margin-bottom:32px">Sunday, 18 October</div>
+<div style="width:100%;background:#ffffff26;border-radius:22px;padding:14px;box-sizing:border-box;display:flex;gap:12px;text-align:left"><div style="width:40px;height:40px;border-radius:10px;background:#0A6AE6;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none">S</div>
+<div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:13px;color:#C9D4E5"><span>STAFFSYNC</span><span>now</span></div><div style="font-size:16px;font-weight:800;margin-top:2px">You didn’t check out yesterday</div><div style="font-size:15px;line-height:1.35;margin-top:2px">Chantier Plateau, Sat 17 Oct. Tap to see what to do.</div></div></div></div></section>
+
+<section id="4b" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">4b · Forgotten check-out</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;align-items:center;padding:72px 24px 32px;box-sizing:border-box;color:#0B2A52;text-align:center">
+<div style="width:96px;height:96px;border-radius:50%;background:#FEF3C7;color:#7C3A06;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:800">◷</div>
+<div style="font-size:26px;font-weight:800;margin-top:20px;line-height:1.15">You didn’t check out yesterday</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:12px">You checked in at Chantier Plateau on Saturday but no check-out was recorded. Contact your admin to correct your hours.</div>
+<div style="width:100%;margin-top:20px;background:#fff;border:1px solid #DCE4EF;border-radius:20px;padding:6px 16px;box-sizing:border-box;text-align:left">
+<div style="display:flex;justify-content:space-between;padding:14px 0;font-size:16px"><span style="color:#51627D">Checked in</span><b>07:56</b></div>
+<div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid #DCE4EF;font-size:16px"><span style="color:#51627D">Scheduled end</span><b>17:00</b></div>
+<div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid #DCE4EF;font-size:16px"><span style="color:#51627D">Check-out</span><b style="color:#B45309">Missing</b></div></div>
+<div style="flex:1"></div>
+<button style="width:100%;min-height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:19px;font-weight:800;cursor:pointer">Contact my admin</button>
+<button style="width:100%;min-height:52px;margin-top:8px;border:0;background:none;color:#0A6AE6;font-size:17px;font-weight:700;cursor:pointer">Back to home</button></div></section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const row = (k, v, i, big) => ({ k, v, bt: i ? '1px solid #DCE4EF' : '0', fs: big ? '20px' : '17px' });
+    const sum = (id, label, status, bg, fg, out, tot, extra) => ({ id, label, status, bg, fg, rows: [['Checked in', '07:56'], ['Checked out', out], ['Break', '1h 00'], ['Total hours', tot], ['Scheduled', '8h 00']].map((r, i) => row(r[0], r[1], i, i === 3)).concat(extra ? [row('Difference', extra, 1)] : []) });
+    return {
+      confirms: [
+        { id: '1a', label: 'Confirm · leaving early', dur: '7h 49m', now: '16:15', warn: 'Leaving 45 min early', ph: 'Reason for leaving early (optional)' },
+        { id: '1b', label: 'Confirm · on time', dur: '9h 04m', now: '17:00', warn: '', ph: 'Add a note (optional)' }
+      ],
+      sums: [
+        sum('3a', 'Summary · on time', 'On time', '#DCFCE7', '#14532D', '17:02', '8h 06'),
+        sum('3b', 'Summary · early leave', 'Early leave · 45 min', '#FEF3C7', '#7C3A06', '16:15', '7h 19', '−41 min'),
+        sum('3c', 'Summary · overtime', 'Overtime · 1h 20', '#E6EEFA', '#0B2A52', '18:20', '9h 24', '+1h 24')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

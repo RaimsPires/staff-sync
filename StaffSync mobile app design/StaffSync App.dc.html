@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}button{font-family:inherit}</style></helmet>
+<div style="display:flex;gap:32px;justify-content:center;align-items:flex-start;padding:32px;flex-wrap:wrap">
+<div style="width:390px;height:800px;border-radius:36px;box-shadow:0 20px 60px rgba(11,42,82,.3);overflow:hidden;background:#F5F8FC;flex:none"><iframe src="{{ src }}" title="StaffSync app" style="width:390px;height:800px;border:0;display:block;background:#F5F8FC"></iframe></div>
+<div style="width:300px;display:flex;flex-direction:column;gap:14px">
+<div><div style="font-size:13px;font-weight:800;color:#51627D;text-transform:uppercase;letter-spacing:.06em">StaffSync prototype</div><div style="font-size:22px;font-weight:800;color:#0B2A52">Click through the app</div></div>
+<div style="display:flex;gap:8px"><sc-for list="{{ roles }}" as="r" hint-placeholder-count="2"><button onClick="{{ r.go }}" style="flex:1;min-height:44px;border-radius:999px;border:1px solid #0A6AE6;background:{{ r.bg }};color:{{ r.fg }};font-weight:800;font-size:14px;cursor:pointer">{{ r.label }}</button></sc-for></div>
+<div style="display:flex;gap:8px"><button onClick="{{ restart }}" style="flex:1;min-height:44px;border-radius:12px;border:1px solid #B8C6DB;background:#fff;color:#0B2A52;font-weight:700;cursor:pointer">Restart from splash</button></div>
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:800;color:#51627D;text-transform:uppercase;letter-spacing:.06em">{{ g.title }}</div><div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ g.items }}" as="s" hint-placeholder-count="4"><button onClick="{{ s.go }}" style="min-height:36px;padding:0 12px;border-radius:999px;border:1px solid {{ s.bd }};background:{{ s.bg }};color:{{ s.fg }};font-size:13px;font-weight:700;cursor:pointer">{{ s.label }}</button></sc-for></div></div></sc-for>
+<div style="font-size:13px;color:#51627D;line-height:1.45">Schedule and Leave are reached from Home quick actions, not the tab bar. Manager tools start from the Manager tab.</div>
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { cur: localStorage.getItem('ss_screen') || 'onboarding', role: localStorage.getItem('ss_role') === 'manager' ? 'manager' : 'employee' };
+  FILES = { onboarding: ['Onboarding', 'Onboarding'], login: ['Login', 'Login'], setup: ['Setup', 'Setup'], home: ['Home', 'Home'], notifications: ['Notifications', 'Alerts'], map: ['Map', 'Map'], checkin: ['Check-in Flow', 'Check-in'], checkout: ['Check-out Flow', 'Check-out'], schedule: ['Schedule', 'Schedule'], leave: ['Leave', 'Leave'], leavedetail: ['Leave Detail', 'Leave detail'], newleave: ['New Leave Request', 'New leave'], attendance: ['Attendance', 'Attendance'], attdetail: ['Attendance Detail', 'Att. detail'], profile: ['Profile and Settings', 'Profile'], mhome: ['Manager Home', 'Manager home'], roster: ['Manager Roster', 'Roster'], proxy: ['Proxy Check-in Flow', 'Proxy check-in'], mleave: ['Manager Leave Requests', 'Leave requests'] };
+  componentDidMount() { this.h = e => { if (e.data && e.data.type === 'ss-nav' && this.FILES[e.data.to]) this.go(e.data.to); }; window.addEventListener('message', this.h); }
+  componentWillUnmount() { window.removeEventListener('message', this.h); }
+  go(id) { localStorage.setItem('ss_screen', id); this.setState({ cur: id }); }
+  setRole(r) { localStorage.setItem('ss_role', r); this.setState({ role: r }); this.go(r === 'manager' ? 'mhome' : 'home'); }
+  renderVals() {
+    const { cur, role } = this.state, F = this.FILES;
+    const btn = id => ({ label: F[id][1], go: () => this.go(id), bg: cur === id ? '#0A6AE6' : '#fff', fg: cur === id ? '#fff' : '#0B2A52', bd: cur === id ? '#0A6AE6' : '#B8C6DB' });
+    const G = [['Start', ['onboarding', 'login', 'setup']], ['Employee', ['home', 'map', 'checkin', 'checkout', 'schedule', 'leave', 'leavedetail', 'newleave', 'attendance', 'attdetail', 'notifications', 'profile']], ['Site manager', ['mhome', 'roster', 'proxy', 'mleave']]];
+    return {
+      src: 'StaffSync ' + F[cur][0] + '.dc.html?s=' + cur,
+      roles: [['employee', 'Employee'], ['manager', 'Site manager']].map(r => ({ label: r[1], go: () => this.setRole(r[0]), bg: role === r[0] ? '#0A6AE6' : '#fff', fg: role === r[0] ? '#fff' : '#0A6AE6' })),
+      restart: () => this.go('onboarding'),
+      groups: G.map(g => ({ title: g[0], items: g[1].map(btn) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

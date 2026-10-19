@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:14px;position:relative" onClick="{{ a.closePop }}">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em">Audit log</h1><div style="margin-top:4px;color:var(--text-2);font-size:13.5px">A read-only record of who changed what. Entries can’t be edited or deleted.</div></div>
+    <div style="position:relative"><button onClick="{{ a.togExp }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Export ▾</button>
+      <sc-if value="{{ a.expOpen }}"><div onClick="{{ a.stop }}" style="position:absolute;right:0;top:42px;z-index:20;width:190px;padding:6px;border-radius:12px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><sc-for list="{{ a.exps }}" as="e" hint-placeholder-count="3"><button onClick="{{ e.go }}" style="display:block;width:100%;text-align:left;height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--text);font-size:13px;cursor:pointer" style-hover="background:var(--hover)">{{ e.l }}</button></sc-for></div></sc-if></div></div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3);flex:1 1 200px;max-width:260px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input value="{{ a.q }}" onInput="{{ a.onQ }}" placeholder="Search target or reason" style="border:0;outline:0;background:transparent;color:var(--text);font-size:13px;width:100%"></div>
+    <sc-for list="{{ a.filters }}" as="f" hint-placeholder-count="6"><select value="{{ f.val }}" onChange="{{ f.on }}" style="height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;max-width:180px"><sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></sc-for>
+    <sc-if value="{{ a.custom }}"><input type="date" value="{{ a.from }}" onInput="{{ a.onFrom }}" style="height:34px;padding:0 8px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px"><span style="color:var(--text-3)">→</span><input type="date" value="{{ a.to }}" onInput="{{ a.onTo }}" style="height:34px;padding:0 8px;border-radius:9px;border:1px solid {{ a.toBd }};background:var(--surface);color:var(--text);font-size:13px"></sc-if>
+    <sc-if value="{{ a.hasFilter }}"><button onClick="{{ a.clearF }}" style="height:34px;padding:0 10px;border:0;background:transparent;color:var(--accent);font-size:13px;cursor:pointer">Clear filters</button></sc-if>
+  </div>
+  <div style="font-size:12.5px;color:var(--text-3)">{{ a.count }}</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto"><div style="min-width:1040px">
+    <div style="display:grid;grid-template-columns:24px 148px minmax(190px,1.2fr) minmax(190px,1.3fr) minmax(170px,1.2fr) 120px 150px;gap:12px;align-items:center;padding:0 16px;height:38px;border-bottom:1px solid var(--border);background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;border-radius:12px 12px 0 0"><div></div><div>When</div><div>Actor</div><div>Action</div><div>Target</div><div>Scope</div><div>IP / device</div></div>
+    <sc-for list="{{ a.rows }}" as="r" hint-placeholder-count="10">
+      <div style="border-bottom:1px solid var(--border)">
+        <div onClick="{{ r.toggle }}" style="display:grid;grid-template-columns:24px 148px minmax(190px,1.2fr) minmax(190px,1.3fr) minmax(170px,1.2fr) 120px 150px;gap:12px;align-items:center;padding:11px 16px;font-size:13px;cursor:pointer;background:{{ r.bg }}" style-hover="background:var(--hover)">
+          <span style="color:var(--text-3);font-size:11px;transform:rotate({{ r.rot }});transition:transform .12s">▸</span>
+          <div><div style="font-weight:500">{{ r.day }}</div><div style="font:12px 'Geist Mono',monospace;color:var(--text-3)">{{ r.time }}</div></div>
+          <div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11.5px;font-weight:600;background:{{ r.avBg }};color:{{ r.avFg }}">{{ r.ini }}</div><div style="min-width:0"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.actor }}</div><div style="font-size:12px;color:var(--text-3)">{{ r.role }}</div></div></div>
+          <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;background:{{ r.aBg }};color:{{ r.aFg }}">{{ r.action }}</span></div>
+          <div style="min-width:0"><a href="#" onClick="{{ r.openTarget }}" style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">{{ r.target }}</a><div style="font-size:12px;color:var(--text-3)">{{ r.ttype }}</div></div>
+          <div style="color:var(--text-2);font-size:12.5px">{{ r.scope }}</div>
+          <div style="font-size:12px;color:var(--text-3);line-height:1.4"><div style="font-family:'Geist Mono',monospace">{{ r.ip }}</div><div>{{ r.dev }}</div></div>
+        </div>
+        <sc-if value="{{ r.open }}"><div style="padding:4px 16px 18px 52px;background:var(--surface-2);display:flex;flex-direction:column;gap:12px">
+          <sc-if value="{{ r.hasReason }}"><div><div style="font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Reason given</div><div style="padding:9px 12px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;max-width:640px">{{ r.reason }}</div></div></sc-if>
+          <sc-if value="{{ r.hasDiff }}"><div><div style="font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Changes</div>
+            <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);max-width:760px"><div style="display:grid;grid-template-columns:150px 1fr 1fr;gap:12px;padding:7px 12px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em"><div>Field</div><div>Before</div><div>After</div></div>
+              <sc-for list="{{ r.diff }}" as="d" hint-placeholder-count="2"><div style="display:grid;grid-template-columns:150px 1fr 1fr;gap:12px;padding:9px 12px;border-top:{{ d.bt }};font-size:13px;align-items:start"><div style="color:var(--text-2)">{{ d.f }}</div><div style="padding:3px 8px;border-radius:6px;background:var(--bad-bg);color:var(--bad);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25);word-break:break-word">{{ d.b }}</div><div style="padding:3px 8px;border-radius:6px;background:var(--ok-bg);color:var(--ok);word-break:break-word">{{ d.a }}</div></div></sc-for></div></div></sc-if>
+          <sc-if value="{{ r.noDetail }}"><div style="font-size:13px;color:var(--text-3)">No value changes were recorded for this action.</div></sc-if>
+          <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text-3)"><span>Entry <span style="font-family:'Geist Mono',monospace">{{ r.id }}</span></span><span>Session {{ r.sess }}</span><span>{{ r.full }}</span></div>
+        </div></sc-if>
+      </div>
+    </sc-for>
+    <sc-if value="{{ a.empty }}"><div style="padding:56px 24px;text-align:center;color:var(--text-3);font-size:13.5px"><div style="font-weight:600;color:var(--text);font-size:15px;margin-bottom:4px">No entries found</div>Try widening the date range or clearing the filters.</div></sc-if>
+    <sc-if value="{{ a.more }}"><div style="padding:12px;text-align:center;border-top:1px solid var(--border)"><button onClick="{{ a.loadMore }}" style="height:34px;padding:0 16px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Show {{ a.moreN }} more</button></div></sc-if>
+  </div></div>
+
+  <sc-if value="{{ a.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ a.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const SN={pd:['Part-Dieu Tower','Lyon'],cf:['Confluence Depot','Lyon'],sd:['Saint-Denis Hub','Paris Nord'],rl:['Roissy Logistics','Paris Nord'],pv:['Port Vieux Yard','Marseille']};
+const ACT={rec:['Record edited','info'],proxy:['Proxy check-in','violet'],flag:['Flag approved','ok'],flagr:['Flag rejected','bad'],lvok:['Leave approved','ok'],lvno:['Leave rejected','bad'],role:['Role changed','orange'],set:['Settings changed','warn'],deact:['Employee deactivated','bad'],emp:['Employee updated','info'],site:['Site updated','info'],login:['Sign-in','neutral'],sched:['Schedule published','violet'],exp:['Report exported','neutral']};
+const TT={rec:'Attendance record',emp:'Employee',lv:'Leave request',role:'Role',set:'Setting',site:'Site',user:'User',sched:'Schedule',rep:'Report',flag:'Fraud flag'};
+const AC={cv:['Claire Vasseur','Company admin','92.184.61.14','Chrome · macOS'],mo:['Marc Olivier','Branch manager','86.241.9.203','Safari · iPhone'],nk:['Nadia Koné','Branch manager','90.12.75.118','Chrome · Windows'],jr:['Julien Roche','Company admin','88.164.30.71','Edge · Windows'],sb:['Sarah Benoît','Site manager','82.65.140.9','Chrome · Android'],hm:['Hugo Martel','Site manager','78.192.4.55','Firefox · Linux'],lp:['Lucie Perrin','Payroll officer','92.184.61.40','Chrome · Windows']};
+const AV=[['var(--info-bg)','var(--info)'],['var(--violet-bg)','var(--violet)'],['var(--orange-bg)','var(--orange)'],['var(--ok-bg)','var(--ok)'],['var(--warn-bg)','var(--warn)']];
+const E=(day,time,a,act,ttype,target,site,reason,diff)=>({day,time,a,act,ttype,target,site,reason:reason||'',diff:diff||[]});
+const L=[
+ E(0,'09:41','jr','rec','rec','Amélie Fontaine · 15 Oct','sd','Employee forgot to check out; confirmed by site manager.',[['Check-out','—','16:04'],['Status','Missing check-out','Present']]),
+ E(0,'09:12','mo','proxy','rec','Karim Benali · 15 Oct','rl','Phone battery dead on arrival.',[['Check-in','—','07:52 (proxy)']]),
+ E(0,'08:30','cv','role','role','Payroll officer','','Added export permission for monthly payroll.',[['Export','No','Yes'],['Scope','Selected branches','Whole company']]),
+ E(0,'08:05','nk','flag','flag','Outside geofence · Léa Moreau','pd','Employee was at a supplier delivery next door.',[['Status','Open','Approved'],['Distance','420 m','420 m (accepted)']]),
+ E(1,'17:48','sb','lvok','lv','L-2045 · Inès Haddad','pv','',[['Status','Pending','Approved']]),
+ E(1,'16:20','cv','set','set','Default geofence radius','','Align with updated insurance requirements.',[['Radius','150 m','200 m']]),
+ E(1,'14:02','jr','deact','emp','Damien Lopez','pd','Contract ended on 30 Sept.',[['Status','Active','Deactivated'],['Device binding','iPhone 12','Reset']]),
+ E(1,'11:37','hm','rec','rec','Thomas Girard · 14 Oct','cf','Corrected start time after clock sync issue.',[['Check-in','07:20','07:41'],['Flag','Time tampering','None']]),
+ E(2,'18:15','mo','sched','sched','Week 43 · Saint-Denis Hub','sd','',[['Shifts','41','44']]),
+ E(2,'15:09','cv','flagr','flag','Mock location · Chloé Garnier','cf','Device audit confirmed location spoofing.',[['Status','Open','Rejected'],['Outcome','—','Marked absent']]),
+ E(2,'10:44','nk','lvno','lv','L-2021 · Yanis Boucher','sd','Two machinists already off that day.',[['Status','Pending','Rejected']]),
+ E(3,'09:02','cv','site','site','Roissy Logistics','rl','',[['Selfie required','No','Yes'],['Min GPS accuracy','100 m','50 m']]),
+ E(3,'08:45','lp','exp','rep','Monthly timesheets – all sites','','',[]),
+ E(4,'17:03','jr','role','role','Site manager','','Remove ability to approve leave.',[['Leave approval','Approve','—']]),
+ E(4,'13:26','mo','emp','emp','Paul Lambert','sd','Moved to a different primary site.',[['Default site','Saint-Denis Hub','Roissy Logistics']]),
+ E(4,'09:10','sb','proxy','rec','Monique Vidal · 11 Oct','pv','No smartphone — badge QR scanned at entrance.',[['Check-in','—','06:58 (proxy)']]),
+ E(5,'16:55','cv','set','set','Lateness grace period','','Union agreement update.',[['Grace period','5 min','10 min']]),
+ E(5,'08:21','hm','login','user','Hugo Martel','','',[]),
+ E(6,'11:12','nk','flag','flag','Low GPS accuracy · Nora Diallo','cf','Underground car park, accuracy expected.',[['Status','Open','Approved']]),
+ E(7,'10:30','jr','deact','emp','Chloé Garnier','cf','Terminated after mock location confirmation.',[['Status','Active','Deactivated']]),
+ E(8,'15:40','cv','rec','rec','Elena Marchand · 8 Oct','cf','Duplicate check-in removed.',[['Records','2','1']]),
+ E(9,'09:05','mo','lvok','lv','L-2032 · Amélie Fontaine','sd','',[['Status','Pending','Approved']]),
+ E(10,'14:18','cv','role','role','Read-only viewer','','',[['Reports','No','View']]),
+ E(12,'12:00','jr','emp','emp','Sofia Rossi','rl','Phone number changed.',[['Phone','06 55 41 09 26','06 55 41 22 80']]),
+ E(14,'08:58','nk','proxy','rec','Georges Aubert · 1 Oct','pd','Badge scan.',[['Check-in','—','07:03 (proxy)']]),
+ E(18,'16:34','cv','set','set','Company timezone','','',[['Timezone','Europe/London','Europe/Paris']]),
+ E(21,'10:10','jr','site','site','Part-Dieu Tower','pd','',[['Geofence radius','120 m','150 m']]),
+ E(26,'09:25','cv','role','role','Branch manager','','New default permissions.',[['Fraud alerts','View','View, Approve']])];
+const TODAY=Date.UTC(2026,9,15),DAYMS=864e5,MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const mk=(e,i)=>{const t=TODAY-e.day*DAYMS,d=new Date(t),ac=AC[e.a];return Object.assign({},e,{id:'AL-'+(48210-i),ts:t,dateIso:d.toISOString().slice(0,10),dayL:e.day===0?'Today':e.day===1?'Yesterday':WD[d.getUTCDay()]+' '+d.getUTCDate()+' '+MN[d.getUTCMonth()],full:WD[d.getUTCDay()]+' '+d.getUTCDate()+' '+MN[d.getUTCMonth()]+' 2026, '+e.time,sess:'S-'+(7000+i*37),actor:ac[0],arole:ac[1],ip:ac[2],dev:ac[3]});};
+const ALL=L.map(mk);
+const RANGES={all:'Any time','0':'Today','7':'Last 7 days','30':'Last 30 days',custom:'Custom range'};
+const PAGE=12;
+class Component extends DCLogic {
+  state={q:'',range:'30',from:'',to:'',actor:'all',action:'all',ttype:'all',br:'all',site:'all',open:null,shown:PAGE,expOpen:false,toast:null};
+  componentWillUnmount(){clearTimeout(this.tt);}
+  say(m){this.setState({toast:m});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2600);}
+  vis(){const s=this.state,q=s.q.trim().toLowerCase();
+    return ALL.filter(e=>{
+      if(s.range==='custom'){if(s.from&&e.dateIso<s.from)return false;if(s.to&&e.dateIso>s.to)return false;}
+      else if(s.range!=='all'&&e.day>+s.range)return false;
+      if(s.actor!=='all'&&e.a!==s.actor)return false;if(s.action!=='all'&&e.act!==s.action)return false;if(s.ttype!=='all'&&e.ttype!==s.ttype)return false;
+      if(s.br!=='all'&&!(e.site&&SN[e.site][1]===s.br))return false;if(s.site!=='all'&&e.site!==s.site)return false;
+      return!q||e.target.toLowerCase().includes(q)||e.reason.toLowerCase().includes(q)||e.actor.toLowerCase().includes(q);});}
+  csv(list){const row=e=>[e.full,e.actor,e.arole,ACT[e.act][0],TT[e.ttype],e.target,e.site?SN[e.site][0]:'Company',e.ip,e.dev,e.reason,e.diff.map(d=>d[0]+': '+d[1]+' → '+d[2]).join('; ')];
+    return[['Timestamp','Actor','Role','Action','Target type','Target','Scope','IP','Device','Reason','Changes']].concat(list.map(row)).map(l=>l.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');}
+  renderVals(){return{a:this.rv()};}
+  rv(){
+    const s=this.state,list=this.vis(),set=k=>ev=>this.setState({[k]:ev.target.value,open:null,shown:PAGE});
+    const sitesA=Object.keys(SN).filter(k=>s.br==='all'||SN[k][1]===s.br);
+    const badTo=s.range==='custom'&&s.from&&s.to&&s.to<s.from;
+    const rows=list.slice(0,s.shown).map(e=>{const a=ACT[e.act],av=AV[(e.actor.charCodeAt(0)+e.actor.length)%AV.length],open=s.open===e.id;
+      return{id:e.id,day:e.dayL,time:e.time,actor:e.actor,role:e.arole,ini:e.actor.split(' ').map(w=>w[0]).join('').slice(0,2),avBg:av[0],avFg:av[1],action:a[0],aBg:'var(--'+a[1]+'-bg)',aFg:'var(--'+a[1]+')',target:e.target,ttype:TT[e.ttype],scope:e.site?SN[e.site][0]:'Company',ip:e.ip,dev:e.dev,
+        bg:open?'var(--accent-soft)':'transparent',rot:open?'90deg':'0deg',open,toggle:()=>this.setState({open:open?null:e.id}),openTarget:ev=>{ev.preventDefault();ev.stopPropagation();this.say('Opening '+e.target);},
+        hasReason:!!e.reason,reason:e.reason,hasDiff:e.diff.length>0,diff:e.diff.map((d,i)=>({f:d[0],b:d[1],a:d[2],bt:i?'1px solid var(--border)':'0'})),noDetail:!e.reason&&!e.diff.length,sess:e.sess,full:e.full};});
+    const hasFilter=s.range!=='30'||s.actor!=='all'||s.action!=='all'||s.ttype!=='all'||s.br!=='all'||s.site!=='all'||!!s.q;
+    return{
+      q:s.q,onQ:set('q'),closePop:()=>{if(s.expOpen)this.setState({expOpen:false});},stop:ev=>ev.stopPropagation(),
+      filters:[{val:s.range,on:set('range'),opts:Object.keys(RANGES).map(k=>({v:k,l:RANGES[k]}))},{val:s.actor,on:set('actor'),opts:[{v:'all',l:'All users'}].concat(Object.keys(AC).map(k=>({v:k,l:AC[k][0]})))},{val:s.action,on:set('action'),opts:[{v:'all',l:'All actions'}].concat(Object.keys(ACT).map(k=>({v:k,l:ACT[k][0]})))},{val:s.ttype,on:set('ttype'),opts:[{v:'all',l:'All target types'}].concat(Object.keys(TT).map(k=>({v:k,l:TT[k]})))},{val:s.br,on:ev=>this.setState({br:ev.target.value,site:'all',open:null,shown:PAGE}),opts:[{v:'all',l:'All branches'}].concat(['Lyon','Paris Nord','Marseille'].map(b=>({v:b,l:b})))},{val:s.site,on:set('site'),opts:[{v:'all',l:'All sites'}].concat(sitesA.map(k=>({v:k,l:SN[k][0]})))}],
+      custom:s.range==='custom',from:s.from,to:s.to,onFrom:set('from'),onTo:set('to'),toBd:badTo?'var(--bad-dot)':'var(--border-strong)',
+      hasFilter,clearF:()=>this.setState({q:'',range:'30',from:'',to:'',actor:'all',action:'all',ttype:'all',br:'all',site:'all',open:null,shown:PAGE}),
+      count:list.length+' entr'+(list.length===1?'y':'ies')+(badTo?' · End date is before the start date':''),rows,empty:list.length===0,more:list.length>s.shown,moreN:Math.min(PAGE,list.length-s.shown),loadMore:()=>this.setState({shown:s.shown+PAGE}),
+      togExp:ev=>{ev.stopPropagation();this.setState({expOpen:!s.expOpen});},expOpen:s.expOpen,
+      exps:[['csv','Export filtered entries (CSV)'],['xlsx','Export filtered entries (Excel)']].map(([k,l])=>({l,go:()=>{this.setState({expOpen:false});if(!list.length){this.say('Nothing to export');return;}
+        try{const txt=k==='csv'?this.csv(list):this.csv(list).replace(/","/g,'\t').replace(/^"|"$/gm,''),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/'+(k==='csv'?'csv':'tab-separated-values')}));a.download='audit-log'+(k==='csv'?'.csv':'.xls');a.click();this.say('Exported '+list.length+' entries');}catch(e){this.say('Export unavailable');}}})),
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}button{font-family:inherit}@keyframes pulse{0%{box-shadow:0 0 0 0 #0A6AE680}100%{box-shadow:0 0 0 18px #0A6AE600}}@keyframes spin{to{transform:rotate(360deg)}}</style></helmet>
+<div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px">
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:640px">
+<sc-for list="{{ scens }}" as="sc" hint-placeholder-count="7"><button onClick="{{ sc.go }}" style="min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #0B2A52;background:{{ sc.bg }};color:{{ sc.fg }};font-weight:700;font-size:13px;cursor:pointer">{{ sc.label }}</button></sc-for>
+</div>
+<div style="display:flex;gap:8px">
+<button onClick="{{ toggleDark }}" style="min-height:40px;padding:0 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">{{ s.themeBtn }}</button>
+<button onClick="{{ toggleLang }}" style="min-height:40px;padding:0 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">EN / FR</button>
+<button onClick="{{ toggleOffline }}" style="min-height:40px;padding:0 16px;border-radius:999px;border:0;background:#0B2A52;color:#fff;font-weight:600;cursor:pointer">{{ s.offlineBtn }}</button>
+</div>
+<div style="width:390px;height:800px;background:{{ c.bg }};color:{{ c.ink }};border-radius:36px;box-shadow:0 20px 60px rgba(11,42,82,.3);overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:15px;font-weight:600"><span>09:41</span><span>●●● 4G</span></div>
+<div style="flex:1;overflow:auto;padding:4px 20px 16px;display:flex;flex-direction:column;gap:16px">
+
+<div style="display:flex;align-items:center;gap:10px">
+<div style="flex:1;min-width:0"><div style="font-size:14px;color:{{ c.muted }}">{{ s.date }}</div><div style="font-size:24px;font-weight:800;line-height:1.15">{{ s.hello }}, Amina</div></div>
+<div style="display:flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:999px;background:{{ sync.bg }};color:{{ sync.fg }};font-size:12px;font-weight:700"><span style="width:8px;height:8px;border-radius:50%;background:{{ sync.dot }}"></span>{{ sync.label }}</div>
+<button aria-label="Notifications" style="position:relative;width:44px;height:44px;flex:none;border-radius:50%;border:1px solid {{ c.line }};background:{{ c.card }};color:{{ c.ink }};font-size:20px;cursor:pointer">🔔︎<span style="position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:10px;background:#DC2626;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid {{ c.bg }};box-sizing:border-box">3</span></button>
+</div>
+
+<sc-if value="{{ hasShift }}" hint-placeholder-val="{{ true }}">
+<div style="margin:0 -20px;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px;scrollbar-width:none">
+<sc-for list="{{ assigns }}" as="a" hint-placeholder-count="2">
+<div style="flex:none;width:{{ a.w }};scroll-snap-align:center;background:{{ c.card }};border:1px solid {{ c.line }};border-radius:20px;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:8px;background:{{ a.tbg }};color:{{ a.tfg }}">{{ a.type }}</span><span style="padding:4px 10px;border-radius:999px;background:{{ a.sbg }};color:{{ a.sfg }};font-size:13px;font-weight:700">{{ a.status }}</span></div>
+<div style="font-size:20px;font-weight:800;line-height:1.2">{{ a.site }}</div>
+<div style="font-size:14px;color:{{ c.muted }}">📍︎ {{ a.addr }}</div>
+<div style="font-size:16px;font-weight:700">◷ {{ a.time }}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ multi }}" hint-placeholder-val="{{ true }}"><div style="display:flex;justify-content:center;gap:6px;margin-top:-6px"><span style="width:18px;height:6px;border-radius:3px;background:#0A6AE6"></span><span style="width:6px;height:6px;border-radius:3px;background:{{ c.line }}"></span></div></sc-if>
+</sc-if>
+
+<sc-if value="{{ noShift }}" hint-placeholder-val="{{ false }}">
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:20px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px">
+<div style="width:64px;height:64px;border-radius:50%;background:{{ c.soft }};display:flex;align-items:center;justify-content:center;font-size:28px">☾</div>
+<div style="font-size:22px;font-weight:800">{{ s.noShift }}</div><div style="font-size:15px;color:{{ c.muted }}">{{ s.noShiftSub }}</div></div>
+</sc-if>
+<sc-if value="{{ onLeave }}" hint-placeholder-val="{{ false }}">
+<div style="background:#E6F6EC;border:1px solid #BFE8CF;border-radius:20px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;color:#14532D">
+<div style="width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:28px">☀</div>
+<div style="font-size:22px;font-weight:800">{{ s.onLeave }}</div><div style="font-size:15px">{{ s.onLeaveSub }}</div></div>
+</sc-if>
+
+<sc-if value="{{ showMap }}" hint-placeholder-val="{{ true }}">
+<button style="padding:0;text-align:left;border:1px solid {{ c.line }};border-radius:20px;background:{{ c.card }};color:{{ c.ink }};overflow:hidden;cursor:pointer;display:block">
+<div style="height:150px;position:relative;overflow:hidden;background-color:{{ c.map }};background-image:linear-gradient({{ c.grid }} 2px,transparent 2px),linear-gradient(90deg,{{ c.grid }} 2px,transparent 2px);background-size:34px 34px">
+<div style="position:absolute;left:0;top:62px;width:100%;height:14px;background:{{ c.grid }};transform:rotate(-8deg)"></div>
+<div style="position:absolute;left:125px;top:25px;width:100px;height:100px;border-radius:50%;background:#0A6AE626;border:2px dashed #0A6AE6"></div>
+<div style="position:absolute;left:167px;top:67px;width:16px;height:16px;border-radius:4px;background:#0A6AE6;border:2px solid #fff;transform:rotate(45deg)"></div>
+<sc-if value="{{ pos.show }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:{{ pos.x }};top:{{ pos.y }};width:18px;height:18px;border-radius:50%;background:#0BC152;border:3px solid #fff;box-sizing:border-box;animation:pulse 1.6s infinite"></div></sc-if>
+<sc-if value="{{ pos.searching }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:{{ c.card }}B3;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:14px"><span style="width:18px;height:18px;border-radius:50%;border:3px solid #0A6AE6;border-top-color:transparent;animation:spin 1s linear infinite"></span>{{ s.searching }}</div></sc-if>
+<div style="position:absolute;right:8px;top:8px;background:#fff;color:#0B2A52;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px"><span style="display:flex;align-items:flex-end;gap:2px;height:12px"><span style="width:3px;height:5px;background:{{ gps.col }}"></span><span style="width:3px;height:8px;background:{{ gps.b2 }}"></span><span style="width:3px;height:12px;background:{{ gps.b3 }}"></span></span>{{ gps.label }}</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 14px"><div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:800">{{ dist.title }}</div><div style="font-size:13px;color:{{ c.muted }}">{{ dist.sub }}</div></div><span style="font-size:14px;font-weight:700;color:#0A6AE6">{{ s.openMap }} ›</span></div>
+</button>
+</sc-if>
+
+<sc-if value="{{ showBtn }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<button onClick="{{ btn.go }}" style="min-height:76px;border:0;border-radius:22px;background:{{ btn.bg }};color:{{ btn.fg }};cursor:{{ btn.cur }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 16px;box-shadow:{{ btn.sh }}">
+<span style="font-size:22px;font-weight:800">{{ btn.label }}</span><span style="font-size:14px;font-weight:600">{{ btn.sub }}</span></button>
+<sc-if value="{{ btn.note }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px;color:{{ c.muted }};text-align:center;padding:0 8px;line-height:1.35">{{ btn.noteText }}</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:#0BC152;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800">✓</div><div><div style="font-size:20px;font-weight:800">{{ s.doneTitle }}</div><div style="font-size:14px;color:{{ c.muted }}">{{ s.doneSub }}</div></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div style="background:{{ c.soft }};border-radius:14px;padding:10px"><div style="font-size:12px;color:{{ c.muted }}">{{ s.in }}</div><div style="font-size:18px;font-weight:800">07:56</div></div>
+<div style="background:{{ c.soft }};border-radius:14px;padding:10px"><div style="font-size:12px;color:{{ c.muted }}">{{ s.out }}</div><div style="font-size:18px;font-weight:800">17:04</div></div>
+<div style="background:{{ c.soft }};border-radius:14px;padding:10px"><div style="font-size:12px;color:{{ c.muted }}">{{ s.total }}</div><div style="font-size:18px;font-weight:800">9h 08</div></div></div>
+</div>
+</sc-if>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<sc-for list="{{ actions }}" as="q" hint-placeholder-count="3"><button style="min-height:88px;border-radius:18px;border:1px solid {{ c.line }};background:{{ c.card }};color:{{ c.ink }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 4px;font-size:13px;font-weight:700;line-height:1.2;cursor:pointer"><span style="font-size:24px;color:#0A6AE6">{{ q.icon }}</span>{{ q.label }}</button></sc-for>
+</div>
+
+<div style="background:{{ c.card }};border:1px solid {{ c.line }};border-radius:20px;padding:16px">
+<div style="font-size:15px;font-weight:800;margin-bottom:12px">{{ s.week }}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+<div><div style="font-size:26px;font-weight:800">3<span style="font-size:15px;color:{{ c.muted }}">/5</span></div><div style="font-size:13px;color:{{ c.muted }}">{{ s.present }}</div></div>
+<div style="border-left:1px solid {{ c.line }};border-right:1px solid {{ c.line }}"><div style="font-size:26px;font-weight:800;color:#B45309">1</div><div style="font-size:13px;color:{{ c.muted }}">{{ s.lates }}</div></div>
+<div><div style="font-size:26px;font-weight:800">26h 40</div><div style="font-size:13px;color:{{ c.muted }}">{{ s.hours }}</div></div></div>
+</div>
+</div>
+<div style="flex:none;display:flex;border-top:1px solid {{ c.line }};background:{{ c.card }};padding:8px 4px 20px">
+<sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3"><button style="flex:1;min-height:52px;border:0;background:none;color:{{ tb.color }};font-weight:{{ tb.weight }};font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer"><span style="width:24px;height:24px;background:currentColor;-webkit-mask:{{ tb.mask }} center/contain no-repeat;mask:{{ tb.mask }} center/contain no-repeat"></span>{{ tb.label }}</button></sc-for>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { scen: 'ready', fr: false, offline: false, dark: false, secs: 0 };
+  componentDidMount() { this.t = setInterval(() => { if (this.state.scen === 'in') this.setState(x => ({ secs: x.secs + 1 })); }, 1000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const { scen, fr, offline, dark, secs } = this.state;
+    const T = {
+      en: { themeBtn: dark ? 'Light mode' : 'Dark mode', offlineBtn: offline ? 'Go online' : 'Go offline', date: 'Saturday, 17 October', hello: 'Good morning', noShift: 'No shift today', noShiftSub: 'Enjoy your day off. Your next shift is Monday at 08:00.', onLeave: 'On leave today', onLeaveSub: 'Annual leave · 15–19 Oct', searching: 'Finding your position…', openMap: 'Map', week: 'This week', present: 'Days present', lates: 'Lates', hours: 'Hours', doneTitle: 'Done for today', doneSub: 'See you tomorrow, Amina', in: 'In', out: 'Out', total: 'Total', synced: 'Synced', syncing: 'Offline · 2 pending', onSite: 'You are on site', away: 'You are 350 m away', wait: 'Waiting for GPS', zone: 'Inside site zone', zoneOut: 'Zone radius 100 m', zoneWait: 'Needs a GPS fix to check in', gpsGood: 'GPS ±8 m', gpsWait: 'GPS —', ci: 'Check in', ciSub: 'Plateau Site · from 08:00', outside: 'Outside site', outSub: '350 m from site', outNote: 'Move within 100 m of the site to check in.', gpsBtn: 'Waiting for GPS…', gpsSub: 'Check-in unlocks with a good signal', gpsNote: 'Go outdoors or turn on high-accuracy location.', co: 'Check out', coSub: 'On site for ', actions: ['Request leave', 'My schedule', 'My leave'], types: ['Regular', 'Intervention'], st: ['Upcoming', 'In progress', 'Completed'], scenL: ['Check in', 'Outside site', 'Waiting GPS', 'Checked in', 'Done', 'No shift', 'On leave'] },
+      fr: { themeBtn: dark ? 'Mode clair' : 'Mode sombre', offlineBtn: offline ? 'En ligne' : 'Hors ligne', date: 'Samedi 17 octobre', hello: 'Bonjour', noShift: "Pas de service aujourd'hui", noShiftSub: 'Profitez de votre repos. Prochain service lundi à 08:00.', onLeave: "En congé aujourd'hui", onLeaveSub: 'Congé annuel · 15–19 oct.', searching: 'Recherche de votre position…', openMap: 'Carte', week: 'Cette semaine', present: 'Jours présents', lates: 'Retards', hours: 'Heures', doneTitle: "Terminé pour aujourd'hui", doneSub: 'À demain, Amina', in: 'Arrivée', out: 'Départ', total: 'Total', synced: 'Synchronisé', syncing: 'Hors ligne · 2 en attente', onSite: 'Vous êtes sur site', away: 'Vous êtes à 350 m', wait: 'En attente du GPS', zone: 'Dans la zone du site', zoneOut: 'Rayon de zone 100 m', zoneWait: 'Un signal GPS est requis', gpsGood: 'GPS ±8 m', gpsWait: 'GPS —', ci: 'Pointer', ciSub: 'Site Plateau · dès 08:00', outside: 'Hors du site', outSub: 'À 350 m du site', outNote: 'Approchez-vous à moins de 100 m du site.', gpsBtn: 'En attente du GPS…', gpsSub: 'Le pointage se débloque avec un bon signal', gpsNote: 'Sortez ou activez la localisation précise.', co: 'Fin de service', coSub: 'Sur site depuis ', actions: ['Demander un congé', 'Mon planning', 'Mes congés'], types: ['Régulier', 'Intervention'], st: ['À venir', 'En cours', 'Terminé'], scenL: ['Pointer', 'Hors site', 'GPS en attente', 'Pointé', 'Terminé', 'Pas de service', 'En congé'] }
+    };
+    const s = T[fr ? 'fr' : 'en'];
+    const c = dark ? { bg: '#0B1220', ink: '#F4F7FB', muted: '#A9B6CA', card: '#142036', line: '#26385A', soft: '#1D2E4D', map: '#1B2B47', grid: '#2A3D5F99' } : { bg: '#F5F8FC', ink: '#0B2A52', muted: '#51627D', card: '#FFFFFF', line: '#DCE4EF', soft: '#EEF3FA', map: '#CFE0F5', grid: '#FFFFFFAA' };
+    const ids = ['ready', 'outside', 'wait', 'in', 'done', 'noshift', 'leave'];
+    const two = scen === 'ready' || scen === 'outside';
+    const SS = [['#E6EEFA', '#0A4DA8'], ['#FEF3C7', '#7C3A06'], ['#DCFCE7', '#14532D']];
+    const mk = (ty, si, site, addr, time) => ({ w: two ? '300px' : '100%', type: s.types[ty], tbg: ty ? '#FEF3C7' : '#E6EEFA', tfg: ty ? '#7C3A06' : '#0A4DA8', status: s.st[si], sbg: SS[si][0], sfg: SS[si][1], site, addr, time });
+    const assigns = [mk(0, scen === 'in' ? 1 : scen === 'done' ? 2 : 0, 'Chantier Plateau', 'Rue des Jardins, Plateau, Abidjan', '08:00 – 17:00')].concat(two ? [mk(1, 0, 'Hôpital Cocody', 'Bd de France, Cocody, Abidjan', '18:00 – 22:00')] : []);
+    const pos = scen === 'outside' ? { show: true, x: '40px', y: '30px', searching: false } : scen === 'wait' ? { show: false, x: '0', y: '0', searching: true } : { show: true, x: '166px', y: '66px', searching: false };
+    const gps = scen === 'wait' ? { col: '#B8C6DB', b2: '#B8C6DB', b3: '#B8C6DB', label: s.gpsWait } : { col: '#0BC152', b2: '#0BC152', b3: scen === 'outside' ? '#B8C6DB' : '#0BC152', label: s.gpsGood };
+    const dist = scen === 'outside' ? { title: s.away, sub: s.zoneOut } : scen === 'wait' ? { title: s.wait, sub: s.zoneWait } : { title: s.onSite, sub: s.zone };
+    const mm = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
+    const B = scen === 'outside' ? { bg: c.soft, fg: c.muted, cur: 'not-allowed', sh: 'none', label: s.outside, sub: s.outSub, note: true, noteText: s.outNote, go: () => {} }
+      : scen === 'wait' ? { bg: c.soft, fg: c.muted, cur: 'not-allowed', sh: 'none', label: s.gpsBtn, sub: s.gpsSub, note: true, noteText: s.gpsNote, go: () => {} }
+      : scen === 'in' ? { bg: '#DC2626', fg: '#fff', cur: 'pointer', sh: '0 8px 20px #DC262655', label: s.co, sub: s.coSub + mm, note: false, noteText: '', go: () => this.setState({ scen: 'done' }) }
+      : { bg: '#0A6AE6', fg: '#fff', cur: 'pointer', sh: '0 8px 20px #0A6AE655', label: s.ci, sub: s.ciSub, note: false, noteText: '', go: () => this.setState({ scen: 'in', secs: 0 }) };
+    const sync = offline ? { bg: '#FEF3C7', fg: '#7C3A06', dot: '#B45309', label: s.syncing } : { bg: dark ? '#14341F' : '#E6F6EC', fg: dark ? '#9BE8B7' : '#14532D', dot: '#0BC152', label: s.synced };
+    return {
+      s, c, sync, scens: ids.map((id, i) => ({ label: s.scenL[i], bg: scen === id ? '#0B2A52' : '#fff', fg: scen === id ? '#fff' : '#0B2A52', go: () => this.setState({ scen: id, secs: 0 }) })),
+      hasShift: ids.indexOf(scen) < 5, noShift: scen === 'noshift', onLeave: scen === 'leave',
+      assigns, multi: two, showMap: ids.indexOf(scen) < 4, pos, gps, dist,
+      showBtn: ids.indexOf(scen) < 4, btn: B, isDone: scen === 'done',
+      actions: [['✈', 0], ['▦', 1], ['◷', 2]].map(a => ({ icon: a[0], label: s.actions[a[1]] })),
+      tabs: ((r,a,IC)=>(r === 'manager' ? [['◈', 'Manager'], ['☰', 'Roster'], ['◷', 'Attendance'], ['☺', 'Profile']] : [['⌂', 'Home'], ['◷', 'Attendance'], ['☺', 'Profile']]).map(t => ({ mask:IC[t[1]],label:t[1], color: t[1] === a ? '#0A6AE6' : c.muted, weight: t[1] === a ? 800 : 600 })))(localStorage.getItem('ss_role'),'Home',{Home:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11l9-8 9 8v10h-6v-6H9v6H3z'/%3E%3C/svg%3E\")",Attendance:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2'/%3E%3C/svg%3E\")",Profile:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c0-4.4 3.6-7 8-7s8 2.6 8 7'/%3E%3C/svg%3E\")",Manager:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'/%3E%3C/svg%3E\")",Roster:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E\")"}),
+      toggleDark: () => this.setState(x => ({ dark: !x.dark })),
+      toggleLang: () => this.setState(x => ({ fr: !x.fr })),
+      toggleOffline: () => this.setState(x => ({ offline: !x.offline }))
+    };
+  }
+}
+</script>
+</body>
+</html>

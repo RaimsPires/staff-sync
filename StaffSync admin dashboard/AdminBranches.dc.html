@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:16px;position:relative">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em">Branches &amp; sites</h1><div style="margin-top:4px;color:var(--text-2);font-size:13.5px">{{ br.sub }}</div></div>
+    <div style="display:flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden"><sc-for list="{{ br.tabsV }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.go }}" style="height:34px;padding:0 16px;border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ t.l }}</button></sc-for></div></div>
+  <sc-if value="{{ br.isSitesV }}"><dc-import name="AdminSites" hint-size="100%,700px"></dc-import></sc-if>
+  <div style="display:{{ br.bDisp }};flex-direction:column;gap:16px">
+
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:0 0 300px;width:300px;max-width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:12px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input value="{{ br.q }}" onInput="{{ br.onQ }}" placeholder="Search branches or sites" style="border:0;outline:0;background:transparent;color:var(--text);font-size:13px;width:100%;min-width:0"></div>
+        <button onClick="{{ br.add }}" aria-label="Add branch" style="height:34px;padding:0 12px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap">Add branch</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <sc-for list="{{ br.list }}" as="b" hint-placeholder-count="3">
+          <div>
+            <div onClick="{{ b.pick }}" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:{{ b.bg }};cursor:pointer" style-hover="background:var(--hover)">
+              <div style="width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;background:{{ b.ibg }};color:{{ b.ifg }};font:600 11px 'Geist Mono',monospace">{{ b.code }}</div>
+              <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600">{{ b.name }}</div><div style="font-size:12px;color:var(--text-3)">{{ b.counts }}</div></div>
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ b.dot }};flex:none"></span>
+            </div>
+            <sc-for list="{{ b.sites }}" as="s" hint-placeholder-count="2"><div onClick="{{ b.pick }}" style="display:flex;align-items:center;gap:8px;padding:5px 10px 5px 54px;font-size:12.5px;color:var(--text-2);cursor:pointer"><span style="width:5px;height:5px;border-radius:50%;background:var(--border-strong)"></span><span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span><span style="color:var(--text-3);font-size:12px">{{ s.emp }}</span></div></sc-for>
+          </div>
+        </sc-for>
+        <sc-if value="{{ br.noList }}"><div style="padding:24px 8px;text-align:center;color:var(--text-3);font-size:13px">No branch matches “{{ br.q }}”.</div></sc-if>
+      </div>
+      <sc-if value="{{ br.hasArch }}">
+        <div style="border-top:1px solid var(--border);padding-top:8px">
+          <button onClick="{{ br.togArch }}" style="width:100%;display:flex;justify-content:space-between;height:30px;padding:0 6px;border:0;background:transparent;color:var(--text-2);font-size:12.5px;font-weight:500;cursor:pointer"><span>Archived ({{ br.archN }})</span><span>{{ br.archIcon }}</span></button>
+          <sc-if value="{{ br.archOpen }}"><sc-for list="{{ br.archived }}" as="a" hint-placeholder-count="1"><div onClick="{{ a.pick }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:{{ a.bg }};cursor:pointer;opacity:.75"><div style="flex:1"><div style="font-size:13px;font-weight:500">{{ a.name }}</div><div style="font-size:12px;color:var(--text-3)">{{ a.counts }}</div></div></div></sc-for></sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ br.hasSel }}">
+    <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1 1 280px;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em">{{ br.d.name }}</h2><span style="font:600 11.5px 'Geist Mono',monospace;padding:3px 8px;border-radius:6px;background:var(--neutral-bg);color:var(--neutral)">{{ br.d.code }}</span><sc-if value="{{ br.d.archived }}"><span style="padding:3px 9px;border-radius:6px;font-size:12px;font-weight:500;background:var(--warn-bg);color:var(--warn)">Archived</span></sc-if></div>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;font-size:13.5px;color:var(--text-2)"><span>{{ br.d.addr }}</span><span>{{ br.d.tz }} · {{ br.d.hol }} · Leave: {{ br.d.wf }}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-if value="{{ br.d.archived }}"><button onClick="{{ br.restore }}" style="height:34px;padding:0 13px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Restore</button></sc-if>
+          <sc-if value="{{ br.d.active }}"><button onClick="{{ br.edit }}" style="height:34px;padding:0 13px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Edit</button></sc-if>
+          <button onClick="{{ br.delAsk }}" style="height:34px;padding:0 13px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--bad);font-size:13px;font-weight:500;cursor:pointer">{{ br.d.delL }}</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+        <sc-for list="{{ br.d.stats }}" as="s" hint-placeholder-count="4"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px"><div style="font-size:12.5px;color:var(--text-3)">{{ s.l }}</div><div style="font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:2px;color:{{ s.c }}">{{ s.v }}</div><div style="font-size:12px;color:var(--text-3)">{{ s.h }}</div></div></sc-for>
+      </div>
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1 1 260px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px"><div style="font-weight:600;font-size:14.5px;margin-bottom:8px">Branch admins</div>
+          <sc-for list="{{ br.d.admins }}" as="a" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:{{ a.bt }}"><div style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:600;background:var(--info-bg);color:var(--info)">{{ a.ini }}</div><div style="font-size:13.5px;font-weight:500">{{ a.name }}</div></div></sc-for>
+          <sc-if value="{{ br.d.noAdmins }}"><div style="font-size:13px;color:var(--warn)">No admin assigned.</div></sc-if></div>
+        <div style="flex:2 1 340px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px"><div style="font-weight:600;font-size:14.5px;margin-bottom:10px">Employees by site</div>
+          <sc-for list="{{ br.d.bars }}" as="b" hint-placeholder-count="2"><div style="display:grid;grid-template-columns:minmax(100px,150px) 1fr 36px;gap:10px;align-items:center;padding:5px 0;font-size:13px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.name }}</span><div style="height:8px;border-radius:4px;background:var(--neutral-bg);overflow:hidden"><div style="height:100%;width:{{ b.w }};background:var(--accent)"></div></div><span style="font:12.5px 'Geist Mono',monospace;color:var(--text-2);text-align:right">{{ b.n }}</span></div></sc-for></div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto">
+        <div style="min-width:560px">
+          <div style="padding:14px 18px;font-weight:600;font-size:14.5px;border-bottom:1px solid var(--border)">Sites</div>
+          <sc-for list="{{ br.d.sites }}" as="s" hint-placeholder-count="2"><div style="display:grid;grid-template-columns:minmax(150px,1.3fr) 80px 110px 1.2fr;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--border);font-size:13px"><div><div style="font-weight:500">{{ s.name }}</div><div style="font-size:12px;color:var(--text-3)">{{ s.addr }}</div></div><span style="color:var(--text-2)">{{ s.emp }} staff</span><span style="font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--text-2)">{{ s.pres }} / {{ s.exp }} in</span><div style="display:flex;gap:12px;justify-content:flex-end"><sc-for list="{{ s.links }}" as="l" hint-placeholder-count="3"><a href="#" onClick="{{ l.go }}" style="font-size:12.5px">{{ l.l }}</a></sc-for></div></div></sc-for>
+          <sc-if value="{{ br.d.noSites }}"><div style="padding:32px 18px;text-align:center;color:var(--text-3);font-size:13.5px">No sites in this branch.</div></sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+
+  </div>
+
+  <sc-if value="{{ br.m }}">
+    <div style="position:fixed;inset:0;background:var(--overlay);z-index:50;display:grid;place-items:center;padding:16px">
+      <div style="width:100%;max-width:640px;max-height:calc(100vh - 32px);background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600;font-size:16px">{{ br.m.title }}</div><button onClick="{{ br.mClose }}" aria-label="Close" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:20px;cursor:pointer">×</button></div>
+        <div style="padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+          <sc-if value="{{ br.m.hasErr }}"><div style="padding:10px 12px;border-radius:10px;background:var(--bad-bg);color:var(--bad);font-size:13px;font-weight:500">Fix the highlighted fields to save.</div></sc-if>
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Branch name *<input value="{{ br.m.name }}" onInput="{{ br.m.onName }}" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ br.m.nameBd }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ br.m.nameE }}</span></label>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Code *<input value="{{ br.m.code }}" onInput="{{ br.m.onCode }}" maxlength="4" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ br.m.codeBd }};background:var(--surface);color:var(--text);font:13.5px 'Geist Mono',monospace;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ br.m.codeE }}</span></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Address *<input value="{{ br.m.addr }}" onInput="{{ br.m.onAddr }}" placeholder="Street, postcode, city" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid {{ br.m.addrBd }};background:var(--surface);color:var(--text);font-size:13.5px;outline:none"><span style="font-size:12px;color:var(--bad);font-weight:400">{{ br.m.addrE }}</span></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Timezone<select value="{{ br.m.tz }}" onChange="{{ br.m.onTz }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ br.tzOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Branch admins</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ br.m.adminChips }}" as="a" hint-placeholder-count="5"><button onClick="{{ a.go }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ a.name }}</button></sc-for></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Holiday calendar<select value="{{ br.m.hol }}" onChange="{{ br.m.onHol }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ br.holOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="font-size:12px;color:var(--text-3);font-weight:400">{{ br.m.holN }}</span></label>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Leave approval workflow<select value="{{ br.m.wf }}" onChange="{{ br.m.onWf }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ br.wfOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="font-size:12px;color:var(--text-3);font-weight:400">{{ br.m.wfH }}</span></label>
+          </div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ br.mClose }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">Cancel</button><button onClick="{{ br.mSave }}" style="height:36px;padding:0 16px;border-radius:9px;border:0;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer">{{ br.m.saveL }}</button></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ br.x }}">
+    <div style="position:fixed;inset:0;background:var(--overlay);z-index:50;display:grid;place-items:center;padding:16px">
+      <div style="width:100%;max-width:520px;max-height:calc(100vh - 32px);background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600;font-size:16px">{{ br.x.title }}</div><button onClick="{{ br.xClose }}" aria-label="Close" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:20px;cursor:pointer">×</button></div>
+        <div style="padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+          <sc-if value="{{ br.x.step1 }}">
+            <sc-if value="{{ br.x.attached }}"><div style="padding:12px 14px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:13px"><b>{{ br.x.impact }}</b> are still attached to {{ br.x.name }}. They must be moved to another branch first.</div></sc-if>
+            <sc-if value="{{ br.x.empty }}"><div style="font-size:13.5px;color:var(--text-2)">{{ br.x.name }} has no sites or employees attached.</div></sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ br.x.choices }}" as="c" hint-placeholder-count="2"><div onClick="{{ c.go }}" style="padding:12px 14px;border-radius:10px;border:1.5px solid {{ c.bd }};background:{{ c.bg }};cursor:pointer"><div style="font-size:13.5px;font-weight:600">{{ c.l }}</div><div style="font-size:12.5px;color:var(--text-2);margin-top:2px">{{ c.h }}</div></div></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ br.x.step2 }}">
+            <div style="font-size:13.5px;color:var(--text-2)">Move <b style="color:var(--text)">{{ br.x.impact }}</b> to:</div>
+            <select value="{{ br.x.target }}" onChange="{{ br.x.onTarget }}" style="height:36px;padding:0 9px;border-radius:9px;border:1px solid {{ br.x.tBd }};background:var(--surface);color:var(--text);font-size:13.5px"><sc-for list="{{ br.x.targets }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            <div style="font-size:12.5px;color:var(--text-3)">Attendance history stays with each site. Branch admins of the target branch gain access to the moved sites.</div>
+          </sc-if>
+          <sc-if value="{{ br.x.typeConfirm }}">
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;color:var(--text-2)">Type <b style="font-family:'Geist Mono',monospace;color:var(--bad)">{{ br.x.code }}</b> to confirm permanent deletion<input value="{{ br.x.typed }}" onInput="{{ br.x.onTyped }}" style="height:36px;padding:0 11px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:13.5px 'Geist Mono',monospace;outline:none"></label>
+          </sc-if>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ br.x.back }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer">{{ br.x.backL }}</button><button onClick="{{ br.x.go }}" style="height:36px;padding:0 16px;border-radius:9px;border:0;background:{{ br.x.goBg }};color:#fff;font-size:13px;font-weight:500;cursor:pointer;opacity:{{ br.x.goOp }}">{{ br.x.goL }}</button></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ br.toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ br.toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const S=(id,name,addr,emp,exp,pres)=>({id,name,addr,emp,exp,pres});
+const B0=[
+ {id:'lyon',name:'Lyon',code:'LYO',addr:'12 Rue de la Part-Dieu, 69003 Lyon',tz:'Europe/Paris',admins:['Nadia Koné','Julien Roche'],hol:'fr',wf:'default',rate:93,arch:false,sites:[S('pd','Part-Dieu Tower','12 Rue de la Part-Dieu, Lyon',42,38,35),S('cf','Confluence Depot','4 Quai Rambaud, Lyon',31,27,25)]},
+ {id:'pn',name:'Paris Nord',code:'PAN',addr:'88 Avenue du Président Wilson, 93210 Saint-Denis',tz:'Europe/Paris',admins:['Marc Olivier'],hol:'fr',wf:'two',rate:89,arch:false,sites:[S('sd','Saint-Denis Hub','88 Av. Wilson, Saint-Denis',58,52,46),S('rl','Roissy Logistics','Zone Cargo 4, Roissy-en-France',47,41,38)]},
+ {id:'mrs',name:'Marseille',code:'MRS',addr:'21 Quai du Port, 13002 Marseille',tz:'Europe/Paris',admins:['Sarah Benoît'],hol:'fr',wf:'auto',rate:96,arch:false,sites:[S('pv','Port Vieux Yard','21 Quai du Port, Marseille',36,31,30)]},
+ {id:'bdx',name:'Bordeaux',code:'BDX',addr:'5 Cours du Médoc, 33300 Bordeaux',tz:'Europe/Paris',admins:[],hol:'fr',wf:'default',rate:0,arch:true,sites:[]}];
+const ADM=['Nadia Koné','Julien Roche','Marc Olivier','Sarah Benoît','Claire Vasseur','Hugo Martel'];
+const TZ=[['Europe/Paris','Europe/Paris (UTC+1/+2)'],['Europe/London','Europe/London (UTC+0/+1)'],['Europe/Brussels','Europe/Brussels (UTC+1/+2)'],['Europe/Madrid','Europe/Madrid (UTC+1/+2)'],['Indian/Reunion','Indian/Reunion (UTC+4)'],['America/Martinique','America/Martinique (UTC−4)']];
+const HOL={fr:['France (national)','11 public holidays'],alsace:['France – Alsace-Moselle','13 public holidays'],be:['Belgium (national)','10 public holidays'],custom:['Custom calendar','Dates managed in Settings']};
+const WF={default:['Company default','Uses the company-wide approval rules.'],single:['Branch admin only','One approval from a branch admin.'],two:['Branch admin, then HR','Two steps: branch admin, then HR.'],auto:['Auto-approve up to 2 days','Longer requests go to a branch admin.']};
+const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
+const sum=(a,k)=>a.reduce((x,y)=>x+y[k],0);
+class Component extends DCLogic {
+  state={view:'branches',brs:B0,sel:'lyon',q:'',archOpen:false,m:null,x:null,toast:null};
+  componentWillUnmount(){ clearTimeout(this.tt); }
+  say(m){ this.setState({toast:m}); clearTimeout(this.tt); this.tt=setTimeout(()=>this.setState({toast:null}),2600); }
+  renderVals(){ return {br:this.rv()}; }
+  mval(){
+    const s=this.state,m=s.m,e={};
+    if(!m) return {};
+    if(!m.name.trim()) e.name='Name is required'; else if(s.brs.some(b=>b.id!==m.id&&b.name.toLowerCase()===m.name.trim().toLowerCase())) e.name='A branch with this name exists';
+    if(!m.code.trim()) e.code='Code is required'; else if(m.code.trim().length<2) e.code='2–4 letters'; else if(s.brs.some(b=>b.id!==m.id&&b.code===m.code.trim())) e.code='Code already in use';
+    if(!m.addr.trim()) e.addr='Address is required';
+    return e;
+  }
+  rv(){
+    const s=this.state,T=this,q=s.q.trim().toLowerCase();
+    const stat=b=>({emp:sum(b.sites,'emp'),exp:sum(b.sites,'exp'),pres:sum(b.sites,'pres')});
+    const act=s.brs.filter(b=>!b.arch),arch=s.brs.filter(b=>b.arch);
+    const match=b=>!q||b.name.toLowerCase().includes(q)||b.sites.some(x=>x.name.toLowerCase().includes(q));
+    const row=b=>{const t=stat(b);return {name:b.name,code:b.code,counts:b.sites.length+' site'+(b.sites.length===1?'':'s')+' · '+t.emp+' employees',bg:s.sel===b.id?'var(--accent-soft)':'transparent',ibg:s.sel===b.id?'var(--accent)':'var(--neutral-bg)',ifg:s.sel===b.id?'#fff':'var(--neutral)',dot:b.rate>=93?'var(--ok-dot)':b.rate>=85?'var(--warn-dot)':'var(--bad-dot)',pick:()=>this.setState({sel:b.id}),
+      sites:q?b.sites.filter(x=>x.name.toLowerCase().includes(q)||b.name.toLowerCase().includes(q)).map(x=>({name:x.name,emp:x.emp})):s.sel===b.id?b.sites.map(x=>({name:x.name,emp:x.emp})):[]};};
+    const list=act.filter(match).map(row);
+    const cur=s.brs.find(b=>b.id===s.sel),tot=sum(act.map(b=>({e:stat(b).emp})),'e'),nsites=sum(act.map(b=>({n:b.sites.length})),'n');
+    let d=null;
+    if(cur){const t=stat(cur),isA=cur.arch,mx=Math.max(1,...cur.sites.map(x=>x.emp));
+      const lk=x=>[['Live board'],['Employees'],['Schedules']].map(([l])=>({l,go:ev=>{ev.preventDefault();this.say(l+' · '+x.name);}}));
+      d={name:cur.name,code:cur.code,addr:cur.addr,tz:cur.tz,hol:HOL[cur.hol][0],wf:WF[cur.wf][0],archived:isA,active:!isA,delL:isA?'Delete permanently':'Archive or delete',
+        stats:[{l:'Attendance rate',v:isA?'—':cur.rate+'%',c:cur.rate>=93?'var(--ok)':cur.rate>=85?'var(--warn)':'var(--text-3)',h:'This month'},{l:'Present today',v:t.pres+' / '+t.exp,c:'var(--text)',h:'Checked in / expected'},{l:'Sites',v:cur.sites.length,c:'var(--text)',h:'Active sites'},{l:'Employees',v:t.emp,c:'var(--text)',h:'On the roster'}],
+        admins:cur.admins.map((n,i)=>({name:n,ini:ini(n),bt:i?'1px solid var(--border)':'0'})),noAdmins:!cur.admins.length,
+        bars:cur.sites.map(x=>({name:x.name,n:x.emp,w:Math.round(x.emp/mx*100)+'%'})),sites:cur.sites.map(x=>({name:x.name,addr:x.addr,emp:x.emp,pres:x.pres,exp:x.exp,links:lk(x)})),noSites:!cur.sites.length};}
+    const m=s.m,me=m&&m.tried?this.mval():{};
+    const setM=k=>ev=>{const v=ev.target.value;this.setState(x=>({m:Object.assign({},x.m,{[k]:v})}));};
+    const mv=m&&{title:m.id?'Edit branch':'Add branch',hasErr:Object.keys(me).length>0,name:m.name,code:m.code,addr:m.addr,tz:m.tz,hol:m.hol,wf:m.wf,onName:setM('name'),onCode:ev=>{const v=ev.target.value.toUpperCase().replace(/[^A-Z]/g,'');this.setState(x=>({m:Object.assign({},x.m,{code:v})}));},onAddr:setM('addr'),onTz:setM('tz'),onHol:setM('hol'),onWf:setM('wf'),
+      nameE:me.name||'',codeE:me.code||'',addrE:me.addr||'',nameBd:me.name?'var(--bad-dot)':'var(--border-strong)',codeBd:me.code?'var(--bad-dot)':'var(--border-strong)',addrBd:me.addr?'var(--bad-dot)':'var(--border-strong)',holN:HOL[m.hol][1],wfH:WF[m.wf][1],saveL:m.id?'Save changes':'Create branch',
+      adminChips:ADM.map(n=>{const on=m.admins.includes(n);return {name:n,bg:on?'var(--accent)':'var(--surface)',fg:on?'#fff':'var(--text-2)',bd:on?'var(--accent)':'var(--border-strong)',go:()=>this.setState(x=>({m:Object.assign({},x.m,{admins:on?x.m.admins.filter(i=>i!==n):x.m.admins.concat(n)})}))};})};
+    const x=s.x,xb=x&&s.brs.find(b=>b.id===x.id),xt=xb?stat(xb):null,att=xb&&(xb.sites.length>0||xt.emp>0);
+    const others=xb?act.filter(b=>b.id!==xb.id):[];
+    let xv=null;
+    if(x&&xb){const del=x.action==='delete',needMove=att&&!xb.arch,step2=x.step===2&&needMove,final=!needMove||step2;
+      const typeOk=!del||x.typed===xb.code,tOk=!needMove||!!x.target;
+      xv={title:xb.arch?'Delete '+xb.name:'Archive or delete '+xb.name,name:xb.name,code:xb.code,attached:needMove,empty:!needMove,impact:xb.sites.length+' site'+(xb.sites.length===1?'':'s')+' and '+xt.emp+' employees',step1:x.step===1,step2,typeConfirm:final&&del,typed:x.typed,onTyped:ev=>this.setState({x:Object.assign({},x,{typed:ev.target.value})}),
+        choices:(xb.arch?[['delete','Delete permanently','Removes the branch record. This cannot be undone.']]:[['archive','Archive','Hides the branch from lists and pickers. History is kept and you can restore it later.'],['delete','Delete permanently','Removes the branch. Attendance history stays with each site. This cannot be undone.']]).map(([k,l,h])=>({l,h,bd:x.action===k?(k==='delete'?'var(--bad-dot)':'var(--accent)'):'var(--border)',bg:x.action===k?(k==='delete'?'var(--bad-bg)':'var(--accent-soft)'):'var(--surface)',go:()=>this.setState({x:Object.assign({},x,{action:k})})})),
+        target:x.target,tBd:'var(--border-strong)',targets:[{v:'',l:'Select a branch…'}].concat(others.map(b=>({v:b.id,l:b.name}))),onTarget:ev=>this.setState({x:Object.assign({},x,{target:ev.target.value})}),
+        back:()=>step2?this.setState({x:Object.assign({},x,{step:1})}):this.setState({x:null}),backL:step2?'Back':'Cancel',
+        goL:!final?'Continue':del?'Delete branch':'Archive branch',goBg:final?(del?'var(--bad-dot)':'var(--accent)'):'var(--accent)',goOp:final&&(!typeOk||!tOk)?.45:1,
+        go:()=>{ if(!final){this.setState({x:Object.assign({},x,{step:2})});return;} if(!typeOk||!tOk) return;
+          this.setState(st=>{let brs=st.brs;const src=st.brs.find(b=>b.id===x.id);
+            if(needMove) brs=brs.map(b=>b.id===x.target?Object.assign({},b,{sites:b.sites.concat(src.sites)}):b);
+            brs=brs.map(b=>b.id===x.id?Object.assign({},b,{sites:needMove?[]:b.sites,arch:true}):b);
+            if(del) brs=brs.filter(b=>b.id!==x.id);
+            const first=brs.find(b=>!b.arch);return {brs,x:null,sel:del||st.sel!==x.id?(del&&st.sel!==x.id?st.sel:(first?first.id:null)):st.sel};});
+          this.say(xb.name+(del?' deleted':' archived')+(needMove?' · '+xb.sites.length+' sites moved to '+others.find(b=>b.id===x.target).name:'')); }};}
+    return {
+      sub:s.view==='sites'?'Every site with its geofence, team and live attendance':act.length+' branches · '+nsites+' sites · '+tot+' employees',tabsV:[['branches','Branches'],['sites','Sites']].map(([k,l])=>({l,bg:s.view===k?'var(--accent)':'var(--surface)',fg:s.view===k?'#fff':'var(--text-2)',go:()=>this.setState({view:k})})),isSitesV:s.view==='sites',bDisp:s.view==='sites'?'none':'flex',q:s.q,onQ:ev=>this.setState({q:ev.target.value}),list,noList:list.length===0,
+      add:()=>this.setState({m:{id:null,name:'',code:'',addr:'',tz:'Europe/Paris',admins:[],hol:'fr',wf:'default',tried:false}}),
+      hasArch:arch.length>0,archN:arch.length,togArch:()=>this.setState({archOpen:!s.archOpen}),archOpen:s.archOpen,archIcon:s.archOpen?'▾':'▸',archived:arch.map(b=>({name:b.name,counts:b.code+' · archived',bg:s.sel===b.id?'var(--accent-soft)':'transparent',pick:()=>this.setState({sel:b.id})})),
+      hasSel:!!d,d,restore:()=>{this.setState(st=>({brs:st.brs.map(b=>b.id===s.sel?Object.assign({},b,{arch:false}):b)}));this.say(cur.name+' restored');},
+      edit:()=>this.setState({m:{id:cur.id,name:cur.name,code:cur.code,addr:cur.addr,tz:cur.tz,admins:cur.admins.slice(),hol:cur.hol,wf:cur.wf,tried:false}}),
+      delAsk:()=>this.setState({x:{id:cur.id,step:1,action:cur.arch?'delete':'archive',target:'',typed:''}}),
+      m:mv||null,tzOpts:TZ.map(([v,l])=>({v,l})),holOpts:Object.keys(HOL).map(k=>({v:k,l:HOL[k][0]})),wfOpts:Object.keys(WF).map(k=>({v:k,l:WF[k][0]})),mClose:()=>this.setState({m:null}),
+      mSave:()=>{ if(Object.keys(this.mval()).length){this.setState({m:Object.assign({},m,{tried:true})});return;}
+        const f={name:m.name.trim(),code:m.code.trim(),addr:m.addr.trim(),tz:m.tz,admins:m.admins,hol:m.hol,wf:m.wf};
+        if(m.id) this.setState(st=>({brs:st.brs.map(b=>b.id===m.id?Object.assign({},b,f):b),m:null}));
+        else this.setState(st=>({brs:st.brs.concat(Object.assign({id:'b'+Date.now(),rate:0,arch:false,sites:[]},f)),sel:'b'+Date.now(),m:null}));
+        this.say(m.id?'Branch updated':f.name+' created'); },
+      x:xv,xClose:()=>this.setState({x:null}),toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}</style></helmet>
+<div style="display:flex;gap:40px;padding:40px;align-items:flex-start">
+
+<section id="1a" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1a · Splash</div>
+<div style="width:390px;height:800px;background:#0B2A52;border-radius:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;position:relative;overflow:hidden;color:#fff">
+<div style="width:120px;height:120px;border-radius:30px;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="84" height="84" viewBox="0 0 100 100"><path d="M50 18A32 32 0 0 0 22 62" fill="none" stroke="#0BC152" stroke-width="9" stroke-linecap="round"/><path d="M50 82A32 32 0 0 0 78 38" fill="none" stroke="#0A6AE6" stroke-width="9" stroke-linecap="round"/><circle cx="50" cy="50" r="19" fill="#fff" stroke="#0B2A52" stroke-width="4"/><path d="M50 38V50L58 55" fill="none" stroke="#0B2A52" stroke-width="4" stroke-linecap="round"/></svg></div>
+<div style="font-size:34px;font-weight:800;letter-spacing:-.5px">Staff<span style="color:#0BC152">Sync</span></div>
+<div style="width:140px;height:6px;border-radius:3px;background:#ffffff33;overflow:hidden;margin-top:24px"><div style="width:62%;height:100%;background:#0BC152;border-radius:3px"></div></div>
+<div style="position:absolute;bottom:40px;font-size:14px;color:#C9D6EA">v 2.4.0</div></div></section>
+
+<section id="1b" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1b · Language</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;padding:72px 24px 32px;box-sizing:border-box;color:#0B2A52">
+<div style="font-size:30px;font-weight:800;line-height:1.15">{{ L.title }}</div>
+<div style="font-size:16px;color:#51627D;margin-top:8px">{{ L.sub }}</div>
+<div style="display:flex;flex-direction:column;gap:14px;margin-top:36px">
+<sc-for list="{{ langs }}" as="lg" hint-placeholder-count="2"><button onClick="{{ lg.pick }}" style="min-height:88px;border-radius:20px;background:#fff;border:{{ lg.border }};display:flex;align-items:center;gap:16px;padding:0 20px;text-align:left;cursor:pointer;color:#0B2A52"><span style="width:44px;height:44px;border-radius:50%;background:#E6EEFA;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0A6AE6">{{ lg.code }}</span><span style="flex:1"><span style="display:block;font-size:20px;font-weight:800">{{ lg.name }}</span><span style="display:block;font-size:14px;color:#51627D">{{ lg.hint }}</span></span><span style="width:28px;height:28px;border-radius:50%;background:{{ lg.dot }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">{{ lg.check }}</span></button></sc-for></div>
+<div style="flex:1"></div>
+<div style="font-size:13px;color:#51627D;text-align:center;margin-bottom:14px">{{ L.later }}</div>
+<button style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ L.cont }}</button></div></section>
+
+<section id="1c" style="display:flex;flex-direction:column;gap:12px"><div style="font-weight:700;color:#0B2A52">1c · Onboarding (tap Next)</div>
+<div style="width:390px;height:800px;background:#F5F8FC;border-radius:36px;display:flex;flex-direction:column;padding:56px 24px 32px;box-sizing:border-box;color:#0B2A52">
+<div style="display:flex;justify-content:flex-end;height:44px"><button onClick="{{ skip }}" style="border:0;background:none;font-size:16px;font-weight:700;color:#0A6AE6;min-width:64px;min-height:44px;cursor:pointer">{{ L.skip }}</button></div>
+<div style="height:340px;border-radius:28px;background:{{ cur.bg }};display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+<sc-if value="{{ cur.s1 }}" hint-placeholder-val="{{ true }}"><div style="width:220px;height:220px;border-radius:50%;background:#0A6AE633;border:4px solid #0A6AE6;display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:50%;background:#0BC152;border:6px solid #fff;box-shadow:0 0 0 14px #0BC15240;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center">✓</div></div></sc-if>
+<sc-if value="{{ cur.s2 }}" hint-placeholder-val="{{ false }}"><div style="width:260px;background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 24px #0B2A5222"><div style="display:flex;gap:6px"><span style="flex:1;height:34px;border-radius:8px;background:#DCFCE7;color:#14532D;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">Mon</span><span style="flex:1;height:34px;border-radius:8px;background:#FEF3C7;color:#78350F;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">Tue</span><span style="flex:1;height:34px;border-radius:8px;background:#DCFCE7;color:#14532D;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">Wed</span><span style="flex:1;height:34px;border-radius:8px;background:#E5E7EB;color:#374151;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">Thu</span></div><div style="height:12px;border-radius:6px;background:#E6EEFA;width:80%"></div><div style="height:12px;border-radius:6px;background:#E6EEFA;width:60%"></div></div></sc-if>
+<sc-if value="{{ cur.s3 }}" hint-placeholder-val="{{ false }}"><div style="width:260px;background:#fff;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 24px #0B2A5222"><div style="font-weight:800">12 – 16 Nov</div><div style="font-size:13px;color:#51627D">5 days</div><span style="align-self:flex-start;background:#DBEAFE;color:#1E3A8A;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700">{{ L.sent }}</span></div></sc-if>
+</div>
+<div style="font-size:28px;font-weight:800;line-height:1.15;margin-top:32px">{{ cur.title }}</div>
+<div style="font-size:16px;line-height:1.45;color:#51627D;margin-top:10px">{{ cur.body }}</div>
+<div style="flex:1"></div>
+<div style="display:flex;justify-content:center;gap:8px;margin-bottom:24px"><sc-for list="{{ dots }}" as="d" hint-placeholder-count="3"><span style="width:{{ d.w }};height:8px;border-radius:4px;background:{{ d.bg }}"></span></sc-for></div>
+<button onClick="{{ next }}" style="height:64px;border:0;border-radius:18px;background:#0A6AE6;color:#fff;font-size:20px;font-weight:800;cursor:pointer">{{ cur.cta }}</button></div></section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fr: false, i: 0 };
+  renderVals() {
+    const { fr, i } = this.state;
+    const T = {
+      en: { title: 'Choose your language', sub: 'You can change it later in Profile.', later: 'Change anytime in Profile', cont: 'Continue', skip: 'Skip', next: 'Next', start: 'Get started', sent: 'Request sent',
+        sl: [['Check in when you arrive', 'Step inside your site’s zone and tap once. We verify your location for you.'], ['Your schedule, at a glance', 'See upcoming shifts and your attendance history, even offline.'], ['Request leave from your phone', 'Pick your dates, send the request and track approval.']] },
+      fr: { title: 'Choisissez votre langue', sub: 'Modifiable plus tard dans Profil.', later: 'Modifiable à tout moment dans Profil', cont: 'Continuer', skip: 'Passer', next: 'Suivant', start: 'Commencer', sent: 'Demande envoyée',
+        sl: [['Pointez dès votre arrivée', 'Entrez dans la zone de votre site et appuyez une fois. Nous vérifions votre position.'], ['Votre planning en un coup d’œil', 'Consultez vos prochains horaires et votre présence, même hors ligne.'], ['Demandez vos congés', 'Choisissez vos dates, envoyez la demande et suivez la validation.']] }
+    };
+    const L = T[fr ? 'fr' : 'en'], sl = L.sl[i], bgs = ['#DCFCE7', '#E6EEFA', '#DBEAFE'];
+    const lg = (code, name, hint, isFr) => ({ code, name, hint, pick: () => this.setState({ fr: isFr }), border: fr === isFr ? '3px solid #0A6AE6' : '1px solid #DCE4EF', dot: fr === isFr ? '#0A6AE6' : '#DCE4EF', check: fr === isFr ? '✓' : '' });
+    return {
+      L, langs: [lg('EN', 'English', 'Continue in English', false), lg('FR', 'Français', 'Continuer en français', true)],
+      cur: { title: sl[0], body: sl[1], bg: bgs[i], s1: i === 0, s2: i === 1, s3: i === 2, cta: i === 2 ? L.start : L.next },
+      dots: [0, 1, 2].map(n => ({ w: n === i ? '28px' : '8px', bg: n === i ? '#0A6AE6' : '#C5D2E4' })),
+      next: () => this.setState(x => ({ i: (x.i + 1) % 3 })),
+      skip: () => this.setState({ i: 2 })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:fixed;inset:0;z-index:55;display:flex;justify-content:flex-end;background:var(--overlay)" onClick="{{ d.close }}">
+  <div onClick="{{ d.stop }}" style="width:min(580px,100%);height:100%;background:var(--bg);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)">
+    <div style="padding:16px 22px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:center">
+      <div style="width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:600;font-size:16px;background:{{ d.avBg }};color:{{ d.avFg }}">{{ d.ini }}</div>
+      <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-weight:600;font-size:17px">{{ d.name }}</div><span style="padding:3px 9px;border-radius:6px;font-size:12px;font-weight:500;background:{{ d.stBg }};color:{{ d.stFg }}">{{ d.st }}</span></div><div style="font-size:12.5px;color:var(--text-3);margin-top:2px">{{ d.role }} · {{ d.site }} · {{ d.branch }}</div></div>
+      <button onClick="{{ d.close }}" aria-label="Close" style="width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font-size:22px;cursor:pointer">×</button>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:16px">
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:14.5px">Request <span style="font:12px 'Geist Mono',monospace;color:var(--text-3);font-weight:400">{{ d.id }}</span></div><span style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ d.tBg }};color:{{ d.tFg }}">{{ d.type }}</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden"><sc-for list="{{ d.facts }}" as="f" hint-placeholder-count="4"><div style="background:var(--surface);padding:10px 12px"><div style="font-size:11.5px;color:var(--text-3)">{{ f.k }}</div><div style="font-size:13px;font-weight:500;margin-top:2px">{{ f.v }}</div></div></sc-for></div>
+        <div style="padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-size:13px"><div style="font-size:11.5px;color:var(--text-3);margin-bottom:2px">Reason from {{ d.first }}</div>{{ d.reason }}</div>
+        <sc-if value="{{ d.hasAtt }}"><div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface-2);font-size:12.5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-3)"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg><span style="flex:1;font-weight:500">{{ d.att.name }}</span><sc-if value="{{ d.att.pdf }}"><button onClick="{{ d.att.pPrev }}" aria-label="Previous page" style="width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--text-2);cursor:pointer">‹</button><span style="font:12px 'Geist Mono',monospace;color:var(--text-2)">{{ d.att.pg }}/2</span><button onClick="{{ d.att.pNext }}" aria-label="Next page" style="width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--text-2);cursor:pointer">›</button></sc-if><button onClick="{{ d.att.zOut }}" aria-label="Zoom out" style="width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--text-2);cursor:pointer">−</button><span style="font:12px 'Geist Mono',monospace;color:var(--text-2);width:38px;text-align:center">{{ d.att.zoom }}%</span><button onClick="{{ d.att.zIn }}" aria-label="Zoom in" style="width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--text-2);cursor:pointer">+</button><button onClick="{{ d.att.dl }}" style="height:24px;padding:0 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer">Download</button></div>
+          <div style="height:190px;overflow:auto;background:var(--hover);display:grid;place-items:center;padding:14px"><div style="width:{{ d.att.w }}px;height:{{ d.att.h }}px;flex:none;border-radius:4px;background:repeating-linear-gradient(135deg,var(--surface) 0 10px,var(--surface-2) 10px 20px);border:1px solid var(--border-strong);box-shadow:var(--shadow);display:grid;place-items:center;text-align:center;font:500 11px 'Geist Mono',monospace;color:var(--text-3);padding:8px">{{ d.att.label }}</div></div></div></sc-if>
+      </section>
+
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-weight:600;font-size:14.5px">{{ d.balType }} balance</div>
+        <div style="display:flex;align-items:center;gap:8px"><sc-for list="{{ d.bal }}" as="b" hint-placeholder-count="3"><div style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid {{ b.bd }};background:{{ b.bg }};text-align:center"><div style="font-size:11.5px;color:var(--text-3)">{{ b.k }}</div><div style="font-size:20px;font-weight:600;color:{{ b.c }}">{{ b.v }}</div></div></sc-for></div>
+        <sc-if value="{{ d.over }}"><div style="padding:10px 12px;border-radius:10px;background:var(--bad-bg);color:var(--bad);font-size:13px"><b>Exceeds balance by {{ d.overN }} day{{ d.overPl }}.</b> Approving takes the balance negative. Consider unpaid leave for the difference.</div></sc-if>
+      </section>
+
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="font-weight:600;font-size:14.5px">Coverage check</div><span style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ d.cov.bg }};color:{{ d.cov.fg }}">{{ d.cov.l }}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;color:var(--text-3)"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"><sc-for list="{{ d.cal }}" as="c" hint-placeholder-count="14"><div title="{{ c.tip }}" style="min-height:44px;border-radius:8px;padding:4px 5px;display:flex;flex-direction:column;justify-content:space-between;background:{{ c.bg }};border:{{ c.bd }};color:{{ c.fg }};opacity:{{ c.op }}"><span style="font-size:11.5px;font-weight:600">{{ c.n }}</span><span style="display:flex;gap:2px;min-height:6px"><sc-for list="{{ c.dots }}" as="x" hint-placeholder-count="1"><span style="width:6px;height:6px;border-radius:50%;background:var(--bad-dot)"></span></sc-for></span></div></sc-for></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2)"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--accent-soft);border:1px solid var(--accent)"></span>This request</span><span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--bad-dot)"></span>Colleague off</span></div>
+        <sc-if value="{{ d.others.length }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Also off during this period</div><sc-for list="{{ d.others }}" as="o" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="font-weight:500">{{ o.n }}</span><span style="color:var(--text-3);font-size:12.5px">{{ o.w }}</span><span style="margin-left:auto;padding:2px 8px;border-radius:6px;font-size:12px;background:{{ o.bg }};color:{{ o.fg }}">{{ o.s }}</span></div></sc-for></div></sc-if>
+        <sc-if value="{{ d.noOthers }}"><div style="font-size:13px;color:var(--ok)">No one else from {{ d.site }} is off on these dates.</div></sc-if>
+        <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:6px"><div style="font-size:12.5px;font-weight:500;color:var(--text-2)">Schedules and interventions affected ({{ d.aff.length }})</div>
+          <sc-for list="{{ d.aff }}" as="a" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 0"><span style="width:78px;font-weight:500">{{ a.d }}</span><span style="flex:1;min-width:0;color:var(--text-2)">{{ a.t }}</span><a href="#" onClick="{{ a.go }}" style="font-size:12.5px">Reassign</a></div></sc-for>
+          <sc-if value="{{ d.noAff }}"><div style="font-size:13px;color:var(--text-3)">No scheduled shifts fall on these dates.</div></sc-if></div>
+      </section>
+
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:2px">
+        <div style="font-weight:600;font-size:14.5px;margin-bottom:10px">Approval trail</div>
+        <sc-for list="{{ d.trail }}" as="s" hint-placeholder-count="3"><div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;background:{{ s.bg }};color:{{ s.fg }};font:700 11px sans-serif">{{ s.ic }}</div><div style="flex:1;width:2px;min-height:14px;background:var(--border);margin:3px 0;visibility:{{ s.line }}"></div></div><div style="flex:1;padding-bottom:12px"><div style="font-size:13px;font-weight:500">{{ s.who }} <span style="color:{{ s.ac }};font-weight:500">· {{ s.act }}</span></div><div style="font-size:12px;color:var(--text-3)">{{ s.role }} · {{ s.t }}</div><sc-if value="{{ s.c }}"><div style="margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;color:var(--text)">{{ s.c }}</div></sc-if></div></div></sc-for>
+      </section>
+
+      <section style="background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden">
+        <div style="padding:12px 18px;font-weight:600;font-size:14.5px;border-bottom:1px solid var(--border)">{{ d.first }}’s recent leave</div>
+        <sc-for list="{{ d.hist }}" as="h" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:10px;padding:10px 18px;border-top:{{ h.bt }};font-size:13px"><span style="padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:500;background:{{ h.tBg }};color:{{ h.tFg }}">{{ h.type }}</span><span style="flex:1;color:var(--text-2)">{{ h.dates }}</span><span style="color:var(--text-3)">{{ h.days }}</span><span style="padding:2px 8px;border-radius:6px;font-size:12px;font-weight:500;background:{{ h.sBg }};color:{{ h.sFg }}">{{ h.st }}</span></div></sc-for>
+      </section>
+    </div>
+
+    <div style="padding:12px 22px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px">
+      <sc-if value="{{ d.mode }}"><div style="display:flex;flex-direction:column;gap:8px"><div style="font-weight:600;font-size:13.5px">{{ d.mTitle }}</div><textarea rows="2" value="{{ d.txt }}" onInput="{{ d.onTxt }}" placeholder="{{ d.mPh }}" style="resize:vertical;padding:9px 10px;border-radius:9px;border:1px solid {{ d.txtBd }};background:var(--surface);color:var(--text);font-size:13px;outline:none"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div onClick="{{ d.togNotify }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--text-2)"><div style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ d.nBd }};background:{{ d.nBg }};display:grid;place-items:center;color:#fff"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ d.nOp }}"><path d="M5 12l5 5 9-10"></path></svg></div>Notify {{ d.first }}</div><div style="flex:1"></div><button onClick="{{ d.mCancel }}" style="height:34px;padding:0 12px;border:0;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer">Back</button><button onClick="{{ d.mGo }}" style="height:34px;padding:0 16px;border-radius:9px;border:0;background:{{ d.mBg }};color:#fff;font-size:13px;font-weight:500;cursor:pointer;opacity:{{ d.mOp }}">{{ d.mBtn }}</button></div></div></sc-if>
+      <sc-if value="{{ d.idle }}"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><sc-if value="{{ d.canDecide }}"><button onClick="{{ d.goApprove }}" style="height:36px;padding:0 16px;border-radius:9px;border:0;background:var(--ok-dot);color:#fff;font-size:13px;font-weight:500;cursor:pointer">Approve</button><button onClick="{{ d.goReject }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--bad-dot);background:var(--bad-bg);color:var(--bad);font-size:13px;font-weight:500;cursor:pointer">Reject</button><button onClick="{{ d.goChanges }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Request changes</button></sc-if><sc-if value="{{ d.canCancel }}"><button onClick="{{ d.goCancel }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--bad);font-size:13px;font-weight:500;cursor:pointer">Cancel approved leave</button></sc-if><sc-if value="{{ d.final }}"><span style="font-size:13px;color:var(--text-3)">{{ d.finalL }}</span></sc-if></div></sc-if>
+    </div>
+    <sc-if value="{{ d.toast }}"><div style="position:fixed;bottom:90px;right:40px;z-index:70;padding:11px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-size:13px;box-shadow:var(--shadow-lg)">{{ d.toast }}</div></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;req&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;all&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;},&quot;onDecide&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;}}">
+const SN={pd:['Part-Dieu Tower','Lyon'],cf:['Confluence Depot','Lyon'],sd:['Saint-Denis Hub','Paris Nord'],rl:['Roissy Logistics','Paris Nord'],pv:['Port Vieux Yard','Marseille']};
+const MGR={pd:'Nadia Koné',cf:'Julien Roche',sd:'Marc Olivier',rl:'Marc Olivier',pv:'Sarah Benoît'};
+const TY={annual:['Annual leave','var(--info-bg)','var(--info)'],rtt:['RTT','var(--violet-bg)','var(--violet)'],sick:['Sick leave','var(--orange-bg)','var(--orange)'],family:['Family event','var(--ok-bg)','var(--ok)'],unpaid:['Unpaid','var(--neutral-bg)','var(--neutral)']};
+const STS={pending:['Pending','var(--warn-bg)','var(--warn)'],approved:['Approved','var(--ok-bg)','var(--ok)'],rejected:['Rejected','var(--bad-bg)','var(--bad)'],cancelled:['Cancelled','var(--neutral-bg)','var(--neutral)']};
+const AV=[['var(--info-bg)','var(--info)'],['var(--violet-bg)','var(--violet)'],['var(--orange-bg)','var(--orange)'],['var(--ok-bg)','var(--ok)'],['var(--warn-bg)','var(--warn)']];
+const REASON={annual:'Planned family trip, booked a few weeks ago. I’ve handed over my tasks to a colleague.',rtt:'Personal appointment that can’t be moved.',sick:'Doctor advised rest. Certificate attached.',family:'Family event, I’ll be back the next day.',unpaid:'Personal matters, I know this is unpaid.'};
+const BALT={annual:'Annual leave',rtt:'RTT',sick:'Sick leave',family:'Family event',unpaid:'Unpaid leave'};
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DAY=864e5;
+const pms=s=>{const[y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d);};
+const fd=s=>{const d=new Date(typeof s==='number'?s:pms(s));return d.getUTCDate()+' '+MN[d.getUTCMonth()];};
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
+const dow=t=>(new Date(t).getUTCDay()+6)%7;
+class Component extends DCLogic {
+  state={mode:null,txt:'',notify:true,pg:1,zoom:100,toast:null};
+  componentWillUnmount(){clearTimeout(this.tt);}
+  componentDidUpdate(pp){if(pp.req&&this.props.req&&pp.req.id!==this.props.req.id)this.setState({mode:null,txt:'',pg:1,zoom:100});}
+  say(m){this.setState({toast:m});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2600);}
+  renderVals(){return {d:this.rv()};}
+  rv(){
+    const s=this.state,p=this.props,r=p.req,all=p.all||[],T=this,site=SN[r.site],t=TY[r.type],av=AV[(r.emp.charCodeAt(0)+r.emp.length)%AV.length],st=STS[r.status],first=r.emp.split(' ')[0];
+    const from=pms(r.from),to=pms(r.to),dur=r.half?'½ day ('+r.half+')':r.days===1?'1 day':r.days+' days';
+    const facts=[{k:'Dates',v:from===to?fd(from):fd(from)+' – '+fd(to)},{k:'Duration',v:dur+(r.half?'':' · working days')},{k:'Half-day',v:r.half?(r.half==='AM'?'Morning off (until 13:00)':'Afternoon off (from 13:00)'):'Full days'},{k:'Submitted',v:fd(r.sub)+(r.att?' · with attachment':'')}];
+    const isPdf=r.type==='sick',w=Math.round(150*s.zoom/100),h=Math.round(190*s.zoom/100);
+    const before=r.bal+r.days,over=r.bal<0,overN=Math.abs(r.bal);
+    const fmtN=n=>(n<0?'−':'')+Math.abs(n);
+    const others=all.filter(o=>o.id!==r.id&&(o.status==='approved'||o.status==='pending')&&SN[o.site][1]===site[1]&&pms(o.from)<=to+7*DAY&&pms(o.to)>=from-0);
+    const sameSite=o=>o.site===r.site;
+    const calStart=from-dow(from)*DAY,calEnd=Math.max(to+(6-dow(to))*DAY,calStart+13*DAY),cal=[];
+    for(let t0=calStart;t0<=calEnd&&cal.length<42;t0+=DAY){const inReq=t0>=from&&t0<=to,offs=others.filter(o=>sameSite(o)&&pms(o.from)<=t0&&pms(o.to)>=t0),wk=dow(t0)>=5;
+      cal.push({n:new Date(t0).getUTCDate()===1?fd(t0):new Date(t0).getUTCDate(),bg:inReq?'var(--accent-soft)':'transparent',bd:inReq?'1px solid var(--accent)':'1px solid var(--border)',fg:inReq?'var(--accent)':'var(--text-2)',op:wk&&!inReq?.55:1,dots:offs.slice(0,3).map(()=>1),tip:offs.length?offs.map(o=>o.emp).join(', ')+' off':'',off:offs.length&&inReq?offs.length:0});}
+    const maxOff=Math.max(0,...cal.map(c=>c.off)),teamOff=others.filter(o=>sameSite(o)&&pms(o.from)<=to&&pms(o.to)>=from);
+    const cov=maxOff>=2?{l:'Understaffed · '+(maxOff+1)+' off at once',bg:'var(--bad-bg)',fg:'var(--bad)'}:maxOff===1?{l:'Tight · 2 off at once',bg:'var(--warn-bg)',fg:'var(--warn)'}:{l:'Well covered',bg:'var(--ok-bg)',fg:'var(--ok)'};
+    const ov=others.filter(o=>pms(o.from)<=to&&pms(o.to)>=from).map(o=>({n:o.emp,w:fd(o.from)+(o.from===o.to?'':' – '+fd(o.to)),s:(sameSite(o)?'Same site':'Same branch · '+SN[o.site][0].split(' ')[0])+' · '+(o.status==='approved'?'approved':'pending'),bg:sameSite(o)?'var(--warn-bg)':'var(--neutral-bg)',fg:sameSite(o)?'var(--warn)':'var(--neutral)'}));
+    const aff=[];for(let t0=from;t0<=to&&aff.length<7;t0+=DAY){if(dow(t0)>=5)continue;const hh=hash(r.id+t0)%7;aff.push({d:new Date(t0).getUTCDate()+' '+MN[new Date(t0).getUTCMonth()],t:hh===0?'Intervention · Equipment check 14:00–17:00 · will be unassigned':'Regular shift '+(hh%2?'08:00–16:00':'06:00–14:00')+' · '+site[0].split(' ')[0],go:ev=>{ev.preventDefault();this.say('Opening the planner for '+fd(t0)+'…');}});}
+    const log=r.log||[];
+    const SM=MGR[r.site],mk=(ic,bg,fg,who,act,ac,role,t,c,line)=>({ic,bg,fg,who,act,ac,role,t,c,line:line?'visible':'hidden'});
+    const trail=[mk('✓','var(--ok-bg)','var(--ok)',r.emp,'Submitted','var(--text-2)','Employee',fd(r.sub),r.reason?'':'',true)];
+    const sk=r.stageKey,decided=r.status==='approved'||r.status==='rejected';
+    if(sk==='site') trail.push(mk('2','var(--warn-bg)','var(--warn)',SM,'Awaiting recommendation','var(--warn)','Site manager','Current step','',true));
+    else trail.push(mk('✓','var(--ok-bg)','var(--ok)',SM,'Recommended approval','var(--ok)','Site manager',fd(pms(r.sub)+DAY),sk==='rec'||sk==='hr'||sk==='done'||sk==='chg'?(r.type==='sick'?'Certificate looks valid, covered by the team.':'Fine by me — team coverage works.'):'',true));
+    const by=(r.stageSub||'').includes(' by ')?r.stageSub.split(' by ').pop().trim():'Claire Vasseur';
+    if(r.status==='approved') trail.push(mk('✓','var(--ok-bg)','var(--ok)',by,'Approved','var(--ok)','HR',log.length?'just now':'Decided','',log.length>0));
+    else if(r.status==='rejected') trail.push(mk('×','var(--bad-bg)','var(--bad)',by,'Rejected','var(--bad)','HR',log.length?'just now':'Decided',r.rej||'',log.length>0));
+    else if(r.status==='cancelled') trail.push(mk('–','var(--neutral-bg)','var(--neutral)',first,'Cancelled','var(--text-3)','Employee','',r.stageSub,false));
+    else trail.push(mk(sk==='chg'?'!':'3',sk==='chg'?'var(--orange-bg)':'var(--info-bg)',sk==='chg'?'var(--orange)':'var(--info)','HR','Awaiting decision','var(--text-2)','Claire Vasseur and team',sk==='site'?'Next step':'Current step','',log.length>0));
+    log.forEach((l,i)=>trail.push(mk(l.ic,l.bg,l.fg,l.who,l.act,l.ac,l.role,l.t,l.c,i<log.length-1)));
+    const hist=all.filter(o=>o.emp===r.emp&&o.id!==r.id&&o.status!=='cancelled').map(o=>({type:TY[o.type][0],tBg:TY[o.type][1],tFg:TY[o.type][2],dates:o.from===o.to?fd(o.from):fd(o.from)+' – '+fd(o.to),days:o.half?'½ d':o.days+' d',st:STS[o.status][0],sBg:STS[o.status][1],sFg:STS[o.status][2]})).concat([{type:'Annual leave',tBg:TY.annual[1],tFg:TY.annual[2],dates:'21 Jul – 1 Aug',days:'10 d',st:'Approved',sBg:STS.approved[1],sFg:STS.approved[2]},{type:'RTT',tBg:TY.rtt[1],tFg:TY.rtt[2],dates:'14 Aug',days:'1 d',st:'Approved',sBg:STS.approved[1],sFg:STS.approved[2]}]).slice(0,4).map((x,i)=>Object.assign({bt:i?'1px solid var(--border)':'0'},x));
+    const m=s.mode,need=m!=='approve',tooShort=s.txt.trim().length<3,mT={approve:'Approve request',reject:'Reject request',changes:'Request changes',cancel:'Cancel approved leave'},mP={approve:'Optional note to '+first,reject:'Reason for rejecting (required)',changes:'What should '+first+' change? (required)',cancel:'Reason for cancelling (required)'},mB={approve:'Approve',reject:'Reject',changes:'Send request',cancel:'Cancel leave'};
+    const pend=r.status==='pending',canDecide=pend&&r.stageKey!=='chg';
+    return {
+      close:()=>p.onClose&&p.onClose(),stop:ev=>ev.stopPropagation(),id:r.id,name:r.emp,first,ini:r.emp.split(' ').map(x=>x[0]).join('').slice(0,2),avBg:av[0],avFg:av[1],role:r.role,site:site[0],branch:site[1],st:st[0],stBg:st[1],stFg:st[2],type:t[0],tBg:t[1],tFg:t[2],facts,reason:REASON[r.type],
+      hasAtt:!!r.att,att:{name:isPdf?'Medical certificate.pdf':'Event invitation.jpg',pdf:isPdf,pg:s.pg,pPrev:()=>this.setState({pg:Math.max(1,s.pg-1)}),pNext:()=>this.setState({pg:Math.min(2,s.pg+1)}),zIn:()=>this.setState({zoom:Math.min(200,s.zoom+25)}),zOut:()=>this.setState({zoom:Math.max(50,s.zoom-25)}),zoom:s.zoom,w:isPdf?w:Math.round(w*1.5),h:isPdf?h:Math.round(h*.8),label:isPdf?'PDF PAGE '+s.pg:'IMAGE',dl:()=>this.say('Download started')},
+      balType:BALT[r.type],bal:[{k:'Before',v:fmtN(before),c:'var(--text)',bd:'var(--border)',bg:'var(--surface)'},{k:'Requested',v:'− '+(r.half?'0.5':r.days),c:'var(--accent)',bd:'var(--accent)',bg:'var(--accent-soft)'},{k:'After',v:fmtN(r.bal),c:over?'var(--bad)':'var(--ok)',bd:over?'var(--bad-dot)':'var(--border)',bg:over?'var(--bad-bg)':'var(--surface)'}],over,overN,overPl:overN===1?'':'s',
+      cal,cov,others:ov,noOthers:ov.length===0,aff,noAff:aff.length===0,trail,hist,
+      mode:!!m,mTitle:mT[m]||'',mPh:mP[m]||'',txt:s.txt,onTxt:ev=>this.setState({txt:ev.target.value}),txtBd:'var(--border-strong)',mBtn:mB[m]||'',mBg:m==='approve'?'var(--ok-dot)':m==='changes'?'var(--accent)':'var(--bad-dot)',mOp:need&&tooShort?.45:1,
+      notify:s.notify,togNotify:()=>this.setState({notify:!s.notify}),nBg:s.notify?'var(--accent)':'transparent',nBd:s.notify?'var(--accent)':'var(--border-strong)',nOp:s.notify?1:0,mCancel:()=>this.setState({mode:null,txt:''}),
+      mGo:()=>{if(need&&tooShort)return;const c=s.txt.trim();p.onDecide&&p.onDecide(r.id,m,c,s.notify);this.setState({mode:null,txt:''});this.say(({approve:'Approved',reject:'Rejected',changes:'Changes requested',cancel:'Leave cancelled'})[m]+(s.notify?' · '+first+' notified':''));},
+      idle:!m,canDecide,canCancel:r.status==='approved',final:!canDecide&&r.status!=='approved',finalL:r.status==='pending'?'Waiting for '+first+' to update the request.':'This request is '+st[0].toLowerCase()+'.',
+      goApprove:()=>this.setState({mode:'approve',txt:''}),goReject:()=>this.setState({mode:'reject',txt:''}),goChanges:()=>this.setState({mode:'changes',txt:''}),goCancel:()=>this.setState({mode:'cancel',txt:''}),toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

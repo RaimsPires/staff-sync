@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./nav-bridge.js"></script><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#E9EEF5;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#0A6AE6}a:hover{color:#0B2A52}button{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}@keyframes flash{0%{background:#DCFCE7}100%{background:#fff}}@keyframes pulse{50%{opacity:.35}}</style></helmet>
+<div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px">
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><sc-for list="{{ scens }}" as="sc" hint-placeholder-count="3"><button onClick="{{ sc.go }}" style="min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #0B2A52;background:{{ sc.bg }};color:{{ sc.fg }};font-weight:700;font-size:13px;cursor:pointer">{{ sc.label }}</button></sc-for></div>
+<div style="width:390px;height:800px;background:#F5F8FC;color:#0B2A52;border-radius:36px;box-shadow:0 20px 60px rgba(11,42,82,.3);overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:15px;font-weight:600"><span>09:41</span><span>{{ signal }}</span></div>
+<sc-if value="{{ offline }}" hint-placeholder-val="{{ false }}"><div style="flex:none;background:#0B2A52;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700"><span style="font-size:18px">⚠</span><span style="flex:1;line-height:1.3">You're offline. Showing saved roster. {{ queuedText }}</span></div></sc-if>
+<div style="flex:none;padding:4px 20px 8px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:13px;font-weight:800;color:#51627D;text-transform:uppercase;letter-spacing:.06em">Chantier Plateau</div><div style="font-size:26px;font-weight:800">Roster</div></div>
+<div style="display:flex;align-items:center;gap:10px"><button aria-label="Proxy check-in" style="width:44px;height:44px;border-radius:50%;border:0;background:#0A6AE6;color:#fff;font-size:22px;cursor:pointer">＋</button><div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:{{ liveColor }};min-height:32px"><span style="width:8px;height:8px;border-radius:50%;background:{{ liveColor }};animation:{{ liveAnim }}"></span>{{ liveText }}</div></div></div>
+<div style="min-height:48px;border-radius:14px;border:1px solid #B8C6DB;background:#fff;display:flex;align-items:center;gap:10px;padding:0 14px"><span style="font-size:18px;color:#51627D">⌕</span><input value="{{ q }}" onInput="{{ setQ }}" placeholder="Search employee" aria-label="Search employee" style="flex:1;min-width:0;border:0;outline:0;font-size:16px;color:#0B2A52;background:none;font-family:inherit"/><sc-if value="{{ q }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearQ }}" aria-label="Clear" style="width:32px;height:32px;border-radius:50%;border:0;background:#E8ECF2;color:#0B2A52;cursor:pointer">✕</button></sc-if></div>
+<div style="display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:0 20px 2px;scrollbar-width:none"><sc-for list="{{ chips }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.go }}" style="flex:none;min-height:44px;padding:0 14px;border-radius:999px;border:{{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">{{ c.label }}<span style="font-size:13px;opacity:.85">{{ c.n }}</span></button></sc-for></div></div>
+<div onMouseDown="{{ pStart }}" onMouseMove="{{ pMove }}" onMouseUp="{{ pEnd }}" onMouseLeave="{{ pEnd }}" onTouchStart="{{ pStart }}" onTouchMove="{{ pMove }}" onTouchEnd="{{ pEnd }}" style="flex:1;overflow:auto;padding:0 20px 16px;display:flex;flex-direction:column;gap:8px;user-select:none;scrollbar-width:none">
+<div style="flex:none;height:{{ pullH }}px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:700;color:#51627D;overflow:hidden;transition:{{ pullTr }}"><span style="display:inline-block;animation:{{ spinAnim }};font-size:18px;transform:rotate({{ pullRot }}deg)">↻</span>{{ pullText }}</div>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5"><div style="flex:none;background:#fff;border:1px solid {{ r.bd }};border-radius:18px;overflow:hidden;animation:{{ r.anim }}">
+<div onClick="{{ r.toggle }}" style="display:flex;gap:12px;padding:12px;cursor:pointer;align-items:flex-start;min-height:44px">
+<span style="width:48px;height:48px;border-radius:50%;background:{{ r.pbg }};color:{{ r.pfg }};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex:none" aria-label="Photo placeholder">{{ r.ini }}</span>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="flex:none;padding:3px 10px;border-radius:999px;background:{{ r.sbg }};color:{{ r.sfg }};font-size:13px;font-weight:800">{{ r.status }}</span></div>
+<div style="font-size:13px;color:#51627D">Scheduled {{ r.sched }}<sc-if value="{{ r.role }}" hint-placeholder-val="{{ false }}"> · {{ r.role }}</sc-if></div>
+<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;white-space:nowrap"><span>In {{ r.inT }}</span><span>Out {{ r.outT }}</span>
+<span style="flex:1"></span>
+<sc-if value="{{ r.noPhone }}" hint-placeholder-val="{{ false }}"><span title="No smartphone" aria-label="No smartphone" style="width:28px;height:28px;border-radius:8px;background:#FEF3C7;color:#7C3A06;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M3 3l18 18"></path></svg></span></sc-if>
+<sc-if value="{{ r.method }}" hint-placeholder-val="{{ false }}"><span title="{{ r.methodName }}" aria-label="{{ r.methodName }}" style="width:28px;height:28px;border-radius:8px;background:#E6EEFA;color:#0A4DA8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">{{ r.method }}</span></sc-if>
+<sc-if value="{{ r.queued }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:800;color:#7C3A06">Queued</span></sc-if></div></div></div>
+<sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}"><div style="border-top:1px solid #DCE4EF;background:#F5F8FC;padding:10px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><sc-for list="{{ r.actions }}" as="a" hint-placeholder-count="5"><button onClick="{{ a.go }}" disabled="{{ a.off }}" style="min-height:64px;border-radius:14px;border:{{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};opacity:{{ a.op }};font-size:13px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.2;padding:4px;text-align:center"><span style="font-size:20px">{{ a.icon }}</span>{{ a.label }}</button></sc-for></div></sc-if>
+</div></sc-for>
+<sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div style="flex:none;background:#fff;border:1px dashed #B8C6DB;border-radius:20px;padding:28px 20px;text-align:center"><div style="font-size:18px;font-weight:800">No employees found</div><div style="font-size:14px;color:#51627D;margin-top:4px">Try another name or filter.</div></div></sc-if>
+</div>
+<div style="flex:none;display:flex;border-top:1px solid #DCE4EF;background:#fff;padding:8px 2px 20px"><sc-for list="{{ nav }}" as="tb" hint-placeholder-count="6"><button style="flex:1;min-height:52px;border:0;background:none;color:{{ tb.color }};font-weight:{{ tb.weight }};font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0"><span style="width:24px;height:24px;background:currentColor;-webkit-mask:{{ tb.mask }} center/contain no-repeat;mask:{{ tb.mask }} center/contain no-repeat"></span>{{ tb.label }}</button></sc-for></div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:20px;right:20px;bottom:100px;background:#0B2A52;color:#fff;border-radius:14px;padding:14px 16px;font-size:14px;font-weight:700">{{ toast }}</div></sc-if>
+<sc-if value="{{ sheet }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(11,42,82,.45);display:flex;flex-direction:column;justify-content:flex-end"><div style="background:#F5F8FC;border-radius:28px 28px 0 0;padding:16px 20px 28px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:20px;font-weight:800">{{ sheetTitle }}</div><div style="font-size:14px;color:#51627D">{{ sheetSub }}</div></div><button onClick="{{ closeSheet }}" aria-label="Close" style="width:44px;height:44px;border-radius:50%;border:1px solid #DCE4EF;background:#fff;color:#0B2A52;font-size:18px;cursor:pointer">✕</button></div>
+<sc-if value="{{ isNote }}" hint-placeholder-val="{{ false }}"><textarea value="{{ note }}" onInput="{{ setNote }}" placeholder="e.g. Called in, running 30 min late" aria-label="Note" style="min-height:96px;border-radius:14px;border:1px solid #B8C6DB;padding:12px;font-size:16px;font-family:inherit;color:#0B2A52;resize:none;outline:0"></textarea><button onClick="{{ saveNote }}" style="min-height:52px;border-radius:14px;border:0;background:#0A6AE6;color:#fff;font-size:16px;font-weight:800;cursor:pointer">Save note</button></sc-if>
+<sc-if value="{{ isRec }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border:1px solid #DCE4EF;border-radius:16px;display:flex;flex-direction:column"><sc-for list="{{ recRows }}" as="x" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #EEF2F7;font-size:14px"><span style="color:#51627D">{{ x.k }}</span><span style="font-weight:800;text-align:right">{{ x.v }}</span></div></sc-for></div><button onClick="{{ closeSheet }}" style="min-height:52px;border-radius:14px;border:1.5px solid #0A6AE6;background:#fff;color:#0A6AE6;font-size:16px;font-weight:800;cursor:pointer">Done</button></sc-if>
+</div></div></sc-if>
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { offline: false, q: '', f: 'All', open: null, sheet: null, note: '', notes: {}, pull: 0, refreshing: false, upd: 'just now', flash: null, toast: '', live: true,
+    emp: [
+      { id: 1, name: 'Awa Sanogo', role: 'Mason', sched: '08:00 – 17:00', st: 'Not arrived', inT: '--:--', outT: '--:--', m: '', ph: 1, np: 0, q: 0 },
+      { id: 2, name: 'Yao Brou', role: 'Foreman', sched: '07:30 – 16:30', st: 'Present', inT: '07:26', outT: '--:--', m: 'GPS', ph: 1, np: 0, q: 0 },
+      { id: 3, name: 'Moussa Diaby', role: 'Laborer', sched: '07:30 – 16:30', st: 'Present', inT: '07:41', outT: '--:--', m: 'Manager', ph: 1, np: 1, q: 0 },
+      { id: 4, name: 'Fatou Camara', role: 'Electrician', sched: '08:00 – 17:00', st: 'Present', inT: '07:55', outT: '--:--', m: 'QR', ph: 1, np: 0, q: 0 },
+      { id: 5, name: 'Koffi Kouassi', role: 'Driver', sched: '06:00 – 09:00', st: 'Left', inT: '05:52', outT: '09:02', m: 'GPS', ph: 1, np: 0, q: 0 },
+      { id: 6, name: 'Adjoua Tano', role: 'Welder', sched: '08:00 – 17:00', st: 'Absent', inT: '--:--', outT: '--:--', m: '', ph: 1, np: 0, q: 0 },
+      { id: 7, name: 'Ibrahim Soro', role: 'Plumber', sched: '08:00 – 17:00', st: 'On leave', inT: '--:--', outT: '--:--', m: '', ph: 1, np: 0, q: 0 },
+      { id: 8, name: 'Salif Ouattara', role: 'Laborer', sched: '08:30 – 17:30', st: 'Not arrived', inT: '--:--', outT: '--:--', m: '', ph: 1, np: 1, q: 0 }
+    ] };
+  componentDidMount() { this.t = setInterval(() => { if (this.state.live && !this.state.offline && !this.state.refreshing) this.liveTick(); }, 9000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  liveTick() {
+    const e = this.state.emp.find(x => x.st === 'Not arrived' && !x.np);
+    if (!e) return;
+    this.upd(e.id, { st: 'Present', inT: '09:41', m: 'GPS' }, { flash: e.id, upd: 'just now' });
+  }
+  upd(id, p, extra) { this.setState(s => Object.assign({ emp: s.emp.map(x => x.id === id ? Object.assign({}, x, p) : x) }, extra || {})); if (extra && extra.flash) setTimeout(() => this.setState({ flash: null }), 1600); }
+  say(t) { this.setState({ toast: t }); setTimeout(() => this.setState({ toast: '' }), 2200); }
+  refresh() { this.setState({ refreshing: true, pull: 56 }); setTimeout(() => { this.setState({ refreshing: false, pull: 0, upd: this.state.offline ? this.state.upd : 'just now' }); if (!this.state.offline) this.liveTick(); }, 1200); }
+  renderVals() {
+    const { offline, q, f, open, sheet, note, notes, pull, refreshing, upd, flash, toast, live, emp } = this.state;
+    const SC = { 'Not arrived': ['#FEF3C7', '#7C3A06'], Present: ['#DCFCE7', '#14532D'], Left: ['#E8ECF2', '#374151'], Absent: ['#FEE2E2', '#991B1B'], 'On leave': ['#E6EEFA', '#0A4DA8'] };
+    const MI = { GPS: ['◎', 'Checked in by GPS'], QR: ['▦', 'Checked in by QR code'], Manager: ['✎', 'Checked in by manager'] };
+    const cnt = k => k === 'All' ? emp.length : emp.filter(e => e.st === k).length;
+    const chips = ['All', 'Not arrived', 'Present', 'Left', 'Absent', 'On leave'].map(k => ({ label: k, n: cnt(k), bg: f === k ? '#0A6AE6' : '#fff', fg: f === k ? '#fff' : '#0B2A52', bd: f === k ? '1px solid #0A6AE6' : '1px solid #B8C6DB', go: () => this.setState({ f: k }) }));
+    const list = emp.filter(e => (f === 'All' || e.st === f) && e.name.toLowerCase().includes(q.trim().toLowerCase()));
+    const qn = emp.filter(e => e.q).length;
+    const act = (e, id, patch, msg) => () => { this.upd(id, Object.assign({ q: offline ? 1 : 0 }, patch), { open: null }); this.say(offline ? 'Saved offline. Will sync when connected.' : msg); };
+    const rows = list.map(e => {
+      const c = SC[e.st], isOpen = open === e.id, can = e.st === 'Not arrived' || e.st === 'Absent', can2 = e.st === 'Present';
+      const A = (icon, label, go, off, pri) => ({ icon, label, go, off, op: off ? .4 : 1, bg: pri ? '#0A6AE6' : '#fff', fg: pri ? '#fff' : '#0B2A52', bd: pri ? '0' : '1px solid #DCE4EF' });
+      return { name: e.name, role: e.role, ini: e.name.split(' ').map(w => w[0]).join(''), pbg: '#E6EEFA', pfg: '#0A4DA8', sched: e.sched, inT: e.inT, outT: e.outT, status: e.st, sbg: c[0], sfg: c[1], noPhone: !!e.np, method: e.m ? MI[e.m][0] : '', methodName: e.m ? MI[e.m][1] : '', queued: !!e.q,
+        bd: flash === e.id ? '#14532D' : '#DCE4EF', anim: flash === e.id ? 'flash 1.6s' : 'none', open: isOpen, toggle: () => this.setState({ open: isOpen ? null : e.id }),
+        actions: [
+          A('＋', 'Check in for them', act(e, e.id, { st: 'Present', inT: '09:41', m: 'Manager' }, e.name + ' checked in'), !can, can),
+          A('⏻︎', 'Check out for them', act(e, e.id, { st: 'Left', outT: '09:41' }, e.name + ' checked out'), !can2, can2),
+          A('✆', 'Call', () => this.say('Calling ' + e.name + '…'), false),
+          A('✎', notes[e.id] ? 'Edit note' : 'Add note', () => this.setState({ sheet: { t: 'note', id: e.id }, note: notes[e.id] || '' }), false),
+          A('☰', "Today's record", () => this.setState({ sheet: { t: 'rec', id: e.id } }), false)] };
+    });
+    const se = sheet && emp.find(x => x.id === sheet.id);
+    const recRows = se ? [['Status', se.st], ['Scheduled', se.sched], ['Check-in', se.inT], ['Check-out', se.outT], ['Method', se.m ? MI[se.m][1].replace('Checked in by ', '') : 'None'], ['Phone', se.np ? 'No smartphone' : 'Smartphone'], ['Note', notes[se.id] || 'None']].map(x => ({ k: x[0], v: x[1] })) : [];
+    const liveOn = live && !offline;
+    return {
+      scens: [{ label: offline ? 'Go online' : 'Simulate offline', go: () => this.setState({ offline: !offline }), bg: offline ? '#0B2A52' : '#fff', fg: offline ? '#fff' : '#0B2A52' }, { label: 'Pull to refresh', go: () => this.refresh(), bg: '#fff', fg: '#0B2A52' }, { label: live ? 'Live updates: on' : 'Live updates: off', go: () => this.setState({ live: !live }), bg: '#fff', fg: '#0B2A52' }],
+      offline, signal: offline ? 'No signal' : '●●● 4G', queuedText: qn ? qn + ' change' + (qn > 1 ? 's' : '') + ' waiting to sync.' : '',
+      liveColor: liveOn ? '#14532D' : '#51627D', liveAnim: liveOn ? 'pulse 2s infinite' : 'none', liveText: offline ? 'Saved ' + upd : liveOn ? 'Live · ' + upd : 'Paused · ' + upd,
+      q, setQ: e => this.setState({ q: e.target.value }), clearQ: () => this.setState({ q: '' }), chips, rows, empty: rows.length === 0,
+      pullH: pull, pullTr: this.drag ? 'none' : 'height .25s', spinAnim: refreshing ? 'spin .8s linear infinite' : 'none', pullRot: refreshing ? 0 : pull * 4, pullText: refreshing ? 'Refreshing…' : pull >= 56 ? 'Release to refresh' : pull > 4 ? 'Pull to refresh' : '',
+      pStart: e => { const el = e.currentTarget; const y = e.touches ? e.touches[0].clientY : e.clientY; if (el.scrollTop <= 0 && !this.state.refreshing) { this.drag = y; } },
+      pMove: e => { if (this.drag == null) return; const y = e.touches ? e.touches[0].clientY : e.clientY; this.setState({ pull: Math.max(0, Math.min(72, (y - this.drag) * .5)) }); },
+      pEnd: () => { if (this.drag == null) return; this.drag = null; this.state.pull >= 56 ? this.refresh() : this.setState({ pull: 0 }); },
+      toast, sheet: !!sheet, isNote: !!sheet && sheet.t === 'note', isRec: !!sheet && sheet.t === 'rec', sheetTitle: se ? (sheet.t === 'note' ? 'Note for ' + se.name : "Today's record") : '', sheetSub: se ? (sheet.t === 'rec' ? se.name + ' · Sat 17 Oct' : se.role) : '',
+      closeSheet: () => this.setState({ sheet: null }), note, setNote: e => this.setState({ note: e.target.value }), recRows,
+      saveNote: () => { this.setState({ notes: Object.assign({}, notes, { [sheet.id]: note }), sheet: null }); this.say(offline ? 'Note saved offline.' : 'Note saved'); },
+      nav: ((r,a,IC)=>(r==='manager'?[['◈','Manager'],['☰','Roster'],['◷','Attendance'],['☺','Profile']]:[['⌂','Home'],['◷','Attendance'],['☺','Profile']]).map(t=>({mask:IC[t[1]],label:t[1],color:t[1]===a?'#0A6AE6':'#51627D',weight:t[1]===a?800:600})))(localStorage.getItem('ss_role'),'Roster',{Home:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11l9-8 9 8v10h-6v-6H9v6H3z'/%3E%3C/svg%3E\")",Attendance:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2'/%3E%3C/svg%3E\")",Profile:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c0-4.4 3.6-7 8-7s8 2.6 8 7'/%3E%3C/svg%3E\")",Manager:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'/%3E%3C/svg%3E\")",Roster:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E\")"})
+    };
+  }
+}
+</script>
+</body>
+</html>
