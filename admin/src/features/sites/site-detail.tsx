@@ -1,0 +1,357 @@
+"use client";
+
+import { ArrowLeft, Phone, Plus, QrCode, Trash2 } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import Link from "next/link";
+import { notFound, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { PointsMap, type MapPoint } from "@/components/map/points-map";
+import { Avatar } from "@/components/ui/misc";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/components/ui/toast";
+import { DEMO_MONTH, DEMO_YEAR } from "@/data/live";
+import { MANAGER_POOL } from "@/data/sites";
+import { geofenceMetrics, offsetMeters } from "@/lib/geo";
+import { formatTime } from "@/lib/time";
+import { cn } from "@/lib/utils";
+import { useAccess } from "@/store/use-access";
+import { useSites } from "@/store/sites";
+import type { ManagedSite } from "@/types/site";
+import { historyFor, NOW_MINUTES, POOL, rosterFor, weekFor, type RosterEntry, type RosterStatus } from "./site-model";
+import { SiteQrDialog } from "./site-qr-dialog";
+
+const card = "rounded-xl border border-border bg-surface shadow-card";
+const TABS = ["today", "employees", "schedule", "history", "managers", "settings"] as const;
+type Tab = (typeof TABS)[number];
+const STATUS_TONE: Record<RosterStatus, "ok" | "warn" | "neutral" | "bad" | "info" | "orange"> = { in: "ok", late: "warn", out: "neutral", absent: "bad", expected: "info", flagged: "orange" };
+const POINT_COLOR: Partial<Record<RosterStatus, string>> = { in: "#16A34A", late: "#E59A00", out: "#97A1B0", flagged: "#E5372A" };
+
+export function SiteDetailScreen({ id }: { id: string }) {
+  const site = useSites((s) => s.sites.find((x) => x.id === id));
+  const { role, siteIds } = useAccess();
+  if (!site) notFound();
+  const visible = role === "admin" || siteIds.includes(site.id);
+  if (!visible) return <div className="p-8 text-center text-text-3">—</div>;
+  return <Detail key={site.id} site={site} />;
+}
+
+function Detail({ site }: { site: ManagedSite }) {
+  const t = useTranslations("Sites.detail");
+  const tc = useTranslations("Sites");
+  const router = useRouter();
+  const { perms } = useAccess();
+  const branch = useSites((s) => s.branches.find((b) => b.id === site.branchId));
+  const [tab, setTab] = useState<Tab>("today");
+  const [qr, setQr] = useState(false);
+  const roster0 = useMemo(() => rosterFor(site), [site]);
+  const [roster, setRoster] = useState(roster0);
+  const rate = site.active && site.expected ? Math.round(88 + ((roster0.length * 7) % 9)) : 0;
+  const lates = roster.filter((r) => r.status === "late").length + Math.round(roster.length * 1.6);
+  const flags = roster.filter((r) => r.status === "flagged").length + Math.round(roster.length * 0.4);
+  const canManage = perms.admin || perms.org;
+  const fence = site.geofence.kind === "circle" ? tc("fence.circle", { radius: site.geofence.radius }) : tc("fence.polygon", { area: site.geofence.hectares });
+
+  const stats = [
+    { k: "rate", v: site.active && roster.length ? `${rate}%` : "—", tone: rate >= 93 ? "text-ok" : "text-text", hint: t("stats.thisMonth") },
+    { k: "arrival", v: site.active && roster.length ? "07:56" : "—", tone: "text-text", hint: t("stats.fourBefore") },
+    { k: "lates", v: site.active ? lates : "—", tone: "text-text", hint: t("stats.thisMonth") },
+    { k: "flags", v: site.active ? flags : "—", tone: flags > 2 ? "text-bad" : "text-text", hint: t("stats.thisMonth") },
+  ];
+
+  return (
+    <div className="relative flex flex-col gap-4">
+      <Link href="/sites" className="flex h-[30px] items-center gap-1.5 self-start rounded-lg py-0 pl-1.5 pr-2.5 text-[13px] font-medium text-text-2 no-underline hover:bg-hover hover:no-underline"><ArrowLeft size={15} /> {tc("title")}</Link>
+      <div className={cn(card, "flex flex-wrap items-center gap-4 rounded-[14px] px-5 py-[18px]")}>
+        <div className="min-w-0 flex-[1_1_280px]">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="m-0 text-2xl font-semibold tracking-tight">{site.name}</h1>
+            <Chip tone={site.active ? "ok" : "neutral"} dot={false}>{tc(site.active ? "status.active" : "status.inactive")}</Chip>
+          </div>
+          <div className="mt-1.5 flex flex-wrap gap-x-3.5 gap-y-1 text-[13.5px] text-text-2"><span>{branch?.name}</span><span>{site.address}</span><span>{fence}</span></div>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => setQr(true)}><QrCode size={15} /> {t("qr")}</Button>
+          {canManage && <Button variant="primary" onClick={() => router.push(`/sites/${site.id}/edit`)}>{t("edit")}</Button>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
+        {stats.map((s) => (
+          <div key={s.k} className={cn(card, "px-4 py-3.5")}>
+            <div className="text-[12.5px] text-text-3">{t(`stats.${s.k}`)}</div>
+            <div className={cn("mt-0.5 text-[26px] font-semibold tracking-tight", s.tone)}>{s.v}</div>
+            <div className="text-[12px] text-text-3">{s.hint}</div>
+          </div>
+        ))}
+      </div>
+
+      <MapCard site={site} roster={roster} />
+
+      <div role="tablist" className="flex gap-0.5 overflow-x-auto border-b border-border">
+        {TABS.map((k) => (
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={cn("-mb-px h-10 whitespace-nowrap border-0 border-b-2 border-solid bg-transparent px-3.5 text-[13.5px]", tab === k ? "border-b-accent font-semibold text-text" : "border-b-transparent font-medium text-text-2")}>{t(`tabs.${k}`)}</button>
+        ))}
+      </div>
+
+      {tab === "today" && <TodayTab roster={roster} onRoster={setRoster} />}
+      {tab === "employees" && <EmployeesTab roster={roster0} site={site} />}
+      {tab === "schedule" && <ScheduleTab roster={roster0} site={site} />}
+      {tab === "history" && <HistoryTab roster={roster0} site={site} />}
+      {tab === "managers" && <ManagersTab site={site} />}
+      {tab === "settings" && <SettingsTab site={site} />}
+      <SiteQrDialog site={qr ? site : null} onClose={() => setQr(false)} />
+    </div>
+  );
+}
+
+function MapCard({ site, roster }: { site: ManagedSite; roster: RosterEntry[] }) {
+  const t = useTranslations("Sites.detail");
+  const ts = useTranslations("Sites.detail.rosterStatus");
+  const metrics = geofenceMetrics(site.geofence, site.position);
+  const reach = Math.max(30, metrics.radius);
+  const points: MapPoint[] = roster
+    .filter((r) => POINT_COLOR[r.status])
+    .map((r) => ({
+      id: r.id, color: POINT_COLOR[r.status]!, emphasised: r.status === "flagged",
+      position: offsetMeters(site.position, Math.cos(r.angle) * r.distance * reach, Math.sin(r.angle) * r.distance * reach),
+      label: `${r.name} · ${ts(r.status)} ${r.inMin != null ? formatTime(r.inMin) : ""}${r.status === "flagged" ? ` · ${t("outside")}` : ""}`,
+    }));
+  return (
+    <section className={cn(card, "overflow-hidden")}>
+      <div className="relative z-0 h-[300px] bg-map-bg"><div className="absolute inset-0"><PointsMap center={site.position} geofence={site.geofence} points={points} /></div></div>
+      <ul className="m-0 flex list-none flex-wrap gap-3.5 border-t border-border bg-surface-2 px-3.5 py-2 text-[12px] text-text-2">
+        {([["in", "#16A34A"], ["late", "#E59A00"], ["flagged", "#E5372A"], ["out", "#97A1B0"]] as const).map(([k, c]) => <li key={k} className="flex items-center gap-1.5"><span className="size-2.5 rounded-full" style={{ background: c }} />{ts(k)}</li>)}
+      </ul>
+    </section>
+  );
+}
+
+function TodayTab({ roster, onRoster }: { roster: RosterEntry[]; onRoster: (r: RosterEntry[]) => void }) {
+  const t = useTranslations("Sites.detail");
+  const ts = useTranslations("Sites.detail.rosterStatus");
+  const tj = useTranslations("Employees.titles");
+  const toast = useToast();
+  const { me } = useAccess();
+  const [proxy, setProxy] = useState<{ id: string; type: "in" | "out"; time: string; reason: string; tried: boolean } | null>(null);
+  const counts = (["in", "late", "flagged", "out", "expected", "absent"] as const).map((k) => [k, roster.filter((r) => r.status === k).length] as const).filter(([, n]) => n > 0);
+
+  const confirm = () => {
+    if (!proxy) return;
+    if (!proxy.reason.trim()) return setProxy({ ...proxy, tried: true });
+    const [h, m] = proxy.time.split(":").map(Number);
+    const minutes = h * 60 + m;
+    onRoster(roster.map((r) => (r.id !== proxy.id ? r : proxy.type === "in"
+      ? { ...r, status: minutes > r.shiftStart + 5 ? "late" : "in", inMin: minutes, method: "proxy", proxyBy: me.name, distance: 0.3 }
+      : { ...r, status: "out", outMin: minutes })));
+    toast(t(proxy.type === "in" ? "proxy.doneIn" : "proxy.doneOut"));
+    setProxy(null);
+  };
+
+  return (
+    <section className={cn(card, "overflow-hidden")}>
+      <div className="flex flex-wrap gap-2 border-b border-border px-4 py-3">
+        {counts.map(([k, n]) => <Chip key={k} tone={STATUS_TONE[k]} dot={false}>{n} {ts(k)}</Chip>)}
+      </div>
+      {roster.length === 0 && <div className="px-4 py-10 text-center text-[13px] text-text-3">{t("noRoster")}</div>}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[820px] border-collapse text-[13.5px]">
+          <thead><tr className="bg-surface-2 text-left text-[12px] text-text-3">{(["employee", "shift", "in", "out", "status", "method", "actions"] as const).map((c) => <th key={c} className="h-9 border-b border-border px-3 font-medium first:pl-4">{t(`columns.${c}`)}</th>)}</tr></thead>
+          <tbody>
+            {roster.map((r) => {
+              const canProxy = r.status !== "out";
+              const isIn = r.status === "in" || r.status === "late" || r.status === "flagged";
+              return (
+                <tr key={r.id} className="border-b border-border align-top last:border-b-0">
+                  <td className="py-2.5 pl-4 pr-3"><div className="flex items-center gap-2.5"><Avatar name={r.name} size={30} /><div><div className="font-medium">{r.name}</div><div className="text-[12px] text-text-3">{tj(r.title)}</div></div></div></td>
+                  <td className="px-3 py-2.5 font-mono text-[12.5px]">{formatTime(r.shiftStart)}–{formatTime(r.shiftEnd)}</td>
+                  <td className="px-3 py-2.5 font-mono text-[12.5px]">{r.inMin != null ? formatTime(r.inMin) : "—"}</td>
+                  <td className="px-3 py-2.5 font-mono text-[12.5px]">{r.outMin != null ? formatTime(r.outMin) : "—"}</td>
+                  <td className="px-3 py-2.5"><Chip tone={STATUS_TONE[r.status]}>{ts(r.status)}</Chip></td>
+                  <td className="px-3 py-2.5 text-[12.5px] text-text-2">{r.proxyBy ? t("proxyBy", { name: r.proxyBy }) : r.status === "absent" || r.status === "expected" ? "—" : t(`methods.${r.method}`)}</td>
+                  <td className="px-3 py-2.5">
+                    {proxy?.id === r.id ? (
+                      <div className="flex min-w-[260px] flex-col gap-2">
+                        <div className="grid grid-cols-[90px_1fr] gap-2">
+                          <input type="time" value={proxy.time} onChange={(e) => setProxy({ ...proxy, time: e.target.value })} aria-label={t("proxy.time")} className="h-8 rounded-lg border border-solid border-border-strong bg-surface px-2 font-mono text-[12.5px] text-text" />
+                          <input value={proxy.reason} onChange={(e) => setProxy({ ...proxy, reason: e.target.value })} placeholder={t("proxy.reason")} aria-label={t("proxy.reason")} aria-invalid={proxy.tried && !proxy.reason.trim()} className={cn("h-8 rounded-lg border border-solid bg-surface px-2 text-[12.5px] text-text", proxy.tried && !proxy.reason.trim() ? "border-bad-dot" : "border-border-strong")} />
+                        </div>
+                        <div className="flex gap-2"><Button size="sm" variant="primary" onClick={confirm}>{t("proxy.confirm")}</Button><Button size="sm" onClick={() => setProxy(null)}>{t("proxy.cancel")}</Button></div>
+                      </div>
+                    ) : canProxy ? (
+                      <Button size="sm" onClick={() => setProxy({ id: r.id, type: isIn ? "out" : "in", time: formatTime(NOW_MINUTES), reason: "", tried: false })}>{t(isIn ? "proxy.checkOut" : "proxy.checkIn")}</Button>
+                    ) : null}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function EmployeesTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+  const t = useTranslations("Sites.detail.team");
+  const tj = useTranslations("Employees.titles");
+  const toast = useToast();
+  const [team, setTeam] = useState(roster.map((r) => ({ name: r.name, title: r.title })));
+  const [pick, setPick] = useState("");
+  const [removing, setRemoving] = useState<string | null>(null);
+  const available = POOL.filter(([n]) => !team.some((m) => m.name === n));
+  return (
+    <section className={cn(card, "px-[18px] py-4")}>
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+        <h2 className="m-0 mr-auto text-[14.5px] font-semibold">{t("assigned", { count: team.length })}</h2>
+        <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("add")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
+          <option value="">{t("add")}</option>
+          {available.map(([n, j]) => <option key={n} value={n}>{n} · {tj(j)}</option>)}
+        </select>
+        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { const x = POOL.find(([n]) => n === pick); if (!x) return; setTeam([...team, { name: x[0], title: x[1] }]); setPick(""); toast(t("added", { name: x[0], site: site.name })); }}><Plus size={14} /> {t("addButton")}</Button>
+      </div>
+      {team.length === 0 && <div className="py-8 text-center text-[13px] text-text-3">{t("none")}</div>}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
+        {team.map((m) => (
+          <div key={m.name} className="flex items-center gap-2.5 rounded-[10px] border border-border px-3 py-2.5">
+            <Avatar name={m.name} size={34} />
+            <div className="min-w-0 flex-1"><div className="truncate text-[13.5px] font-medium">{m.name}</div><div className="text-[12px] text-text-3">{tj(m.title)}</div></div>
+            {removing === m.name ? (
+              <span className="flex gap-1.5"><Button size="sm" variant="danger" onClick={() => { setTeam(team.filter((x) => x.name !== m.name)); setRemoving(null); toast(t("removed", { name: m.name })); }}>{t("confirmRemove")}</Button><Button size="sm" onClick={() => setRemoving(null)}>{t("cancel")}</Button></span>
+            ) : (
+              <button onClick={() => setRemoving(m.name)} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><Trash2 size={14} /></button>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ScheduleTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+  const t = useTranslations("Sites.detail.schedule");
+  const format = useFormatter();
+  const team = roster.map((r) => ({ name: r.name }));
+  const week = weekFor(site, team, roster);
+  const days = Array.from({ length: 7 }, (_, i) => new Date(DEMO_YEAR, DEMO_MONTH, 12 + i));
+  return (
+    <section className={cn(card, "overflow-x-auto")}>
+      <table className="w-full min-w-[760px] border-collapse text-[13px]">
+        <thead>
+          <tr className="text-left text-[12px] text-text-3">
+            <th className="h-9 border-b border-border px-4 font-medium">{t("employee")}</th>
+            {days.map((d, i) => <th key={i} className={cn("h-9 border-b border-border px-2 text-center font-medium", i === 3 && "text-accent")}>{format.dateTime(d, { weekday: "short", day: "numeric" })}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {week.map((row) => (
+            <tr key={row.name} className="border-b border-border last:border-b-0">
+              <td className="whitespace-nowrap px-4 py-2 font-medium">{row.name}</td>
+              {row.cells.map((c, i) => (
+                <td key={i} className="p-1.5">
+                  <div className={cn("rounded-md px-1.5 py-1.5 text-center font-mono text-[12px]", i === 3 && "outline outline-[1.5px] outline-accent", c.kind === "shift" || c.kind === "half" ? "bg-accent-soft text-accent" : c.kind === "leave" ? "bg-violet-bg text-violet" : "text-text-3")}>
+                    {c.kind === "off" ? t("off") : c.kind === "leave" ? t("leave") : `${c.from}–${c.to}`}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+function HistoryTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+  const t = useTranslations("Sites.detail.history");
+  const format = useFormatter();
+  const [filter, setFilter] = useState<"all" | "in" | "late" | "absent" | "flagged">("all");
+  const [query, setQuery] = useState("");
+  const all = useMemo(() => historyFor(site, roster), [site, roster]);
+  const q = query.trim().toLowerCase();
+  const rows = all.filter((h) => (filter === "all" || h.status === filter) && (!q || h.name.toLowerCase().includes(q))).slice(0, 24);
+  const tone = { in: "ok", late: "warn", absent: "bad", flagged: "orange" } as const;
+  return (
+    <section className={cn(card, "overflow-hidden")}>
+      <div className="flex flex-wrap items-center gap-2.5 border-b border-border px-4 py-3">
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("search")} aria-label={t("search")} className="h-9 w-[220px] rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text" />
+        <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} aria-label={t("status")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
+          <option value="all">{t("all")}</option>
+          {(["in", "late", "absent", "flagged"] as const).map((k) => <option key={k} value={k}>{t(`statuses.${k}`)}</option>)}
+        </select>
+      </div>
+      {rows.length === 0 && <div className="px-4 py-8 text-center text-[13px] text-text-3">{t("none")}</div>}
+      {rows.map((h, i) => (
+        <div key={i} className="grid grid-cols-[110px_1fr_150px_60px_90px] items-center gap-3 border-b border-border px-4 py-2.5 text-[13px] last:border-b-0">
+          <span className="font-medium">{format.dateTime(new Date(DEMO_YEAR, DEMO_MONTH, h.day), { weekday: "short", day: "numeric", month: "short" })}</span>
+          <span>{h.name}</span>
+          <span className="font-mono text-[12.5px] text-text-2">{h.inMin != null && h.outMin != null ? `${formatTime(h.inMin)} → ${formatTime(h.outMin)}` : t("noCheckIn")}</span>
+          <span className="text-right text-text-3">{h.inMin != null && h.outMin != null ? `${((h.outMin - h.inMin) / 60).toFixed(1)} h` : ""}</span>
+          <Chip tone={tone[h.status]} dot={false} className="justify-self-end">{t(`statuses.${h.status}`)}</Chip>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function ManagersTab({ site }: { site: ManagedSite }) {
+  const t = useTranslations("Sites.detail.managers");
+  const tr = useTranslations("Sites.detail.managerRoles");
+  const toast = useToast();
+  const patchSite = useSites((s) => s.patchSite);
+  const [pick, setPick] = useState("");
+  const list = site.managers.map((n) => MANAGER_POOL.find((m) => m.name === n) ?? { name: n, role: "siteManager" as const, phone: "—" });
+  const pool = MANAGER_POOL.filter((m) => !site.managers.includes(m.name));
+  return (
+    <section className={cn(card, "px-[18px] py-4")}>
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+        <h2 className="m-0 mr-auto text-[14.5px] font-semibold">{t("title")}</h2>
+        <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("add")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
+          <option value="">{t("add")}</option>
+          {pool.map((m) => <option key={m.name}>{m.name}</option>)}
+        </select>
+        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { patchSite(site.id, { managers: [...site.managers, pick] }); toast(t("added", { name: pick })); setPick(""); }}><Plus size={14} /> {t("addButton")}</Button>
+      </div>
+      {list.length === 0 && <div className="py-8 text-center text-[13px] text-text-3">{t("none")}</div>}
+      {list.map((m, i) => (
+        <div key={m.name} className={cn("flex items-center gap-3 py-3", i > 0 && "border-t border-border")}>
+          <Avatar name={m.name} size={38} />
+          <div className="min-w-0 flex-1"><div className="text-[13.5px] font-medium">{m.name}</div><div className="text-[12px] text-text-3">{tr(m.role)} · {m.phone}</div></div>
+          <Button size="sm" onClick={() => toast(t("calling", { name: m.name }), "info")}><Phone size={14} /> {t("call")}</Button>
+          <button onClick={() => { patchSite(site.id, { managers: site.managers.filter((n) => n !== m.name) }); toast(t("removed", { name: m.name })); }} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><Trash2 size={14} /></button>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function SettingsTab({ site }: { site: ManagedSite }) {
+  const t = useTranslations("Sites.detail.settings");
+  const toast = useToast();
+  const patchSite = useSites((s) => s.patchSite);
+  const { perms } = useAccess();
+  const [draft, setDraft] = useState({ requireSelfie: site.requireSelfie, requireQr: site.requireQr, registeredDeviceOnly: site.registeredDeviceOnly, allowOffline: site.allowOffline, minAccuracy: String(site.minAccuracy) });
+  const accuracy = Number(draft.minAccuracy);
+  const valid = accuracy >= 5 && accuracy <= 500;
+  const dirty = draft.requireSelfie !== site.requireSelfie || draft.requireQr !== site.requireQr || draft.registeredDeviceOnly !== site.registeredDeviceOnly || draft.allowOffline !== site.allowOffline || accuracy !== site.minAccuracy;
+  const readOnly = !(perms.admin || perms.org);
+  return (
+    <section className={cn(card, "flex max-w-[640px] flex-col gap-4 px-[18px] py-4")}>
+      {(["requireSelfie", "requireQr", "registeredDeviceOnly", "allowOffline"] as const).map((k) => (
+        <div key={k} className="flex items-center justify-between gap-3">
+          <div><div className="text-[13.5px] font-medium">{t(`${k}.title`)}</div><div className="text-[12.5px] text-text-3">{t(`${k}.hint`)}</div></div>
+          <Switch checked={draft[k]} onChange={(v) => !readOnly && setDraft({ ...draft, [k]: v })} label={t(`${k}.title`)} />
+        </div>
+      ))}
+      <label className="flex flex-col gap-1.5 text-[13px] font-medium">{t("accuracy")}
+        <input type="number" value={draft.minAccuracy} readOnly={readOnly} onChange={(e) => setDraft({ ...draft, minAccuracy: e.target.value })} aria-invalid={!valid} className={cn("h-10 w-32 rounded-[9px] border border-solid bg-surface px-3 text-[14px] text-text outline-none focus:border-accent", valid ? "border-border-strong" : "border-bad-dot")} />
+        {!valid && <span className="text-[12.5px] font-normal text-bad">{t("accuracyError")}</span>}
+      </label>
+      <div className="flex items-center gap-3">
+        <span className="text-[12.5px] text-text-3">{dirty ? t("unsaved") : t("saved")}</span>
+        <Button variant="primary" disabled={!dirty || !valid || readOnly} onClick={() => { patchSite(site.id, { ...draft, minAccuracy: accuracy }); toast(t("done")); }}>{t("save")}</Button>
+      </div>
+    </section>
+  );
+}

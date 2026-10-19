@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StaffSync Admin
 
-## Getting Started
+The web dashboard for StaffSync, the attendance and workforce platform: live attendance, schedules, leave, employees, sites with geofences, reports, users and roles, audit log and settings. English and French, light and dark.
 
-First, run the development server:
+Built with Next.js 16 (App Router, Turbopack), React 19, TypeScript (strict), Tailwind CSS v4, next-intl, next-themes, zustand, TanStack Query, Leaflet, Recharts and lucide-react. Geist is the typeface.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
+yarn dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sign in with any email and password on the demo sign-in page, pick a workspace, and you land on the Overview. Everything runs on in-memory sample data, so a refresh resets it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+| --- | --- |
+| `yarn lint` | ESLint over the whole project |
+| `yarn typecheck` | Generates route types, then `tsc --noEmit` |
+| `yarn i18n:check` | English and French have the same keys and the same placeholders |
+| `yarn keys:check` | Every `t("…")` key used in `src/` exists in both languages (see the note below) |
+| `yarn build` | Production build |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`keys:check` is static. It cannot see keys built from variables, or conditions that contain parentheses. Check those in the browser in both languages.
 
-## Learn More
+## How the dashboard works
 
-To learn more about Next.js, take a look at the following resources:
+**Who sees what.** A user has a *role* (admin, branch manager, site manager) and a *scope* (whole company, one branch, one site). The role decides which pages and buttons exist (`src/lib/permissions.ts`). The scope decides which data is shown: every list is filtered to the sites in scope (`src/lib/scope.ts`). The scope switcher in the top bar narrows the view inside what the role allows. A page the role cannot open shows a "no access" state (`PageGuard`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Flow.** Sign in (or accept an invitation, or create a company with the 8-step onboarding) → choose a workspace → Overview. `src/proxy.ts` sends signed-out visitors to the sign-in page.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Pages.**
 
-## Deploy on Vercel
+| Page | Purpose |
+| --- | --- |
+| Overview | KPIs, live site map, "needs attention" queue, punctuality, trends, activity stream |
+| Live board | Who is in right now; check people in or out on their behalf |
+| Attendance | Records with filters, saved views, edit, approve, export, and a full audit trail per record |
+| Alerts | Flagged check-ins (outside the geofence, mock location, low accuracy) to review and resolve |
+| Employees | List, CSV import, profile with seven tabs, badge and PIN for people without a smartphone |
+| Branches & Sites | Branch tree, sites map, geofence editor (circle or polygon, overlap warning, satellite), QR codes. The geofence is the source of truth for mobile check-ins |
+| Schedules | Week, day and month planner, recurring schedules and one-off interventions, conflict checks, publish |
+| Leave | Request inbox with a two-step approval trail, team calendar, balances with adjustments |
+| Reports | Nine report types, table or chart, scope, grouping, saved and scheduled reports, CSV / Excel / PDF export |
+| Users & Roles | Dashboard users, invitations, roles with a permission matrix and scope tree |
+| Audit log | Read-only record of who changed what, with before/after values |
+| Settings | Company profile, attendance rules, leave policies, notifications, integrations, billing |
+| Profile | Personal details, password, two-factor authentication, sessions, personal notifications |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+src/
+  app/            routes: (auth) sign-in, invite, workspaces, onboarding; (admin) the 13 pages
+  components/     ui/ (buttons, dialogs, tabs…), layout/ (shell), map/ (Leaflet)
+  features/       one folder per module: screens, dialogs, model, helpers
+  store/          zustand stores (session, data, leave, schedule, users, settings, …)
+  data/           typed sample data
+  services/       async functions the screens call (swap for a real API)
+  lib/            permissions, scope, time, export, cookies, small hooks
+  i18n/           next-intl request config and the language action
+  types/          shared domain types
+messages/         en.json and fr.json
+docs/             KNOWN-LIMITATIONS.md
+```
+
+Language is stored in the `NEXT_LOCALE` cookie (no URL prefix). Theme is light, dark or system.
+
+## Before connecting a real backend
+
+`docs/KNOWN-LIMITATIONS.md` lists what is simulated today (sample data, invitations, integrations, 2FA, report figures, custom roles not enforced) and what to replace first.

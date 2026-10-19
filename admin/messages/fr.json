@@ -1,0 +1,4337 @@
+{
+  "Workspaces": {
+    "title": "Choisissez un espace",
+    "subtitle": "Vous avez accès à {count} entreprises. Choisissez celle à ouvrir.",
+    "signOut": "Se déconnecter",
+    "create": "Créer une entreprise",
+    "createDescription": "Démarrez un nouvel espace avec ses agences, sites et équipes.",
+    "search": "Rechercher une entreprise",
+    "clear": "Effacer",
+    "lastAccessed": "Dernier accès",
+    "lastUsed": "Dernier utilisé",
+    "trialEnded": "Essai terminé",
+    "trialEndedDescription": "Seul un administrateur peut réactiver cet espace.",
+    "choosePlan": "Choisir une offre",
+    "emptyTitle": "Aucune entreprise ne correspond à « {query} »",
+    "emptyDescription": "Vérifiez l’orthographe ou demandez une invitation à l’administrateur.",
+    "clearSearch": "Effacer",
+    "missing": "Vous ne voyez pas votre entreprise ? Demandez une invitation pour {email}.",
+    "roles": {
+      "admin": "Administratrice",
+      "branch": "Responsable d’agence",
+      "site": "Cheffe de site"
+    },
+    "scope": {
+      "company": "Toute l’entreprise",
+      "admin": "{name}",
+      "branch": "Agence {name}",
+      "site": "{name}"
+    },
+    "meta": "{employees} employés · {sites, plural, one {# site} other {# sites}}",
+    "last": {
+      "today": "Aujourd’hui, {time}",
+      "yesterday": "Hier, {time}"
+    }
+  },
+  "Invite": {
+    "companyMeta": "Construction · 198 employés · 5 sites",
+    "invitedYou": "vous invite à rejoindre l’espace",
+    "sent": "Responsable d’agence · envoyée le 13 oct.",
+    "yourRole": "Votre rôle",
+    "roleName": "Chef de site",
+    "p1": "Voir les présences de Part-Dieu Tower",
+    "p2": "Pointer pour les employés sans smartphone",
+    "p3": "Voir les demandes de congé de votre site",
+    "p4": "Approuver les congés ou traiter les fraudes",
+    "expires": "Cette invitation expire le 20 oct. 2026.",
+    "title": "Accepter l’invitation",
+    "subtitle": "Créez vos identifiants pour gérer votre site.",
+    "orPassword": "ou choisissez un mot de passe",
+    "email": "E-mail",
+    "name": "Nom complet",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "8 caractères minimum",
+    "accept": "Accepter et rejoindre Batiplus Group",
+    "joining": "Connexion…",
+    "legal": "En acceptant, vous acceptez les",
+    "terms": "Conditions d’utilisation",
+    "notYou": "Vous n’êtes pas Nadia ?",
+    "decline": "Refuser l’invitation",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "errors": {
+      "name": "Saisissez votre nom complet.",
+      "password": "Au moins 8 caractères avec lettres et chiffres."
+    },
+    "strength": {
+      "0": "",
+      "1": "Trop faible",
+      "2": "Faible",
+      "3": "Moyen",
+      "4": "Bon"
+    },
+    "expired": {
+      "title": "Cette invitation a expiré",
+      "description": "Les invitations sont valables 7 jours. Marc Olivier l’a envoyée le 3 oct. Demandez un nouveau lien.",
+      "primary": "Demander une nouvelle invitation",
+      "secondary": "Aller à la connexion"
+    },
+    "used": {
+      "title": "Cette invitation a déjà été utilisée",
+      "description": "Elle a été acceptée le 14 oct. à 09:21. Si c’était vous, connectez-vous avec le même e-mail.",
+      "primary": "Se connecter (nadia.kone@batiplus.fr)",
+      "secondary": "Ce n’était pas moi"
+    },
+    "toasts": {
+      "declined": "Invitation refusée",
+      "reported": "Signalé à la sécurité StaffSync",
+      "requested": "Demande envoyée à Marc Olivier"
+    }
+  },
+  "Onboarding": {
+    "metaTitle": "Configurez votre espace",
+    "rail": {
+      "title": "Configurez votre espace",
+      "help": "Besoin d’aide ?",
+      "book": "Réserver un appel de 15 min"
+    },
+    "progress": "Étape {step} sur 8 · {label}",
+    "complete": "Configuration terminée",
+    "saveLater": "Enregistrer et continuer plus tard",
+    "savedLater": "Progression enregistrée. Nous avons envoyé un lien de reprise à {email}.",
+    "you": "vous",
+    "eyebrow": "ÉTAPE {step} / 8",
+    "summary": "{count, plural, one {Corrigez # champ pour continuer.} other {Corrigez # champs pour continuer.}}",
+    "nav": {
+      "back": "Retour",
+      "skip": "Passer pour l’instant",
+      "continue": "Continuer",
+      "createAccount": "Créer le compte",
+      "verify": "Vérifier",
+      "sendInvites": "{count, plural, one {Envoyer # invitation} other {Envoyer # invitations}}",
+      "startTrial": "Démarrer l’essai gratuit",
+      "startTrialOn": "Démarrer l’essai {plan}"
+    },
+    "steps": {
+      "1": {
+        "label": "Créer un compte",
+        "sub": "Votre accès admin",
+        "title": "Créez votre compte",
+        "description": "Démarrez votre essai gratuit de 14 jours. Aucune carte requise."
+      },
+      "2": {
+        "label": "Vérifier l’e-mail",
+        "sub": "Code à 6 chiffres",
+        "title": "Consultez votre boîte mail",
+        "description": "Saisissez le code pour vérifier votre e-mail professionnel."
+      },
+      "3": {
+        "label": "Entreprise",
+        "sub": "Nom, taille, langue",
+        "title": "Parlez-nous de votre entreprise",
+        "description": "Nous utilisons ces informations pour configurer votre espace et l’application mobile."
+      },
+      "4": {
+        "label": "Première agence",
+        "sub": "Région ou ville",
+        "title": "Ajoutez votre première agence",
+        "description": "Une agence regroupe les sites d’une région. Vous pourrez en ajouter d’autres plus tard."
+      },
+      "5": {
+        "label": "Premier site",
+        "sub": "Lieu et géorepérage",
+        "title": "Ajoutez votre premier site",
+        "description": "Les employés ne peuvent pointer que dans ce périmètre. Les pointages hors périmètre sont enregistrés et signalés."
+      },
+      "6": {
+        "label": "Horaires",
+        "sub": "Jours et retards",
+        "title": "Définissez les horaires par défaut",
+        "description": "Ces horaires s’appliquent aux nouveaux plannings, sauf si un site ou un employé les remplace."
+      },
+      "7": {
+        "label": "Inviter l’équipe",
+        "sub": "Employés et responsables",
+        "title": "Invitez votre équipe",
+        "description": "Ajoutez des personnes maintenant ou importez un CSV. Vous pourrez le faire plus tard."
+      },
+      "8": {
+        "label": "Choisir une offre",
+        "sub": "Facturé par employé",
+        "title": "Choisissez une offre",
+        "description": "Choisissez ce qui convient aujourd’hui. Vous pouvez changer d’offre à tout moment."
+      }
+    },
+    "account": {
+      "google": "S’inscrire avec Google",
+      "microsoft": "S’inscrire avec Microsoft",
+      "orEmail": "ou avec votre e-mail professionnel",
+      "fullName": "Nom complet",
+      "workEmail": "E-mail professionnel",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "8 caractères minimum",
+      "show": "Afficher",
+      "hide": "Masquer",
+      "strength": {
+        "0": "",
+        "1": "Trop faible",
+        "2": "Faible",
+        "3": "Moyen",
+        "4": "Bon"
+      },
+      "rules": {
+        "length": "8 caractères ou plus",
+        "case": "Majuscules et minuscules",
+        "number": "Un chiffre",
+        "symbol": "Un symbole"
+      },
+      "phone": "Téléphone",
+      "phoneHint": "pour la récupération du compte",
+      "dialCode": "Indicatif",
+      "agree": "J’accepte les",
+      "termsLink": "Conditions d’utilisation",
+      "and": "et la",
+      "privacyLink": "Politique de confidentialité",
+      "agreeTail": ", y compris le traitement des données de localisation des employés.",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "ssoSignedIn": "Connecté via SSO — e-mail déjà vérifié"
+    },
+    "verify": {
+      "sentTo": "Nous avons envoyé un code à 6 chiffres à",
+      "yourEmail": "votre e-mail",
+      "digit": "Chiffre {n}",
+      "resendIn": "Renvoyer le code dans",
+      "didntGet": "Vous ne l’avez pas reçu ?",
+      "resend": "Renvoyer le code",
+      "changeEmail": "Changer d’e-mail",
+      "newCode": "Nouveau code envoyé à {email}",
+      "hint": "Prototype : tout code à 6 chiffres fonctionne (000000 est refusé)."
+    },
+    "company": {
+      "logoLabel": "Logo de l’entreprise",
+      "optional": "(facultatif)",
+      "logoHint": "Affiché dans l’application mobile",
+      "name": "Nom de l’entreprise",
+      "industry": "Secteur",
+      "industryPlaceholder": "Choisir un secteur",
+      "industries": {
+        "construction": "Construction",
+        "logistics": "Logistique et entreposage",
+        "cleaning": "Nettoyage et services aux bâtiments",
+        "security": "Sécurité",
+        "retail": "Commerce de détail",
+        "manufacturing": "Industrie",
+        "healthcare": "Santé",
+        "other": "Autre"
+      },
+      "size": "Taille de l’entreprise",
+      "country": "Pays",
+      "countries": {
+        "france": "France",
+        "belgium": "Belgique",
+        "switzerland": "Suisse",
+        "canada": "Canada",
+        "uk": "Royaume-Uni"
+      },
+      "timezone": "Fuseau horaire par défaut",
+      "language": "Langue par défaut",
+      "languageHint": "Les employés peuvent la changer dans l’application",
+      "english": "English",
+      "french": "Français"
+    },
+    "branch": {
+      "companyFallback": "Entreprise",
+      "branch": "Agence",
+      "sites": "Sites",
+      "hierarchyHint": "Une agence regroupe des sites, généralement par ville ou par région.",
+      "name": "Nom de l’agence",
+      "street": "Adresse",
+      "postalCode": "Code postal",
+      "city": "Ville",
+      "country": "Pays"
+    },
+    "site": {
+      "name": "Nom du site",
+      "address": "Adresse",
+      "searchAddress": "Rechercher une adresse",
+      "searching": "Recherche…",
+      "searchFailed": "La recherche d’adresse est indisponible. Cliquez sur la carte pour placer l’épingle.",
+      "noResults": "Aucune adresse trouvée",
+      "radius": "Rayon du géorepérage",
+      "radiusValue": "{value} m",
+      "hints": {
+        "tight": "Périmètre serré. Convient à un seul bâtiment, mais la dérive du GPS en intérieur peut provoquer de faux signalements.",
+        "wide": "Périmètre large. Couvre les grandes cours ou dépôts, mais des personnes à proximité pourraient pointer sans être sur site.",
+        "recommended": "Recommandé pour la plupart des sites. Couvre le bâtiment avec une marge pour la précision du GPS."
+      },
+      "mapHint": "Cliquez sur la carte pour déplacer l’épingle"
+    },
+    "hours": {
+      "weekdays": "Lun–Ven",
+      "noDays": "aucun jour",
+      "days": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      },
+      "workingDays": "Jours travaillés",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
+      "grace": "Tolérance de retard",
+      "graceValue": "{value} min",
+      "preview": "Comment les pointages seront classés",
+      "onTime": "À l’heure",
+      "late": "En retard",
+      "ruleOnTime": "À l’heure : pointage avant {time} ({start} + {grace} min de tolérance)",
+      "ruleLate": "En retard : pointage à partir de {time}",
+      "ruleHours": "{days}, {start}–{end} · {hours} par jour",
+      "defaultsNote": "Ce sont les valeurs par défaut de l’entreprise. Vous pourrez les remplacer par site ou par employé."
+    },
+    "team": {
+      "addManually": "Ajouter manuellement",
+      "uploadCsv": "Importer un CSV",
+      "fullName": "Nom complet",
+      "contact": "Téléphone ou e-mail",
+      "role": "Rôle",
+      "namePlaceholder": "Nom",
+      "contactPlaceholder": "+33 6… ou nom@entreprise.fr",
+      "roles": {
+        "employee": "Employé",
+        "site": "Chef de site",
+        "branch": "Responsable d’agence",
+        "admin": "Admin"
+      },
+      "remove": "Supprimer",
+      "addAnother": "Ajouter une personne",
+      "note": "Les personnes avec un numéro de téléphone reçoivent un SMS pour télécharger l’application. Celles avec un e-mail reçoivent une invitation par e-mail.",
+      "csvFound": "{name} · {count, plural, one {# personne trouvée} other {# personnes trouvées}}",
+      "csvDrop": "Déposez un fichier CSV ou cliquez pour parcourir",
+      "csvReplace": "Cliquez pour remplacer le fichier",
+      "csvLimit": "Jusqu’à 5 000 lignes · UTF-8",
+      "columns": "Colonnes : name, phone_or_email, role, site.",
+      "downloadTemplate": "Télécharger le modèle CSV"
+    },
+    "plan": {
+      "billing": "Période de facturation",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "choose": "Offres",
+      "recommended": "Recommandé pour {size} personnes",
+      "custom": "Sur mesure",
+      "decimal": ",",
+      "billedYearly": "Facturé annuellement",
+      "billedMonthly": "Facturé mensuellement",
+      "footnote": "Chaque offre commence par un essai gratuit de 14 jours. Aucune carte requise.",
+      "plans": {
+        "trial": {
+          "name": "Essai gratuit",
+          "unit": "pendant 14 jours",
+          "note": "Toutes les fonctions Business",
+          "capacity": "Jusqu’à 25 employés",
+          "features": {
+            "1": "1 agence, 3 sites",
+            "2": "Pointage mobile avec géorepérage",
+            "3": "Demandes de congé"
+          }
+        },
+        "starter": {
+          "name": "Starter",
+          "unit": "/ employé / mois",
+          "note": "",
+          "capacity": "Jusqu’à 50 employés",
+          "features": {
+            "1": "Sites illimités",
+            "2": "Alertes de fraude et preuve GPS",
+            "3": "Pointage pour un tiers"
+          }
+        },
+        "business": {
+          "name": "Business",
+          "unit": "/ employé / mois",
+          "note": "",
+          "capacity": "Jusqu’à 250 employés",
+          "features": {
+            "1": "Tout Starter",
+            "2": "Rôles par agence et par site",
+            "3": "Géorepérages polygonaux",
+            "4": "Exports de paie"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "unit": "",
+          "note": "Tarifs au volume",
+          "capacity": "Plus de 250 employés",
+          "features": {
+            "1": "SSO et SCIM",
+            "2": "Rétention des données sur mesure",
+            "3": "Responsable de compte dédié"
+          }
+        }
+      }
+    },
+    "done": {
+      "fallbackName": "vous",
+      "title": "Tout est prêt, {name} !",
+      "subtitle": "{company} est prête. Les employés pourront pointer à {site} dès qu’ils installeront l’application.",
+      "fallbackCompany": "Votre entreprise",
+      "fallbackSite": "votre premier site",
+      "fallbackSiteLower": "votre site",
+      "recap": {
+        "company": "Entreprise",
+        "branchSite": "Agence → Site",
+        "hours": "Horaires",
+        "invitedPlan": "Invités · Offre"
+      },
+      "plans": {
+        "trial": "Essai gratuit",
+        "starter": "Starter",
+        "business": "Business",
+        "enterprise": "Enterprise"
+      },
+      "nextSteps": "Prochaines étapes",
+      "checklist": {
+        "app": {
+          "title": "Télécharger l’application mobile",
+          "description": "Envoyez aux employés les liens iOS et Android par SMS",
+          "action": "Envoyer les liens",
+          "toast": "Liens de téléchargement envoyés"
+        },
+        "managers": {
+          "title": "Inviter les chefs de site",
+          "description": "Ils peuvent pointer pour les employés sans smartphone",
+          "action": "Inviter",
+          "toast": "Invitation envoyée"
+        },
+        "schedules": {
+          "title": "Créer des plannings",
+          "description": "Affectez des employés à {site} avec des horaires récurrents ou des interventions ponctuelles",
+          "action": "Ouvrir le planning",
+          "toast": "Le planning s’ouvre dans le tableau de bord"
+        }
+      },
+      "goDashboard": "Aller au tableau de bord"
+    },
+    "errors": {
+      "nameRequired": "Saisissez votre nom complet.",
+      "nameFull": "Saisissez votre prénom et votre nom.",
+      "emailRequired": "Saisissez votre e-mail professionnel.",
+      "emailInvalid": "Saisissez une adresse e-mail valide, ex. nom@entreprise.fr.",
+      "emailPersonal": "Utilisez votre e-mail professionnel. Les adresses personnelles (Gmail, Outlook…) ne peuvent pas créer d’espace entreprise.",
+      "passwordRequired": "Créez un mot de passe.",
+      "passwordWeak": "Mot de passe trop faible. Utilisez au moins 8 caractères avec lettres et chiffres.",
+      "phoneInvalid": "Saisissez un numéro de téléphone valide.",
+      "termsRequired": "Vous devez accepter les conditions pour continuer.",
+      "codeIncomplete": "Saisissez les 6 chiffres.",
+      "codeWrong": "Ce code est incorrect. Vérifiez le dernier e-mail ou demandez un nouveau code.",
+      "companyRequired": "Saisissez le nom de l’entreprise.",
+      "industryRequired": "Choisissez un secteur.",
+      "sizeRequired": "Choisissez la taille de l’entreprise.",
+      "branchRequired": "Donnez un nom à cette agence.",
+      "streetRequired": "Saisissez l’adresse.",
+      "zipInvalid": "Saisissez un code postal valide.",
+      "cityRequired": "Saisissez la ville.",
+      "siteNameRequired": "Donnez un nom à ce site.",
+      "siteAddressRequired": "Recherchez et sélectionnez l’adresse du site.",
+      "daysRequired": "Choisissez au moins un jour travaillé.",
+      "endBeforeStart": "L’heure de fin doit être après l’heure de début. Pour le travail de nuit, créez un planning personnalisé après la configuration.",
+      "personName": "Ajoutez un nom pour cette personne.",
+      "personContact": "Ajoutez un téléphone ou un e-mail pour envoyer l’invitation.",
+      "personInvalid": "Ce n’est pas un numéro de téléphone ou un e-mail valide.",
+      "planRequired": "Choisissez une offre pour continuer."
+    }
+  },
+  "Nav": {
+    "pages": {
+      "dashboard": "Vue d’ensemble",
+      "live": "Tableau en direct",
+      "attendance": "Présences",
+      "alerts": "Alertes",
+      "employees": "Employés",
+      "sites": "Agences et sites",
+      "schedules": "Plannings",
+      "leave": "Congés",
+      "reports": "Rapports",
+      "users": "Utilisateurs et rôles",
+      "audit": "Journal d’audit",
+      "settings": "Paramètres",
+      "profile": "Mon profil"
+    }
+  },
+  "Common": {
+    "noAccessTitle": "Vous n’avez pas accès à cette page",
+    "noAccessHint": "Demandez à un administrateur de modifier votre rôle ou votre périmètre.",
+    "pendingTitle": "Ce module est en cours de migration",
+    "pendingHint": "L’écran apparaîtra ici dès que sa migration sera terminée."
+  },
+  "Auth": {
+    "brand": "StaffSync",
+    "title": "Connexion à StaffSync",
+    "subtitle": "Bon retour. Connectez-vous à votre espace administrateur.",
+    "email": "E-mail professionnel",
+    "emailPlaceholder": "nom@entreprise.fr",
+    "password": "Mot de passe",
+    "forgot": "Mot de passe oublié ?",
+    "remember": "Se souvenir de moi pendant 30 jours",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion…",
+    "or": "ou",
+    "google": "Continuer avec Google",
+    "microsoft": "Continuer avec Microsoft",
+    "noAccount": "Nouveau sur StaffSync ?",
+    "create": "Créer un compte entreprise",
+    "show": "Afficher le mot de passe",
+    "hide": "Masquer le mot de passe",
+    "theme": "Changer le thème",
+    "language": "Langue",
+    "demo": "Prototype : mot de passe « staffsync » · e-mails commençant par « former » désactivés · 5 échecs verrouillent le compte",
+    "footer": {
+      "copyright": "© 2026 StaffSync",
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "status": "État du service"
+    },
+    "errors": {
+      "emailRequired": "Saisissez votre e-mail.",
+      "emailInvalid": "Saisissez un e-mail valide, ex. nom@entreprise.fr.",
+      "passwordRequired": "Saisissez votre mot de passe."
+    },
+    "wrong": {
+      "title": "E-mail ou mot de passe incorrect",
+      "attempts": "{count, plural, one {Plus qu’# tentative avant le verrouillage du compte.} other {Plus que # tentatives avant le verrouillage du compte.}}",
+      "retry": "Vérifiez vos identifiants et réessayez."
+    },
+    "locked": {
+      "title": "Compte temporairement verrouillé",
+      "description": "Trop de tentatives échouées. Par sécurité, la connexion est suspendue.",
+      "reset": "Réinitialiser le mot de passe",
+      "button": "Verrouillé"
+    },
+    "deactivated": {
+      "title": "Ce compte a été désactivé",
+      "description": "L’accès de {email} à Batiplus Group a été retiré par un administrateur.",
+      "fallbackEmail": "ce compte",
+      "contact": "Contacter votre administrateur",
+      "other": "Utiliser un autre compte"
+    },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "description": "Vérifiez votre connexion. Vous pourrez vous connecter une fois en ligne.",
+      "retry": "Réessayer",
+      "button": "En attente de connexion",
+      "back": "Connexion rétablie",
+      "still": "Toujours hors ligne"
+    },
+    "toasts": {
+      "signedIn": "Connexion réussie — redirection…",
+      "redirecting": "Redirection vers {provider}…",
+      "resetSent": "Lien de réinitialisation envoyé à {email}",
+      "yourEmail": "votre e-mail",
+      "adminNotified": "Demande envoyée à l’administrateur"
+    },
+    "brandPanel": {
+      "title": "Sachez qui est sur site, en temps réel.",
+      "subtitle": "Pointages géolocalisés, présences en direct sur toutes vos agences et sites, et alertes de fraude exploitables.",
+      "chips": {
+        "gps": "Géorepérage GPS",
+        "leave": "Validation des congés",
+        "roles": "Accès par rôle"
+      },
+      "today": "Aujourd’hui · tous les sites",
+      "live": "En direct",
+      "present": "présents",
+      "onTime": "À l’heure",
+      "late": "Retards",
+      "flagged": "Signalés",
+      "person": "Camille Durand",
+      "checkin": "Arrivée · Part-Dieu Tower"
+    }
+  },
+  "Status": {
+    "ontime": "À l’heure",
+    "late": "En retard",
+    "early": "Départ anticipé",
+    "absent": "Absent",
+    "missing": "Sortie manquante",
+    "overtime": "Heures sup.",
+    "leave": "En congé",
+    "holiday": "Férié",
+    "flagged": "Signalé",
+    "scheduled": "Prévu",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "rejected": "Refusé",
+    "cancelled": "Annulé",
+    "fraud": "Fraude confirmée"
+  },
+  "Leave": {
+    "types": {
+      "rtt": "Jour RTT",
+      "sick": "Arrêt maladie",
+      "unpaid": "Congé sans solde",
+      "family": "Événement familial",
+      "annual": "Congés payés"
+    },
+    "reject": {
+      "title": "Refuser la demande de {name}",
+      "reason": "Motif",
+      "placeholder": "Expliquez à l’employé pourquoi la demande ne peut pas être approuvée",
+      "hint": "L’employé est prévenu avec ce motif.",
+      "cancel": "Annuler",
+      "confirm": "Refuser la demande",
+      "done": "Demande de {name} refusée"
+    },
+    "title": "Congés",
+    "subtitle": "Examinez les demandes, voyez qui est absent et gardez les soldes exacts.",
+    "views": {
+      "requests": "Demandes",
+      "calendar": "Calendrier",
+      "balances": "Soldes"
+    },
+    "stages": {
+      "chg": "Modifications demandées",
+      "site": "Revue du responsable de site",
+      "rec": "Recommandée · en attente RH",
+      "hr": "Revue RH",
+      "done": "Approuvée",
+      "no": "Refusée",
+      "can": "Annulée",
+      "notes": {
+        "certificate": "Certificat médical joint",
+        "recommended": "Recommandée par {name}",
+        "insufficient": "Solde insuffisant",
+        "shortNotice": "Préavis court · {name}"
+      },
+      "approvedBy": "Approuvée par {name}",
+      "cancelledOn": "Annulée le {date}"
+    },
+    "inbox": {
+      "tabs": {
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Refusées",
+        "cancelled": "Annulées",
+        "all": "Toutes"
+      },
+      "filters": {
+        "branch": "Agence",
+        "site": "Site",
+        "type": "Type de congé",
+        "dates": "Dates",
+        "employee": "Employé",
+        "allBranches": "Toutes les agences",
+        "allSites": "Tous les sites",
+        "allTypes": "Tous les types",
+        "anyDates": "Toutes les dates",
+        "next7": "7 prochains jours",
+        "next30": "30 prochains jours",
+        "allEmployees": "Tous les employés",
+        "clear": "Effacer les filtres"
+      },
+      "waitingOnMe": "En attente de ma décision",
+      "summary": "{pending, plural, one {# demande en attente} other {# demandes en attente}} · {mine} en attente de vous",
+      "selected": "{count, plural, one {# sélectionnée} other {# sélectionnées}}",
+      "negativeWarning": "{count, plural, one {# demande rend le solde négatif.} other {# demandes rendent le solde négatif.}}",
+      "approveSelected": "Approuver la sélection",
+      "rejectSelected": "Refuser la sélection",
+      "cancel": "Annuler",
+      "clearSelection": "Effacer la sélection",
+      "selectAll": "Sélectionner toutes les demandes en attente",
+      "columns": {
+        "employee": "Employé",
+        "type": "Type",
+        "dates": "Dates",
+        "duration": "Durée",
+        "balance": "Solde",
+        "stage": "Étape",
+        "submitted": "Envoyée",
+        "actions": "Actions"
+      },
+      "days": "{count, plural, one {# jour} other {# jours}}",
+      "halfDay": "½ jour ({half})",
+      "attachment": "Pièce jointe",
+      "overlapWith": "Aussi absents : {names} ({site})",
+      "goesNegative": "le solde devient négatif",
+      "approve": "Approuver",
+      "reject": "Refuser",
+      "rejectReason": "Motif du refus de la demande de {name}",
+      "confirmRejectOne": "Confirmer le refus",
+      "approvedToast": "Demande de {name} approuvée",
+      "rejectedToast": "Demande de {name} refusée",
+      "remaining": "{count, plural, one {# jour restant} other {# jours restants}}",
+      "exceedsBalance": "Dépasse le solde de {count, plural, one {# jour} other {# jours}}",
+      "bulkApproved": "{count, plural, one {# demande approuvée} other {# demandes approuvées}}",
+      "bulkRejected": "{count, plural, one {# demande refusée} other {# demandes refusées}}",
+      "bulkApprovePlaceholder": "Ajouter une note pour les employés (facultatif)",
+      "bulkRejectPlaceholder": "Motif communiqué aux employés",
+      "confirmApprove": "{count, plural, one {Approuver # demande} other {Approuver # demandes}}",
+      "confirmReject": "{count, plural, one {Refuser # demande} other {Refuser # demandes}}",
+      "empty": {
+        "zero": "Tout est à jour",
+        "none": "Aucune demande trouvée",
+        "nothingWaiting": "Aucune décision n’est en attente.",
+        "tryAnother": "Essayez un autre onglet ou effacez les filtres."
+      }
+    },
+    "drawer": {
+      "title": "Demande de congé",
+      "close": "Fermer",
+      "request": "Demande",
+      "facts": {
+        "dates": "Dates",
+        "duration": "Durée",
+        "halfDay": "Type de jour",
+        "submitted": "Envoyée"
+      },
+      "halfDayOf": "Demi-journée ({half})",
+      "workingDays": "{count, plural, one {# jour ouvré} other {# jours ouvrés}}",
+      "fullDays": "Journées complètes",
+      "morningOff": "Matin libre",
+      "afternoonOff": "Après-midi libre",
+      "withAttachment": "avec pièce jointe",
+      "reasonFrom": "Motif de {name}",
+      "reasons": {
+        "annual": "Vacances prévues en famille.",
+        "rtt": "Prise d’une journée de RTT.",
+        "sick": "Souffrant, arrêt de travail joint.",
+        "family": "Événement familial.",
+        "unpaid": "Raison personnelle, congé sans solde demandé."
+      },
+      "download": "Télécharger",
+      "downloadStarted": "Téléchargement lancé",
+      "image": "Image de la pièce jointe",
+      "pdfPage": "Page {page}",
+      "previousPage": "Page précédente",
+      "nextPage": "Page suivante",
+      "zoomIn": "Agrandir",
+      "zoomOut": "Réduire",
+      "balanceOf": "Solde {type}",
+      "balance": {
+        "before": "Avant",
+        "requested": "Demandé",
+        "after": "Après"
+      },
+      "exceeds": "Dépasse le solde de {count, plural, one {# jour} other {# jours}}.",
+      "exceedsHint": "L’approbation mettra le solde de cet employé en négatif.",
+      "coverage": "Couverture de l’équipe",
+      "coverageStates": {
+        "good": "Bonne couverture",
+        "tight": "Tendue · {count} absents",
+        "short": "Sous-effectif · {count} absents"
+      },
+      "offTooltip": "Absents : {names}",
+      "colleagueOff": "Collègues absents à ces dates",
+      "thisRequest": "Cette demande",
+      "sameSite": "Même site",
+      "sameBranch": "Même agence · {site}",
+      "alsoOff": "Aussi absent",
+      "nobodyElse": "Personne d’autre n’est absent à {site}.",
+      "affected": "{count, plural, one {# service concerné} other {# services concernés}}",
+      "affectedShift": "Service {hours} · {site}",
+      "affectedIntervention": "Intervention planifiée",
+      "noAffected": "Aucun service concerné.",
+      "reassign": "Réaffecter",
+      "trail": {
+        "title": "Circuit d’approbation",
+        "submitted": "Demande envoyée",
+        "employee": "Employé",
+        "siteManager": "Responsable de site",
+        "hrTeam": "Équipe RH",
+        "awaitingRecommendation": "En attente de recommandation",
+        "recommended": "Recommandée",
+        "okComment": "Aucune objection.",
+        "sickComment": "Certificat vérifié.",
+        "awaitingDecision": "En attente de décision",
+        "approved": "Approuvée",
+        "rejected": "Refusée",
+        "cancelled": "Annulée",
+        "currentStep": "Étape en cours",
+        "nextStep": "Étape suivante",
+        "decided": "Décidée",
+        "justNow": "À l’instant",
+        "log": {
+          "approve": "Approuvée",
+          "reject": "Refusée",
+          "changes": "Modifications demandées",
+          "cancel": "Annulée"
+        }
+      },
+      "history": "Autres congés de {name}",
+      "modes": {
+        "approve": {
+          "title": "Approuver",
+          "placeholder": "Ajouter une note pour {name} (facultatif)",
+          "confirm": "Approuver la demande"
+        },
+        "reject": {
+          "title": "Refuser",
+          "placeholder": "Expliquez à {name} pourquoi la demande est refusée",
+          "confirm": "Refuser la demande"
+        },
+        "changes": {
+          "title": "Demander des modifications",
+          "placeholder": "Que doit modifier {name} ?",
+          "confirm": "Envoyer la demande"
+        },
+        "cancel": {
+          "title": "Annuler la demande",
+          "placeholder": "Pourquoi annule-t-on cette demande ?",
+          "confirm": "Annuler la demande"
+        }
+      },
+      "notify": "Prévenir {name}",
+      "toasts": {
+        "approve": "Demande approuvée",
+        "reject": "Demande refusée",
+        "changes": "Modifications demandées",
+        "cancel": "Demande annulée",
+        "notified": "{name} prévenu(e)"
+      },
+      "waitingFor": "En attente d’une décision.",
+      "readOnly": "Vous pouvez consulter cette demande mais pas la traiter.",
+      "finalState": "Cette demande est {status}.",
+      "cancel": "Annuler",
+      "approvedShort": "approuvé",
+      "pendingShort": "en attente"
+    },
+    "calendar": {
+      "scale": "Échelle de temps",
+      "scales": {
+        "month": "Mois",
+        "quarter": "Trimestre"
+      },
+      "previous": "Précédent",
+      "next": "Suivant",
+      "today": "Aujourd’hui",
+      "groupBy": "Grouper par",
+      "groups": {
+        "site": "Site",
+        "branch": "Agence"
+      },
+      "filters": {
+        "branch": "Agence",
+        "site": "Site",
+        "type": "Type de congé",
+        "status": "Statut",
+        "employee": "Employé",
+        "allBranches": "Toutes les agences",
+        "allSites": "Tous les sites",
+        "allTypes": "Tous les types",
+        "both": "Approuvés + en attente",
+        "approvedOnly": "Approuvés uniquement",
+        "pendingOnly": "En attente uniquement",
+        "allEmployees": "Tous les employés"
+      },
+      "onlyWithLeave": "Seulement les absents",
+      "pendingHatched": "En attente (hachuré)",
+      "employee": "Employé",
+      "groupMeta": "{count, plural, one {# personne} other {# personnes}} · pic de {peak} absents",
+      "empty": "Personne ne correspond à ces filtres.",
+      "holidayTitle": "Jour férié · {name}",
+      "holidays": {
+        "allSaints": "Toussaint",
+        "armistice": "Armistice",
+        "christmas": "Noël"
+      },
+      "approved": "Approuvé",
+      "pending": "En attente"
+    },
+    "balances": {
+      "previousYear": "Année précédente",
+      "nextYear": "Année suivante",
+      "search": "Rechercher un employé",
+      "filters": {
+        "branch": "Agence",
+        "site": "Site",
+        "type": "Type de congé",
+        "allBranches": "Toutes les agences",
+        "allSites": "Tous les sites",
+        "allTypes": "Tous les types"
+      },
+      "lowBalance": "Solde faible",
+      "columns": {
+        "employee": "Employé"
+      },
+      "cells": {
+        "entitled": "Droits",
+        "used": "Pris",
+        "pending": "En attente",
+        "remaining": "Reste"
+      },
+      "adjust": "Ajuster",
+      "empty": "Aucun employé ne correspond à ces filtres.",
+      "export": {
+        "button": "Exporter en CSV",
+        "employee": "Employé",
+        "site": "Site",
+        "entitled": "droits",
+        "used": "pris",
+        "pending": "en attente",
+        "remaining": "restant"
+      },
+      "exported": "{count, plural, one {# employé exporté} other {# employés exportés}}",
+      "adjusted": "Solde {type} ajusté de {days} j",
+      "log": {
+        "title": "Ajustements de cette session"
+      },
+      "modal": {
+        "title": "Ajuster le solde · {name}",
+        "type": "Type de congé",
+        "days": "Jours à ajouter ou retirer",
+        "minus": "Retirer une demi-journée",
+        "plus": "Ajouter une demi-journée",
+        "before": "Actuel {value} j",
+        "deltaError": "Saisissez un nombre de jours non nul.",
+        "reason": "Motif",
+        "reasonPlaceholder": "Pourquoi ajuste-t-on le solde ?",
+        "reasonError": "Indiquez un motif (3 caractères minimum).",
+        "cancel": "Annuler",
+        "apply": "Appliquer l’ajustement"
+      }
+    }
+  },
+  "Data": {
+    "jobs": {
+      "electrician": "Électricien",
+      "carpenter": "Menuisier",
+      "plumber": "Plombier",
+      "cleaningAgent": "Agent d’entretien",
+      "forkliftOperator": "Cariste",
+      "nightGuard": "Agent de nuit",
+      "warehouseClerk": "Magasinier",
+      "logisticsAgent": "Agent logistique",
+      "orderPicker": "Préparateur de commandes",
+      "dockSupervisor": "Chef de quai",
+      "driver": "Chauffeur",
+      "craneOperator": "Grutier",
+      "safetyInspector": "Inspecteur sécurité",
+      "rigger": "Élingueur",
+      "siteTechnician": "Technicien de site",
+      "dockAgent": "Agent de quai"
+    },
+    "interventions": {
+      "nightSecurity": "Gardiennage de nuit, ce soir 22:00–06:00 · personne d’affecté",
+      "inventory": "Inventaire, sam. 17 oct. 07:00–12:00 · 2 postes sur 4 libres",
+      "liftInspection": "Contrôle ascenseur, lun. 19 oct. 08:00–10:00 · intervenant en congé"
+    }
+  },
+  "Dashboard": {
+    "title": "Vue d’ensemble",
+    "vsYesterday": "vs hier",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "lastMonday": "Lundi dernier",
+    "pickDate": "Choisir une date",
+    "close": "Fermer",
+    "manager": "Responsable",
+    "presentLabel": "Présents",
+    "viewAttendance": "Présences",
+    "openSite": "Ouvrir le site",
+    "scope": {
+      "company": "{company} – toutes les agences",
+      "branch": "Agence {branch} – tous les sites",
+      "site": "{site} – agence {branch}",
+      "meta": "{sites, plural, one {# site} other {# sites}} · {employees} employés prévus"
+    },
+    "live": {
+      "refresh": "Actualiser",
+      "refreshing": "actualisation…",
+      "paused": "en pause",
+      "justNow": "à l’instant",
+      "ago": "il y a {seconds} s",
+      "label": "En direct",
+      "pausedLabel": "En pause",
+      "final": "Clôturé",
+      "dayClosed": "journée clôturée"
+    },
+    "kpi": {
+      "expected": "Attendus aujourd’hui",
+      "expectedPast": "Attendus",
+      "present": "Présents",
+      "presentPast": "Présents",
+      "late": "En retard",
+      "absent": "Absents",
+      "leave": "En congé",
+      "flagged": "Signalés",
+      "pending": "Congés en attente"
+    },
+    "map": {
+      "title": "Carte en direct",
+      "subtitle": "{count, plural, one {# site} other {# sites}} · présents / attendus",
+      "good": "Normal",
+      "watch": "À surveiller",
+      "risk": "Critique"
+    },
+    "attention": {
+      "title": "À traiter",
+      "yesterday": "Hier",
+      "view": "Voir",
+      "review": "Examiner",
+      "dismiss": "Lever",
+      "remind": "Relancer",
+      "reminderSent": "Relance envoyée",
+      "reject": "Refuser",
+      "approve": "Approuver",
+      "emptyTitle": "Rien à traiter",
+      "emptyHint": "Les nouveaux points de votre périmètre apparaîtront ici.",
+      "tabs": {
+        "all": "Tout",
+        "fraud": "Fraude",
+        "missing": "Sorties",
+        "unsched": "Hors planning",
+        "leave": "Congés",
+        "uncov": "Interventions"
+      },
+      "fraud": {
+        "title": "Pointage signalé · {name}",
+        "distance": "{distance} hors du périmètre",
+        "mock": "Localisation simulée détectée",
+        "dismissed": "Signalement levé"
+      },
+      "missing": {
+        "title": "Sortie manquante · {name}",
+        "description": "Fin de poste à {time}",
+        "setOut": "Clôturer à 06:00",
+        "done": "Sortie de {name} enregistrée à 06:00"
+      },
+      "unsched": {
+        "title": "Pointage hors planning · {name}",
+        "description": "Aucun horaire prévu aujourd’hui",
+        "add": "Ajouter au planning",
+        "added": "{name} ajouté(e) au planning",
+        "rejected": "Pointage refusé"
+      },
+      "leave": {
+        "title": "Demande de congé · {name}",
+        "approved": "Congé de {name} approuvé"
+      },
+      "uncov": {
+        "title": "Intervention sans intervenant",
+        "assign": "Affecter",
+        "notify": "Prévenir l’équipe",
+        "notified": "Équipe prévenue"
+      }
+    },
+    "trend": {
+      "title": "Taux de présence",
+      "average": "moy. sur {days} jours",
+      "points": "pt",
+      "rangeLabel": "{days} j",
+      "chartLabel": "Évolution du taux de présence, moyenne {average} %",
+      "target": "Objectif 90 %"
+    },
+    "methods": {
+      "title": "Méthode de pointage",
+      "subtitleToday": "Pointages d’arrivée aujourd’hui",
+      "subtitleDay": "Pointages du {date}",
+      "checkins": "pointages",
+      "chartLabel": "{total} pointages par méthode",
+      "self": {
+        "label": "Auto-pointage",
+        "description": "Appli mobile dans le périmètre"
+      },
+      "proxy": {
+        "label": "Pour un tiers",
+        "description": "Par un responsable de site"
+      },
+      "qr": {
+        "label": "QR code",
+        "description": "Scanné à la borne du site"
+      }
+    },
+    "punctuality": {
+      "title": "Ponctualité",
+      "subtitle": "Part des arrivées à l’heure · {when}",
+      "today": "aujourd’hui",
+      "byBranch": "Par agence",
+      "bySite": "Par site",
+      "sites": "{count, plural, one {# site} other {# sites}}",
+      "present": "{count} présents",
+      "tooltip": "{onTime} % à l’heure · {late} en retard",
+      "onTime": "À l’heure",
+      "late": "En retard"
+    },
+    "activity": {
+      "titleToday": "Activité en temps réel",
+      "titleDay": "Activité",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "checkedIn": "a pointé son arrivée",
+      "checkedOut": "a pointé son départ",
+      "yesterdayShort": "hier"
+    },
+    "setup": {
+      "welcome": "Bienvenue sur StaffSync, {name}",
+      "subtitle": "Votre espace est prêt. Terminez la configuration pour suivre les présences.",
+      "title": "Lancez les premiers pointages",
+      "hint": "La plupart des entreprises terminent en moins de 15 minutes.",
+      "steps": {
+        "company": {
+          "title": "Créer l’entreprise",
+          "description": "Batiplus Group · Construction · Europe/Paris"
+        },
+        "site": {
+          "title": "Ajouter votre premier site",
+          "description": "Adresse et périmètre GPS où les employés pointent"
+        },
+        "hours": {
+          "title": "Définir les horaires",
+          "description": "Jours, heures et tolérance de retard par défaut"
+        },
+        "invite": {
+          "title": "Inviter vos employés",
+          "description": "Manuellement ou par import CSV"
+        },
+        "schedules": {
+          "title": "Créer les plannings",
+          "description": "Horaires récurrents ou interventions ponctuelles"
+        },
+        "app": {
+          "title": "Installer l’application mobile",
+          "description": "Envoyez les liens iOS et Android par SMS"
+        }
+      },
+      "cta": {
+        "addSite": "Ajouter un site",
+        "setHours": "Définir",
+        "invite": "Inviter",
+        "create": "Planifier",
+        "sendLinks": "Envoyer"
+      },
+      "stepDone": "{step} — terminé",
+      "previewTitle": "Votre tableau de bord apparaîtra ici",
+      "previewHint": "Présences, alertes et tendances s’affichent dès les premiers pointages.",
+      "helpTitle": "Besoin d’aide ?",
+      "helpHint": "Un spécialiste peut le configurer avec vous.",
+      "book": "Prendre RDV",
+      "bookingSent": "Lien de réservation envoyé"
+    }
+  },
+  "Methods": {
+    "app": "Appli mobile",
+    "proxy": "Pour un tiers (responsable)",
+    "qr": "Borne QR code",
+    "admin": "Correction administrateur"
+  },
+  "Live": {
+    "title": "Tableau en direct",
+    "subtitle": "{state} · {time} · {count} employés prévus aujourd’hui",
+    "live": "En direct",
+    "paused": "En pause",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "allSites": "Tous les sites du périmètre",
+    "counters": {
+      "expected": "Attendus",
+      "present": "Présents",
+      "not": "Pas arrivés",
+      "left": "Partis",
+      "absent": "Absents",
+      "leave": "En congé"
+    },
+    "searchPlaceholder": "Rechercher un employé",
+    "chips": {
+      "all": "Tous",
+      "present": "Présents",
+      "not": "Pas arrivés",
+      "left": "Partis",
+      "absent": "Absents",
+      "leave": "En congé",
+      "flagged": "Signalés"
+    },
+    "view": "Affichage",
+    "list": "Liste",
+    "grid": "Grille",
+    "newTag": "NOUVEAU",
+    "presentShort": "présents",
+    "columns": {
+      "employee": "Employé",
+      "scheduled": "Prévu",
+      "checkIn": "Arrivée",
+      "checkOut": "Départ",
+      "status": "Statut",
+      "method": "Méthode",
+      "distance": "Distance",
+      "actions": "Actions"
+    },
+    "in": "Arrivée",
+    "out": "Départ",
+    "checkIn": "Pointer l’arrivée",
+    "checkOut": "Pointer le départ",
+    "viewRecord": "Voir le pointage",
+    "call": "Appeler l’employé",
+    "calling": "Appel de {name} · {phone}",
+    "selectAll": "Sélectionner tout le monde à {site}",
+    "fence": {
+      "flags": "Géorepérage actif · alertes",
+      "lowGps": "Précision GPS faible",
+      "circle": "Géorepérage actif · cercle {radius} m",
+      "polygon": "Géorepérage actif · polygone"
+    },
+    "noMatch": "Aucun employé ne correspond sur ce site.",
+    "emptyTitle": "Aucun employé ne correspond",
+    "emptyHint": "Essayez un autre statut ou effacez la recherche.",
+    "clearFilters": "Réinitialiser",
+    "bulk": {
+      "selected": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+      "remind": "Relancer",
+      "markAbsent": "Marquer absent",
+      "clear": "Désélectionner",
+      "reminded": "{count, plural, one {Relance envoyée à # employé} other {Relance envoyée à # employés}}",
+      "markedAbsent": "{count, plural, one {# marqué absent} other {# marqués absents}}",
+      "skipped": "{count} ignoré(s) (déjà pointé ou en congé)"
+    },
+    "flagToast": "Nouveau signalement : {name} a pointé à {distance} hors de {site}",
+    "checkedInToast": "{name} pointé(e) à {time}",
+    "checkedOutToast": "Départ de {name} pointé à {time}",
+    "row": {
+      "notArrived": "Pas arrivé",
+      "minutesLate": "{count} min de retard",
+      "dueAt": "Prévu à {time}",
+      "left": "Parti",
+      "by": "Par {name}",
+      "flagDistance": "Pointage à {distance} hors du périmètre",
+      "flagMock": "Localisation simulée détectée"
+    },
+    "proxy": {
+      "titleIn": "Pointer l’arrivée",
+      "titleOut": "Pointer le départ",
+      "cancel": "Annuler",
+      "confirmIn": "Pointer l’arrivée",
+      "confirmOut": "Pointer le départ",
+      "time": "Heure",
+      "reason": "Motif",
+      "selectReason": "Choisir un motif",
+      "reasonError": "Sélectionnez un motif pour continuer.",
+      "reasons": {
+        "noPhone": "Pas de smartphone",
+        "battery": "Batterie déchargée",
+        "appIssue": "Problème d’appli ou de GPS",
+        "forgot": "Oubli de pointage",
+        "other": "Autre"
+      },
+      "note": "Note de vérification",
+      "optional": "facultatif",
+      "notePlaceholder": "ex. Vu à l’entrée du site par le chef d’équipe",
+      "verified": "J’ai vérifié en personne que l’employé est sur site",
+      "audit": "Enregistré comme « {method} » par {actor}, visible dans le journal d’audit.",
+      "methodAdmin": "Correction administrateur",
+      "methodProxy": "Pour un tiers"
+    }
+  },
+  "Attendance": {
+    "title": "Registre des présences",
+    "subtitle": "{count} pointages · {range} · {scope}",
+    "today": "Aujourd’hui",
+    "approvedBy": "Approuvé · {name}",
+    "offlineTip": "Enregistré hors ligne, synchronisé ensuite",
+    "selectPage": "Sélectionner toutes les lignes de la page",
+    "cancel": "Annuler",
+    "scope": {
+      "company": "toute l’entreprise"
+    },
+    "ranges": {
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "7d": "7 derniers jours",
+      "month": "Ce mois-ci",
+      "custom": "Période personnalisée"
+    },
+    "views": {
+      "title": "Vues",
+      "all": "Tous les pointages",
+      "flagged": "Signalés cette semaine",
+      "missing": "Sorties manquantes",
+      "parisLate": "Paris Nord · retards",
+      "delete": "Supprimer la vue",
+      "deleted": "Vue supprimée",
+      "saved": "Vue « {name} » enregistrée"
+    },
+    "columns": {
+      "date": "Date",
+      "employee": "Employé",
+      "site": "Site",
+      "scheduled": "Prévu",
+      "in": "Arrivée",
+      "out": "Départ",
+      "worked": "Travaillé",
+      "status": "Statut",
+      "method": "Méthode",
+      "flag": "Alerte",
+      "edited": "Dernière modification"
+    },
+    "methods": {
+      "app": "Appli mobile",
+      "proxy": "Pour un tiers (responsable)",
+      "qr": "Borne QR code",
+      "admin": "Correction administrateur"
+    },
+    "filters": {
+      "status": "Statut",
+      "branch": "Agence",
+      "site": "Site",
+      "allBranches": "Toutes les agences",
+      "allSites": "Tous les sites",
+      "employeePlaceholder": "Nom ou matricule",
+      "method": "Méthode",
+      "allMethods": "Toutes les méthodes",
+      "flaggedOnly": "Signalés uniquement",
+      "offline": "Synchronisés hors ligne",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer",
+      "done": "Terminé",
+      "clearAll": "Tout effacer ({count})",
+      "saveView": "Enregistrer la vue",
+      "saveTitle": "Enregistrer cette vue",
+      "viewPlaceholder": "Nom de la vue",
+      "save": "Enregistrer",
+      "showColumns": "Afficher les colonnes",
+      "columns": "Colonnes"
+    },
+    "flag": {
+      "fraud": "Fraude confirmée",
+      "distance": "{distance} hors du périmètre",
+      "mock": "Localisation simulée"
+    },
+    "export": {
+      "button": "Exporter",
+      "note": "{count} pointages filtrés",
+      "date": "Date",
+      "employeeId": "Matricule",
+      "employee": "Employé",
+      "site": "Site",
+      "scheduled": "Prévu",
+      "checkIn": "Arrivée",
+      "checkOut": "Départ",
+      "worked": "Travaillé",
+      "status": "Statut",
+      "method": "Méthode",
+      "flagged": "Signalé",
+      "editedBy": "Modifié par",
+      "yes": "oui",
+      "done": "{count} pointages exportés en {format}",
+      "failed": "L’export a échoué. Réessayez."
+    },
+    "bulk": {
+      "selected": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+      "selectAll": "Sélectionner les {count} pointages",
+      "approve": "Approuver",
+      "markAbsent": "Marquer absent",
+      "exportSelected": "Exporter la sélection",
+      "clear": "Désélectionner",
+      "approved": "{count, plural, one {# pointage approuvé} other {# pointages approuvés}}",
+      "absent": "{count, plural, one {# marqué absent} other {# marqués absents}}",
+      "leaveSkipped": "congés ignorés"
+    },
+    "emptyCompany": {
+      "title": "Aucune présence pour l’instant",
+      "hint": "Les pointages apparaissent dès que les employés pointent. Créez des plannings pour que StaffSync sache qui est attendu.",
+      "createSchedule": "Créer un planning"
+    },
+    "noResults": {
+      "title": "Aucun pointage ne correspond",
+      "hint": "Élargissez la période ou retirez un filtre pour voir plus de résultats."
+    },
+    "pagination": {
+      "perPage": "Lignes par page",
+      "of": "sur",
+      "label": "Pagination",
+      "previous": "Page précédente",
+      "next": "Page suivante"
+    },
+    "add": {
+      "button": "Ajouter un pointage",
+      "title": "Ajouter un pointage manuel",
+      "cancel": "Annuler",
+      "save": "Ajouter",
+      "summary": "{count, plural, one {# champ à corriger} other {# champs à corriger}}",
+      "employee": "Employé",
+      "change": "Modifier",
+      "searchPlaceholder": "Rechercher par nom ou matricule",
+      "noEmployees": "Aucun employé ne correspond dans votre périmètre.",
+      "site": "Site",
+      "selectSite": "Choisir un site",
+      "date": "Date",
+      "checkIn": "Arrivée",
+      "checkOut": "Départ",
+      "timeError": "Le départ doit être après l’arrivée.",
+      "status": "Statut",
+      "auto": "Auto",
+      "autoWith": "Auto · {status}",
+      "noTimesHint": "Pas d’heures pour ce statut.",
+      "scheduledHint": "Prévu {sched}",
+      "willBe": "statut calculé : {status}",
+      "overlapTitle": "Chevauche un pointage existant",
+      "overlapDescription": "Pointage existant {range} à {site} le {day} oct. Modifiez-le plutôt que d’en créer un second.",
+      "openExisting": "Ouvrir le pointage existant",
+      "reason": "Motif",
+      "reasonPlaceholder": "ex. L’employé n’avait pas de téléphone, confirmé par le chef de site",
+      "reasonError": "Un motif est obligatoire.",
+      "evidence": "Justificatif",
+      "optional": "facultatif",
+      "attach": "Joindre des fichiers",
+      "attachHint": "Photo de feuille de temps, formulaire signé, PDF · 10 Mo max.",
+      "remove": "Retirer le fichier",
+      "audit": "Enregistré comme saisie admin par {actor}, visible dans le journal d’audit et l’historique du pointage.",
+      "added": "Pointage ajouté pour {name}",
+      "filesAttached": "{count, plural, one {# justificatif joint} other {# justificatifs joints}}"
+    }
+  },
+  "Drawer": {
+    "title": "Pointage",
+    "close": "Fermer",
+    "today": "Aujourd’hui",
+    "cancel": "Annuler",
+    "viewProfile": "Voir le profil",
+    "noCheckIn": "Pas de pointage",
+    "methodShort": {
+      "app": "Autonome",
+      "proxy": "Par {name}",
+      "qr": "QR",
+      "admin": "Admin"
+    },
+    "offline": "Hors ligne · synchronisé à {time}",
+    "approvedBy": "Approuvé · {name}",
+    "diff": {
+      "late": "+{span} de retard",
+      "early": "{span} en avance",
+      "onTime": "À l’heure",
+      "inProgress": "En cours",
+      "missing": "Sortie manquante",
+      "earlier": "{span} plus tôt"
+    },
+    "inside": "dans le périmètre",
+    "outside": "hors périmètre",
+    "na": "n/a",
+    "accuracy": {
+      "suspicious": "±1 m · trop précis, suspect",
+      "kiosk": "Borne fixe"
+    },
+    "devices": {
+      "tablet": "Tablette du site · Galaxy Tab A8",
+      "kiosk": "Borne QR · entrée A",
+      "web": "Console web"
+    },
+    "methodLong": {
+      "app": "Autonome · appli mobile",
+      "proxy": "Pour un tiers par {name}",
+      "qr": "QR code · borne du site",
+      "admin": "Saisie admin par {name}"
+    },
+    "outdated": "obsolète",
+    "facts": {
+      "method": "Méthode",
+      "accuracy": "Précision GPS",
+      "distanceIn": "Distance à l’arrivée",
+      "distanceOut": "Distance au départ",
+      "device": "Appareil",
+      "appVersion": "Version appli"
+    },
+    "flag": {
+      "title": "Pointage signalé",
+      "distance": "{distance} hors du périmètre",
+      "mock": "Localisation simulée détectée",
+      "approve": "Approuver — pointage valide",
+      "reject": "Rejeter — fraude",
+      "noPermission": "Vous n’avez pas la permission de traiter les alertes.",
+      "fraudConfirmed": "Fraude confirmée"
+    },
+    "kinds": {
+      "recurring": "Planning récurrent",
+      "recurringN": "Récurrent · poste de nuit",
+      "intervention": "Intervention ponctuelle"
+    },
+    "events": {
+      "scheduledStart": "Début prévu",
+      "checkedIn": "Arrivée · {method}",
+      "flagged": "Signalé automatiquement",
+      "synced": "Synchronisé depuis le mode hors ligne",
+      "syncedDetail": "Horodatage d’origine conservé",
+      "checkedOut": "Départ",
+      "noCheckOut": "Fin prévue — aucun départ",
+      "reminderSent": "Relance envoyée",
+      "markedAbsent": "Marqué absent",
+      "markedAbsentDetail": "Aucun pointage 15 min après le début",
+      "editedBy": "Modifié par {name}",
+      "flagApproved": "Alerte approuvée",
+      "fraudConfirmed": "Fraude confirmée",
+      "approvedBy": "Approuvé par {name}"
+    },
+    "times": {
+      "title": "Prévu vs réel",
+      "edit": "Modifier les heures",
+      "scheduled": "Prévu",
+      "actual": "Réel",
+      "difference": "Écart",
+      "checkIn": "Arrivée",
+      "checkOut": "Départ",
+      "worked": "Travaillé"
+    },
+    "edit": {
+      "changeStatus": "Changer le statut",
+      "editTimes": "Modifier les heures",
+      "timeError": "Le départ doit être après l’arrivée.",
+      "reason": "Motif (obligatoire)",
+      "reasonPlaceholder": "ex. Oubli de pointage, confirmé par le chef de site",
+      "reasonError": "Indiquez un motif — il est conservé dans l’historique.",
+      "save": "Enregistrer"
+    },
+    "location": {
+      "title": "Localisation et appareil",
+      "noGps": "Pas de GPS — saisie manuelle",
+      "center": "Centre du site"
+    },
+    "selfies": {
+      "title": "Selfies",
+      "open": "Aperçu plein écran du selfie",
+      "checkIn": "Selfie d’arrivée",
+      "checkOut": "Selfie de départ"
+    },
+    "timeline": "Chronologie",
+    "history": {
+      "title": "Historique des modifications",
+      "none": "Aucune modification — pointage tel que capturé."
+    },
+    "notes": {
+      "title": "Notes",
+      "placeholder": "Ajouter une note pour les responsables…",
+      "post": "Publier"
+    },
+    "delete": {
+      "action": "Supprimer",
+      "title": "Supprimer ce pointage ?",
+      "description": "Le pointage de {name} du {day} oct. sera retiré des rapports et de la paie. L’action reste visible dans le journal d’audit.",
+      "placeholder": "ex. Doublon",
+      "confirm": "Supprimer"
+    },
+    "checkInBehalf": "Pointer pour l’employé",
+    "approveRecord": "Approuver",
+    "toasts": {
+      "flagApproved": "Alerte approuvée — pointage valide",
+      "fraudConfirmed": "Fraude confirmée, RH notifiés",
+      "approved": "Pointage approuvé",
+      "checkedIn": "{name} pointé(e) à {time}",
+      "deleted": "Pointage supprimé",
+      "updated": "Pointage mis à jour — modification enregistrée"
+    },
+    "fields": {
+      "checkIn": "Arrivée",
+      "checkOut": "Départ",
+      "status": "Statut",
+      "record": "Pointage",
+      "createdManually": "Créé manuellement"
+    },
+    "seed": {
+      "absentReason": "Aucun appel ni justificatif reçu",
+      "forgotReason": "Oubli de pointage, confirmé par le chef de site",
+      "noteDistance": "J’ai appelé l’employé : il dit s’être garé au dépôt en face. À vérifier avec la caméra du portail.",
+      "noteMock": "Deuxième alerte de localisation simulée ce mois-ci pour cet appareil.",
+      "noteMissing": "Relancé par SMS, pas de réponse."
+    }
+  },
+  "Alerts": {
+    "title": "Centre d’alertes et de fraude",
+    "subtitle": "{open} alertes ouvertes sur {sites, plural, one {# site} other {# sites}} · {high} de gravité élevée",
+    "searchPlaceholder": "Rechercher un employé",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "inTime": "arrivée {time}",
+    "justNow": "à l’instant",
+    "escalatedNote": "Escaladé à {to} : {text}",
+    "cancel": "Annuler",
+    "selectAll": "Sélectionner toutes les alertes ouvertes",
+    "tabs": {
+      "flagged": "Pointages signalés",
+      "miss": "Sorties manquantes",
+      "uns": "Pointages hors planning",
+      "unc": "Interventions non couvertes",
+      "resolved": "Résolues"
+    },
+    "filters": {
+      "branch": "Agence",
+      "site": "Site",
+      "reason": "Motif",
+      "date": "Date",
+      "allBranches": "Toutes les agences",
+      "allSites": "Tous les sites",
+      "allReasons": "Tous les motifs",
+      "clear": "Réinitialiser",
+      "dates": {
+        "0": "Aujourd’hui",
+        "7": "7 derniers jours",
+        "30": "30 derniers jours",
+        "all": "Toutes dates"
+      }
+    },
+    "bulk": {
+      "selected": "{count, plural, one {# sélectionnée} other {# sélectionnées}}",
+      "resolveValid": "Valider",
+      "rejectAll": "Tout refuser",
+      "approvePlaceholder": "Motif de validation (obligatoire)",
+      "rejectPlaceholder": "Motif du refus (obligatoire)",
+      "confirmApprove": "Valider {count} alertes",
+      "confirmReject": "Refuser {count} (marquer absent)",
+      "clear": "Désélectionner"
+    },
+    "columns": {
+      "employee": "Employé",
+      "site": "Site",
+      "when": "Date et heure",
+      "reason": "Motif",
+      "severity": "Gravité",
+      "status": "Statut"
+    },
+    "roles": {
+      "machinist": "Machiniste",
+      "forkliftOperator": "Cariste",
+      "cleaner": "Agent d’entretien",
+      "technician": "Technicien",
+      "electrician": "Électricien",
+      "driver": "Chauffeur",
+      "loader": "Manutentionnaire",
+      "welder": "Soudeur",
+      "inspector": "Inspecteur",
+      "warehouseAgent": "Agent d’entrepôt",
+      "intervention": "Intervention"
+    },
+    "reasons": {
+      "geo": "Hors périmètre",
+      "geoBy": "À {meters} m hors périmètre",
+      "mock": "Localisation simulée",
+      "acc": "Précision GPS faible",
+      "tamper": "Heure falsifiée",
+      "unas": "Site non affecté",
+      "dev": "Appareil non enregistré",
+      "miss": "Sortie manquante",
+      "uns": "Pointage hors planning",
+      "unc": "Intervention non couverte"
+    },
+    "severity": {
+      "high": "Élevée",
+      "med": "Moyenne",
+      "low": "Faible"
+    },
+    "status": {
+      "open": "Ouverte",
+      "approved": "Validée",
+      "rejected": "Refusée"
+    },
+    "empty": {
+      "title": "Tout est en ordre",
+      "resolvedTitle": "Rien de résolu pour l’instant",
+      "hint": "Aucune alerte ne correspond aux filtres."
+    },
+    "toasts": {
+      "approved": "Validée comme pointage valide",
+      "rejectedAbsent": "Refusée · marqué absent",
+      "rejectedInvalid": "Refusée · pointage invalidé",
+      "noteSaved": "Note enregistrée",
+      "escalated": "Escaladé à {to}",
+      "calling": "Appel de {name}…",
+      "messageSent": "Message envoyé à {name}",
+      "bulkApproved": "{count} alertes validées",
+      "bulkRejected": "{count} alertes refusées"
+    },
+    "items": {
+      "a1": {
+        "description": "A pointé à 420 m au-delà du périmètre, 8 min avant le début du poste."
+      },
+      "a2": {
+        "description": "Le fournisseur de localisation signale une appli de simulation. Une précision de 2 m est improbable en intérieur."
+      },
+      "a3": {
+        "description": "Précision GPS de 180 m, au-delà de la limite de 50 m. Position non confirmée."
+      },
+      "a4": {
+        "description": "L’horloge de l’appareil avait 41 min de retard sur le serveur. L’heure enregistrée a été remplacée."
+      },
+      "a5": {
+        "description": "Affecté à Part-Dieu Tower mais a pointé à Port Vieux Yard."
+      },
+      "a6": {
+        "description": "Premier pointage depuis un appareil non enregistré pour cet employé."
+      },
+      "a7": {
+        "description": "A pointé à 260 m au-delà du périmètre."
+      },
+      "a8": {
+        "description": "A pointé à 310 m au-delà du périmètre."
+      },
+      "a9": {
+        "description": "Précision GPS de 95 m, au-delà de la limite de 50 m."
+      },
+      "m1": {
+        "description": "Aucun départ 3 h après la fin prévue (16:00)."
+      },
+      "m2": {
+        "description": "Aucun départ enregistré. Appli fermée sur site."
+      },
+      "m3": {
+        "description": "Aucun départ. Dernière position GPS à 14:20, à 600 m du site."
+      },
+      "u1": {
+        "description": "A pointé sans poste prévu sur ce site aujourd’hui."
+      },
+      "u2": {
+        "description": "A pointé hors de tout poste prévu. Le planning indique un jour de repos."
+      },
+      "u3": {
+        "description": "Échange de poste non enregistré. L’employé prévu était Pierre Dumas."
+      },
+      "i1": {
+        "title": "Panne de chaudière · prévu : Lucas Fabre",
+        "slot": "Intervention 14:00–18:00",
+        "description": "Personne n’a pointé. Lucas Fabre est en congé et aucun remplaçant n’est affecté."
+      },
+      "i2": {
+        "title": "Ronde de nuit · prévu : Rémi Colin",
+        "slot": "Intervention 22:00–06:00",
+        "description": "Ronde de nuit non couverte sur tout le créneau. L’employé prévu n’a jamais pointé."
+      },
+      "i3": {
+        "title": "Inspection de quai · prévu : Maya Perrin",
+        "slot": "Intervention 09:00–11:00",
+        "description": "Créneau d’inspection non couvert. Pointage tardif à 11:40, après la fin du créneau."
+      },
+      "r1": {
+        "description": "A pointé à 160 m au-delà du périmètre.",
+        "resolution": "L’employé était à un arrêt carburant autorisé sur site."
+      },
+      "r2": {
+        "description": "Le fournisseur de localisation signale une appli de simulation.",
+        "resolution": "Localisation simulée confirmée par l’audit de l’appareil."
+      },
+      "r3": {
+        "description": "Aucun départ enregistré.",
+        "resolution": "Oubli de pointage, confirmé par le chef de site."
+      },
+      "r4": {
+        "description": "A pointé sans poste prévu sur ce site.",
+        "resolution": "Employé non planifié ; pas d’accord du responsable."
+      }
+    },
+    "detail": {
+      "meta": "{when} · gravité {severity}",
+      "geofence": "Périmètre {meters} m",
+      "reportedPosition": "Position signalée",
+      "noGps": "Pas de point GPS : personne n’a pointé pour cette intervention.",
+      "notes": "Notes",
+      "cancel": "Annuler",
+      "reasonRequired": "Un motif est obligatoire.",
+      "facts": {
+        "distance": "Distance au centre du site",
+        "accuracy": "Précision GPS",
+        "device": "Appareil",
+        "registered": "Appareil enregistré",
+        "site": "Site",
+        "slot": "Créneau",
+        "coverage": "Couverture",
+        "manager": "Chef de site",
+        "outsideBy": "{meters} m hors périmètre",
+        "inside": "dans le périmètre",
+        "poor": "faible",
+        "suspicious": "suspecte",
+        "good": "bonne",
+        "yes": "Oui",
+        "newDevice": "Non — nouvel appareil",
+        "noCoverage": "0 sur 1 couvert"
+      },
+      "selfie": {
+        "label": "SELFIE",
+        "none": "AUCUN",
+        "title": "Selfie",
+        "captured": "Capturé au pointage.",
+        "denied": "Non capturé — accès à la caméra refusé.",
+        "notApplicable": "Sans objet."
+      },
+      "history": {
+        "title": "Historique des alertes de l’employé",
+        "count": "{count} en 90 jours",
+        "subtitle": "Pointages précédents à proximité",
+        "outside": "{meters} m hors périmètre",
+        "mock": "Localisation simulée",
+        "valid": "Valide"
+      },
+      "resolved": {
+        "approved": "Validée par {name}",
+        "rejectedInvalid": "Refusée · pointage invalidé par {name}",
+        "rejectedAbsent": "Refusée · marqué absent par {name}"
+      },
+      "actions": {
+        "approve": "Valider",
+        "reject": "Refuser",
+        "contact": "Contacter",
+        "note": "Ajouter une note",
+        "escalate": "Escalader"
+      },
+      "contact": {
+        "call": "Appeler",
+        "message": "Message"
+      },
+      "form": {
+        "approve": "Valider comme pointage valide",
+        "reject": "Refuser l’alerte",
+        "note": "Ajouter une note",
+        "esc": "Escalader à un autre admin",
+        "escalateTo": "Escalader à"
+      },
+      "outcome": {
+        "absent": {
+          "title": "Marquer absent",
+          "hint": "La journée compte comme absence"
+        },
+        "invalid": {
+          "title": "Invalider",
+          "hint": "Le pointage est écarté"
+        }
+      },
+      "placeholder": {
+        "approve": "Pourquoi ce pointage est-il valide ? (obligatoire)",
+        "reject": "Motif du refus (obligatoire)",
+        "note": "Écrire une note…",
+        "esc": "Contexte pour le prochain admin (obligatoire)"
+      },
+      "confirm": {
+        "approve": "Valider",
+        "rejectAbsent": "Refuser · marquer absent",
+        "rejectInvalid": "Refuser · invalider",
+        "note": "Enregistrer la note",
+        "esc": "Escalader"
+      }
+    }
+  },
+  "Employees": {
+    "title": "Employés",
+    "subtitle": "{total} employés · {active} actifs · {invited} invités",
+    "planUsage": "{used} postes sur {limit} utilisés",
+    "export": "Exporter",
+    "importCsv": "Importer un CSV",
+    "add": "Ajouter un employé",
+    "searchPlaceholder": "Rechercher nom, matricule ou téléphone",
+    "exported": "{count} employés exportés",
+    "reactivated": "{name} réactivé(e)",
+    "inviteResent": "Invitation renvoyée à {name}",
+    "deviceReset": "Appareil de {name} réinitialisé",
+    "deactivated": "{name} désactivé(e)",
+    "filters": {
+      "branch": "Agence",
+      "site": "Site",
+      "title": "Poste",
+      "status": "Statut",
+      "smartphone": "Smartphone",
+      "allBranches": "Toutes les agences",
+      "allSites": "Tous les sites",
+      "allTitles": "Tous les postes",
+      "anyStatus": "Tous les statuts",
+      "smartphoneAny": "Smartphone : indifférent",
+      "hasSmartphone": "Avec smartphone",
+      "noSmartphone": "Sans smartphone",
+      "clear": "Réinitialiser"
+    },
+    "columns": {
+      "name": "Nom",
+      "id": "Matricule",
+      "branch": "Agence",
+      "sites": "Sites",
+      "title": "Poste",
+      "phone": "Téléphone",
+      "app": "Appli",
+      "attendance": "Présence",
+      "status": "Statut"
+    },
+    "status": {
+      "active": "Actif",
+      "invited": "Invité",
+      "deactivated": "Désactivé"
+    },
+    "app": {
+      "installed": "Installée",
+      "invited": "Invité",
+      "none": "Sans smartphone"
+    },
+    "empty": {
+      "title": "Aucun employé ne correspond",
+      "hint": "Essayez d’autres filtres ou effacez la recherche."
+    },
+    "actions": {
+      "menu": "Actions pour {name}",
+      "view": "Voir le profil",
+      "edit": "Modifier",
+      "resend": "Renvoyer l’invitation",
+      "resetDevice": "Réinitialiser l’appareil",
+      "reactivate": "Réactiver",
+      "deactivate": "Désactiver"
+    },
+    "deactivate": {
+      "title": "Désactiver {name} ?",
+      "message": "Cette personne ne pourra plus pointer et disparaîtra des plannings à venir. Son historique est conservé.",
+      "cancel": "Annuler",
+      "confirm": "Désactiver"
+    },
+    "titles": {
+      "machinist": "Machiniste",
+      "forkliftOperator": "Cariste",
+      "cleaner": "Agent d’entretien",
+      "technician": "Technicien",
+      "electrician": "Électricien",
+      "driver": "Chauffeur",
+      "loader": "Manutentionnaire",
+      "inspector": "Inspecteur",
+      "siteManager": "Chef de site"
+    },
+    "import": {
+      "steps": {
+        "upload": "Fichier",
+        "map": "Colonnes",
+        "preview": "Aperçu",
+        "result": "Résultat"
+      },
+      "emptyFile": "Ce fichier ne contient aucune ligne de données.",
+      "choose": "Choisir un fichier CSV",
+      "ready": "Prêt · {count, plural, one {# ligne} other {# lignes}}. Cliquez pour remplacer.",
+      "dropHint": "ou glissez-le ici · .csv, 5 Mo max.",
+      "downloadTemplate": "Télécharger le modèle",
+      "templateDownloaded": "Modèle téléchargé",
+      "useSample": "Utiliser des données d’exemple",
+      "mapHint": "Associez chaque champ StaffSync à une colonne de votre fichier. {count, plural, one {# ligne trouvée} other {# lignes trouvées}}.",
+      "skip": "— Ignorer —",
+      "example": "ex. {value}",
+      "fields": {
+        "name": "Nom complet",
+        "id": "Matricule",
+        "phone": "Téléphone",
+        "branch": "Agence",
+        "site": "Site",
+        "title": "Poste"
+      },
+      "valid": "{count} prêts à importer",
+      "withErrors": "{count} avec erreurs",
+      "columns": {
+        "line": "Ligne",
+        "name": "Nom",
+        "id": "Matricule",
+        "phone": "Téléphone",
+        "site": "Site",
+        "title": "Poste"
+      },
+      "errors": {
+        "nameRequired": "Le nom complet est obligatoire",
+        "idRequired": "Le matricule est obligatoire",
+        "idExists": "Le matricule {value} existe déjà",
+        "phoneInvalid": "Le téléphone « {value} » n’est pas valide",
+        "unknownSite": "Site inconnu « {value} »",
+        "unknownTitle": "Poste inconnu « {value} »"
+      },
+      "result": {
+        "imported": "Importés",
+        "skipped": "Ignorés (erreurs)",
+        "updated": "Mis à jour",
+        "error": "Erreur"
+      },
+      "downloadErrors": "Télécharger les lignes ignorées",
+      "back": "Retour",
+      "next": {
+        "1": "Continuer",
+        "2": "Aperçu",
+        "4": "Terminé"
+      },
+      "importCount": "{count, plural, one {Importer # employé} other {Importer # employés}}"
+    },
+    "form": {
+      "addTitle": "Ajouter un employé",
+      "addSubtitle": "Les nouveaux employés sont ajoutés au registre de l’entreprise.",
+      "editTitle": "Modifier {name}",
+      "editSubtitle": "Les modifications s’appliquent immédiatement.",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saveAnother": "Enregistrer et ajouter",
+      "saveChanges": "Enregistrer",
+      "select": "Choisir…",
+      "added": "{name} ajouté(e)",
+      "updated": "{name} mis(e) à jour",
+      "inviteSent": "invitation envoyée",
+      "planFull": "Votre offre est complète ({limit} employés). Désactivez d’anciens employés ou passez à une offre supérieure dans Facturation.",
+      "planNear": "{count, plural, one {# poste restant} other {# postes restants}} sur votre offre ({used} sur {limit} utilisés).",
+      "summary": "{count, plural, one {Corrigez # champ pour continuer.} other {Corrigez # champs pour continuer.}}",
+      "personal": "Identité",
+      "first": "Prénom",
+      "last": "Nom",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "employeeId": "Matricule",
+      "idMode": {
+        "auto": "Automatique",
+        "manual": "Manuel"
+      },
+      "employment": "Emploi",
+      "branch": "Agence",
+      "jobTitle": "Poste",
+      "access": "Rôle (permissions)",
+      "scope": "Périmètre",
+      "startDate": "Date de début",
+      "contract": "Type de contrat",
+      "accessRoles": {
+        "employee": "Employé",
+        "teamLead": "Chef d’équipe",
+        "siteManager": "Chef de site",
+        "branchManager": "Responsable d’agence",
+        "admin": "Admin"
+      },
+      "accessHint": {
+        "employee": "Pointage uniquement",
+        "teamLead": "Peut consulter les présences de l’équipe",
+        "siteManager": "Gère les présences et congés des sites",
+        "branchManager": "Gère tous les sites d’une agence",
+        "admin": "Accès complet à l’entreprise"
+      },
+      "scopes": {
+        "assigned": "Sites affectés uniquement",
+        "branch": "Tous les sites de l’agence",
+        "multi": "Plusieurs agences"
+      },
+      "contracts": {
+        "cdi": "CDI",
+        "cdd": "CDD",
+        "interim": "Intérim",
+        "intern": "Stage",
+        "part": "Temps partiel"
+      },
+      "sites": "Sites",
+      "defaultSite": "Site par défaut",
+      "makeDefault": "Définir par défaut",
+      "sitesSummary": "{count} affecté(s) · par défaut {site}",
+      "noSites": "Aucun site affecté",
+      "attendance": "Présence",
+      "hasSmartphone": "A un smartphone",
+      "smartphoneOn": "Pointe avec l’appli StaffSync.",
+      "smartphoneOff": "Pointe avec un badge QR, via le pointage d’un responsable de site.",
+      "badge": "Badge et code PIN",
+      "badgeHint": "Imprimez le badge. Le responsable le scanne ou saisit le PIN.",
+      "newPin": "Générer un nouveau PIN",
+      "print": "Imprimer",
+      "badgePrinted": "Badge envoyé à l’imprimante",
+      "selfie": "Selfie au pointage",
+      "selfieModes": {
+        "inherit": "Réglage du site",
+        "on": "Obligatoire",
+        "off": "Non requis"
+      },
+      "selfieHint": {
+        "inherit": "Suit le réglage de chaque site affecté.",
+        "on": "Toujours obligatoire, quel que soit le réglage du site.",
+        "off": "Jamais requis pour cet employé."
+      },
+      "leave": "Congés",
+      "policy": "Politique de congés",
+      "policies": {
+        "std": "Temps plein standard",
+        "part": "Temps partiel (80 %)",
+        "fixed": "CDD / saisonnier"
+      },
+      "balances": {
+        "annual": "Congés payés",
+        "rtt": "RTT",
+        "sick": "Arrêt maladie",
+        "family": "Événements familiaux"
+      },
+      "invitation": "Invitation",
+      "to": "À {value}",
+      "needsPhone": "Numéro de téléphone requis",
+      "needsEmail": "Adresse e-mail requise",
+      "invite": {
+        "sms": "Envoyer l’invitation par SMS",
+        "mail": "Envoyer l’invitation par e-mail"
+      },
+      "errors": {
+        "firstRequired": "Le prénom est obligatoire",
+        "lastRequired": "Le nom est obligatoire",
+        "idRequired": "Le matricule est obligatoire",
+        "idTaken": "Matricule déjà utilisé",
+        "phoneRequired": "Le téléphone est requis pour l’accès à l’appli",
+        "phoneInvalid": "Saisissez un numéro valide",
+        "emailInvalid": "Saisissez une adresse e-mail valide",
+        "emailForInvite": "L’e-mail est requis pour envoyer l’invitation",
+        "branchRequired": "Choisissez une agence",
+        "titleRequired": "Le poste est obligatoire",
+        "scopeRequired": "Choisissez un périmètre",
+        "startRequired": "La date de début est obligatoire",
+        "sitesRequired": "Affectez au moins un site"
+      }
+    },
+    "profile": {
+      "back": "Retour aux employés",
+      "outOfScope": {
+        "title": "Cet employé est hors de votre périmètre",
+        "hint": "Demandez l’accès à un administrateur."
+      },
+      "call": "Appeler",
+      "message": "Message",
+      "email": "E-mail",
+      "edit": "Modifier",
+      "more": "Autres actions",
+      "justNow": "à l’instant",
+      "by": "Par {name}",
+      "newPin": "Nouveau PIN émis",
+      "role": "Rôle : {role}",
+      "toasts": {
+        "email": "E-mail à {name} ouvert",
+        "noPhone": "Aucun numéro enregistré",
+        "calling": "Appel de {name}…",
+        "messaging": "Message à {name} ouvert",
+        "badge": "Nouveau badge et PIN générés"
+      },
+      "menu": {
+        "edit": "Modifier l’employé",
+        "resetDevice": "Réinitialiser l’appareil",
+        "badge": "Régénérer badge et PIN",
+        "reactivate": "Réactiver",
+        "deactivate": "Désactiver"
+      },
+      "tabs": {
+        "overview": "Vue d’ensemble",
+        "attendance": "Présences",
+        "schedule": "Planning",
+        "leave": "Congés",
+        "device": "Appareil et accès",
+        "docs": "Documents et notes",
+        "activity": "Activité"
+      },
+      "stats": {
+        "rate": "Taux de présence",
+        "lates": "Retards",
+        "absences": "Absences",
+        "hours": "Heures travaillées",
+        "overtime": "Heures sup.",
+        "thisMonth": "Ce mois-ci",
+        "overFive": "Plus de 5 min",
+        "unexcused": "Non justifiées",
+        "ofPlanned": "Sur {hours} h prévues",
+        "beyond": "Au-delà de 8 h/jour"
+      },
+      "assignedSites": "Sites affectés",
+      "defaultSite": "Site par défaut",
+      "secondary": "Secondaire",
+      "upcomingSchedule": "Planning à venir",
+      "noUpcoming": "Rien de prévu.",
+      "records": "Pointages",
+      "filterStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "noAttendance": "Aucune présence pour l’instant.",
+      "noRecordsStatus": "Aucun pointage avec ce statut.",
+      "inProgress": "en cours",
+      "approvedLeave": "Congé approuvé",
+      "noCheckIn": "Pas de pointage",
+      "dayStatus": {
+        "present": "Présent",
+        "late": "En retard",
+        "absent": "Absent",
+        "leave": "En congé"
+      },
+      "days": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      },
+      "schedule": {
+        "recurring": "Plannings récurrents",
+        "add": "Ajouter",
+        "none": "Aucun planning récurrent.",
+        "edit": "Modifier le planning",
+        "remove": "Supprimer le planning",
+        "weekdays": "Lundi – Vendredi",
+        "interventions": "Interventions à venir",
+        "items": {
+          "boiler": "Contrôle de la chaudière",
+          "audit": "Audit sécurité du quai"
+        },
+        "newTitle": "Nouveau planning récurrent",
+        "editTitle": "Modifier le planning",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saved": "Planning enregistré",
+        "removed": "Planning supprimé",
+        "daysLabel": "Jours travaillés",
+        "start": "Début",
+        "end": "Fin",
+        "site": "Site",
+        "errors": {
+          "days": "Choisissez au moins un jour",
+          "time": "L’heure de fin doit être après l’heure de début"
+        }
+      },
+      "leave": {
+        "balances": "Soldes",
+        "left": "{left} jours restants sur {total}",
+        "adjust": "Ajuster un solde",
+        "type": "Type de congé",
+        "days": "Jours",
+        "daysPlaceholder": "+2 ou −1,5",
+        "reason": "Motif",
+        "reasonPlaceholder": "Motif (obligatoire, 3 caractères min.)",
+        "apply": "Appliquer l’ajustement",
+        "adjusted": "Solde {type} ajusté",
+        "requests": "Demandes",
+        "noRequests": "Aucune demande de congé.",
+        "types": {
+          "approved": "Approuvé",
+          "pending": "En attente",
+          "rejected": "Refusé"
+        }
+      },
+      "device": {
+        "registered": "Appareil enregistré",
+        "state": {
+          "bound": "Associé",
+          "unbound": "Dissocié",
+          "awaiting": "Installation en attente",
+          "none": "Sans smartphone"
+        },
+        "facts": {
+          "model": "Modèle",
+          "os": "Système",
+          "version": "Version de l’appli",
+          "boundOn": "Associé le",
+          "lastSeen": "Dernière activité",
+          "ip": "Dernière IP",
+          "binding": "Association"
+        },
+        "today": "Aujourd’hui, {time}",
+        "yesterday": "Hier, {time}",
+        "neverBadge": "Jamais (badge)",
+        "notApplicable": "Sans objet",
+        "resetNow": "Réinitialisé à l’instant",
+        "notRegistered": "Non enregistré",
+        "reset": "Réinitialiser l’appareil",
+        "resetConfirm": "L’employé devra se reconnecter sur son nouveau téléphone.",
+        "resetYes": "Réinitialiser",
+        "cancel": "Annuler",
+        "resetDone": "Association de l’appareil réinitialisée",
+        "logins": "Historique de connexion",
+        "noLogins": "Aucune connexion pour l’instant.",
+        "success": "Réussie",
+        "failed": "Échec — code incorrect"
+      },
+      "docs": {
+        "documents": "Documents",
+        "upload": "Importer",
+        "none": "Aucun document.",
+        "delete": "Supprimer {name}",
+        "deleted": "Document supprimé",
+        "uploaded": "{name} importé",
+        "justNow": "à l’instant",
+        "notes": "Notes admin",
+        "notePlaceholder": "Ajouter une note…",
+        "addNote": "Ajouter la note",
+        "seedNote": "Préfère les postes du matin. A demandé à être considéré pour chef d’équipe."
+      },
+      "activity": {
+        "title": "Journal d’activité",
+        "by": "Par {name}",
+        "to": "À {value}",
+        "standard": "Temps plein standard",
+        "flagDetail": "Hors périmètre · par {name}",
+        "actions": {
+          "created": "Employé créé",
+          "assigned": "Affecté à {site}",
+          "inviteSent": "Invitation envoyée par SMS",
+          "deviceBound": "Appareil associé",
+          "policySet": "Politique de congés définie",
+          "flagApproved": "Alerte de présence approuvée",
+          "scheduleAdded": "Planning ajouté",
+          "scheduleEdited": "Planning modifié",
+          "scheduleRemoved": "Planning supprimé",
+          "balanceAdjusted": "Solde de congés ajusté",
+          "deviceReset": "Association de l’appareil réinitialisée",
+          "documentUploaded": "Document importé",
+          "documentDeleted": "Document supprimé",
+          "noteAdded": "Note ajoutée",
+          "badgeRegenerated": "Badge et PIN régénérés",
+          "reactivated": "Employé réactivé",
+          "deactivated": "Employé désactivé"
+        }
+      }
+    }
+  },
+  "Sites": {
+    "title": "Agences et sites",
+    "subtitleSites": "{count, plural, one {# site} other {# sites}} avec périmètre, équipe et présences en direct",
+    "subtitleBranches": "Les agences regroupent des sites ; le périmètre de chaque site sert à valider les pointages",
+    "tabs": {
+      "branches": "Agences",
+      "sites": "Sites"
+    },
+    "view": "Affichage",
+    "views": {
+      "map": "Carte",
+      "list": "Liste"
+    },
+    "search": "Rechercher un site",
+    "add": "Ajouter un site",
+    "filters": {
+      "branch": "Agence",
+      "manager": "Responsable",
+      "status": "Statut",
+      "allBranches": "Toutes les agences",
+      "allManagers": "Tous les responsables",
+      "anyStatus": "Tous les statuts",
+      "clear": "Réinitialiser"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "on": "Oui",
+    "off": "Non",
+    "empty": {
+      "title": "Aucun site ne correspond",
+      "hint": "Essayez d’autres filtres ou ajoutez un site."
+    },
+    "count": "{count, plural, one {# site} other {# sites}}",
+    "columns": {
+      "name": "Site",
+      "branch": "Agence",
+      "address": "Adresse",
+      "fence": "Périmètre",
+      "manager": "Responsable",
+      "employees": "Employés",
+      "today": "Présents aujourd’hui",
+      "selfie": "Selfie",
+      "qr": "QR",
+      "status": "Statut"
+    },
+    "fence": {
+      "circle": "Cercle · {radius} m",
+      "polygon": "Polygone · {area} ha"
+    },
+    "actions": {
+      "menu": "Actions pour {name}",
+      "view": "Voir",
+      "edit": "Modifier",
+      "qr": "Imprimer le QR code",
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver"
+    },
+    "deactivate": {
+      "title": "Désactiver {name} ?",
+      "withEmployees": "{count} employés affectés ne pourront plus pointer ici. L’historique est conservé.",
+      "noEmployees": "Aucun employé n’est affecté. L’historique est conservé.",
+      "cancel": "Annuler",
+      "confirm": "Désactiver"
+    },
+    "toasts": {
+      "created": "{name} créé",
+      "updated": "Site mis à jour",
+      "reactivated": "{name} réactivé",
+      "deactivated": "{name} désactivé"
+    },
+    "qr": {
+      "title": "QR code · {name}",
+      "close": "Fermer",
+      "print": "Imprimer",
+      "sent": "Envoyé à l’imprimante",
+      "hint": "Affichez-le à l’entrée. Les employés le scannent pour pointer lorsque le QR est exigé."
+    },
+    "editor": {
+      "addTitle": "Ajouter un site",
+      "editTitle": "Modifier {name}",
+      "cancel": "Annuler",
+      "create": "Créer le site",
+      "saveChanges": "Enregistrer",
+      "summary": "{count, plural, one {Corrigez # point pour continuer.} other {Corrigez # points pour continuer.}}",
+      "overlap": {
+        "title": "Chevauche un autre site.",
+        "body": "Ce périmètre chevauche {names}. Les pointages dans la zone commune pourraient être attribués à l’un ou l’autre site."
+      },
+      "basics": "Informations du site",
+      "name": "Nom du site",
+      "code": "Code",
+      "branch": "Agence",
+      "timezone": "Fuseau horaire",
+      "address": "Adresse",
+      "addressPlaceholder": "Rechercher une adresse",
+      "searching": "Recherche…",
+      "searchFailed": "La recherche d’adresse est indisponible. Cliquez sur la carte pour placer l’épingle.",
+      "noResults": "Aucune adresse trouvée",
+      "managers": "Responsables du site",
+      "employees": "Employés affectés",
+      "searchEmployees": "Rechercher un employé",
+      "hours": "Horaires par défaut",
+      "start": "Début",
+      "end": "Fin",
+      "break": "Pause (min)",
+      "verification": "Règles de vérification",
+      "toggles": {
+        "selfie": {
+          "title": "Selfie obligatoire",
+          "hint": "Les employés prennent une photo au pointage."
+        },
+        "qr": {
+          "title": "Scan du QR obligatoire",
+          "hint": "Pointage possible uniquement après avoir scanné le QR du site."
+        },
+        "device": {
+          "title": "Appareil enregistré uniquement",
+          "hint": "Bloque les pointages depuis des téléphones non enregistrés."
+        },
+        "offline": {
+          "title": "Autoriser le pointage hors ligne",
+          "hint": "Les pointages se synchronisent au retour du réseau."
+        }
+      },
+      "accuracy": "Précision GPS minimale (m)",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "geofence": "Périmètre",
+      "shape": "Forme",
+      "shapes": {
+        "circle": "Cercle",
+        "polygon": "Polygone"
+      },
+      "mapType": "Type de carte",
+      "street": "Plan",
+      "satellite": "Satellite",
+      "locate": "Utiliser ma position",
+      "locateDone": "Épingle placée sur votre position",
+      "locateUnavailable": "Position indisponible. Recherchez une adresse ou cliquez sur la carte.",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "hint": {
+        "circleEmpty": "Cliquez sur la carte pour placer l’épingle",
+        "circleSet": "Glissez l’épingle pour la déplacer · glissez la poignée blanche pour redimensionner",
+        "polyDrawing": "Cliquez pour ajouter des points ({count}/3 minimum)",
+        "polyClose": "Cliquez sur le premier point ou sur « Terminer la forme » pour fermer",
+        "polyEdit": "Glissez les sommets pour modifier · clic droit sur un sommet pour le supprimer",
+        "minVertices": "Un polygone nécessite au moins 3 sommets"
+      },
+      "radius": "Rayon",
+      "radiusMeters": "Rayon en mètres",
+      "vertices": "{count} sommets",
+      "finishShape": "Terminer la forme",
+      "redraw": "Redessiner",
+      "measures": {
+        "area": "Surface",
+        "perimeter": "Périmètre",
+        "center": "Centre"
+      },
+      "qr": {
+        "title": "QR code du site",
+        "preview": "Aperçu uniquement. Saisissez un code de site pour générer le vrai code.",
+        "required": "Affichez-le à l’entrée. Les employés le scannent pour pointer.",
+        "optional": "Affichez-le à l’entrée. Le QR n’est pas exigé mais sert de solution de repli.",
+        "print": "Imprimer",
+        "download": "Télécharger"
+      },
+      "qrDownloaded": "QR code téléchargé",
+      "errors": {
+        "nameRequired": "Le nom est obligatoire",
+        "nameExists": "Un site porte déjà ce nom",
+        "codeRequired": "Le code est obligatoire",
+        "codeExists": "Code déjà utilisé",
+        "addressRequired": "Choisissez ou saisissez une adresse",
+        "radiusMin": "Le rayon doit être d’au moins 30 m",
+        "placePin": "Placez l’épingle sur la carte pour définir le périmètre",
+        "finishShape": "Dessinez au moins 3 points et terminez la forme",
+        "accuracyRange": "Saisissez une valeur entre 5 et 500 m",
+        "hoursOrder": "L’heure de fin doit être après l’heure de début"
+      }
+    },
+    "detail": {
+      "edit": "Modifier",
+      "qr": "QR code",
+      "outside": "hors du périmètre",
+      "noRoster": "Personne n’est prévu ici aujourd’hui.",
+      "proxyBy": "Pour un tiers · {name}",
+      "tabs": {
+        "today": "Aujourd’hui",
+        "employees": "Employés",
+        "schedule": "Planning",
+        "history": "Historique des présences",
+        "managers": "Responsables",
+        "settings": "Paramètres"
+      },
+      "stats": {
+        "rate": "Taux de présence",
+        "arrival": "Arrivée moyenne",
+        "lates": "Retards",
+        "flags": "Alertes",
+        "thisMonth": "Ce mois-ci",
+        "fourBefore": "4 min avant le poste"
+      },
+      "rosterStatus": {
+        "in": "Présent",
+        "late": "En retard",
+        "out": "Parti",
+        "absent": "Absent",
+        "expected": "Attendu",
+        "flagged": "Signalé"
+      },
+      "columns": {
+        "employee": "Employé",
+        "shift": "Poste",
+        "in": "Arrivée",
+        "out": "Départ",
+        "status": "Statut",
+        "method": "Méthode",
+        "actions": "Actions"
+      },
+      "methods": {
+        "app": "Appli",
+        "qr": "QR",
+        "proxy": "Pour un tiers"
+      },
+      "proxy": {
+        "checkIn": "Pointer l’arrivée",
+        "checkOut": "Pointer le départ",
+        "time": "Heure",
+        "reason": "Motif (obligatoire)",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "doneIn": "Arrivée pointée pour l’employé",
+        "doneOut": "Départ pointé pour l’employé"
+      },
+      "team": {
+        "assigned": "{count} employés affectés",
+        "add": "Ajouter un employé…",
+        "addButton": "Ajouter",
+        "added": "{name} ajouté(e) à {site}",
+        "none": "Aucun employé affecté.",
+        "remove": "Retirer {name}",
+        "confirmRemove": "Retirer",
+        "cancel": "Annuler",
+        "removed": "{name} retiré(e)"
+      },
+      "schedule": {
+        "employee": "Employé",
+        "off": "Repos",
+        "leave": "Congé"
+      },
+      "history": {
+        "search": "Rechercher un employé",
+        "status": "Statut",
+        "all": "Tous les statuts",
+        "none": "Aucun pointage ne correspond.",
+        "noCheckIn": "Pas de pointage",
+        "statuses": {
+          "in": "Présent",
+          "late": "En retard",
+          "absent": "Absent",
+          "flagged": "Signalé"
+        }
+      },
+      "managerRoles": {
+        "branchManager": "Responsable d’agence",
+        "siteManager": "Chef de site",
+        "teamLead": "Chef d’équipe"
+      },
+      "managers": {
+        "title": "Responsables du site",
+        "add": "Ajouter un responsable…",
+        "addButton": "Ajouter",
+        "added": "{name} est maintenant responsable ici",
+        "none": "Aucun responsable affecté.",
+        "call": "Appeler",
+        "calling": "Appel de {name}…",
+        "remove": "Retirer {name}",
+        "removed": "{name} retiré(e) des responsables"
+      },
+      "settings": {
+        "requireSelfie": {
+          "title": "Selfie obligatoire",
+          "hint": "Photo à chaque pointage."
+        },
+        "requireQr": {
+          "title": "Scan du QR obligatoire",
+          "hint": "Scanner le QR du site pour pointer."
+        },
+        "registeredDeviceOnly": {
+          "title": "Appareil enregistré uniquement",
+          "hint": "Bloque les téléphones non enregistrés."
+        },
+        "allowOffline": {
+          "title": "Autoriser le pointage hors ligne",
+          "hint": "Synchronisation au retour du réseau."
+        },
+        "accuracy": "Précision GPS minimale (m)",
+        "accuracyError": "Saisissez une valeur entre 5 et 500 m",
+        "unsaved": "Modifications non enregistrées",
+        "saved": "Tout est enregistré",
+        "save": "Enregistrer",
+        "done": "Paramètres enregistrés"
+      }
+    },
+    "branches": {
+      "summary": "{branches, plural, one {# agence} other {# agences}} · {sites, plural, one {# site} other {# sites}} · {employees} employés",
+      "search": "Rechercher une agence",
+      "add": "Ajouter une agence",
+      "none": "Aucune agence ne correspond.",
+      "selectOne": "Sélectionnez une agence.",
+      "counts": "{sites, plural, one {# site} other {# sites}} · {employees} employés",
+      "archived": "{count, plural, one {# agence archivée} other {# agences archivées}}",
+      "archivedTag": "Archivée",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "archiveOrDelete": "Archiver ou supprimer",
+      "deleteForever": "Supprimer définitivement",
+      "restore": "Restaurer",
+      "restored": "{name} restaurée",
+      "stats": {
+        "rate": "Taux de présence",
+        "present": "Présents aujourd’hui",
+        "sites": "Sites",
+        "employees": "Employés",
+        "thisMonth": "Ce mois-ci",
+        "checkedIn": "Pointés / attendus",
+        "activeSites": "Sites actifs",
+        "roster": "Dans l’effectif"
+      },
+      "admins": "Administrateurs de l’agence",
+      "noAdmins": "Aucun administrateur.",
+      "headcount": "Effectif par site",
+      "noSites": "Aucun site actif.",
+      "sitesTitle": "Sites",
+      "presentOf": "{present}/{expected} présents",
+      "employeesCount": "{count} employés",
+      "links": {
+        "live": "Tableau en direct",
+        "employees": "Employés",
+        "site": "Site"
+      },
+      "holidays": {
+        "fr": {
+          "name": "France (national)",
+          "count": "11 jours fériés"
+        },
+        "alsace": {
+          "name": "France – Alsace-Moselle",
+          "count": "13 jours fériés"
+        },
+        "be": {
+          "name": "Belgique (national)",
+          "count": "10 jours fériés"
+        },
+        "custom": {
+          "name": "Calendrier personnalisé",
+          "count": "Dates gérées dans Paramètres"
+        }
+      },
+      "workflows": {
+        "default": {
+          "name": "Par défaut de l’entreprise",
+          "hint": "Utilise les règles de validation de l’entreprise."
+        },
+        "single": {
+          "name": "Administrateur d’agence seul",
+          "hint": "Une validation par un administrateur d’agence."
+        },
+        "two": {
+          "name": "Administrateur d’agence, puis RH",
+          "hint": "Deux étapes : administrateur d’agence, puis RH."
+        },
+        "auto": {
+          "name": "Validation auto jusqu’à 2 jours",
+          "hint": "Les demandes plus longues vont à un administrateur d’agence."
+        }
+      },
+      "form": {
+        "addTitle": "Ajouter une agence",
+        "editTitle": "Modifier l’agence",
+        "create": "Créer l’agence",
+        "save": "Enregistrer",
+        "created": "{name} créée",
+        "updated": "Agence mise à jour",
+        "summary": "{count, plural, one {Corrigez # champ pour continuer.} other {Corrigez # champs pour continuer.}}",
+        "name": "Nom",
+        "code": "Code",
+        "address": "Adresse",
+        "timezone": "Fuseau horaire",
+        "admins": "Administrateurs de l’agence",
+        "holidays": "Calendrier des jours fériés",
+        "workflow": "Circuit de validation des congés",
+        "errors": {
+          "nameRequired": "Le nom est obligatoire",
+          "nameExists": "Une agence porte déjà ce nom",
+          "codeRequired": "Le code est obligatoire",
+          "codeShort": "2 à 4 lettres",
+          "codeExists": "Code déjà utilisé",
+          "addressRequired": "L’adresse est obligatoire"
+        }
+      },
+      "retire": {
+        "title": "Archiver ou supprimer {name}",
+        "titleDelete": "Supprimer {name}",
+        "attached": "Cette agence compte {sites, plural, one {# site actif} other {# sites actifs}} et {employees} employés. Réaffectez-les d’abord à une autre agence.",
+        "empty": "Cette agence n’a ni site actif ni employé.",
+        "choose": "Que souhaitez-vous faire ?",
+        "cancel": "Annuler",
+        "back": "Retour",
+        "continue": "Continuer",
+        "confirmArchive": "Archiver l’agence",
+        "confirmDelete": "Supprimer l’agence",
+        "choices": {
+          "archive": {
+            "title": "Archiver",
+            "hint": "Masque l’agence des listes et des sélecteurs. L’historique est conservé et vous pourrez la restaurer."
+          },
+          "delete": {
+            "title": "Supprimer définitivement",
+            "hint": "Supprime l’agence. L’historique de présence reste rattaché à chaque site. Action irréversible."
+          }
+        },
+        "moveTo": "Déplacer les sites et employés vers",
+        "moveHint": "{sites, plural, one {# site est déplacé} other {# sites sont déplacés}} avec leurs employés.",
+        "selectBranch": "Choisir une agence…",
+        "typeCode": "Saisissez {code} pour confirmer",
+        "deleted": "{name} supprimée",
+        "archivedDone": "{name} archivée",
+        "moved": "{count, plural, one {# site déplacé} other {# sites déplacés}} vers {to}"
+      }
+    }
+  },
+  "Shell": {
+    "navigation": "Navigation principale",
+    "close": "Fermer",
+    "menu": "Ouvrir le menu",
+    "collapse": "Réduire le menu",
+    "expand": "Déployer le menu",
+    "upgrade": "Mettre à niveau",
+    "planName": "Offre Business",
+    "employees": "employés",
+    "groups": {
+      "monitor": "Suivi",
+      "manage": "Gestion",
+      "admin": "Administration"
+    },
+    "today": "Aujourd’hui",
+    "timezone": "Fuseau de l’entreprise : Europe/Paris (UTC+2, CEST)",
+    "scope": {
+      "title": "Choisir un périmètre",
+      "all": "Toutes les agences et sites",
+      "branch": "Agence",
+      "search": "Rechercher une agence ou un site",
+      "expand": "Déployer",
+      "collapse": "Réduire",
+      "meta": "{sites, plural, one {# site} other {# sites}} · {people} pers.",
+      "people": "{count} pers.",
+      "none": "Aucun périmètre ne correspond à « {query} »",
+      "noteAll": "Vous avez accès à toute l’entreprise.",
+      "noteLimited": "Seuls les périmètres auxquels vous avez accès sont listés."
+    },
+    "search": {
+      "placeholder": "Rechercher employés, sites, agences…",
+      "short": "Rechercher",
+      "results": "Résultats de recherche",
+      "suggested": "Suggestions",
+      "groups": {
+        "employees": "Employés",
+        "sites": "Sites",
+        "branches": "Agences"
+      },
+      "branchMeta": "{sites, plural, one {# site} other {# sites}} · {people} pers.",
+      "noResults": "Aucun résultat pour « {query} »",
+      "noResultsHint": "Essayez un nom, un poste, un site ou une ville.",
+      "searchingIn": "Recherche dans : {scope}",
+      "scopeCompany": "toutes les agences et sites",
+      "scopeLimited": "votre périmètre"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "markAll": "Tout marquer comme lu",
+      "markRead": "Marquer comme lu",
+      "markUnread": "Marquer comme non lu",
+      "viewAll": "Voir toutes les notifications",
+      "caughtUp": "Vous êtes à jour",
+      "caughtUpHint": "Les nouvelles alertes de votre périmètre apparaîtront ici.",
+      "tabs": {
+        "all": "Toutes",
+        "unread": "Non lues"
+      },
+      "missingDescription": "Fin de poste à {time}, aucun départ enregistré",
+      "kinds": {
+        "fraud": "Fraude",
+        "leave": "Congé",
+        "missing": "Sortie manquante",
+        "uncov": "Non couvert",
+        "fraudTitle": "Pointage signalé",
+        "leaveTitle": "Demande de congé",
+        "missingTitle": "Sortie manquante",
+        "uncovTitle": "Intervention non couverte"
+      }
+    },
+    "help": {
+      "title": "Aide",
+      "new": "Nouveau",
+      "status": "Tous les services fonctionnent",
+      "items": {
+        "helpCenter": "Centre d’aide",
+        "shortcuts": "Raccourcis clavier",
+        "whatsNew": "Nouveautés",
+        "contact": "Contacter le support",
+        "mobileApp": "Télécharger l’appli mobile"
+      }
+    },
+    "account": {
+      "title": "Menu du compte",
+      "profile": "Mon profil",
+      "security": "Sécurité",
+      "twofa": "2FA activée",
+      "language": "Langue",
+      "theme": "Thème",
+      "themes": {
+        "light": "Clair",
+        "dark": "Sombre",
+        "system": "Système"
+      },
+      "switch": "Changer d’espace",
+      "signOut": "Se déconnecter",
+      "roleAt": "{role} · {company}",
+      "roles": {
+        "admin": "Administratrice",
+        "branch": "Responsable d’agence",
+        "site": "Cheffe de site"
+      }
+    }
+  },
+  "Schedules": {
+    "title": "Plannings",
+    "allPublished": "Toutes les modifications sont publiées",
+    "unpublished": "{count, plural, one {# modification non publiée} other {# modifications non publiées}}",
+    "conflictCount": "{count, plural, one {# conflit} other {# conflits}}",
+    "copyWeek": "Copier la semaine précédente",
+    "addShift": "Ajouter un poste",
+    "newSchedule": "Nouveau planning",
+    "publishChanges": "Publier les modifications",
+    "view": "Affichage",
+    "views": {
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois"
+    },
+    "previous": "Précédent",
+    "next": "Suivant",
+    "today": "Aujourd’hui",
+    "groupBy": "Regrouper par",
+    "employees": "Employés",
+    "sites": "Sites",
+    "groupEmployee": "Employé",
+    "groupSite": "Site",
+    "filters": {
+      "branch": "Agence",
+      "site": "Site",
+      "employee": "Employé",
+      "type": "Type",
+      "allBranches": "Toutes les agences",
+      "allSites": "Tous les sites",
+      "allEmployees": "Tous les employés",
+      "allTypes": "Tous les types"
+    },
+    "clear": "Réinitialiser",
+    "recurring": "Récurrent",
+    "intervention": "Intervention",
+    "leave": "Congé",
+    "unassigned": "Non affecté",
+    "holiday": "Férié",
+    "conflict": "Conflit",
+    "open": "Libre",
+    "needsEmployee": "Besoin d’un employé",
+    "nothingMatches": "Aucun résultat pour ces filtres.",
+    "approvedLeave": "{name} · congé approuvé",
+    "onApprovedLeave": "En congé approuvé",
+    "more": "{count} de plus",
+    "resizeHint": "Glissez pour changer l’heure de fin",
+    "openInterventions": "Interventions non affectées",
+    "dragHint": "Glissez sur un jour ou une ligne d’employé.",
+    "noOpen": "Tout est planifié.",
+    "employeesPanel": "Employés",
+    "employeesHint": "Glissez un nom sur un jour pour ajouter un poste.",
+    "holidays": {
+      "allSaints": "Toussaint",
+      "armistice": "Armistice"
+    },
+    "days": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam",
+      "sun": "Dim"
+    },
+    "conflicts": {
+      "leave": "{name} est en congé approuvé ce jour-là.",
+      "overlap": "Double réservation : chevauche {site} {from}–{to}."
+    },
+    "toasts": {
+      "assigned": "{name} affecté(e)",
+      "assignedTo": "{title} affecté à {name}",
+      "scheduledOpen": "{title} planifiée — il manque encore un employé",
+      "moved": "Poste déplacé",
+      "added": "Poste ajouté pour {name}",
+      "shiftAdded": "Poste ajouté",
+      "updated": "Poste mis à jour",
+      "deleted": "Poste supprimé",
+      "nothingToCopy": "Rien à copier — cette semaine contient déjà les postes de la précédente",
+      "copied": "{count} postes copiés depuis la semaine précédente",
+      "draftSaved": "Enregistré en brouillon",
+      "published": "Publié",
+      "shifts": "{count, plural, one {# poste} other {# postes}}",
+      "notified": "employés prévenus",
+      "schedulePublished": "Planning publié",
+      "employeesNotified": "{count} employés prévenus"
+    },
+    "shift": {
+      "newTitle": "Nouveau poste",
+      "editTitle": "Modifier le poste",
+      "add": "Ajouter le poste",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer le poste",
+      "type": "Type de poste",
+      "types": {
+        "rec": "Récurrent",
+        "int": "Intervention"
+      },
+      "interventionTitle": "Titre de l’intervention",
+      "titlePlaceholder": "ex. Contrôle de la chaudière",
+      "employee": "Employé",
+      "unassigned": "Non affecté",
+      "site": "Site",
+      "date": "Date",
+      "start": "Début",
+      "end": "Fin",
+      "errors": {
+        "employee": "Choisissez un employé pour un poste récurrent",
+        "time": "L’heure de fin doit être après l’heure de début"
+      }
+    },
+    "publish": {
+      "title": "Publier les modifications du planning",
+      "cancel": "Annuler",
+      "confirm": "Publier",
+      "anyway": "Publier quand même",
+      "summary": {
+        "changed": "ajoutés ou modifiés",
+        "deleted": "supprimés",
+        "employees": "employés concernés"
+      },
+      "conflicts": "{count, plural, one {# conflit n’est pas résolu.} other {# conflits ne sont pas résolus.}}",
+      "notify": "Prévenir les employés",
+      "notifyOn": "Notification et SMS à {count} employés.",
+      "notifyOff": "Les employés verront les changements sans message."
+    },
+    "modal": {
+      "title": "Créer un planning",
+      "tabs": {
+        "rec": "Planning récurrent",
+        "int": "Intervention ponctuelle"
+      },
+      "cancel": "Annuler",
+      "saveDraft": "Enregistrer en brouillon",
+      "publish": "Publier",
+      "publishAnyway": "Publier quand même",
+      "fixFields": "Corrigez les champs en surbrillance pour continuer.",
+      "appliesTo": "S’applique à {who}",
+      "employees": "{count, plural, one {# employé} other {# employés}}",
+      "priorityLabel": "Priorité : {priority}",
+      "name": "Nom du planning",
+      "namePlaceholder": "ex. Équipe de jour Saint-Denis",
+      "who": "Qui",
+      "modes": {
+        "emp": "Employés",
+        "group": "Groupe"
+      },
+      "group": "Groupe",
+      "searchEmployees": "Rechercher un employé",
+      "site": "Site",
+      "days": "Jours de la semaine",
+      "start": "Début",
+      "end": "Fin",
+      "break": "Pause (min)",
+      "grace": "Tolérance de retard (min)",
+      "earlyLeave": "Tolérance de départ anticipé (min)",
+      "crossesMidnight": "Passe minuit",
+      "crossOn": "Le poste se termine le lendemain (ex. 22:00 → 06:00).",
+      "crossOff": "Le poste se termine le même jour.",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "noEnd": "Sans date de fin",
+      "rotation": "Rotation",
+      "rotationOn": "Alterne entre deux plages horaires à chaque cycle, ex. 2 semaines de jour, 2 semaines de nuit.",
+      "rotationOff": "Désactivée — mêmes horaires chaque semaine.",
+      "phaseA": "Phase A (semaines)",
+      "phaseB": "Phase B (semaines)",
+      "bStart": "Début phase B",
+      "bEnd": "Fin phase B",
+      "week": "Sem. {n}",
+      "interventionTitle": "Titre",
+      "titlePlaceholder": "ex. Contrôle de la chaudière",
+      "date": "Date",
+      "assignees": "Affecter à",
+      "optional": "facultatif",
+      "priority": "Priorité",
+      "priorities": {
+        "low": "Basse",
+        "normal": "Normale",
+        "high": "Haute",
+        "urgent": "Urgente"
+      },
+      "instructions": "Consignes",
+      "instructionsPlaceholder": "Ce qu’il faut faire, codes d’accès, outils…",
+      "attach": "Joindre des fichiers",
+      "remove": "Retirer {name}",
+      "notify": "Prévenir les employés",
+      "notifyOn": "Les employés affectés reçoivent une notification et un SMS à la publication.",
+      "notifyOff": "Les employés affectés ne seront pas prévenus.",
+      "errors": {
+        "name": "Donnez un nom au planning",
+        "who": "Choisissez au moins un employé",
+        "days": "Choisissez au moins un jour",
+        "endAfterStart": "La fin doit être après le début, ou activez « Passe minuit »",
+        "identical": "Le début et la fin ne peuvent pas être identiques",
+        "startDate": "La date de début est obligatoire",
+        "endDate": "La date de fin doit être égale ou postérieure à la date de début",
+        "phaseB": "Le début et la fin de la phase B ne peuvent pas être identiques",
+        "title": "Le titre est obligatoire",
+        "date": "La date est obligatoire"
+      },
+      "check": {
+        "shifts": "{count, plural, one {# poste} other {# postes}} sur les {span} à venir",
+        "fourWeeks": "4 semaines",
+        "period": "période",
+        "assignments": "{count, plural, one {# affectation} other {# affectations}}",
+        "conflicts": "{count, plural, one {# conflit} other {# conflits}}",
+        "notes": "aucun conflit, {count, plural, one {# remarque} other {# remarques}}",
+        "none": "aucun conflit",
+        "promptRec": "Choisissez employés, jours et dates pour vérifier les conflits.",
+        "promptInt": "Indiquez une date pour vérifier les conflits.",
+        "leave": "{name} est en congé approuvé le {date}.",
+        "booked": "{name} est déjà planifié(e) {from}–{to} le {date}.",
+        "holiday": "Le {date} est un jour férié ({name}).",
+        "unassigned": "Aucun employé affecté. Elle apparaîtra dans la liste des interventions non affectées.",
+        "more": "et {count} de plus"
+      }
+    }
+  },
+  "Users": {
+    "title": "Utilisateurs et rôles",
+    "search": "Rechercher par nom ou e-mail",
+    "you": "(vous)",
+    "rowActions": "Actions pour {name}",
+    "noUsers": "Aucun utilisateur ne correspond.",
+    "summary": {
+      "users": "{active} actifs · {invited} invités · {admins, plural, one {# administrateur} other {# administrateurs}}",
+      "roles": "{count, plural, one {# rôle} other {# rôles}} · {custom} personnalisés"
+    },
+    "tabs": {
+      "users": "Utilisateurs du tableau de bord",
+      "roles": "Rôles"
+    },
+    "filters": {
+      "role": "Rôle",
+      "allRoles": "Tous les rôles",
+      "status": "Statut",
+      "anyStatus": "Tous les statuts"
+    },
+    "columns": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "scope": "Périmètre",
+      "lastActive": "Dernière activité",
+      "status": "Statut"
+    },
+    "status": {
+      "active": "Actif",
+      "invited": "Invité",
+      "revoked": "Révoqué"
+    },
+    "lastActive": {
+      "now": "Actif maintenant",
+      "today": "Aujourd’hui, {time}",
+      "yesterday": "Hier"
+    },
+    "scopeLabel": {
+      "company": "Toute l’entreprise",
+      "everything": "Toutes les agences et tous les sites",
+      "branches": "{count} agences",
+      "sites": "{count} sites"
+    },
+    "scopeKinds": {
+      "company": "Toute l’entreprise",
+      "branch": "Agences",
+      "site": "Sites"
+    },
+    "actions": {
+      "changeRole": "Changer le rôle",
+      "resend": "Renvoyer l’invitation",
+      "restore": "Rétablir l’accès",
+      "revoke": "Révoquer l’accès",
+      "cantRevokeSelf": "Vous ne pouvez pas vous révoquer"
+    },
+    "revoke": {
+      "title": "Révoquer l’accès de {name}",
+      "message": "Cette personne sera déconnectée et ne pourra plus ouvrir le tableau de bord.",
+      "cancel": "Annuler",
+      "confirm": "Révoquer l’accès"
+    },
+    "toasts": {
+      "resent": "Invitation renvoyée à {email}",
+      "restored": "{name} peut se reconnecter",
+      "keepAdmin": "Gardez au moins un administrateur",
+      "revoked": "Accès révoqué pour {name}",
+      "roleUpdated": "Rôle mis à jour",
+      "roleCreated": "Rôle créé"
+    },
+    "defaultRoles": {
+      "admin": {
+        "name": "Administrateur",
+        "desc": "Accès complet à toutes les agences, tous les sites et tous les réglages, y compris les utilisateurs et la facturation."
+      },
+      "hr": {
+        "name": "Responsable RH",
+        "desc": "Gère les personnes, les congés et la présence dans toute l’entreprise. Pas d’administration des utilisateurs."
+      },
+      "branch": {
+        "name": "Responsable d’agence",
+        "desc": "Dirige une ou plusieurs agences : plannings, validations, employés et sites dans son périmètre."
+      },
+      "site": {
+        "name": "Responsable de site",
+        "desc": "Gère l’activité quotidienne des sites affectés, y compris les pointages pour autrui."
+      },
+      "viewer": {
+        "name": "Lecteur",
+        "desc": "Peut consulter les données de son périmètre sans rien modifier."
+      }
+    },
+    "invite": {
+      "open": "Inviter un utilisateur",
+      "titleNew": "Inviter un utilisateur",
+      "titleEdit": "Changer le rôle et le périmètre",
+      "email": "E-mail",
+      "emailPlaceholder": "nom@entreprise.com",
+      "role": "Rôle",
+      "scope": "Périmètre",
+      "fixedCompany": "Toute l’entreprise — ce rôle n’est pas limité à des agences ou des sites.",
+      "message": "Message",
+      "optional": "(facultatif)",
+      "messagePlaceholder": "Vous êtes invité(e) à gérer la présence sur StaffSync. Acceptez pour définir votre mot de passe.",
+      "cancel": "Annuler",
+      "send": "Envoyer l’invitation",
+      "save": "Enregistrer",
+      "errors": {
+        "emailRequired": "L’e-mail est obligatoire",
+        "emailInvalid": "Saisissez une adresse e-mail valide",
+        "taken": "Cette personne a déjà un accès",
+        "pickBranch": "Sélectionnez au moins une agence",
+        "pickSite": "Sélectionnez au moins un site"
+      },
+      "toasts": {
+        "sent": "Invitation envoyée à {email}",
+        "changed": "{name} est maintenant {role}",
+        "keepAdmin": "Gardez au moins un administrateur"
+      }
+    },
+    "roles": {
+      "create": "Créer un rôle",
+      "default": "Par défaut",
+      "custom": "Personnalisé",
+      "userCount": "{count, plural, one {# utilisateur} other {# utilisateurs}}",
+      "summary": "{count} permissions sur {total} · {scope}",
+      "blocked": "{count, plural, one {# utilisateur a encore} other {# utilisateurs ont encore}} ce rôle. Réaffectez-les d’abord.",
+      "showUsers": "Afficher ces utilisateurs",
+      "confirmDelete": "Supprimer {name} ?",
+      "deleted": "Rôle « {name} » supprimé",
+      "view": "Voir",
+      "edit": "Modifier",
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "scopes": {
+      "company": {
+        "name": "Toute l’entreprise",
+        "desc": "Toutes les agences et tous les sites."
+      },
+      "branches": {
+        "name": "Agences choisies",
+        "desc": "Uniquement les agences cochées."
+      },
+      "ownBranch": {
+        "name": "Sa propre agence",
+        "desc": "L’agence à laquelle chaque utilisateur est affecté."
+      },
+      "sites": {
+        "name": "Sites choisis",
+        "desc": "Uniquement les sites cochés."
+      },
+      "ownSite": {
+        "name": "Son propre site",
+        "desc": "Le site auquel chaque utilisateur est affecté."
+      },
+      "self": {
+        "name": "Soi-même uniquement",
+        "desc": "Seulement les données de l’utilisateur."
+      }
+    },
+    "modules": {
+      "att": {
+        "name": "Présence",
+        "sub": "Pointages, corrections et tableau en direct"
+      },
+      "proxy": {
+        "name": "Pointage pour autrui",
+        "sub": "Arrivée et départ saisis par un tiers"
+      },
+      "fraud": {
+        "name": "Alertes de fraude",
+        "sub": "Pointages signalés et résolution"
+      },
+      "emp": {
+        "name": "Employés",
+        "sub": "Profils, appareils et badges"
+      },
+      "site": {
+        "name": "Sites",
+        "sub": "Périmètres, QR codes, règles"
+      },
+      "branch": {
+        "name": "Agences",
+        "sub": "Configuration des agences et jours fériés"
+      },
+      "sch": {
+        "name": "Plannings",
+        "sub": "Services, interventions, publication"
+      },
+      "lva": {
+        "name": "Validation des congés",
+        "sub": "Examiner et décider des demandes"
+      },
+      "lvs": {
+        "name": "Réglages des congés",
+        "sub": "Politiques et soldes"
+      },
+      "rep": {
+        "name": "Rapports",
+        "sub": "Lancer et programmer des rapports"
+      },
+      "exp": {
+        "name": "Export",
+        "sub": "Télécharger en CSV, Excel et PDF"
+      },
+      "usr": {
+        "name": "Utilisateurs et rôles",
+        "sub": "Accès au tableau de bord et rôles"
+      },
+      "audit": {
+        "name": "Journal d’audit",
+        "sub": "Qui a modifié quoi"
+      },
+      "set": {
+        "name": "Réglages",
+        "sub": "Configuration de l’entreprise"
+      },
+      "bill": {
+        "name": "Facturation",
+        "sub": "Offre, factures et licences"
+      }
+    },
+    "editor": {
+      "back": "Utilisateurs et rôles",
+      "titles": {
+        "create": "Créer un rôle",
+        "duplicate": "Dupliquer un rôle",
+        "edit": "Modifier le rôle"
+      },
+      "copyName": "{name} (copie)",
+      "customDesc": "Rôle personnalisé.",
+      "status": {
+        "readOnly": "Rôle par défaut · lecture seule",
+        "unsaved": "Modifications non enregistrées",
+        "notSaved": "Pas encore enregistré",
+        "saved": "Tout est enregistré"
+      },
+      "duplicateToCustomise": "Dupliquer pour personnaliser",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer",
+      "createRole": "Créer le rôle",
+      "readOnlyNote": "Les rôles par défaut sont en lecture seule. Dupliquez-en un pour le personnaliser.",
+      "details": "Détails du rôle",
+      "name": "Nom du rôle",
+      "description": "Description",
+      "descriptionPlaceholder": "À quoi sert ce rôle ?",
+      "dataScope": "Périmètre des données",
+      "dataScopeHint": "Les données sur lesquelles les utilisateurs de ce rôle peuvent travailler.",
+      "treeHintBranches": "Choisissez les agences couvertes par ce rôle",
+      "treeHintSites": "Choisissez les sites couverts par ce rôle",
+      "selectAll": "Tout sélectionner",
+      "clear": "Effacer",
+      "siteCount": "{count, plural, one {# site} other {# sites}}",
+      "companyWideNote": "Utilisateurs et rôles, Réglages et Facturation s’appliquent toujours à toute l’entreprise, quel que soit le périmètre.",
+      "permissions": "Permissions",
+      "enabled": "{count} sur {total} activées. Créer, modifier ou supprimer active aussi la consultation.",
+      "module": "Module",
+      "all": "Tout",
+      "selectModule": "Tout sélectionner pour {name}",
+      "canExport": "Peut exporter des données",
+      "actions": {
+        "view": "Voir",
+        "create": "Créer",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "approve": "Valider"
+      },
+      "preview": "Aperçu",
+      "canSee": "Les utilisateurs de ce rôle peuvent voir",
+      "navigation": "Navigation disponible",
+      "theyCan": "Ils peuvent",
+      "theyCant": "Ils ne peuvent pas",
+      "cantDelete": "Rien supprimer",
+      "usersAffected": "{count, plural, one {# utilisateur a actuellement} other {# utilisateurs ont actuellement}} ce rôle.",
+      "see": {
+        "company": "Tout dans l’entreprise — toutes les agences et tous les sites.",
+        "branches": "Uniquement {names}.",
+        "ownBranch": "Uniquement l’agence de chaque utilisateur.",
+        "sites": "Uniquement {names}.",
+        "ownSite": "Uniquement le site de chaque utilisateur.",
+        "self": "Uniquement leurs propres données.",
+        "noBranch": "Aucune agence choisie.",
+        "noSite": "Aucun site choisi."
+      },
+      "nav": {
+        "overview": "Vue d’ensemble",
+        "live": "Suivi en direct",
+        "alerts": "Alertes",
+        "attendance": "Présence",
+        "employees": "Employés",
+        "sites": "Agences et sites",
+        "schedules": "Plannings",
+        "leave": "Congés",
+        "reports": "Rapports",
+        "users": "Utilisateurs et accès",
+        "audit": "Journal d’audit",
+        "settings": "Réglages"
+      },
+      "can": {
+        "att": {
+          "edit": "Modifier et ajouter des pointages"
+        },
+        "proxy": {
+          "create": "Pointer à la place des employés"
+        },
+        "fraud": {
+          "approve": "Valider ou rejeter les alertes de fraude"
+        },
+        "emp": {
+          "create": "Ajouter des employés"
+        },
+        "sch": {
+          "edit": "Modifier et publier les plannings"
+        },
+        "lva": {
+          "approve": "Valider ou refuser les congés"
+        },
+        "exp": {
+          "create": "Exporter des données"
+        },
+        "usr": {
+          "edit": "Gérer les utilisateurs et les rôles"
+        },
+        "set": {
+          "edit": "Modifier les réglages de l’entreprise"
+        },
+        "bill": {
+          "view": "Voir la facturation"
+        },
+        "not": {
+          "usr": {
+            "edit": "Gérer les utilisateurs ou les rôles"
+          },
+          "set": {
+            "edit": "Modifier les réglages"
+          },
+          "bill": {
+            "view": "Voir la facturation"
+          }
+        }
+      },
+      "errors": {
+        "nameRequired": "Le nom du rôle est obligatoire",
+        "nameTaken": "Un rôle porte déjà ce nom",
+        "pickBranch": "Sélectionnez au moins une agence",
+        "pickSite": "Sélectionnez au moins un site",
+        "noPerms": "Activez au moins une permission"
+      },
+      "discard": {
+        "title": "Abandonner les modifications ?",
+        "message": "Vous avez modifié ce rôle. Si vous quittez maintenant, vos modifications seront perdues.",
+        "keep": "Continuer à modifier",
+        "confirm": "Abandonner"
+      }
+    }
+  },
+  "Settings": {
+    "title": "Réglages",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "edit": "Modifier",
+    "uploadLogo": "Téléverser un logo",
+    "logoUploaded": "Logo téléversé",
+    "nav": {
+      "company": {
+        "label": "Profil de l’entreprise",
+        "desc": "L’identité de votre organisation et les valeurs régionales par défaut."
+      },
+      "attendance": {
+        "label": "Règles de présence",
+        "desc": "Comment les pointages sont validés et ce qui compte comme retard, départ anticipé ou oubli."
+      },
+      "leave": {
+        "label": "Politique de congés",
+        "desc": "Types de congés, circuit de validation et jours fériés."
+      },
+      "notif": {
+        "label": "Notifications",
+        "desc": "Qui est prévenu de quoi, et par quel canal."
+      },
+      "integ": {
+        "label": "Intégrations",
+        "desc": "Export de paie, accès API, webhooks et authentification unique."
+      },
+      "billing": {
+        "label": "Facturation",
+        "desc": "Offre, consommation, factures et moyen de paiement."
+      },
+      "danger": {
+        "label": "Zone de danger",
+        "desc": "Actions irréversibles pour toute l’entreprise."
+      }
+    },
+    "groups": {
+      "profile": {
+        "title": "Profil de l’entreprise",
+        "sub": "Affiché sur les factures, rapports et e-mails."
+      },
+      "punctuality": {
+        "title": "Ponctualité",
+        "sub": "Valeurs par défaut des nouveaux sites. Chaque site peut les modifier."
+      },
+      "checkout": {
+        "title": "Départ et heures supplémentaires"
+      },
+      "verification": {
+        "title": "Vérification"
+      },
+      "workflow": {
+        "title": "Circuit de validation"
+      },
+      "holidays": {
+        "title": "Jours fériés par agence",
+        "sub": "Les jours fériés sont exclus de la durée des congés."
+      },
+      "payroll": {
+        "title": "Export de paie"
+      }
+    },
+    "fields": {
+      "logo": {
+        "label": "Logo",
+        "hint": "Image carrée, au moins 200 px."
+      },
+      "name": {
+        "label": "Nom de l’entreprise"
+      },
+      "addr": {
+        "label": "Adresse",
+        "hint": "Adresse du siège."
+      },
+      "tz": {
+        "label": "Fuseau horaire par défaut",
+        "hint": "Utilisé pour les nouvelles agences et les rapports."
+      },
+      "lang": {
+        "label": "Langue",
+        "hint": "Langue du tableau de bord et des e-mails."
+      },
+      "dfmt": {
+        "label": "Format de date"
+      },
+      "tfmt": {
+        "label": "Format de l’heure"
+      },
+      "wk": {
+        "label": "La semaine commence le",
+        "hint": "Influe sur les plannings et les calendriers."
+      },
+      "grace": {
+        "label": "Délai de grâce avant retard",
+        "hint": "Minutes après le début du service avant d’être en retard."
+      },
+      "early": {
+        "label": "Tolérance de départ anticipé",
+        "hint": "Minutes avant la fin du service qui restent acceptables."
+      },
+      "autoOut": {
+        "label": "Heure de départ automatique",
+        "hint": "Les services ouverts sont clos à cette heure."
+      },
+      "miss": {
+        "label": "Gestion des départs manquants"
+      },
+      "ot": {
+        "label": "Règle des heures supplémentaires"
+      },
+      "otApp": {
+        "label": "Validation des heures supplémentaires",
+        "hint": "Elles restent en attente jusqu’à validation d’un responsable."
+      },
+      "gps": {
+        "label": "Précision GPS minimale",
+        "hint": "Les pointages moins précis sont signalés."
+      },
+      "mock": {
+        "label": "Bloquer les fausses positions",
+        "hint": "Rejette les pointages avec un GPS falsifié."
+      },
+      "selfie": {
+        "label": "Exiger un selfie par défaut"
+      },
+      "qr": {
+        "label": "Exiger un scan QR par défaut"
+      },
+      "offline": {
+        "label": "Autoriser le pointage hors ligne",
+        "hint": "Les données restent sur le téléphone jusqu’à la synchronisation."
+      },
+      "sync": {
+        "label": "Délai max de synchronisation",
+        "hint": "Les pointages hors ligne plus anciens sont signalés."
+      },
+      "wf": {
+        "label": "Niveaux de validation"
+      },
+      "hLyon": {
+        "label": "Lyon"
+      },
+      "hParis": {
+        "label": "Paris Nord"
+      },
+      "hMrs": {
+        "label": "Marseille"
+      },
+      "pay": {
+        "label": "Format d’export",
+        "hint": "Utilisé par les exports de feuilles de temps et d’heures supplémentaires."
+      },
+      "paySplit": {
+        "label": "Isoler les heures supplémentaires dans une colonne"
+      },
+      "sso": {
+        "label": "Fournisseur"
+      },
+      "ssoDom": {
+        "label": "Domaine e-mail",
+        "hint": "Les personnes de ce domaine utilisent l’authentification unique."
+      },
+      "ssoUrl": {
+        "label": "URL des métadonnées"
+      },
+      "ssoForce": {
+        "label": "Imposer l’authentification unique",
+        "hint": "Désactive la connexion par mot de passe pour ce domaine."
+      }
+    },
+    "options": {
+      "tfmt": {
+        "24h": "24 heures (14:30)",
+        "12h": "12 heures (2:30 PM)"
+      },
+      "wk": {
+        "monday": "Lundi",
+        "sunday": "Dimanche",
+        "saturday": "Samedi"
+      },
+      "miss": {
+        "flag": "Signaler pour examen",
+        "auto": "Départ automatique en fin de service",
+        "ignore": "Ignorer"
+      },
+      "ot": {
+        "daily8": "Par jour, au-delà de 8 heures",
+        "weekly40": "Par semaine, au-delà de 40 heures",
+        "approval": "Uniquement si validées"
+      },
+      "wf": {
+        "one": "Un niveau — responsable de site ou d’agence",
+        "two": "Deux niveaux — responsable, puis RH"
+      },
+      "hLyon": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgique (national)",
+        "custom": "Calendrier personnalisé"
+      },
+      "hParis": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgique (national)",
+        "custom": "Calendrier personnalisé"
+      },
+      "hMrs": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgique (national)",
+        "custom": "Calendrier personnalisé"
+      },
+      "pay": {
+        "silae": "Silae",
+        "payfit": "PayFit",
+        "adp": "ADP",
+        "csv": "CSV générique",
+        "xlsx": "Excel"
+      },
+      "sso": {
+        "none": "Non configuré",
+        "google": "Google Workspace",
+        "entra": "Microsoft Entra ID",
+        "saml": "SAML 2.0 générique"
+      }
+    },
+    "units": {
+      "min": "min",
+      "m": "m",
+      "hours": "heures"
+    },
+    "errors": {
+      "required": "Obligatoire",
+      "email": "Saisissez un e-mail valide",
+      "url": "Saisissez une URL valide",
+      "range": "Saisissez un nombre de {min} à {max}"
+    },
+    "colors": {
+      "0": "Bleu",
+      "1": "Violet",
+      "2": "Orange",
+      "3": "Vert",
+      "4": "Ambre",
+      "5": "Gris"
+    },
+    "leaveTypes": {
+      "title": "Types de congés",
+      "sub": "Chaque type a ses propres droits et règles.",
+      "add": "Ajouter un type de congé",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "yes": "Oui",
+      "no": "Non",
+      "paidYes": "Payé",
+      "paidNo": "Non payé",
+      "days": "{count} j",
+      "columns": {
+        "type": "Type",
+        "pay": "Paie",
+        "daysYear": "Jours / an",
+        "doc": "Justificatif",
+        "notice": "Préavis",
+        "half": "Demi",
+        "carry": "Report"
+      },
+      "addTitle": "Ajouter un type de congé",
+      "editTitle": "Modifier le type de congé",
+      "name": "Nom",
+      "nameError": "Le nom est obligatoire",
+      "colour": "Couleur",
+      "paid": "Payé",
+      "allowance": "Droits par an (jours)",
+      "allowanceError": "Saisissez 0 ou plus",
+      "document": "Justificatif requis",
+      "notice": "Préavis minimum (jours)",
+      "half": "Demi-journées autorisées",
+      "carry": "Report maximum (jours)",
+      "added": "Type de congé ajouté",
+      "updated": "Type de congé mis à jour",
+      "deleted": "Type de congé supprimé",
+      "deleteTitle": "Supprimer « {name} » ?",
+      "deleteMessage": "Les demandes existantes gardent leur type, mais les employés ne pourront plus le demander."
+    },
+    "notifications": {
+      "title": "Matrice de notifications",
+      "sub": "Cochez les canaux de chaque événement, puis choisissez les destinataires.",
+      "event": "Événement",
+      "sentTo": "Envoyée à",
+      "nobody": "Personne",
+      "channels": {
+        "inApp": "Dans l’app",
+        "push": "Push",
+        "email": "E-mail",
+        "sms": "SMS"
+      },
+      "roles": {
+        "admin": "Administrateur",
+        "hr": "Responsable RH",
+        "branch": "Responsable d’agence",
+        "site": "Responsable de site",
+        "employee": "Employé"
+      },
+      "events": {
+        "fraud": {
+          "name": "Alerte de fraude",
+          "desc": "Un pointage est signalé comme suspect."
+        },
+        "noshow": {
+          "name": "Absence après le délai de grâce",
+          "desc": "L’employé n’a pas pointé à l’heure."
+        },
+        "miss": {
+          "name": "Départ manquant",
+          "desc": "Le service s’est terminé sans départ pointé."
+        },
+        "lvnew": {
+          "name": "Nouvelle demande de congé",
+          "desc": "Un employé dépose une demande."
+        },
+        "lvdec": {
+          "name": "Décision sur un congé",
+          "desc": "Une demande est approuvée ou refusée."
+        },
+        "unc": {
+          "name": "Intervention non couverte",
+          "desc": "Aucune personne n’est affectée à une intervention."
+        }
+      }
+    },
+    "keys": {
+      "title": "Clés d’API",
+      "sub": "Les clés donnent un accès programmatique. Traitez-les comme des mots de passe.",
+      "create": "Créer une clé",
+      "createTitle": "Créer une clé d’API",
+      "createdTitle": "Clé créée",
+      "name": "Nom de la clé",
+      "namePlaceholder": "p. ex. Synchro paie",
+      "nameError": "Donnez un nom à la clé",
+      "copyNow": "Copiez-la maintenant. Vous ne pourrez plus la revoir.",
+      "secret": "Clé secrète",
+      "done": "Terminé",
+      "cancel": "Annuler",
+      "revoke": "Révoquer",
+      "empty": "Aucune clé d’API pour l’instant.",
+      "createdNow": "Créée à l’instant · jamais utilisée",
+      "createdSeed": "Créée le 12 août · utilisée aujourd’hui",
+      "revokeTitle": "Révoquer « {name} » ?",
+      "revokeMessage": "Tout ce qui utilise cette clé cessera de fonctionner immédiatement.",
+      "revokeConfirm": "Révoquer la clé",
+      "revoked": "Clé révoquée"
+    },
+    "hooks": {
+      "title": "Webhooks",
+      "sub": "Nous envoyons un POST signé à votre URL quand ces événements se produisent.",
+      "add": "Ajouter un webhook",
+      "addTitle": "Ajouter un webhook",
+      "createdTitle": "Webhook ajouté",
+      "url": "URL du point de terminaison",
+      "urlError": "Saisissez une URL HTTPS",
+      "eventsLabel": "Événements",
+      "eventsError": "Choisissez au moins un événement",
+      "copyNow": "Copiez le secret de signature maintenant. Vous ne pourrez plus le revoir.",
+      "secret": "Secret de signature",
+      "done": "Terminé",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "empty": "Aucun webhook pour l’instant.",
+      "noEvents": "Aucun événement",
+      "enabled": "Webhook {url} activé",
+      "deleteTitle": "Supprimer ce webhook ?",
+      "deleted": "Webhook supprimé",
+      "events": {
+        "checkinFlagged": "Pointage signalé",
+        "checkinCreated": "Pointage créé",
+        "leaveRequested": "Congé demandé",
+        "leaveApproved": "Congé approuvé",
+        "employeeDeactivated": "Employé désactivé",
+        "schedulePublished": "Planning publié"
+      }
+    },
+    "sso": {
+      "title": "Authentification unique",
+      "sub": "Permettez à vos équipes de se connecter avec votre fournisseur d’identité.",
+      "edit": "Modifier",
+      "test": "Tester la connexion",
+      "connected": "Connexion à {provider} réussie"
+    },
+    "billing": {
+      "title": "Offre et consommation",
+      "renews": "Renouvellement le {date} · facturé mensuellement",
+      "usage": "{used} employés sur {cap}",
+      "seatsLeft": "{count, plural, one {# licence restante} other {# licences restantes}}",
+      "current": "Actuelle",
+      "price": "{price} par employé / mois",
+      "capacity": "Jusqu’à {count} employés",
+      "yourPlan": "Votre offre",
+      "tooMany": "Trop d’employés",
+      "upgrade": "Passer à l’offre supérieure",
+      "downgrade": "Passer à l’offre inférieure",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "changeTitle": "{direction, select, up {Passer à l’offre {plan} ?} other {Revenir à l’offre {plan} ?}}",
+      "changeMessage": "Nouveau prix : {price} par employé et par mois dès votre prochaine facture.",
+      "changed": "Offre changée pour {plan}",
+      "plans": {
+        "starter": {
+          "name": "Starter"
+        },
+        "growth": {
+          "name": "Growth"
+        },
+        "scale": {
+          "name": "Scale"
+        }
+      },
+      "payment": "Moyen de paiement",
+      "update": "Modifier",
+      "cardEnding": "Visa se terminant par {last4}",
+      "cardExpiry": "Expire le {date} · {name}",
+      "card": {
+        "title": "Modifier le moyen de paiement",
+        "number": "Numéro de carte",
+        "numberError": "Saisissez un numéro de carte valide",
+        "expiry": "Expiration (MM/AA)",
+        "expiryError": "Utilisez MM/AA",
+        "save": "Enregistrer la carte",
+        "updated": "Moyen de paiement mis à jour"
+      },
+      "invoices": "Factures",
+      "paid": "Payée",
+      "download": "Télécharger",
+      "downloading": "Téléchargement de {id}"
+    },
+    "danger": {
+      "title": "Zone de danger",
+      "sub": "Ces actions sont irréversibles.",
+      "export": {
+        "title": "Exporter toutes les données",
+        "desc": "Employés, présence, congés et journal d’audit dans un ZIP. Nous vous enverrons un lien par e-mail.",
+        "button": "Demander l’export",
+        "requested": "Export demandé · le lien vous sera envoyé par e-mail"
+      },
+      "delete": {
+        "title": "Supprimer l’entreprise",
+        "desc": "Supprime définitivement {name} avec toutes ses agences, employés, pointages et utilisateurs.",
+        "button": "Supprimer l’entreprise",
+        "confirmTitle": "Supprimer {name} ?",
+        "confirmMessage": "Toutes les données seront effacées sous 30 jours. Tout le monde perd l’accès immédiatement.",
+        "typePrefix": "Saisissez",
+        "typeSuffix": "pour confirmer",
+        "cancel": "Annuler",
+        "scheduled": "Suppression programmée · vérifiez votre e-mail pour confirmer"
+      }
+    }
+  },
+  "Profile": {
+    "saved": "Profil enregistré",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "photoUpdated": "Photo mise à jour",
+    "changePhoto": "Changer de photo",
+    "tabs": {
+      "profile": "Profil",
+      "security": "Sécurité",
+      "notifications": "Notifications"
+    },
+    "details": {
+      "title": "Informations personnelles",
+      "edit": "Modifier",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "language": "Langue",
+      "timezone": "Fuseau horaire"
+    },
+    "access": {
+      "title": "Votre rôle et vos accès",
+      "role": "Rôle",
+      "scope": "Périmètre des données",
+      "settings": "Réglages de l’entreprise",
+      "allowed": "Autorisé",
+      "noAccess": "Aucun accès",
+      "settingsNote": "Les réglages de l’entreprise (règles de présence, politique de congés, facturation…) sont gérés séparément de votre profil personnel.",
+      "noSettingsNote": "Votre rôle n’inclut pas les réglages de l’entreprise. Un administrateur peut accorder la permission « Réglages » dans Utilisateurs et rôles.",
+      "openSettings": "Ouvrir les réglages"
+    },
+    "edit": {
+      "title": "Modifier les informations personnelles",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "language": "Langue",
+      "timezone": "Fuseau horaire",
+      "required": "Obligatoire",
+      "emailInvalid": "Saisissez un e-mail valide"
+    },
+    "password": {
+      "title": "Mot de passe",
+      "sub": "Utilisez au moins 10 caractères.",
+      "change": "Changer le mot de passe",
+      "modalTitle": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le nouveau mot de passe",
+      "update": "Mettre à jour",
+      "updated": "Mot de passe mis à jour · autres sessions déconnectées",
+      "currentError": "Saisissez votre mot de passe actuel",
+      "lengthError": "10 caractères minimum",
+      "matchError": "Les mots de passe ne correspondent pas"
+    },
+    "twofa": {
+      "title": "Authentification à deux facteurs",
+      "sub": "Protège votre compte si votre mot de passe est volé.",
+      "intro": "Ajoutez une seconde étape à la connexion avec une application d’authentification.",
+      "setUp": "Configurer la double authentification",
+      "scan": "1. Scannez ce code avec votre application d’authentification, ou saisissez la clé",
+      "enterCode": "2. Saisissez le code à 6 chiffres qu’elle affiche.",
+      "codeLabel": "Code à 6 chiffres",
+      "verify": "Vérifier",
+      "cancel": "Annuler",
+      "codeError": "Saisissez le code à 6 chiffres de votre application",
+      "saveCodes": "Conservez ces codes de secours. Chacun ne sert qu’une fois si vous perdez votre téléphone.",
+      "newCodes": "Nouveaux codes de secours",
+      "download": "Télécharger",
+      "saved": "Je les ai enregistrés",
+      "done": "Terminé",
+      "enabled": "Activée",
+      "enabledToast": "L’authentification à deux facteurs est activée",
+      "regenerate": "Nouveaux codes de secours",
+      "turnOff": "Désactiver",
+      "offTitle": "Désactiver la double authentification ?",
+      "offMessage": "Votre compte ne sera plus protégé que par votre mot de passe.",
+      "offToast": "Double authentification désactivée"
+    },
+    "sessions": {
+      "title": "Sessions actives",
+      "sub": "Appareils actuellement connectés à votre compte.",
+      "signOutOthers": "Déconnecter toutes les autres",
+      "signedOutOthers": "Autres sessions déconnectées",
+      "thisDevice": "Cet appareil",
+      "meta": "{when, select, now {{place}, France · actif maintenant} hours {{place}, France · il y a 2 heures} other {{place}, France · il y a 3 jours}}",
+      "signOut": "Déconnecter",
+      "signedOut": "{device} déconnecté"
+    },
+    "notifications": {
+      "title": "Mes notifications",
+      "sub": "Ne concerne que vous. Les règles de l’entreprise se définissent dans les Réglages.",
+      "event": "Événement"
+    }
+  },
+  "Audit": {
+    "title": "Journal d’audit",
+    "subtitle": "Un historique en lecture seule de qui a modifié quoi, et quand.",
+    "company": "Entreprise",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "search": "Rechercher une cible, un motif ou un utilisateur",
+    "count": "{count, plural, one {# entrée} other {# entrées}}",
+    "badRange": "La date de fin précède la date de début",
+    "opening": "Ouverture de {target}",
+    "nothingToExport": "Rien à exporter",
+    "exported": "{count, plural, one {# entrée exportée} other {# entrées exportées}}",
+    "reasonGiven": "Motif indiqué",
+    "noChanges": "Aucune modification de valeur n’a été enregistrée.",
+    "entry": "Entrée",
+    "session": "Session {id}",
+    "showMore": "Afficher {count} de plus",
+    "empty": {
+      "title": "Aucune entrée trouvée",
+      "hint": "Essayez d’élargir la période ou d’effacer des filtres."
+    },
+    "ranges": {
+      "0": "Aujourd’hui",
+      "7": "7 derniers jours",
+      "30": "30 derniers jours",
+      "all": "Toute la période",
+      "custom": "Période personnalisée"
+    },
+    "filters": {
+      "range": "Période",
+      "actor": "Utilisateur",
+      "action": "Action",
+      "type": "Type de cible",
+      "branch": "Agence",
+      "site": "Site",
+      "allUsers": "Tous les utilisateurs",
+      "allActions": "Toutes les actions",
+      "allTypes": "Tous les types de cible",
+      "allBranches": "Toutes les agences",
+      "allSites": "Tous les sites",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer les filtres"
+    },
+    "columns": {
+      "when": "Quand",
+      "actor": "Auteur",
+      "action": "Action",
+      "target": "Cible",
+      "scope": "Périmètre",
+      "ipDevice": "IP / appareil"
+    },
+    "diff": {
+      "field": "Champ",
+      "before": "Avant",
+      "after": "Après"
+    },
+    "actions": {
+      "rec": "Pointage modifié",
+      "proxy": "Pointage pour autrui",
+      "flag": "Alerte validée",
+      "flagr": "Alerte rejetée",
+      "lvok": "Congé approuvé",
+      "lvno": "Congé refusé",
+      "role": "Rôle modifié",
+      "set": "Réglage modifié",
+      "deact": "Employé désactivé",
+      "emp": "Employé mis à jour",
+      "site": "Site mis à jour",
+      "login": "Connexion",
+      "sched": "Planning publié",
+      "exp": "Rapport exporté"
+    },
+    "targetTypes": {
+      "rec": "Pointage",
+      "emp": "Employé",
+      "lv": "Demande de congé",
+      "role": "Rôle",
+      "set": "Réglage",
+      "site": "Site",
+      "user": "Utilisateur",
+      "sched": "Planning",
+      "rep": "Rapport",
+      "flag": "Alerte de fraude"
+    },
+    "actorRoles": {
+      "admin": "Administrateur",
+      "branch": "Responsable d’agence",
+      "site": "Responsable de site",
+      "payroll": "Gestionnaire de paie"
+    },
+    "export": {
+      "button": "Exporter",
+      "csv": "Exporter les entrées filtrées (CSV)",
+      "xlsx": "Exporter les entrées filtrées (Excel)",
+      "timestamp": "Horodatage",
+      "actor": "Auteur",
+      "role": "Rôle",
+      "action": "Action",
+      "targetType": "Type de cible",
+      "target": "Cible",
+      "scope": "Périmètre",
+      "ip": "IP",
+      "device": "Appareil",
+      "reason": "Motif",
+      "changes": "Modifications"
+    }
+  },
+  "Reports": {
+    "title": "Rapports",
+    "subtitle": "Choisissez un rapport à ouvrir, ou reprenez là où vous vous étiez arrêté.",
+    "search": "Rechercher un rapport",
+    "noMatch": "Aucun rapport ne correspond à « {query} ».",
+    "tabs": {
+      "library": "Tous les rapports",
+      "saved": "Enregistrés et programmés"
+    },
+    "categories": {
+      "time": "Temps et présence",
+      "leave": "Congés",
+      "sites": "Sites et conformité"
+    },
+    "types": {
+      "timesheet": {
+        "name": "Feuille de temps",
+        "desc": "Heures prévues et travaillées par personne, prêtes pour la paie."
+      },
+      "hours": {
+        "name": "Heures travaillées",
+        "desc": "Heures travaillées et écart par rapport au planning."
+      },
+      "lateness": {
+        "name": "Retards",
+        "desc": "Arrivées tardives, minutes perdues et ponctualité."
+      },
+      "absences": {
+        "name": "Absences",
+        "desc": "Absences justifiées et injustifiées."
+      },
+      "overtime": {
+        "name": "Heures supplémentaires",
+        "desc": "Heures supplémentaires, validées ou en attente."
+      },
+      "leave": {
+        "name": "Congés pris",
+        "desc": "Jours pris par type de congé."
+      },
+      "flagged": {
+        "name": "Pointages signalés",
+        "desc": "Alertes de fraude et d’anomalie et leur résolution."
+      },
+      "site": {
+        "name": "Synthèse de présence par site",
+        "desc": "Attendus et présents, retards et alertes par site."
+      },
+      "proxy": {
+        "name": "Pointages pour autrui",
+        "desc": "Pointages effectués pour le compte des employés."
+      }
+    },
+    "cols": {
+      "timesheet": {
+        "sch": "Prévues",
+        "wrk": "Travaillées",
+        "brk": "Pauses",
+        "ot": "Heures sup.",
+        "days": "Jours travaillés"
+      },
+      "hours": {
+        "wrk": "Travaillées",
+        "sch": "Prévues",
+        "var": "Écart",
+        "avg": "Moy. par jour"
+      },
+      "lateness": {
+        "n": "Arrivées tardives",
+        "min": "Minutes de retard",
+        "avg": "Moy. minutes",
+        "ot": "Taux de ponctualité"
+      },
+      "absences": {
+        "n": "Absences",
+        "exc": "Justifiées",
+        "unx": "Injustifiées",
+        "rate": "Taux d’absence"
+      },
+      "overtime": {
+        "ot": "Heures sup.",
+        "apr": "Validées",
+        "pen": "En attente",
+        "sh": "Services de plus de 8 h"
+      },
+      "leave": {
+        "an": "Annuels",
+        "rtt": "RTT",
+        "sick": "Maladie",
+        "fam": "Événement familial",
+        "tot": "Total"
+      },
+      "flagged": {
+        "n": "Alertes",
+        "apr": "Validées",
+        "rej": "Rejetées",
+        "open": "Encore ouvertes"
+      },
+      "site": {
+        "exp": "Attendus",
+        "pres": "Présents",
+        "rate": "Présence",
+        "late": "Retards",
+        "fl": "Alertes"
+      },
+      "proxy": {
+        "n": "Pointages pour autrui",
+        "qr": "Par badge QR",
+        "man": "Manuels (responsable)",
+        "dl": "Délai moyen"
+      }
+    },
+    "units": {
+      "h": "h",
+      "d": "j",
+      "n": "nb",
+      "min": "min",
+      "%": "%"
+    },
+    "ranges": {
+      "7": {
+        "label": "7 derniers jours",
+        "short": "9 – 15 oct."
+      },
+      "month": {
+        "label": "Ce mois-ci",
+        "short": "1 – 15 oct."
+      },
+      "last": {
+        "label": "Mois dernier",
+        "short": "septembre"
+      },
+      "q": {
+        "label": "Trimestre dernier",
+        "short": "juil. – sept."
+      },
+      "custom": {
+        "label": "Période personnalisée",
+        "short": "Personnalisée"
+      }
+    },
+    "groups": {
+      "employee": {
+        "label": "Employé",
+        "plural": "employés"
+      },
+      "site": {
+        "label": "Site",
+        "plural": "sites"
+      },
+      "branch": {
+        "label": "Agence",
+        "plural": "agences"
+      },
+      "day": {
+        "label": "Jour",
+        "plural": "jours"
+      }
+    },
+    "export": {
+      "formats": {
+        "csv": "CSV",
+        "xlsx": "Excel",
+        "pdf": "PDF"
+      },
+      "menu": {
+        "csv": "Exporter en CSV",
+        "xlsx": "Exporter en Excel",
+        "pdf": "Exporter en PDF"
+      }
+    },
+    "saved": {
+      "allBranches": "Toutes les agences",
+      "allSites": "tous les sites",
+      "sitesCount": "{count} sites",
+      "customDates": "dates personnalisées",
+      "notScheduled": "Non programmé",
+      "paused": "En pause",
+      "neverSent": "Jamais envoyé",
+      "lastSent": "Dernier envoi {date}",
+      "nextSend": "Prochain envoi {date}",
+      "open": "Ouvrir",
+      "more": "Autres actions pour {name}",
+      "editSchedule": "Modifier la programmation",
+      "scheduleEmail": "Programmer l’envoi",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "confirmDelete": "{scheduled, select, yes {Supprimer {name} et sa programmation d’envoi ?} other {Supprimer {name} ?}}",
+      "deleted": "Rapport supprimé",
+      "empty": "Rien d’enregistré pour l’instant. Ouvrez un rapport et choisissez Enregistrer."
+    },
+    "view": {
+      "back": "Retour aux rapports",
+      "reports": "Rapports",
+      "save": "Enregistrer",
+      "schedule": "Programmer",
+      "export": "Exporter",
+      "nothingToExport": "Rien à exporter pour l’instant",
+      "exported": "{count, plural, one {# ligne exportée} other {# lignes exportées}} en {format}",
+      "dates": "Dates",
+      "groupBy": "Grouper par",
+      "scope": "Périmètre",
+      "columns": "Colonnes",
+      "everything": "Tout",
+      "branchesCount": "{count} agences",
+      "sitesCount": "{count} sites",
+      "peopleCount": "{count} personnes",
+      "pickDates": "Choisir les dates",
+      "endBeforeStart": "La date de fin précède la date de début.",
+      "chooseBoth": "Choisissez les deux dates.",
+      "from": "Du",
+      "to": "Au",
+      "colError": "Sélectionnez au moins une colonne",
+      "table": "Tableau",
+      "chart": "Graphique",
+      "summary": "{count} {noun} · {range} 2026",
+      "metric": "Indicateur",
+      "total": "Total · {count} {noun}",
+      "noColumns": "Sélectionnez au moins une colonne pour voir le rapport.",
+      "fixRange": "Corrigez la période pour voir le rapport.",
+      "noMatch": "Rien ne correspond à ce périmètre. Élargissez-le ou réinitialisez-le."
+    },
+    "scope": {
+      "title": "Périmètre du rapport",
+      "hint": "Laissez une section vide pour tout inclure.",
+      "branches": "Agences",
+      "sites": "Sites",
+      "employees": "Employés",
+      "selected": "{count} sélectionnés",
+      "all": "tous",
+      "searchEmployees": "Rechercher un employé",
+      "reset": "Tout réinitialiser",
+      "done": "Terminé"
+    },
+    "save": {
+      "titleNew": "Enregistrer le rapport",
+      "titleUpdate": "Mettre à jour le rapport",
+      "name": "Nom du rapport",
+      "nameError": "Donnez un nom au rapport",
+      "hint": "Conserve les dates, le périmètre, le regroupement et les colonnes.",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "update": "Mettre à jour",
+      "saved": "Rapport enregistré"
+    },
+    "schedule": {
+      "title": "Programmer l’envoi par e-mail",
+      "currentReport": "Rapport en cours",
+      "name": "Nom du rapport",
+      "nameError": "Donnez un nom au rapport",
+      "frequency": "Fréquence",
+      "freqs": {
+        "daily": "Quotidien",
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuel"
+      },
+      "dayDaily": "Le",
+      "dayWeekly": "Jour de la semaine",
+      "dayMonthly": "Jour du mois",
+      "everyDay": "Tous les jours",
+      "weekdays": {
+        "monday": "Lundi",
+        "tuesday": "Mardi",
+        "wednesday": "Mercredi",
+        "thursday": "Jeudi",
+        "friday": "Vendredi",
+        "saturday": "Samedi",
+        "sunday": "Dimanche"
+      },
+      "monthDays": {
+        "1": "1er",
+        "5": "5",
+        "15": "15",
+        "last": "Dernier jour"
+      },
+      "sendAt": "Envoyer à",
+      "recipients": "Destinataires",
+      "removeRecipient": "Retirer {email}",
+      "emailPlaceholder": "nom@entreprise.com",
+      "add": "Ajouter",
+      "emailInvalid": "Saisissez une adresse e-mail valide",
+      "recipientError": "Ajoutez au moins un destinataire",
+      "format": "Format",
+      "active": "Actif",
+      "activeHint": "Une programmation en pause garde ses réglages mais n’envoie rien.",
+      "summary": "{freq, select, daily {Envoi tous les jours à {time}} weekly {Envoi chaque {day} à {time}} other {Envoi mensuel ({day}) à {time}}} à {count, plural, one {# destinataire} other {# destinataires}} au format {format}.",
+      "remove": "Supprimer la programmation",
+      "cancel": "Annuler",
+      "save": "Enregistrer la programmation",
+      "saved": "Programmation enregistrée · {count, plural, one {# destinataire} other {# destinataires}}",
+      "removed": "Programmation supprimée"
+    }
+  }
+}

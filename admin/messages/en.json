@@ -1,0 +1,4337 @@
+{
+  "Workspaces": {
+    "title": "Choose a workspace",
+    "subtitle": "You have access to {count} companies. Pick the one you want to open.",
+    "signOut": "Sign out",
+    "create": "Create new company",
+    "createDescription": "Start a new workspace with its own branches, sites and team.",
+    "search": "Search companies",
+    "clear": "Clear",
+    "lastAccessed": "Last accessed",
+    "lastUsed": "Last used",
+    "trialEnded": "Trial ended",
+    "trialEndedDescription": "Only an admin can reactivate this workspace.",
+    "choosePlan": "Choose a plan",
+    "emptyTitle": "No companies match “{query}”",
+    "emptyDescription": "Check the spelling, or ask the company admin to invite you.",
+    "clearSearch": "Clear search",
+    "missing": "Don’t see your company? Ask its admin to send an invitation to {email}.",
+    "roles": {
+      "admin": "Company admin",
+      "branch": "Branch manager",
+      "site": "Site manager"
+    },
+    "scope": {
+      "company": "Whole company",
+      "admin": "{name}",
+      "branch": "{name} branch",
+      "site": "{name}"
+    },
+    "meta": "{employees} employees · {sites, plural, one {# site} other {# sites}}",
+    "last": {
+      "today": "Today, {time}",
+      "yesterday": "Yesterday, {time}"
+    }
+  },
+  "Invite": {
+    "companyMeta": "Construction · 198 employees · 5 sites",
+    "invitedYou": "invited you to join the workspace",
+    "sent": "Branch manager · sent 13 Oct",
+    "yourRole": "Your role",
+    "roleName": "Site manager",
+    "p1": "View attendance for Part-Dieu Tower",
+    "p2": "Check in employees without a smartphone",
+    "p3": "View leave requests for your site",
+    "p4": "Approve leave or resolve fraud flags",
+    "expires": "This invitation expires on 20 Oct 2026.",
+    "title": "Accept your invitation",
+    "subtitle": "Set up your login to start managing your site.",
+    "orPassword": "or set a password",
+    "email": "Email",
+    "name": "Full name",
+    "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "accept": "Accept and join Batiplus Group",
+    "joining": "Joining…",
+    "legal": "By accepting, you agree to the",
+    "terms": "Terms of Service",
+    "notYou": "Not Nadia?",
+    "decline": "Decline invitation",
+    "show": "Show password",
+    "hide": "Hide password",
+    "errors": {
+      "name": "Enter your full name.",
+      "password": "Use at least 8 characters with letters and numbers."
+    },
+    "strength": {
+      "0": "",
+      "1": "Too weak",
+      "2": "Weak",
+      "3": "Fair",
+      "4": "Good"
+    },
+    "expired": {
+      "title": "This invitation has expired",
+      "description": "Invitations are valid for 7 days. Marc Olivier sent this one on 3 Oct. Ask for a new link to join.",
+      "primary": "Request a new invitation",
+      "secondary": "Go to sign in"
+    },
+    "used": {
+      "title": "This invitation was already used",
+      "description": "It was accepted on 14 Oct at 09:21. If that was you, sign in with the same email.",
+      "primary": "Sign in as nadia.kone@batiplus.fr",
+      "secondary": "It wasn’t me"
+    },
+    "toasts": {
+      "declined": "Invitation declined",
+      "reported": "Reported to StaffSync security",
+      "requested": "Request sent to Marc Olivier"
+    }
+  },
+  "Onboarding": {
+    "metaTitle": "Set up your workspace",
+    "rail": {
+      "title": "Set up your workspace",
+      "help": "Need help?",
+      "book": "Book a 15-min setup call"
+    },
+    "progress": "Step {step} of 8 · {label}",
+    "complete": "Setup complete",
+    "saveLater": "Save and continue later",
+    "savedLater": "Progress saved. We emailed {email} a link to resume.",
+    "you": "you",
+    "eyebrow": "STEP {step} / 8",
+    "summary": "{count, plural, one {Fix # field to continue.} other {Fix # fields to continue.}}",
+    "nav": {
+      "back": "Back",
+      "skip": "Skip for now",
+      "continue": "Continue",
+      "createAccount": "Create account",
+      "verify": "Verify",
+      "sendInvites": "{count, plural, one {Send # invite} other {Send # invites}}",
+      "startTrial": "Start free trial",
+      "startTrialOn": "Start trial on {plan}"
+    },
+    "steps": {
+      "1": {
+        "label": "Create account",
+        "sub": "Your admin login",
+        "title": "Create your account",
+        "description": "Start your 14-day free trial. No card required."
+      },
+      "2": {
+        "label": "Verify email",
+        "sub": "6-digit code",
+        "title": "Check your inbox",
+        "description": "Enter the code to verify your work email."
+      },
+      "3": {
+        "label": "Company",
+        "sub": "Name, size, locale",
+        "title": "Tell us about your company",
+        "description": "We use this to set defaults for your workspace and mobile app."
+      },
+      "4": {
+        "label": "First branch",
+        "sub": "Region or city",
+        "title": "Add your first branch",
+        "description": "A branch groups the sites in one region. You can add more later."
+      },
+      "5": {
+        "label": "First site",
+        "sub": "Location & geofence",
+        "title": "Add your first site",
+        "description": "Employees can check in only from inside this geofence. Check-ins from outside are recorded and flagged."
+      },
+      "6": {
+        "label": "Working hours",
+        "sub": "Days & lateness",
+        "title": "Set default working hours",
+        "description": "These hours apply to new schedules unless a site or employee overrides them."
+      },
+      "7": {
+        "label": "Invite team",
+        "sub": "Employees & managers",
+        "title": "Invite your team",
+        "description": "Add people now or import a CSV. You can always do this later."
+      },
+      "8": {
+        "label": "Choose plan",
+        "sub": "Billed per employee",
+        "title": "Choose a plan",
+        "description": "Pick what fits now. You can change plans at any time."
+      }
+    },
+    "account": {
+      "google": "Sign up with Google",
+      "microsoft": "Sign up with Microsoft",
+      "orEmail": "or with your work email",
+      "fullName": "Full name",
+      "workEmail": "Work email",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "show": "Show",
+      "hide": "Hide",
+      "strength": {
+        "0": "",
+        "1": "Too weak",
+        "2": "Weak",
+        "3": "Fair",
+        "4": "Good"
+      },
+      "rules": {
+        "length": "8+ characters",
+        "case": "Upper & lowercase",
+        "number": "A number",
+        "symbol": "A symbol"
+      },
+      "phone": "Phone",
+      "phoneHint": "for account recovery",
+      "dialCode": "Country code",
+      "agree": "I agree to the",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "agreeTail": ", including processing of employee location data.",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "ssoSignedIn": "Signed in with SSO — email already verified"
+    },
+    "verify": {
+      "sentTo": "We sent a 6-digit code to",
+      "yourEmail": "your email",
+      "digit": "Digit {n}",
+      "resendIn": "Resend code in",
+      "didntGet": "Didn’t get it?",
+      "resend": "Resend code",
+      "changeEmail": "Change email",
+      "newCode": "New code sent to {email}",
+      "hint": "Prototype: any 6 digits work (000000 is rejected)."
+    },
+    "company": {
+      "logoLabel": "Company logo",
+      "optional": "(optional)",
+      "logoHint": "Shown in the mobile app",
+      "name": "Company name",
+      "industry": "Industry",
+      "industryPlaceholder": "Select an industry",
+      "industries": {
+        "construction": "Construction",
+        "logistics": "Logistics & warehousing",
+        "cleaning": "Cleaning & facility services",
+        "security": "Security",
+        "retail": "Retail",
+        "manufacturing": "Manufacturing",
+        "healthcare": "Healthcare",
+        "other": "Other"
+      },
+      "size": "Company size",
+      "country": "Country",
+      "countries": {
+        "france": "France",
+        "belgium": "Belgium",
+        "switzerland": "Switzerland",
+        "canada": "Canada",
+        "uk": "United Kingdom"
+      },
+      "timezone": "Default timezone",
+      "language": "Default language",
+      "languageHint": "Employees can change it in the app",
+      "english": "English",
+      "french": "Français"
+    },
+    "branch": {
+      "companyFallback": "Company",
+      "branch": "Branch",
+      "sites": "Sites",
+      "hierarchyHint": "Branches group sites, usually by city or region.",
+      "name": "Branch name",
+      "street": "Street address",
+      "postalCode": "Postal code",
+      "city": "City",
+      "country": "Country"
+    },
+    "site": {
+      "name": "Site name",
+      "address": "Address",
+      "searchAddress": "Search an address",
+      "searching": "Searching…",
+      "searchFailed": "Address search is unavailable. Click the map to place the pin.",
+      "noResults": "No address found",
+      "radius": "Geofence radius",
+      "radiusValue": "{value} m",
+      "hints": {
+        "tight": "Tight fence. Good for a single building, but GPS drift indoors may cause false flags.",
+        "wide": "Wide fence. Covers large yards or depots, but people nearby could check in without being on site.",
+        "recommended": "Recommended for most sites. Covers the building plus a margin for GPS accuracy."
+      },
+      "mapHint": "Click the map to move the pin"
+    },
+    "hours": {
+      "weekdays": "Mon–Fri",
+      "noDays": "no days",
+      "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "workingDays": "Working days",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "grace": "Grace period for lateness",
+      "graceValue": "{value} min",
+      "preview": "How check-ins will be classified",
+      "onTime": "On time",
+      "late": "Late",
+      "ruleOnTime": "On time: check-in before {time} ({start} + {grace} min grace)",
+      "ruleLate": "Late: check-in from {time} onwards",
+      "ruleHours": "{days}, {start}–{end} · {hours} per day",
+      "defaultsNote": "These are company defaults. You can override them per site or per employee later."
+    },
+    "team": {
+      "addManually": "Add manually",
+      "uploadCsv": "Upload CSV",
+      "fullName": "Full name",
+      "contact": "Phone or email",
+      "role": "Role",
+      "namePlaceholder": "Name",
+      "contactPlaceholder": "+33 6… or name@company.com",
+      "roles": {
+        "employee": "Employee",
+        "site": "Site manager",
+        "branch": "Branch manager",
+        "admin": "Admin"
+      },
+      "remove": "Remove",
+      "addAnother": "Add another person",
+      "note": "People with a phone number get an SMS invite to download the app. People with an email get an email invite.",
+      "csvFound": "{name} · {count, plural, one {# person} other {# people}} found",
+      "csvDrop": "Drop a CSV file or click to browse",
+      "csvReplace": "Click to replace the file",
+      "csvLimit": "Up to 5,000 rows · UTF-8",
+      "columns": "Columns: name, phone_or_email, role, site.",
+      "downloadTemplate": "Download CSV template"
+    },
+    "plan": {
+      "billing": "Billing period",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "choose": "Plans",
+      "recommended": "Recommended for {size} people",
+      "custom": "Custom",
+      "decimal": ".",
+      "billedYearly": "Billed yearly",
+      "billedMonthly": "Billed monthly",
+      "footnote": "Every plan starts with a 14-day free trial. No card required.",
+      "plans": {
+        "trial": {
+          "name": "Free trial",
+          "unit": "for 14 days",
+          "note": "Full Business features",
+          "capacity": "Up to 25 employees",
+          "features": {
+            "1": "1 branch, 3 sites",
+            "2": "Mobile check-in with geofence",
+            "3": "Leave requests"
+          }
+        },
+        "starter": {
+          "name": "Starter",
+          "unit": "/ employee / mo",
+          "note": "",
+          "capacity": "Up to 50 employees",
+          "features": {
+            "1": "Unlimited sites",
+            "2": "Fraud flags & GPS proof",
+            "3": "Check-in on behalf"
+          }
+        },
+        "business": {
+          "name": "Business",
+          "unit": "/ employee / mo",
+          "note": "",
+          "capacity": "Up to 250 employees",
+          "features": {
+            "1": "Everything in Starter",
+            "2": "Branch & site-level roles",
+            "3": "Polygon geofences",
+            "4": "Payroll exports"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "unit": "",
+          "note": "Volume pricing",
+          "capacity": "250+ employees",
+          "features": {
+            "1": "SSO & SCIM",
+            "2": "Custom data retention",
+            "3": "Dedicated success manager"
+          }
+        }
+      }
+    },
+    "done": {
+      "fallbackName": "there",
+      "title": "You’re all set, {name}!",
+      "subtitle": "{company} is ready. Employees can start checking in at {site} as soon as they install the app.",
+      "fallbackCompany": "Your company",
+      "fallbackSite": "your first site",
+      "fallbackSiteLower": "your site",
+      "recap": {
+        "company": "Company",
+        "branchSite": "Branch → Site",
+        "hours": "Hours",
+        "invitedPlan": "Invited · Plan"
+      },
+      "plans": {
+        "trial": "Free trial",
+        "starter": "Starter",
+        "business": "Business",
+        "enterprise": "Enterprise"
+      },
+      "nextSteps": "Next steps",
+      "checklist": {
+        "app": {
+          "title": "Download the mobile app",
+          "description": "Send employees the iOS and Android links by SMS",
+          "action": "Send links",
+          "toast": "Download links sent"
+        },
+        "managers": {
+          "title": "Invite site managers",
+          "description": "They can check in employees who don’t have a smartphone",
+          "action": "Invite",
+          "toast": "Invite sent"
+        },
+        "schedules": {
+          "title": "Create schedules",
+          "description": "Assign employees to {site} with recurring shifts or one-off interventions",
+          "action": "Open planner",
+          "toast": "Planner opens in the admin dashboard"
+        }
+      },
+      "goDashboard": "Go to dashboard"
+    },
+    "errors": {
+      "nameRequired": "Enter your full name.",
+      "nameFull": "Enter your first and last name.",
+      "emailRequired": "Enter your work email.",
+      "emailInvalid": "Enter a valid email address, like name@company.com.",
+      "emailPersonal": "Use your work email. Personal addresses (Gmail, Outlook…) can’t create a company workspace.",
+      "passwordRequired": "Create a password.",
+      "passwordWeak": "Password is too weak. Use at least 8 characters with a mix of letters and numbers.",
+      "phoneInvalid": "Enter a valid phone number.",
+      "termsRequired": "You need to accept the terms to continue.",
+      "codeIncomplete": "Enter all 6 digits.",
+      "codeWrong": "That code is incorrect. Check the latest email or request a new code.",
+      "companyRequired": "Enter your company name.",
+      "industryRequired": "Select an industry.",
+      "sizeRequired": "Select your company size.",
+      "branchRequired": "Give this branch a name.",
+      "streetRequired": "Enter the street address.",
+      "zipInvalid": "Enter a valid postal code.",
+      "cityRequired": "Enter the city.",
+      "siteNameRequired": "Give this site a name.",
+      "siteAddressRequired": "Search and select the site address.",
+      "daysRequired": "Select at least one working day.",
+      "endBeforeStart": "End time must be after start time. For night shifts, create a custom schedule after setup.",
+      "personName": "Add a name for this person.",
+      "personContact": "Add a phone number or email so we can send the invite.",
+      "personInvalid": "That doesn’t look like a valid phone number or email.",
+      "planRequired": "Select a plan to continue."
+    }
+  },
+  "Nav": {
+    "pages": {
+      "dashboard": "Overview",
+      "live": "Live board",
+      "attendance": "Attendance",
+      "alerts": "Alerts",
+      "employees": "Employees",
+      "sites": "Branches & Sites",
+      "schedules": "Schedules",
+      "leave": "Leave",
+      "reports": "Reports",
+      "users": "Users & Roles",
+      "audit": "Audit log",
+      "settings": "Settings",
+      "profile": "My profile"
+    }
+  },
+  "Common": {
+    "noAccessTitle": "You do not have access to this page",
+    "noAccessHint": "Ask a company admin to update your role or scope.",
+    "pendingTitle": "This module is being migrated",
+    "pendingHint": "The screen will appear here as soon as its migration lands."
+  },
+  "Auth": {
+    "brand": "StaffSync",
+    "title": "Sign in to StaffSync",
+    "subtitle": "Welcome back. Sign in to your admin workspace.",
+    "email": "Work email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "forgot": "Forgot password?",
+    "remember": "Remember me for 30 days",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "or": "or",
+    "google": "Continue with Google",
+    "microsoft": "Continue with Microsoft",
+    "noAccount": "New to StaffSync?",
+    "create": "Create a company account",
+    "show": "Show password",
+    "hide": "Hide password",
+    "theme": "Toggle theme",
+    "language": "Language",
+    "demo": "Prototype: password “staffsync” signs in · emails starting with “former” are deactivated · 5 wrong tries locks the account",
+    "footer": {
+      "copyright": "© 2026 StaffSync",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "status": "System status"
+    },
+    "errors": {
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email, like name@company.com.",
+      "passwordRequired": "Enter your password."
+    },
+    "wrong": {
+      "title": "Incorrect email or password",
+      "attempts": "{count, plural, one {# attempt left before your account is locked.} other {# attempts left before your account is locked.}}",
+      "retry": "Check your details and try again."
+    },
+    "locked": {
+      "title": "Account temporarily locked",
+      "description": "Too many failed attempts. For your security, sign-in is paused.",
+      "reset": "Reset your password instead",
+      "button": "Locked"
+    },
+    "deactivated": {
+      "title": "This account has been deactivated",
+      "description": "Access for {email} to Batiplus Group was removed by an administrator.",
+      "fallbackEmail": "this account",
+      "contact": "Contact your admin",
+      "other": "Use another account"
+    },
+    "offline": {
+      "title": "You’re offline",
+      "description": "Check your connection. You can sign in once you’re back online.",
+      "retry": "Retry",
+      "button": "Waiting for connection",
+      "back": "Back online",
+      "still": "Still offline"
+    },
+    "toasts": {
+      "signedIn": "Signed in — redirecting…",
+      "redirecting": "Redirecting to {provider}…",
+      "resetSent": "Reset link sent to {email}",
+      "yourEmail": "your email",
+      "adminNotified": "Request sent to your admin"
+    },
+    "brandPanel": {
+      "title": "Know who’s on site, right now.",
+      "subtitle": "Geofenced check-ins, live attendance across every branch and site, and fraud flags you can actually act on.",
+      "chips": {
+        "gps": "GPS geofencing",
+        "leave": "Leave approvals",
+        "roles": "Role-based access"
+      },
+      "today": "Today · all sites",
+      "live": "Live",
+      "present": "present",
+      "onTime": "On time",
+      "late": "Late",
+      "flagged": "Flagged",
+      "person": "Camille Durand",
+      "checkin": "Checked in · Part-Dieu Tower"
+    }
+  },
+  "Status": {
+    "ontime": "On time",
+    "late": "Late",
+    "early": "Early leave",
+    "absent": "Absent",
+    "missing": "Missing check-out",
+    "overtime": "Overtime",
+    "leave": "On leave",
+    "holiday": "Holiday",
+    "flagged": "Flagged",
+    "scheduled": "Scheduled",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "fraud": "Fraud confirmed"
+  },
+  "Leave": {
+    "types": {
+      "rtt": "RTT day",
+      "sick": "Sick leave",
+      "unpaid": "Unpaid leave",
+      "family": "Family event",
+      "annual": "Annual leave"
+    },
+    "reject": {
+      "title": "Reject {name}’s request",
+      "reason": "Reason",
+      "placeholder": "Tell the employee why this request cannot be approved",
+      "hint": "The employee is notified with this reason.",
+      "cancel": "Cancel",
+      "confirm": "Reject request",
+      "done": "{name}’s request rejected"
+    },
+    "title": "Leave",
+    "subtitle": "Review requests, see who is away and keep balances accurate.",
+    "views": {
+      "requests": "Requests",
+      "calendar": "Calendar",
+      "balances": "Balances"
+    },
+    "stages": {
+      "chg": "Changes requested",
+      "site": "Site manager review",
+      "rec": "Recommended · awaiting HR",
+      "hr": "HR review",
+      "done": "Approved",
+      "no": "Rejected",
+      "can": "Cancelled",
+      "notes": {
+        "certificate": "Medical certificate attached",
+        "recommended": "Recommended by {name}",
+        "insufficient": "Insufficient balance",
+        "shortNotice": "Short notice · {name}"
+      },
+      "approvedBy": "Approved by {name}",
+      "cancelledOn": "Cancelled on {date}"
+    },
+    "inbox": {
+      "tabs": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled",
+        "all": "All"
+      },
+      "filters": {
+        "branch": "Branch",
+        "site": "Site",
+        "type": "Leave type",
+        "dates": "Dates",
+        "employee": "Employee",
+        "allBranches": "All branches",
+        "allSites": "All sites",
+        "allTypes": "All types",
+        "anyDates": "Any dates",
+        "next7": "Next 7 days",
+        "next30": "Next 30 days",
+        "allEmployees": "All employees",
+        "clear": "Clear filters"
+      },
+      "waitingOnMe": "Waiting on me",
+      "summary": "{pending, plural, one {# pending request} other {# pending requests}} · {mine} waiting on you",
+      "selected": "{count, plural, one {# selected} other {# selected}}",
+      "negativeWarning": "{count, plural, one {# request takes the balance below zero.} other {# requests take the balance below zero.}}",
+      "approveSelected": "Approve selected",
+      "rejectSelected": "Reject selected",
+      "cancel": "Cancel",
+      "clearSelection": "Clear selection",
+      "selectAll": "Select all pending requests",
+      "columns": {
+        "employee": "Employee",
+        "type": "Type",
+        "dates": "Dates",
+        "duration": "Duration",
+        "balance": "Balance",
+        "stage": "Stage",
+        "submitted": "Submitted",
+        "actions": "Actions"
+      },
+      "days": "{count, plural, one {# day} other {# days}}",
+      "halfDay": "½ day ({half})",
+      "attachment": "Attachment",
+      "overlapWith": "Also off: {names} ({site})",
+      "goesNegative": "balance goes negative",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectReason": "Reason for rejecting {name}’s request",
+      "confirmRejectOne": "Confirm rejection",
+      "approvedToast": "{name}’s request approved",
+      "rejectedToast": "{name}’s request rejected",
+      "remaining": "{count, plural, one {# day} other {# days}} left",
+      "exceedsBalance": "Exceeds the balance by {count, plural, one {# day} other {# days}}",
+      "bulkApproved": "{count, plural, one {# request approved} other {# requests approved}}",
+      "bulkRejected": "{count, plural, one {# request rejected} other {# requests rejected}}",
+      "bulkApprovePlaceholder": "Add a note for the employees (optional)",
+      "bulkRejectPlaceholder": "Reason shared with the employees",
+      "confirmApprove": "{count, plural, one {Approve # request} other {Approve # requests}}",
+      "confirmReject": "{count, plural, one {Reject # request} other {Reject # requests}}",
+      "empty": {
+        "zero": "You’re all caught up",
+        "none": "No requests found",
+        "nothingWaiting": "Nothing is waiting for a decision.",
+        "tryAnother": "Try another tab or clear the filters."
+      }
+    },
+    "drawer": {
+      "title": "Leave request",
+      "close": "Close",
+      "request": "Request",
+      "facts": {
+        "dates": "Dates",
+        "duration": "Duration",
+        "halfDay": "Day type",
+        "submitted": "Submitted"
+      },
+      "halfDayOf": "Half day ({half})",
+      "workingDays": "{count, plural, one {# working day} other {# working days}}",
+      "fullDays": "Full days",
+      "morningOff": "Morning off",
+      "afternoonOff": "Afternoon off",
+      "withAttachment": "with attachment",
+      "reasonFrom": "Reason from {name}",
+      "reasons": {
+        "annual": "Planned holiday with family.",
+        "rtt": "Taking a reduced-hours day.",
+        "sick": "Unwell, doctor’s note attached.",
+        "family": "Family event.",
+        "unpaid": "Personal matter, unpaid leave requested."
+      },
+      "download": "Download",
+      "downloadStarted": "Download started",
+      "image": "Attachment image",
+      "pdfPage": "Page {page}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "balanceOf": "{type} balance",
+      "balance": {
+        "before": "Before",
+        "requested": "Requested",
+        "after": "After"
+      },
+      "exceeds": "Exceeds the balance by {count, plural, one {# day} other {# days}}.",
+      "exceedsHint": "Approving will put this employee in negative balance.",
+      "coverage": "Team coverage",
+      "coverageStates": {
+        "good": "Good coverage",
+        "tight": "Tight · {count} off",
+        "short": "Short staffed · {count} off"
+      },
+      "offTooltip": "Off: {names}",
+      "colleagueOff": "Colleagues off on these dates",
+      "thisRequest": "This request",
+      "sameSite": "Same site",
+      "sameBranch": "Same branch · {site}",
+      "alsoOff": "Also off",
+      "nobodyElse": "Nobody else is off at {site}.",
+      "affected": "{count, plural, one {# affected shift} other {# affected shifts}}",
+      "affectedShift": "Shift {hours} · {site}",
+      "affectedIntervention": "Planned intervention",
+      "noAffected": "No shifts are affected.",
+      "reassign": "Reassign",
+      "trail": {
+        "title": "Approval trail",
+        "submitted": "Submitted request",
+        "employee": "Employee",
+        "siteManager": "Site manager",
+        "hrTeam": "HR team",
+        "awaitingRecommendation": "Awaiting recommendation",
+        "recommended": "Recommended",
+        "okComment": "No objection.",
+        "sickComment": "Certificate checked.",
+        "awaitingDecision": "Awaiting decision",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled",
+        "currentStep": "Current step",
+        "nextStep": "Next step",
+        "decided": "Decided",
+        "justNow": "Just now",
+        "log": {
+          "approve": "Approved",
+          "reject": "Rejected",
+          "changes": "Requested changes",
+          "cancel": "Cancelled"
+        }
+      },
+      "history": "Other leave for {name}",
+      "modes": {
+        "approve": {
+          "title": "Approve",
+          "placeholder": "Add a note for {name} (optional)",
+          "confirm": "Approve request"
+        },
+        "reject": {
+          "title": "Reject",
+          "placeholder": "Tell {name} why this was rejected",
+          "confirm": "Reject request"
+        },
+        "changes": {
+          "title": "Request changes",
+          "placeholder": "What should {name} change?",
+          "confirm": "Send request"
+        },
+        "cancel": {
+          "title": "Cancel request",
+          "placeholder": "Why is this being cancelled?",
+          "confirm": "Cancel request"
+        }
+      },
+      "notify": "Notify {name}",
+      "toasts": {
+        "approve": "Request approved",
+        "reject": "Request rejected",
+        "changes": "Changes requested",
+        "cancel": "Request cancelled",
+        "notified": "{name} notified"
+      },
+      "waitingFor": "Waiting for a decision.",
+      "readOnly": "You can view this request but not decide on it.",
+      "finalState": "This request is {status}.",
+      "cancel": "Cancel",
+      "approvedShort": "approved",
+      "pendingShort": "pending"
+    },
+    "calendar": {
+      "scale": "Time scale",
+      "scales": {
+        "month": "Month",
+        "quarter": "Quarter"
+      },
+      "previous": "Previous",
+      "next": "Next",
+      "today": "Today",
+      "groupBy": "Group by",
+      "groups": {
+        "site": "Site",
+        "branch": "Branch"
+      },
+      "filters": {
+        "branch": "Branch",
+        "site": "Site",
+        "type": "Leave type",
+        "status": "Status",
+        "employee": "Employee",
+        "allBranches": "All branches",
+        "allSites": "All sites",
+        "allTypes": "All types",
+        "both": "Approved + pending",
+        "approvedOnly": "Approved only",
+        "pendingOnly": "Pending only",
+        "allEmployees": "All employees"
+      },
+      "onlyWithLeave": "Only people with leave",
+      "pendingHatched": "Pending (hatched)",
+      "employee": "Employee",
+      "groupMeta": "{count, plural, one {# person} other {# people}} · peak {peak} off",
+      "empty": "No one matches these filters.",
+      "holidayTitle": "Public holiday · {name}",
+      "holidays": {
+        "allSaints": "All Saints",
+        "armistice": "Armistice Day",
+        "christmas": "Christmas Day"
+      },
+      "approved": "Approved",
+      "pending": "Pending"
+    },
+    "balances": {
+      "previousYear": "Previous year",
+      "nextYear": "Next year",
+      "search": "Search employees",
+      "filters": {
+        "branch": "Branch",
+        "site": "Site",
+        "type": "Leave type",
+        "allBranches": "All branches",
+        "allSites": "All sites",
+        "allTypes": "All types"
+      },
+      "lowBalance": "Low balance",
+      "columns": {
+        "employee": "Employee"
+      },
+      "cells": {
+        "entitled": "Entitled",
+        "used": "Used",
+        "pending": "Pending",
+        "remaining": "Left"
+      },
+      "adjust": "Adjust",
+      "empty": "No employees match these filters.",
+      "export": {
+        "button": "Export CSV",
+        "employee": "Employee",
+        "site": "Site",
+        "entitled": "entitled",
+        "used": "used",
+        "pending": "pending",
+        "remaining": "remaining"
+      },
+      "exported": "{count, plural, one {# employee} other {# employees}} exported",
+      "adjusted": "{type} balance adjusted by {days} d",
+      "log": {
+        "title": "Adjustments this session"
+      },
+      "modal": {
+        "title": "Adjust balance · {name}",
+        "type": "Leave type",
+        "days": "Days to add or remove",
+        "minus": "Remove half a day",
+        "plus": "Add half a day",
+        "before": "Now {value} d",
+        "deltaError": "Enter a non-zero number of days.",
+        "reason": "Reason",
+        "reasonPlaceholder": "Why is the balance being adjusted?",
+        "reasonError": "Give a reason (at least 3 characters).",
+        "cancel": "Cancel",
+        "apply": "Apply adjustment"
+      }
+    }
+  },
+  "Data": {
+    "jobs": {
+      "electrician": "Electrician",
+      "carpenter": "Carpenter",
+      "plumber": "Plumber",
+      "cleaningAgent": "Cleaning agent",
+      "forkliftOperator": "Forklift operator",
+      "nightGuard": "Night guard",
+      "warehouseClerk": "Warehouse clerk",
+      "logisticsAgent": "Logistics agent",
+      "orderPicker": "Order picker",
+      "dockSupervisor": "Dock supervisor",
+      "driver": "Driver",
+      "craneOperator": "Crane operator",
+      "safetyInspector": "Safety inspector",
+      "rigger": "Rigger",
+      "siteTechnician": "Site technician",
+      "dockAgent": "Dock agent"
+    },
+    "interventions": {
+      "nightSecurity": "Night security, tonight 22:00–06:00 · no one assigned",
+      "inventory": "Inventory count, Sat 17 Oct 07:00–12:00 · 2 of 4 slots open",
+      "liftInspection": "Lift inspection, Mon 19 Oct 08:00–10:00 · assignee on leave"
+    }
+  },
+  "Dashboard": {
+    "title": "Overview",
+    "vsYesterday": "vs yesterday",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "lastMonday": "Last Monday",
+    "pickDate": "Choose a date",
+    "close": "Close",
+    "manager": "Manager",
+    "presentLabel": "Present",
+    "viewAttendance": "Attendance",
+    "openSite": "Open site",
+    "scope": {
+      "company": "{company} – all branches",
+      "branch": "{branch} Branch – all sites",
+      "site": "{site} – {branch} Branch",
+      "meta": "{sites, plural, one {# site} other {# sites}} · {employees} employees scheduled"
+    },
+    "live": {
+      "refresh": "Refresh now",
+      "refreshing": "refreshing…",
+      "paused": "paused",
+      "justNow": "just now",
+      "ago": "updated {seconds}s ago",
+      "label": "Live",
+      "pausedLabel": "Paused",
+      "final": "Final",
+      "dayClosed": "day closed"
+    },
+    "kpi": {
+      "expected": "Expected today",
+      "expectedPast": "Expected",
+      "present": "Present now",
+      "presentPast": "Attended",
+      "late": "Late",
+      "absent": "Absent",
+      "leave": "On leave",
+      "flagged": "Flagged",
+      "pending": "Pending leave"
+    },
+    "map": {
+      "title": "Live map",
+      "subtitle": "{count, plural, one {# site} other {# sites}} · present / expected",
+      "good": "On track",
+      "watch": "Watch",
+      "risk": "At risk"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "yesterday": "Yesterday",
+      "view": "View",
+      "review": "Review",
+      "dismiss": "Dismiss",
+      "remind": "Send reminder",
+      "reminderSent": "Reminder sent",
+      "reject": "Reject",
+      "approve": "Approve",
+      "emptyTitle": "Nothing needs attention",
+      "emptyHint": "New issues in your scope will appear here.",
+      "tabs": {
+        "all": "All",
+        "fraud": "Fraud",
+        "missing": "Check-outs",
+        "unsched": "Unscheduled",
+        "leave": "Leave",
+        "uncov": "Interventions"
+      },
+      "fraud": {
+        "title": "Fraud flag · {name}",
+        "distance": "{distance} outside the geofence",
+        "mock": "Mock location detected",
+        "dismissed": "Flag dismissed"
+      },
+      "missing": {
+        "title": "Missing check-out · {name}",
+        "description": "Shift ended {time}",
+        "setOut": "Set check-out 06:00",
+        "done": "{name} checked out at 06:00"
+      },
+      "unsched": {
+        "title": "Unscheduled check-in · {name}",
+        "description": "No shift planned today",
+        "add": "Add to schedule",
+        "added": "{name} added to today’s schedule",
+        "rejected": "Check-in rejected"
+      },
+      "leave": {
+        "title": "Leave request · {name}",
+        "approved": "{name}’s leave approved"
+      },
+      "uncov": {
+        "title": "Intervention without assignee",
+        "assign": "Assign",
+        "notify": "Notify team",
+        "notified": "Team notified"
+      }
+    },
+    "trend": {
+      "title": "Attendance rate",
+      "average": "avg. over {days} days",
+      "points": "pts",
+      "rangeLabel": "{days}d",
+      "chartLabel": "Attendance rate trend, average {average}%",
+      "target": "Target 90%"
+    },
+    "methods": {
+      "title": "Check-in method",
+      "subtitleToday": "Today’s check-ins",
+      "subtitleDay": "Check-ins on {date}",
+      "checkins": "check-ins",
+      "chartLabel": "{total} check-ins by method",
+      "self": {
+        "label": "Self check-in",
+        "description": "Mobile app inside geofence"
+      },
+      "proxy": {
+        "label": "Proxy",
+        "description": "By a site manager"
+      },
+      "qr": {
+        "label": "QR code",
+        "description": "Scanned at site kiosk"
+      }
+    },
+    "punctuality": {
+      "title": "Punctuality",
+      "subtitle": "Share of on-time arrivals · {when}",
+      "today": "today",
+      "byBranch": "By branch",
+      "bySite": "By site",
+      "sites": "{count, plural, one {# site} other {# sites}}",
+      "present": "{count} present",
+      "tooltip": "{onTime}% on time · {late} late",
+      "onTime": "On time",
+      "late": "Late"
+    },
+    "activity": {
+      "titleToday": "Real-time activity",
+      "titleDay": "Activity",
+      "pause": "Pause",
+      "resume": "Resume",
+      "checkedIn": "checked in",
+      "checkedOut": "checked out",
+      "yesterdayShort": "yest."
+    },
+    "setup": {
+      "welcome": "Welcome to StaffSync, {name}",
+      "subtitle": "Your workspace is ready. Finish setup to start tracking attendance.",
+      "title": "Get your team checking in",
+      "hint": "Most companies finish in under 15 minutes.",
+      "steps": {
+        "company": {
+          "title": "Create your company",
+          "description": "Batiplus Group · Construction · Europe/Paris"
+        },
+        "site": {
+          "title": "Add your first site",
+          "description": "Address and GPS geofence where employees check in"
+        },
+        "hours": {
+          "title": "Set working hours",
+          "description": "Default days, hours and lateness grace period"
+        },
+        "invite": {
+          "title": "Invite your employees",
+          "description": "Add them manually or import a CSV"
+        },
+        "schedules": {
+          "title": "Create schedules",
+          "description": "Recurring shifts or one-off interventions"
+        },
+        "app": {
+          "title": "Get employees on the mobile app",
+          "description": "Send iOS and Android links by SMS"
+        }
+      },
+      "cta": {
+        "addSite": "Add site",
+        "setHours": "Set hours",
+        "invite": "Invite",
+        "create": "Create",
+        "sendLinks": "Send links"
+      },
+      "stepDone": "{step} — done",
+      "previewTitle": "Your dashboard will appear here",
+      "previewHint": "Live attendance, alerts and trends fill in as soon as the first employees check in.",
+      "helpTitle": "Want a hand?",
+      "helpHint": "A specialist can set it up with you.",
+      "book": "Book a call",
+      "bookingSent": "Booking link sent"
+    }
+  },
+  "Methods": {
+    "app": "Mobile app",
+    "proxy": "Proxy (site manager)",
+    "qr": "QR code kiosk",
+    "admin": "Admin correction"
+  },
+  "Live": {
+    "title": "Live board",
+    "subtitle": "{state} · {time} · {count} people scheduled today",
+    "live": "Live",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "allSites": "All sites in scope",
+    "counters": {
+      "expected": "Expected",
+      "present": "Present",
+      "not": "Not arrived",
+      "left": "Left",
+      "absent": "Absent",
+      "leave": "On leave"
+    },
+    "searchPlaceholder": "Search employee",
+    "chips": {
+      "all": "All",
+      "present": "Present",
+      "not": "Not arrived",
+      "left": "Left",
+      "absent": "Absent",
+      "leave": "On leave",
+      "flagged": "Flagged"
+    },
+    "view": "View",
+    "list": "List",
+    "grid": "Grid",
+    "newTag": "NEW",
+    "presentShort": "present",
+    "columns": {
+      "employee": "Employee",
+      "scheduled": "Scheduled",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "status": "Status",
+      "method": "Method",
+      "distance": "Distance",
+      "actions": "Actions"
+    },
+    "in": "In",
+    "out": "Out",
+    "checkIn": "Check in on behalf",
+    "checkOut": "Check out on behalf",
+    "viewRecord": "View record",
+    "call": "Call employee",
+    "calling": "Calling {name} · {phone}",
+    "selectAll": "Select everyone at {site}",
+    "fence": {
+      "flags": "Geofence active · flags today",
+      "lowGps": "Low GPS accuracy",
+      "circle": "Geofence active · circle {radius} m",
+      "polygon": "Geofence active · polygon"
+    },
+    "noMatch": "No employees match in this site.",
+    "emptyTitle": "No employees match",
+    "emptyHint": "Try another status or clear the search.",
+    "clearFilters": "Clear filters",
+    "bulk": {
+      "selected": "{count} selected",
+      "remind": "Send reminder",
+      "markAbsent": "Mark as absent",
+      "clear": "Clear selection",
+      "reminded": "{count, plural, one {Reminder sent to # employee} other {Reminder sent to # employees}}",
+      "markedAbsent": "{count} marked absent",
+      "skipped": "{count} skipped (already checked in or on leave)"
+    },
+    "flagToast": "New flag: {name} checked in {distance} outside {site}",
+    "checkedInToast": "{name} checked in at {time}",
+    "checkedOutToast": "{name} checked out at {time}",
+    "row": {
+      "notArrived": "Not arrived",
+      "minutesLate": "{count} min late",
+      "dueAt": "Due {time}",
+      "left": "Left",
+      "by": "By {name}",
+      "flagDistance": "Checked in {distance} outside the geofence",
+      "flagMock": "Mock location detected"
+    },
+    "proxy": {
+      "titleIn": "Check in on behalf",
+      "titleOut": "Check out on behalf",
+      "cancel": "Cancel",
+      "confirmIn": "Check in",
+      "confirmOut": "Check out",
+      "time": "Time",
+      "reason": "Reason",
+      "selectReason": "Select a reason",
+      "reasonError": "Select a reason to continue.",
+      "reasons": {
+        "noPhone": "No smartphone",
+        "battery": "Phone battery dead",
+        "appIssue": "App or GPS issue",
+        "forgot": "Forgot to check in/out",
+        "other": "Other"
+      },
+      "note": "Verification note",
+      "optional": "optional",
+      "notePlaceholder": "e.g. Seen at the site gate by the foreman",
+      "verified": "I verified this employee is on site in person",
+      "audit": "Recorded as “{method}” by {actor} and visible in the audit log.",
+      "methodAdmin": "Admin correction",
+      "methodProxy": "Proxy"
+    }
+  },
+  "Attendance": {
+    "title": "Attendance records",
+    "subtitle": "{count} records · {range} · {scope}",
+    "today": "Today",
+    "approvedBy": "Approved · {name}",
+    "offlineTip": "Recorded offline, synced when back online",
+    "selectPage": "Select all rows on this page",
+    "cancel": "Cancel",
+    "scope": {
+      "company": "whole company"
+    },
+    "ranges": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "7d": "Last 7 days",
+      "month": "This month",
+      "custom": "Custom range"
+    },
+    "views": {
+      "title": "Views",
+      "all": "All records",
+      "flagged": "Flagged this week",
+      "missing": "Missing check-outs",
+      "parisLate": "Paris Nord · late",
+      "delete": "Delete view",
+      "deleted": "View deleted",
+      "saved": "View “{name}” saved"
+    },
+    "columns": {
+      "date": "Date",
+      "employee": "Employee",
+      "site": "Site",
+      "scheduled": "Scheduled",
+      "in": "Check-in",
+      "out": "Check-out",
+      "worked": "Worked",
+      "status": "Status",
+      "method": "Method",
+      "flag": "Flag",
+      "edited": "Last edited by"
+    },
+    "methods": {
+      "app": "Mobile app",
+      "proxy": "Proxy (site manager)",
+      "qr": "QR code kiosk",
+      "admin": "Admin correction"
+    },
+    "filters": {
+      "status": "Status",
+      "branch": "Branch",
+      "site": "Site",
+      "allBranches": "All branches",
+      "allSites": "All sites",
+      "employeePlaceholder": "Employee name or ID",
+      "method": "Method",
+      "allMethods": "All methods",
+      "flaggedOnly": "Flagged only",
+      "offline": "Synced offline",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear",
+      "done": "Done",
+      "clearAll": "Clear all ({count})",
+      "saveView": "Save view",
+      "saveTitle": "Save this view",
+      "viewPlaceholder": "View name",
+      "save": "Save",
+      "showColumns": "Show columns",
+      "columns": "Columns"
+    },
+    "flag": {
+      "fraud": "Fraud confirmed",
+      "distance": "{distance} outside the geofence",
+      "mock": "Mock location"
+    },
+    "export": {
+      "button": "Export",
+      "note": "{count} filtered records",
+      "date": "Date",
+      "employeeId": "Employee ID",
+      "employee": "Employee",
+      "site": "Site",
+      "scheduled": "Scheduled",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "worked": "Worked",
+      "status": "Status",
+      "method": "Method",
+      "flagged": "Flagged",
+      "editedBy": "Last edited by",
+      "yes": "yes",
+      "done": "Exported {count} records as {format}",
+      "failed": "Export failed. Try again."
+    },
+    "bulk": {
+      "selected": "{count} selected",
+      "selectAll": "Select all {count} matching",
+      "approve": "Approve",
+      "markAbsent": "Mark absent",
+      "exportSelected": "Export selected",
+      "clear": "Clear selection",
+      "approved": "{count, plural, one {# record approved} other {# records approved}}",
+      "absent": "{count} marked absent",
+      "leaveSkipped": "leave days skipped"
+    },
+    "emptyCompany": {
+      "title": "No attendance yet",
+      "hint": "Records appear here as soon as employees check in. Create schedules so StaffSync knows who is expected.",
+      "createSchedule": "Create a schedule"
+    },
+    "noResults": {
+      "title": "No records match these filters",
+      "hint": "Widen the date range or clear a filter to see more results."
+    },
+    "pagination": {
+      "perPage": "Rows per page",
+      "of": "of",
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "add": {
+      "button": "Add manual record",
+      "title": "Add manual record",
+      "cancel": "Cancel",
+      "save": "Add record",
+      "summary": "{count, plural, one {Fix # issue to add this record} other {Fix # issues to add this record}}",
+      "employee": "Employee",
+      "change": "Change",
+      "searchPlaceholder": "Search by name or employee ID",
+      "noEmployees": "No employees match in your scope.",
+      "site": "Site",
+      "selectSite": "Select a site",
+      "date": "Date",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "timeError": "Check-out must be after check-in.",
+      "status": "Status",
+      "auto": "Auto",
+      "autoWith": "Auto · {status}",
+      "noTimesHint": "No times needed for this status.",
+      "scheduledHint": "Scheduled {sched}",
+      "willBe": "status will be {status}",
+      "overlapTitle": "Overlaps an existing record",
+      "overlapDescription": "Existing record {range} at {site} on {day} Oct. Edit that record instead of adding a second one.",
+      "openExisting": "Open existing record",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. Employee had no phone, confirmed by the site manager",
+      "reasonError": "A reason is required.",
+      "evidence": "Evidence",
+      "optional": "optional",
+      "attach": "Attach files",
+      "attachHint": "Timesheet photo, signed form, PDF · up to 10 MB each",
+      "remove": "Remove file",
+      "audit": "Saved as an admin entry by {actor} — visible in the audit log and the record’s edit history.",
+      "added": "Manual record added for {name}",
+      "filesAttached": "{count, plural, one {# file attached} other {# files attached}}"
+    }
+  },
+  "Drawer": {
+    "title": "Attendance record",
+    "close": "Close",
+    "today": "Today",
+    "cancel": "Cancel",
+    "viewProfile": "View profile",
+    "noCheckIn": "No check-in",
+    "methodShort": {
+      "app": "Self",
+      "proxy": "Proxy · {name}",
+      "qr": "QR",
+      "admin": "Admin"
+    },
+    "offline": "Offline · synced {time}",
+    "approvedBy": "Approved · {name}",
+    "diff": {
+      "late": "+{span} late",
+      "early": "{span} early",
+      "onTime": "On time",
+      "inProgress": "In progress",
+      "missing": "Missing",
+      "earlier": "{span} earlier"
+    },
+    "inside": "inside",
+    "outside": "outside",
+    "na": "n/a",
+    "accuracy": {
+      "suspicious": "±1 m · suspiciously precise",
+      "kiosk": "Fixed kiosk"
+    },
+    "devices": {
+      "tablet": "Site tablet · Galaxy Tab A8",
+      "kiosk": "QR kiosk · Entrance A",
+      "web": "Web console"
+    },
+    "methodLong": {
+      "app": "Self · mobile app",
+      "proxy": "Proxy by {name}",
+      "qr": "QR code · site kiosk",
+      "admin": "Admin entry by {name}"
+    },
+    "outdated": "outdated",
+    "facts": {
+      "method": "Method",
+      "accuracy": "GPS accuracy",
+      "distanceIn": "Distance at check-in",
+      "distanceOut": "Distance at check-out",
+      "device": "Device",
+      "appVersion": "App version"
+    },
+    "flag": {
+      "title": "Flagged check-in",
+      "distance": "{distance} outside the geofence",
+      "mock": "Mock location detected",
+      "approve": "Approve — valid check-in",
+      "reject": "Reject — confirm fraud",
+      "noPermission": "You do not have permission to review flags.",
+      "fraudConfirmed": "Fraud confirmed"
+    },
+    "kinds": {
+      "recurring": "Recurring schedule",
+      "recurringN": "Recurring · night shift",
+      "intervention": "One-off intervention"
+    },
+    "events": {
+      "scheduledStart": "Scheduled start",
+      "checkedIn": "Checked in · {method}",
+      "flagged": "Flagged automatically",
+      "synced": "Synced from offline mode",
+      "syncedDetail": "Original device timestamps kept",
+      "checkedOut": "Checked out",
+      "noCheckOut": "Scheduled end — no check-out",
+      "reminderSent": "Reminder sent",
+      "markedAbsent": "Marked absent",
+      "markedAbsentDetail": "No check-in 15 min after start",
+      "editedBy": "Edited by {name}",
+      "flagApproved": "Flag approved as valid",
+      "fraudConfirmed": "Fraud confirmed",
+      "approvedBy": "Approved by {name}"
+    },
+    "times": {
+      "title": "Scheduled vs actual",
+      "edit": "Edit times",
+      "scheduled": "Scheduled",
+      "actual": "Actual",
+      "difference": "Difference",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "worked": "Worked"
+    },
+    "edit": {
+      "changeStatus": "Change status",
+      "editTimes": "Edit times",
+      "timeError": "Check-out must be after check-in.",
+      "reason": "Reason (required)",
+      "reasonPlaceholder": "e.g. Employee forgot to check out, confirmed by site manager",
+      "reasonError": "Add a reason — it is saved in the edit history.",
+      "save": "Save changes"
+    },
+    "location": {
+      "title": "Location & device",
+      "noGps": "No GPS data — entered manually",
+      "center": "Site center"
+    },
+    "selfies": {
+      "title": "Selfies",
+      "open": "Selfie opens full size",
+      "checkIn": "Check-in selfie",
+      "checkOut": "Check-out selfie"
+    },
+    "timeline": "Timeline",
+    "history": {
+      "title": "Edit history",
+      "none": "No edits — this record is as captured."
+    },
+    "notes": {
+      "title": "Notes",
+      "placeholder": "Add a note for other managers…",
+      "post": "Post note"
+    },
+    "delete": {
+      "action": "Delete",
+      "title": "Delete this record?",
+      "description": "The record for {name} on {day} Oct will be removed from reports and payroll exports. The deletion stays visible in the audit log.",
+      "placeholder": "e.g. Duplicate entry",
+      "confirm": "Delete record"
+    },
+    "checkInBehalf": "Check in on behalf",
+    "approveRecord": "Approve record",
+    "toasts": {
+      "flagApproved": "Flag approved — check-in counted as valid",
+      "fraudConfirmed": "Fraud confirmed — HR notified",
+      "approved": "Record approved",
+      "checkedIn": "{name} checked in at {time}",
+      "deleted": "Record deleted",
+      "updated": "Record updated — change saved to history"
+    },
+    "fields": {
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "status": "Status",
+      "record": "Record",
+      "createdManually": "Created manually"
+    },
+    "seed": {
+      "absentReason": "No call or notice received",
+      "forgotReason": "Forgot to check out — confirmed by site manager",
+      "noteDistance": "Called the employee — says they parked at the depot across the road. Worth checking the gate camera.",
+      "noteMock": "Second mock-location alert this month from this device.",
+      "noteMissing": "Sent an SMS reminder, no reply yet."
+    }
+  },
+  "Alerts": {
+    "title": "Fraud & alerts center",
+    "subtitle": "{open} open alerts across {sites, plural, one {# site} other {# sites}} · {high} high severity",
+    "searchPlaceholder": "Search employee",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "inTime": "in {time}",
+    "justNow": "just now",
+    "escalatedNote": "Escalated to {to}: {text}",
+    "cancel": "Cancel",
+    "selectAll": "Select all open alerts",
+    "tabs": {
+      "flagged": "Flagged check-ins",
+      "miss": "Missing check-outs",
+      "uns": "Unscheduled check-ins",
+      "unc": "Uncovered interventions",
+      "resolved": "Resolved"
+    },
+    "filters": {
+      "branch": "Branch",
+      "site": "Site",
+      "reason": "Reason",
+      "date": "Date",
+      "allBranches": "All branches",
+      "allSites": "All sites",
+      "allReasons": "All reasons",
+      "clear": "Clear filters",
+      "dates": {
+        "0": "Today",
+        "7": "Last 7 days",
+        "30": "Last 30 days",
+        "all": "Any date"
+      }
+    },
+    "bulk": {
+      "selected": "{count} selected",
+      "resolveValid": "Resolve as valid",
+      "rejectAll": "Reject all",
+      "approvePlaceholder": "Reason for approving (required)",
+      "rejectPlaceholder": "Reason for rejecting (required)",
+      "confirmApprove": "Resolve {count} as valid",
+      "confirmReject": "Reject {count} (mark absent)",
+      "clear": "Clear selection"
+    },
+    "columns": {
+      "employee": "Employee",
+      "site": "Site",
+      "when": "Date & time",
+      "reason": "Reason",
+      "severity": "Severity",
+      "status": "Status"
+    },
+    "roles": {
+      "machinist": "Machinist",
+      "forkliftOperator": "Forklift operator",
+      "cleaner": "Cleaner",
+      "technician": "Technician",
+      "electrician": "Electrician",
+      "driver": "Driver",
+      "loader": "Loader",
+      "welder": "Welder",
+      "inspector": "Inspector",
+      "warehouseAgent": "Warehouse agent",
+      "intervention": "Intervention"
+    },
+    "reasons": {
+      "geo": "Outside geofence",
+      "geoBy": "Outside geofence by {meters} m",
+      "mock": "Mock location",
+      "acc": "Low GPS accuracy",
+      "tamper": "Time tampering",
+      "unas": "Unassigned site",
+      "dev": "Unregistered device",
+      "miss": "Missing check-out",
+      "uns": "Unscheduled check-in",
+      "unc": "Uncovered intervention"
+    },
+    "severity": {
+      "high": "High",
+      "med": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "open": "Open",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "empty": {
+      "title": "All clear",
+      "resolvedTitle": "Nothing resolved yet",
+      "hint": "No alerts match the current filters."
+    },
+    "toasts": {
+      "approved": "Approved as valid",
+      "rejectedAbsent": "Rejected · marked absent",
+      "rejectedInvalid": "Rejected · record marked invalid",
+      "noteSaved": "Note saved",
+      "escalated": "Escalated to {to}",
+      "calling": "Calling {name}…",
+      "messageSent": "Message sent to {name}",
+      "bulkApproved": "{count} alerts approved",
+      "bulkRejected": "{count} alerts rejected"
+    },
+    "items": {
+      "a1": {
+        "description": "Checked in 420 m beyond the geofence edge, 8 min before shift start."
+      },
+      "a2": {
+        "description": "Location provider reports a mock app. Accuracy of 2 m is implausible indoors."
+      },
+      "a3": {
+        "description": "GPS accuracy of 180 m exceeds the 50 m limit. Position could not be confirmed."
+      },
+      "a4": {
+        "description": "Device clock was 41 min behind the server at check-in. Recorded time was overridden."
+      },
+      "a5": {
+        "description": "Assigned to Part-Dieu Tower but checked in at Port Vieux Yard."
+      },
+      "a6": {
+        "description": "First check-in from a device not registered to this employee."
+      },
+      "a7": {
+        "description": "Checked in 260 m beyond the geofence edge."
+      },
+      "a8": {
+        "description": "Checked in 310 m beyond the geofence edge."
+      },
+      "a9": {
+        "description": "GPS accuracy of 95 m exceeds the 50 m limit."
+      },
+      "m1": {
+        "description": "No check-out 3 h after scheduled end (16:00)."
+      },
+      "m2": {
+        "description": "No check-out recorded. App closed while on site."
+      },
+      "m3": {
+        "description": "No check-out. Last GPS ping 14:20, 600 m from site."
+      },
+      "u1": {
+        "description": "Checked in with no shift scheduled for this site today."
+      },
+      "u2": {
+        "description": "Checked in outside any scheduled shift. Roster shows day off."
+      },
+      "u3": {
+        "description": "Shift swap not recorded. Scheduled employee was Pierre Dumas."
+      },
+      "i1": {
+        "title": "Boiler failure · planned: Lucas Fabre",
+        "slot": "Intervention 14:00–18:00",
+        "description": "No one checked in. Lucas Fabre is on leave and no replacement is assigned."
+      },
+      "i2": {
+        "title": "Night patrol · planned: Rémi Colin",
+        "slot": "Intervention 22:00–06:00",
+        "description": "Night patrol uncovered for the full slot. Planned employee never checked in."
+      },
+      "i3": {
+        "title": "Dock inspection · planned: Maya Perrin",
+        "slot": "Intervention 09:00–11:00",
+        "description": "Inspection slot uncovered. Late check-in at 11:40 after the slot closed."
+      },
+      "r1": {
+        "description": "Checked in 160 m beyond the geofence edge.",
+        "resolution": "Employee was on a site-approved fuel stop."
+      },
+      "r2": {
+        "description": "Location provider reports a mock app.",
+        "resolution": "Mock location confirmed with device audit."
+      },
+      "r3": {
+        "description": "No check-out recorded.",
+        "resolution": "Forgot to check out; confirmed by site manager."
+      },
+      "r4": {
+        "description": "Checked in with no shift scheduled for this site.",
+        "resolution": "Employee not rostered; no manager approval."
+      }
+    },
+    "detail": {
+      "meta": "{when} · {severity} severity",
+      "geofence": "Geofence {meters} m",
+      "reportedPosition": "Reported position",
+      "noGps": "No GPS point: nobody checked in for this intervention.",
+      "notes": "Notes",
+      "cancel": "Cancel",
+      "reasonRequired": "A reason is required.",
+      "facts": {
+        "distance": "Distance from site centre",
+        "accuracy": "GPS accuracy",
+        "device": "Device",
+        "registered": "Device registered",
+        "site": "Site",
+        "slot": "Slot",
+        "coverage": "Coverage",
+        "manager": "Site manager",
+        "outsideBy": "{meters} m outside",
+        "inside": "inside",
+        "poor": "poor",
+        "suspicious": "suspicious",
+        "good": "good",
+        "yes": "Yes",
+        "newDevice": "No — new device",
+        "noCoverage": "0 of 1 staffed"
+      },
+      "selfie": {
+        "label": "SELFIE",
+        "none": "NONE",
+        "title": "Selfie",
+        "captured": "Captured at check-in.",
+        "denied": "Not captured — camera permission denied.",
+        "notApplicable": "Not applicable."
+      },
+      "history": {
+        "title": "Employee flag history",
+        "count": "{count} in 90 days",
+        "subtitle": "Previous records nearby",
+        "outside": "{meters} m outside",
+        "mock": "Mock location",
+        "valid": "Valid"
+      },
+      "resolved": {
+        "approved": "Approved as valid by {name}",
+        "rejectedInvalid": "Rejected · record invalid by {name}",
+        "rejectedAbsent": "Rejected · marked absent by {name}"
+      },
+      "actions": {
+        "approve": "Approve as valid",
+        "reject": "Reject",
+        "contact": "Contact",
+        "note": "Add note",
+        "escalate": "Escalate"
+      },
+      "contact": {
+        "call": "Call",
+        "message": "Message"
+      },
+      "form": {
+        "approve": "Approve as valid",
+        "reject": "Reject alert",
+        "note": "Add a note",
+        "esc": "Escalate to another admin",
+        "escalateTo": "Escalate to"
+      },
+      "outcome": {
+        "absent": {
+          "title": "Mark absent",
+          "hint": "The day counts as absent"
+        },
+        "invalid": {
+          "title": "Mark invalid",
+          "hint": "The record is discarded"
+        }
+      },
+      "placeholder": {
+        "approve": "Why is this check-in valid? (required)",
+        "reject": "Reason for rejection (required)",
+        "note": "Write a note…",
+        "esc": "Context for the next admin (required)"
+      },
+      "confirm": {
+        "approve": "Approve as valid",
+        "rejectAbsent": "Reject · mark absent",
+        "rejectInvalid": "Reject · mark invalid",
+        "note": "Save note",
+        "esc": "Escalate"
+      }
+    }
+  },
+  "Employees": {
+    "title": "Employees",
+    "subtitle": "{total} employees · {active} active · {invited} invited",
+    "planUsage": "{used} of {limit} seats used",
+    "export": "Export",
+    "importCsv": "Import CSV",
+    "add": "Add employee",
+    "searchPlaceholder": "Search name, ID or phone",
+    "exported": "Exported {count} employees",
+    "reactivated": "{name} reactivated",
+    "inviteResent": "Invite resent to {name}",
+    "deviceReset": "{name}’s device was reset",
+    "deactivated": "{name} deactivated",
+    "filters": {
+      "branch": "Branch",
+      "site": "Site",
+      "title": "Job title",
+      "status": "Status",
+      "smartphone": "Smartphone",
+      "allBranches": "All branches",
+      "allSites": "All sites",
+      "allTitles": "All job titles",
+      "anyStatus": "Any status",
+      "smartphoneAny": "Smartphone: any",
+      "hasSmartphone": "Has smartphone",
+      "noSmartphone": "No smartphone",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "name": "Name",
+      "id": "ID",
+      "branch": "Branch",
+      "sites": "Sites",
+      "title": "Job title",
+      "phone": "Phone",
+      "app": "App",
+      "attendance": "Attendance",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "invited": "Invited",
+      "deactivated": "Deactivated"
+    },
+    "app": {
+      "installed": "Installed",
+      "invited": "Invited",
+      "none": "No smartphone"
+    },
+    "empty": {
+      "title": "No employees match",
+      "hint": "Try different filters or clear the search."
+    },
+    "actions": {
+      "menu": "Actions for {name}",
+      "view": "View profile",
+      "edit": "Edit",
+      "resend": "Resend invite",
+      "resetDevice": "Reset device",
+      "reactivate": "Reactivate",
+      "deactivate": "Deactivate"
+    },
+    "deactivate": {
+      "title": "Deactivate {name}?",
+      "message": "They will no longer be able to check in and disappear from future schedules. Their history is kept.",
+      "cancel": "Cancel",
+      "confirm": "Deactivate"
+    },
+    "titles": {
+      "machinist": "Machinist",
+      "forkliftOperator": "Forklift operator",
+      "cleaner": "Cleaner",
+      "technician": "Technician",
+      "electrician": "Electrician",
+      "driver": "Driver",
+      "loader": "Loader",
+      "inspector": "Inspector",
+      "siteManager": "Site manager"
+    },
+    "import": {
+      "steps": {
+        "upload": "Upload",
+        "map": "Map columns",
+        "preview": "Preview",
+        "result": "Result"
+      },
+      "emptyFile": "That file has no data rows.",
+      "choose": "Choose a CSV file",
+      "ready": "Ready · {count, plural, one {# row} other {# rows}}. Click to replace.",
+      "dropHint": "or drag it here · .csv up to 5 MB",
+      "downloadTemplate": "Download the template",
+      "templateDownloaded": "Template downloaded",
+      "useSample": "Use sample data",
+      "mapHint": "Match each StaffSync field to a column of your file. {count, plural, one {# row} other {# rows}} found.",
+      "skip": "— Skip —",
+      "example": "e.g. {value}",
+      "fields": {
+        "name": "Full name",
+        "id": "Employee ID",
+        "phone": "Phone",
+        "branch": "Branch",
+        "site": "Site",
+        "title": "Job title"
+      },
+      "valid": "{count} ready to import",
+      "withErrors": "{count} with errors",
+      "columns": {
+        "line": "Row",
+        "name": "Name",
+        "id": "ID",
+        "phone": "Phone",
+        "site": "Site",
+        "title": "Job title"
+      },
+      "errors": {
+        "nameRequired": "Full name is required",
+        "idRequired": "Employee ID is required",
+        "idExists": "Employee ID {value} already exists",
+        "phoneInvalid": "Phone “{value}” is not valid",
+        "unknownSite": "Unknown site “{value}”",
+        "unknownTitle": "Unknown job title “{value}”"
+      },
+      "result": {
+        "imported": "Imported",
+        "skipped": "Skipped (errors)",
+        "updated": "Updated",
+        "error": "Error"
+      },
+      "downloadErrors": "Download skipped rows",
+      "back": "Back",
+      "next": {
+        "1": "Continue",
+        "2": "Preview",
+        "4": "Done"
+      },
+      "importCount": "{count, plural, one {Import # employee} other {Import # employees}}"
+    },
+    "form": {
+      "addTitle": "Add employee",
+      "addSubtitle": "New employees are added to your company roster.",
+      "editTitle": "Edit {name}",
+      "editSubtitle": "Changes apply immediately.",
+      "cancel": "Cancel",
+      "save": "Save employee",
+      "saveAnother": "Save and add another",
+      "saveChanges": "Save changes",
+      "select": "Select…",
+      "added": "{name} added",
+      "updated": "{name} updated",
+      "inviteSent": "invite sent",
+      "planFull": "Your plan is full ({limit} employees). Deactivate former employees or upgrade in Billing.",
+      "planNear": "{count, plural, one {# seat left} other {# seats left}} on your plan ({used} of {limit} used).",
+      "summary": "{count, plural, one {Fix # field to continue.} other {Fix # fields to continue.}}",
+      "personal": "Personal",
+      "first": "First name",
+      "last": "Last name",
+      "phone": "Phone",
+      "email": "Email",
+      "employeeId": "Employee ID",
+      "idMode": {
+        "auto": "Automatic",
+        "manual": "Manual"
+      },
+      "employment": "Employment",
+      "branch": "Branch",
+      "jobTitle": "Job title",
+      "access": "Role (permissions)",
+      "scope": "Scope",
+      "startDate": "Start date",
+      "contract": "Contract type",
+      "accessRoles": {
+        "employee": "Employee",
+        "teamLead": "Team lead",
+        "siteManager": "Site manager",
+        "branchManager": "Branch manager",
+        "admin": "Admin"
+      },
+      "accessHint": {
+        "employee": "Check-in only",
+        "teamLead": "Can review the team’s attendance",
+        "siteManager": "Manages attendance and leave for sites",
+        "branchManager": "Manages all sites in a branch",
+        "admin": "Full company access"
+      },
+      "scopes": {
+        "assigned": "Assigned sites only",
+        "branch": "All sites in branch",
+        "multi": "Several branches"
+      },
+      "contracts": {
+        "cdi": "Permanent (CDI)",
+        "cdd": "Fixed-term (CDD)",
+        "interim": "Temp agency",
+        "intern": "Internship",
+        "part": "Part-time"
+      },
+      "sites": "Sites",
+      "defaultSite": "Default site",
+      "makeDefault": "Make default",
+      "sitesSummary": "{count} assigned · default {site}",
+      "noSites": "None assigned",
+      "attendance": "Attendance",
+      "hasSmartphone": "Has a smartphone",
+      "smartphoneOn": "Checks in with the StaffSync app.",
+      "smartphoneOff": "Checks in by badge QR with a site manager’s proxy check-in.",
+      "badge": "Badge and PIN",
+      "badgeHint": "Print the badge. The site manager scans it or enters the PIN.",
+      "newPin": "Generate a new PIN",
+      "print": "Print",
+      "badgePrinted": "Badge sent to the printer",
+      "selfie": "Selfie at check-in",
+      "selfieModes": {
+        "inherit": "Site default",
+        "on": "Required",
+        "off": "Not required"
+      },
+      "selfieHint": {
+        "inherit": "Follows the setting of each assigned site.",
+        "on": "Always required, whatever the site setting.",
+        "off": "Never required for this employee."
+      },
+      "leave": "Leave",
+      "policy": "Leave policy",
+      "policies": {
+        "std": "Standard full-time",
+        "part": "Part-time (80%)",
+        "fixed": "Fixed-term / seasonal"
+      },
+      "balances": {
+        "annual": "Annual leave",
+        "rtt": "RTT",
+        "sick": "Sick leave",
+        "family": "Family events"
+      },
+      "invitation": "Invitation",
+      "to": "To {value}",
+      "needsPhone": "Needs a phone number",
+      "needsEmail": "Needs an email address",
+      "invite": {
+        "sms": "Send app invite by SMS",
+        "mail": "Send app invite by email"
+      },
+      "errors": {
+        "firstRequired": "First name is required",
+        "lastRequired": "Last name is required",
+        "idRequired": "ID is required",
+        "idTaken": "ID already in use",
+        "phoneRequired": "Phone is required for app access",
+        "phoneInvalid": "Enter a valid phone number",
+        "emailInvalid": "Enter a valid email address",
+        "emailForInvite": "Email is required to send an email invite",
+        "branchRequired": "Choose a branch",
+        "titleRequired": "Job title is required",
+        "scopeRequired": "Choose a scope",
+        "startRequired": "Start date is required",
+        "sitesRequired": "Assign at least one site"
+      }
+    },
+    "profile": {
+      "back": "Back to employees",
+      "outOfScope": {
+        "title": "This employee is outside your scope",
+        "hint": "Ask a company admin if you need access."
+      },
+      "call": "Call",
+      "message": "Message",
+      "email": "Email",
+      "edit": "Edit",
+      "more": "More actions",
+      "justNow": "just now",
+      "by": "By {name}",
+      "newPin": "New PIN issued",
+      "role": "Role: {role}",
+      "toasts": {
+        "email": "Email to {name} opened",
+        "noPhone": "No phone number on file",
+        "calling": "Calling {name}…",
+        "messaging": "Message to {name} opened",
+        "badge": "New badge and PIN generated"
+      },
+      "menu": {
+        "edit": "Edit employee",
+        "resetDevice": "Reset device",
+        "badge": "Regenerate badge & PIN",
+        "reactivate": "Reactivate",
+        "deactivate": "Deactivate"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "attendance": "Attendance",
+        "schedule": "Schedule",
+        "leave": "Leave",
+        "device": "Device & access",
+        "docs": "Documents & notes",
+        "activity": "Activity"
+      },
+      "stats": {
+        "rate": "Attendance rate",
+        "lates": "Lates",
+        "absences": "Absences",
+        "hours": "Hours worked",
+        "overtime": "Overtime",
+        "thisMonth": "This month",
+        "overFive": "Over 5 min",
+        "unexcused": "Unexcused",
+        "ofPlanned": "Of {hours} h planned",
+        "beyond": "Beyond 8 h/day"
+      },
+      "assignedSites": "Assigned sites",
+      "defaultSite": "Default site",
+      "secondary": "Secondary",
+      "upcomingSchedule": "Upcoming schedule",
+      "noUpcoming": "Nothing scheduled.",
+      "records": "Records",
+      "filterStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "noAttendance": "No attendance yet.",
+      "noRecordsStatus": "No records with this status.",
+      "inProgress": "in progress",
+      "approvedLeave": "Approved leave",
+      "noCheckIn": "No check-in",
+      "dayStatus": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent",
+        "leave": "On leave"
+      },
+      "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "schedule": {
+        "recurring": "Recurring schedules",
+        "add": "Add",
+        "none": "No recurring schedule.",
+        "edit": "Edit schedule",
+        "remove": "Remove schedule",
+        "weekdays": "Monday – Friday",
+        "interventions": "Upcoming interventions",
+        "items": {
+          "boiler": "Boiler inspection",
+          "audit": "Dock safety audit"
+        },
+        "newTitle": "New recurring schedule",
+        "editTitle": "Edit schedule",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saved": "Schedule saved",
+        "removed": "Schedule removed",
+        "daysLabel": "Working days",
+        "start": "Start",
+        "end": "End",
+        "site": "Site",
+        "errors": {
+          "days": "Select at least one day",
+          "time": "End time must be after start time"
+        }
+      },
+      "leave": {
+        "balances": "Balances",
+        "left": "{left} of {total} days left",
+        "adjust": "Adjust a balance",
+        "type": "Leave type",
+        "days": "Days",
+        "daysPlaceholder": "+2 or −1.5",
+        "reason": "Reason",
+        "reasonPlaceholder": "Reason (required, min. 3 characters)",
+        "apply": "Apply adjustment",
+        "adjusted": "{type} balance adjusted",
+        "requests": "Requests",
+        "noRequests": "No leave requests yet.",
+        "types": {
+          "approved": "Approved",
+          "pending": "Pending",
+          "rejected": "Rejected"
+        }
+      },
+      "device": {
+        "registered": "Registered device",
+        "state": {
+          "bound": "Bound",
+          "unbound": "Unbound",
+          "awaiting": "Awaiting install",
+          "none": "No smartphone"
+        },
+        "facts": {
+          "model": "Model",
+          "os": "OS",
+          "version": "App version",
+          "boundOn": "Bound on",
+          "lastSeen": "Last seen",
+          "ip": "Last IP",
+          "binding": "Binding"
+        },
+        "today": "Today, {time}",
+        "yesterday": "Yesterday, {time}",
+        "neverBadge": "Never (badge)",
+        "notApplicable": "Not applicable",
+        "resetNow": "Reset just now",
+        "notRegistered": "Not registered",
+        "reset": "Reset device",
+        "resetConfirm": "The employee will have to sign in again on their new phone.",
+        "resetYes": "Reset",
+        "cancel": "Cancel",
+        "resetDone": "Device binding reset",
+        "logins": "Login history",
+        "noLogins": "No logins yet.",
+        "success": "Success",
+        "failed": "Failed — wrong code"
+      },
+      "docs": {
+        "documents": "Documents",
+        "upload": "Upload",
+        "none": "No documents.",
+        "delete": "Delete {name}",
+        "deleted": "Document deleted",
+        "uploaded": "Uploaded {name}",
+        "justNow": "just now",
+        "notes": "Admin notes",
+        "notePlaceholder": "Add a note…",
+        "addNote": "Add note",
+        "seedNote": "Prefers early shifts. Has asked to be considered for team lead."
+      },
+      "activity": {
+        "title": "Audit trail",
+        "by": "By {name}",
+        "to": "To {value}",
+        "standard": "Standard full-time",
+        "flagDetail": "Outside geofence · by {name}",
+        "actions": {
+          "created": "Employee created",
+          "assigned": "Assigned to {site}",
+          "inviteSent": "Invitation sent by SMS",
+          "deviceBound": "Device bound",
+          "policySet": "Leave policy set",
+          "flagApproved": "Attendance flag approved",
+          "scheduleAdded": "Schedule added",
+          "scheduleEdited": "Schedule edited",
+          "scheduleRemoved": "Schedule removed",
+          "balanceAdjusted": "Leave balance adjusted",
+          "deviceReset": "Device binding reset",
+          "documentUploaded": "Document uploaded",
+          "documentDeleted": "Document deleted",
+          "noteAdded": "Note added",
+          "badgeRegenerated": "Badge and PIN regenerated",
+          "reactivated": "Employee reactivated",
+          "deactivated": "Employee deactivated"
+        }
+      }
+    }
+  },
+  "Sites": {
+    "title": "Branches & sites",
+    "subtitleSites": "{count, plural, one {# site} other {# sites}} with their geofence, team and live attendance",
+    "subtitleBranches": "Branches group sites; each site’s geofence is what check-ins are validated against",
+    "tabs": {
+      "branches": "Branches",
+      "sites": "Sites"
+    },
+    "view": "View",
+    "views": {
+      "map": "Map",
+      "list": "List"
+    },
+    "search": "Search sites",
+    "add": "Add site",
+    "filters": {
+      "branch": "Branch",
+      "manager": "Manager",
+      "status": "Status",
+      "allBranches": "All branches",
+      "allManagers": "All managers",
+      "anyStatus": "Any status",
+      "clear": "Clear filters"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "on": "On",
+    "off": "Off",
+    "empty": {
+      "title": "No sites match",
+      "hint": "Try different filters or add a site."
+    },
+    "count": "{count, plural, one {# site} other {# sites}}",
+    "columns": {
+      "name": "Site",
+      "branch": "Branch",
+      "address": "Address",
+      "fence": "Geofence",
+      "manager": "Manager",
+      "employees": "Employees",
+      "today": "Present today",
+      "selfie": "Selfie",
+      "qr": "QR",
+      "status": "Status"
+    },
+    "fence": {
+      "circle": "Circle · {radius} m",
+      "polygon": "Polygon · {area} ha"
+    },
+    "actions": {
+      "menu": "Actions for {name}",
+      "view": "View",
+      "edit": "Edit",
+      "qr": "Print QR code",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "deactivate": {
+      "title": "Deactivate {name}?",
+      "withEmployees": "{count} assigned employees will no longer be able to check in here. History is kept.",
+      "noEmployees": "No employees are assigned. History is kept.",
+      "cancel": "Cancel",
+      "confirm": "Deactivate"
+    },
+    "toasts": {
+      "created": "{name} created",
+      "updated": "Site updated",
+      "reactivated": "{name} reactivated",
+      "deactivated": "{name} deactivated"
+    },
+    "qr": {
+      "title": "QR code · {name}",
+      "close": "Close",
+      "print": "Print",
+      "sent": "Sent to the printer",
+      "hint": "Post this at the entrance. Employees scan it to check in when QR is required."
+    },
+    "editor": {
+      "addTitle": "Add site",
+      "editTitle": "Edit {name}",
+      "cancel": "Cancel",
+      "create": "Create site",
+      "saveChanges": "Save changes",
+      "summary": "{count, plural, one {Fix # issue to continue.} other {Fix # issues to continue.}}",
+      "overlap": {
+        "title": "Overlaps another site.",
+        "body": "This geofence overlaps {names}. Check-ins in the shared area could be attributed to either site."
+      },
+      "basics": "Site details",
+      "name": "Site name",
+      "code": "Code",
+      "branch": "Branch",
+      "timezone": "Timezone",
+      "address": "Address",
+      "addressPlaceholder": "Search an address",
+      "searching": "Searching…",
+      "searchFailed": "Address search is unavailable. Click the map to place the pin.",
+      "noResults": "No address found",
+      "managers": "Site managers",
+      "employees": "Assigned employees",
+      "searchEmployees": "Search employees",
+      "hours": "Default working hours",
+      "start": "Start",
+      "end": "End",
+      "break": "Break (min)",
+      "verification": "Verification rules",
+      "toggles": {
+        "selfie": {
+          "title": "Require selfie",
+          "hint": "Employees take a photo at check-in."
+        },
+        "qr": {
+          "title": "Require QR scan",
+          "hint": "Check-in only after scanning the site QR code."
+        },
+        "device": {
+          "title": "Registered device only",
+          "hint": "Block check-ins from unregistered phones."
+        },
+        "offline": {
+          "title": "Allow offline check-in",
+          "hint": "Records sync when the phone is back online."
+        }
+      },
+      "accuracy": "Minimum GPS accuracy (m)",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "geofence": "Geofence",
+      "shape": "Shape",
+      "shapes": {
+        "circle": "Circle",
+        "polygon": "Polygon"
+      },
+      "mapType": "Map type",
+      "street": "Street",
+      "satellite": "Satellite",
+      "locate": "Use my location",
+      "locateDone": "Pin moved to your location",
+      "locateUnavailable": "Location unavailable. Search an address or click the map.",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "hint": {
+        "circleEmpty": "Click the map to place the pin",
+        "circleSet": "Drag the pin to move it · drag the white handle to resize",
+        "polyDrawing": "Click to add points ({count}/3 minimum)",
+        "polyClose": "Click the first point or “Finish shape” to close",
+        "polyEdit": "Drag vertices to reshape · right-click a vertex to delete it",
+        "minVertices": "A polygon needs at least 3 vertices"
+      },
+      "radius": "Radius",
+      "radiusMeters": "Radius in meters",
+      "vertices": "{count} vertices",
+      "finishShape": "Finish shape",
+      "redraw": "Redraw",
+      "measures": {
+        "area": "Area",
+        "perimeter": "Perimeter",
+        "center": "Center"
+      },
+      "qr": {
+        "title": "Site QR code",
+        "preview": "Preview only. Enter a site code to generate the real code.",
+        "required": "Post this at the entrance. Employees scan it for QR check-in.",
+        "optional": "Post this at the entrance. QR is not required, but works as a fallback.",
+        "print": "Print",
+        "download": "Download"
+      },
+      "qrDownloaded": "QR code downloaded",
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameExists": "A site with this name exists",
+        "codeRequired": "Code is required",
+        "codeExists": "Code already in use",
+        "addressRequired": "Choose or type an address",
+        "radiusMin": "Radius must be at least 30 m",
+        "placePin": "Place the pin on the map to define the geofence",
+        "finishShape": "Draw at least 3 points and finish the shape",
+        "accuracyRange": "Enter between 5 and 500 m",
+        "hoursOrder": "End time must be after start time"
+      }
+    },
+    "detail": {
+      "edit": "Edit",
+      "qr": "QR code",
+      "outside": "outside the geofence",
+      "noRoster": "No one is scheduled here today.",
+      "proxyBy": "Proxy · {name}",
+      "tabs": {
+        "today": "Today",
+        "employees": "Employees",
+        "schedule": "Schedule",
+        "history": "Attendance history",
+        "managers": "Managers",
+        "settings": "Settings"
+      },
+      "stats": {
+        "rate": "Attendance rate",
+        "arrival": "Average arrival",
+        "lates": "Lates",
+        "flags": "Flags",
+        "thisMonth": "This month",
+        "fourBefore": "4 min before shift"
+      },
+      "rosterStatus": {
+        "in": "Checked in",
+        "late": "Late",
+        "out": "Checked out",
+        "absent": "Absent",
+        "expected": "Expected",
+        "flagged": "Flagged"
+      },
+      "columns": {
+        "employee": "Employee",
+        "shift": "Shift",
+        "in": "In",
+        "out": "Out",
+        "status": "Status",
+        "method": "Method",
+        "actions": "Actions"
+      },
+      "methods": {
+        "app": "App",
+        "qr": "QR",
+        "proxy": "Proxy"
+      },
+      "proxy": {
+        "checkIn": "Proxy check-in",
+        "checkOut": "Proxy check-out",
+        "time": "Time",
+        "reason": "Reason (required)",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "doneIn": "Proxy check-in recorded",
+        "doneOut": "Proxy check-out recorded"
+      },
+      "team": {
+        "assigned": "{count} assigned employees",
+        "add": "Add employee…",
+        "addButton": "Add",
+        "added": "{name} added to {site}",
+        "none": "No employees assigned.",
+        "remove": "Remove {name}",
+        "confirmRemove": "Remove",
+        "cancel": "Cancel",
+        "removed": "{name} removed"
+      },
+      "schedule": {
+        "employee": "Employee",
+        "off": "Off",
+        "leave": "Leave"
+      },
+      "history": {
+        "search": "Search employee",
+        "status": "Status",
+        "all": "All statuses",
+        "none": "No records match.",
+        "noCheckIn": "No check-in",
+        "statuses": {
+          "in": "Present",
+          "late": "Late",
+          "absent": "Absent",
+          "flagged": "Flagged"
+        }
+      },
+      "managerRoles": {
+        "branchManager": "Branch manager",
+        "siteManager": "Site manager",
+        "teamLead": "Team lead"
+      },
+      "managers": {
+        "title": "Site managers",
+        "add": "Add manager…",
+        "addButton": "Add",
+        "added": "{name} is now a manager here",
+        "none": "No manager assigned.",
+        "call": "Call",
+        "calling": "Calling {name}…",
+        "remove": "Remove {name}",
+        "removed": "{name} removed as manager"
+      },
+      "settings": {
+        "requireSelfie": {
+          "title": "Require selfie",
+          "hint": "Photo at every check-in."
+        },
+        "requireQr": {
+          "title": "Require QR scan",
+          "hint": "Scan the site QR code to check in."
+        },
+        "registeredDeviceOnly": {
+          "title": "Registered device only",
+          "hint": "Block unregistered phones."
+        },
+        "allowOffline": {
+          "title": "Allow offline check-in",
+          "hint": "Sync when back online."
+        },
+        "accuracy": "Minimum GPS accuracy (m)",
+        "accuracyError": "Enter between 5 and 500 m",
+        "unsaved": "Unsaved changes",
+        "saved": "All changes saved",
+        "save": "Save settings",
+        "done": "Settings saved"
+      }
+    },
+    "branches": {
+      "summary": "{branches, plural, one {# branch} other {# branches}} · {sites, plural, one {# site} other {# sites}} · {employees} employees",
+      "search": "Search branches",
+      "add": "Add branch",
+      "none": "No branches match.",
+      "selectOne": "Select a branch.",
+      "counts": "{sites, plural, one {# site} other {# sites}} · {employees} employees",
+      "archived": "{count, plural, one {# archived branch} other {# archived branches}}",
+      "archivedTag": "Archived",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "archiveOrDelete": "Archive or delete",
+      "deleteForever": "Delete permanently",
+      "restore": "Restore",
+      "restored": "{name} restored",
+      "stats": {
+        "rate": "Attendance rate",
+        "present": "Present today",
+        "sites": "Sites",
+        "employees": "Employees",
+        "thisMonth": "This month",
+        "checkedIn": "Checked in / expected",
+        "activeSites": "Active sites",
+        "roster": "On the roster"
+      },
+      "admins": "Branch admins",
+      "noAdmins": "No branch admin.",
+      "headcount": "Headcount by site",
+      "noSites": "No active sites.",
+      "sitesTitle": "Sites",
+      "presentOf": "{present}/{expected} present",
+      "employeesCount": "{count} employees",
+      "links": {
+        "live": "Live board",
+        "employees": "Employees",
+        "site": "Site"
+      },
+      "holidays": {
+        "fr": {
+          "name": "France (national)",
+          "count": "11 public holidays"
+        },
+        "alsace": {
+          "name": "France – Alsace-Moselle",
+          "count": "13 public holidays"
+        },
+        "be": {
+          "name": "Belgium (national)",
+          "count": "10 public holidays"
+        },
+        "custom": {
+          "name": "Custom calendar",
+          "count": "Dates managed in Settings"
+        }
+      },
+      "workflows": {
+        "default": {
+          "name": "Company default",
+          "hint": "Uses the company-wide approval rules."
+        },
+        "single": {
+          "name": "Branch admin only",
+          "hint": "One approval from a branch admin."
+        },
+        "two": {
+          "name": "Branch admin, then HR",
+          "hint": "Two steps: branch admin, then HR."
+        },
+        "auto": {
+          "name": "Auto-approve up to 2 days",
+          "hint": "Longer requests go to a branch admin."
+        }
+      },
+      "form": {
+        "addTitle": "Add branch",
+        "editTitle": "Edit branch",
+        "create": "Create branch",
+        "save": "Save changes",
+        "created": "{name} created",
+        "updated": "Branch updated",
+        "summary": "{count, plural, one {Fix # field to continue.} other {Fix # fields to continue.}}",
+        "name": "Name",
+        "code": "Code",
+        "address": "Address",
+        "timezone": "Timezone",
+        "admins": "Branch admins",
+        "holidays": "Holiday calendar",
+        "workflow": "Leave approval workflow",
+        "errors": {
+          "nameRequired": "Name is required",
+          "nameExists": "A branch with this name exists",
+          "codeRequired": "Code is required",
+          "codeShort": "2–4 letters",
+          "codeExists": "Code already in use",
+          "addressRequired": "Address is required"
+        }
+      },
+      "retire": {
+        "title": "Archive or delete {name}",
+        "titleDelete": "Delete {name}",
+        "attached": "This branch has {sites, plural, one {# active site} other {# active sites}} and {employees} employees. Reassign them to another branch first.",
+        "empty": "This branch has no active sites or employees.",
+        "choose": "What do you want to do?",
+        "cancel": "Cancel",
+        "back": "Back",
+        "continue": "Continue",
+        "confirmArchive": "Archive branch",
+        "confirmDelete": "Delete branch",
+        "choices": {
+          "archive": {
+            "title": "Archive",
+            "hint": "Hides the branch from lists and pickers. History is kept and you can restore it later."
+          },
+          "delete": {
+            "title": "Delete permanently",
+            "hint": "Removes the branch. Attendance history stays with each site. This cannot be undone."
+          }
+        },
+        "moveTo": "Move sites and employees to",
+        "moveHint": "{sites, plural, one {# site moves} other {# sites move}} with their employees.",
+        "selectBranch": "Select a branch…",
+        "typeCode": "Type {code} to confirm",
+        "deleted": "{name} deleted",
+        "archivedDone": "{name} archived",
+        "moved": "{count, plural, one {# site moved} other {# sites moved}} to {to}"
+      }
+    }
+  },
+  "Shell": {
+    "navigation": "Main navigation",
+    "close": "Close",
+    "menu": "Open menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "upgrade": "Upgrade",
+    "planName": "Business plan",
+    "employees": "employees",
+    "groups": {
+      "monitor": "Monitor",
+      "manage": "Manage",
+      "admin": "Admin"
+    },
+    "today": "Today",
+    "timezone": "Company timezone: Europe/Paris (UTC+2, CEST)",
+    "scope": {
+      "title": "Choose a scope",
+      "all": "All branches & sites",
+      "branch": "Branch",
+      "search": "Search branches and sites",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "meta": "{sites, plural, one {# site} other {# sites}} · {people} people",
+      "people": "{count} people",
+      "none": "No scopes match “{query}”",
+      "noteAll": "You can access the whole company.",
+      "noteLimited": "Only scopes you have access to are listed."
+    },
+    "search": {
+      "placeholder": "Search employees, sites, branches…",
+      "short": "Search",
+      "results": "Search results",
+      "suggested": "Suggested",
+      "groups": {
+        "employees": "Employees",
+        "sites": "Sites",
+        "branches": "Branches"
+      },
+      "branchMeta": "{sites, plural, one {# site} other {# sites}} · {people} people",
+      "noResults": "No results for “{query}”",
+      "noResultsHint": "Try a name, job title, site or city.",
+      "searchingIn": "Searching in: {scope}",
+      "scopeCompany": "all branches & sites",
+      "scopeLimited": "your scope"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "markAll": "Mark all as read",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "viewAll": "View all notifications",
+      "caughtUp": "You’re all caught up",
+      "caughtUpHint": "New alerts in your scope will appear here.",
+      "tabs": {
+        "all": "All",
+        "unread": "Unread"
+      },
+      "missingDescription": "Shift ended {time}, no check-out recorded",
+      "kinds": {
+        "fraud": "Fraud flag",
+        "leave": "Leave",
+        "missing": "Missing check-out",
+        "uncov": "Uncovered",
+        "fraudTitle": "Flagged check-in",
+        "leaveTitle": "Leave request",
+        "missingTitle": "Missing check-out",
+        "uncovTitle": "Uncovered intervention"
+      }
+    },
+    "help": {
+      "title": "Help",
+      "new": "New",
+      "status": "All systems operational",
+      "items": {
+        "helpCenter": "Help center",
+        "shortcuts": "Keyboard shortcuts",
+        "whatsNew": "What’s new",
+        "contact": "Contact support",
+        "mobileApp": "Get the mobile app"
+      }
+    },
+    "account": {
+      "title": "Account menu",
+      "profile": "My profile",
+      "security": "Security",
+      "twofa": "2FA on",
+      "language": "Language",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "switch": "Switch workspace",
+      "signOut": "Sign out",
+      "roleAt": "{role} · {company}",
+      "roles": {
+        "admin": "Company admin",
+        "branch": "Branch manager",
+        "site": "Site manager"
+      }
+    }
+  },
+  "Schedules": {
+    "title": "Schedules",
+    "allPublished": "All changes published",
+    "unpublished": "{count, plural, one {# unpublished change} other {# unpublished changes}}",
+    "conflictCount": "{count, plural, one {# conflict} other {# conflicts}}",
+    "copyWeek": "Copy previous week",
+    "addShift": "Add shift",
+    "newSchedule": "New schedule",
+    "publishChanges": "Publish changes",
+    "view": "View",
+    "views": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "previous": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "groupBy": "Group by",
+    "employees": "Employees",
+    "sites": "Sites",
+    "groupEmployee": "Employee",
+    "groupSite": "Site",
+    "filters": {
+      "branch": "Branch",
+      "site": "Site",
+      "employee": "Employee",
+      "type": "Type",
+      "allBranches": "All branches",
+      "allSites": "All sites",
+      "allEmployees": "All employees",
+      "allTypes": "All types"
+    },
+    "clear": "Clear",
+    "recurring": "Recurring",
+    "intervention": "Intervention",
+    "leave": "Leave",
+    "unassigned": "Unassigned",
+    "holiday": "Holiday",
+    "conflict": "Conflict",
+    "open": "Open",
+    "needsEmployee": "Needs an employee",
+    "nothingMatches": "Nothing matches the filters.",
+    "approvedLeave": "{name} · approved leave",
+    "onApprovedLeave": "On approved leave",
+    "more": "{count} more",
+    "resizeHint": "Drag to change the end time",
+    "openInterventions": "Unassigned interventions",
+    "dragHint": "Drag onto a day or an employee row.",
+    "noOpen": "Everything is scheduled.",
+    "employeesPanel": "Employees",
+    "employeesHint": "Drag a name onto a day to add a shift.",
+    "holidays": {
+      "allSaints": "All Saints",
+      "armistice": "Armistice Day"
+    },
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "conflicts": {
+      "leave": "{name} is on approved leave this day.",
+      "overlap": "Double-booked: overlaps {site} {from}–{to}."
+    },
+    "toasts": {
+      "assigned": "{name} assigned",
+      "assignedTo": "{title} assigned to {name}",
+      "scheduledOpen": "{title} scheduled — still needs an employee",
+      "moved": "Shift moved",
+      "added": "Shift added for {name}",
+      "shiftAdded": "Shift added",
+      "updated": "Shift updated",
+      "deleted": "Shift deleted",
+      "nothingToCopy": "Nothing to copy — this week already has the previous week’s shifts",
+      "copied": "{count} shifts copied from the previous week",
+      "draftSaved": "Saved as draft",
+      "published": "Published",
+      "shifts": "{count, plural, one {# shift} other {# shifts}}",
+      "notified": "employees notified",
+      "schedulePublished": "Schedule published",
+      "employeesNotified": "{count} employees notified"
+    },
+    "shift": {
+      "newTitle": "New shift",
+      "editTitle": "Edit shift",
+      "add": "Add shift",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "delete": "Delete shift",
+      "type": "Shift type",
+      "types": {
+        "rec": "Recurring",
+        "int": "Intervention"
+      },
+      "interventionTitle": "Intervention title",
+      "titlePlaceholder": "e.g. Boiler inspection",
+      "employee": "Employee",
+      "unassigned": "Unassigned",
+      "site": "Site",
+      "date": "Date",
+      "start": "Start",
+      "end": "End",
+      "errors": {
+        "employee": "Choose an employee for a recurring shift",
+        "time": "End time must be after start time"
+      }
+    },
+    "publish": {
+      "title": "Publish schedule changes",
+      "cancel": "Cancel",
+      "confirm": "Publish",
+      "anyway": "Publish anyway",
+      "summary": {
+        "changed": "added or edited",
+        "deleted": "deleted",
+        "employees": "employees affected"
+      },
+      "conflicts": "{count, plural, one {# conflict is still unresolved.} other {# conflicts are still unresolved.}}",
+      "notify": "Notify employees",
+      "notifyOn": "Push and SMS to {count} employees.",
+      "notifyOff": "Employees will see changes without a message."
+    },
+    "modal": {
+      "title": "Create schedule",
+      "tabs": {
+        "rec": "Recurring schedule",
+        "int": "One-off intervention"
+      },
+      "cancel": "Cancel",
+      "saveDraft": "Save as draft",
+      "publish": "Publish",
+      "publishAnyway": "Publish anyway",
+      "fixFields": "Fix the highlighted fields to continue.",
+      "appliesTo": "Applies to {who}",
+      "employees": "{count, plural, one {# employee} other {# employees}}",
+      "priorityLabel": "Priority: {priority}",
+      "name": "Schedule name",
+      "namePlaceholder": "e.g. Saint-Denis day crew",
+      "who": "Who",
+      "modes": {
+        "emp": "Employees",
+        "group": "Group"
+      },
+      "group": "Group",
+      "searchEmployees": "Search employees",
+      "site": "Site",
+      "days": "Days of the week",
+      "start": "Start",
+      "end": "End",
+      "break": "Break (min)",
+      "grace": "Lateness grace (min)",
+      "earlyLeave": "Early-leave tolerance (min)",
+      "crossesMidnight": "Crosses midnight",
+      "crossOn": "Shift ends the next day (e.g. 22:00 → 06:00).",
+      "crossOff": "Shift ends the same day.",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "noEnd": "No end date",
+      "rotation": "Rotation pattern",
+      "rotationOn": "Alternates between two time windows each cycle, e.g. 2 weeks day, 2 weeks night.",
+      "rotationOff": "Off — the same hours every week.",
+      "phaseA": "Phase A (weeks)",
+      "phaseB": "Phase B (weeks)",
+      "bStart": "Phase B start",
+      "bEnd": "Phase B end",
+      "week": "Wk {n}",
+      "interventionTitle": "Title",
+      "titlePlaceholder": "e.g. Boiler inspection",
+      "date": "Date",
+      "assignees": "Assign to",
+      "optional": "optional",
+      "priority": "Priority",
+      "priorities": {
+        "low": "Low",
+        "normal": "Normal",
+        "high": "High",
+        "urgent": "Urgent"
+      },
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "What needs to be done, access codes, tools…",
+      "attach": "Attach files",
+      "remove": "Remove {name}",
+      "notify": "Notify employees",
+      "notifyOn": "Assigned employees get a push and SMS when you publish.",
+      "notifyOff": "Assigned employees won’t be messaged.",
+      "errors": {
+        "name": "Give the schedule a name",
+        "who": "Choose at least one employee",
+        "days": "Select at least one day",
+        "endAfterStart": "End must be after start, or turn on “Crosses midnight”",
+        "identical": "Start and end cannot be identical",
+        "startDate": "Start date is required",
+        "endDate": "End date must be on or after the start date",
+        "phaseB": "Phase B start and end cannot be identical",
+        "title": "Title is required",
+        "date": "Date is required"
+      },
+      "check": {
+        "shifts": "{count, plural, one {# shift} other {# shifts}} over the next {span}",
+        "fourWeeks": "4 weeks",
+        "period": "period",
+        "assignments": "{count, plural, one {# assignment} other {# assignments}}",
+        "conflicts": "{count, plural, one {# conflict} other {# conflicts}}",
+        "notes": "no conflicts, {count, plural, one {# note} other {# notes}}",
+        "none": "no conflicts",
+        "promptRec": "Choose employees, days and dates to check conflicts.",
+        "promptInt": "Set a date to check conflicts.",
+        "leave": "{name} is on approved leave on {date}.",
+        "booked": "{name} is already booked {from}–{to} on {date}.",
+        "holiday": "{date} is a public holiday ({name}).",
+        "unassigned": "No employee assigned. It will appear in the unassigned list.",
+        "more": "and {count} more"
+      }
+    }
+  },
+  "Users": {
+    "title": "Users & Roles",
+    "search": "Search by name or email",
+    "you": "(you)",
+    "rowActions": "Actions for {name}",
+    "noUsers": "No users match.",
+    "summary": {
+      "users": "{active} active · {invited} invited · {admins, plural, one {# Company admin} other {# Company admins}}",
+      "roles": "{count, plural, one {# role} other {# roles}} · {custom} custom"
+    },
+    "tabs": {
+      "users": "Dashboard users",
+      "roles": "Roles"
+    },
+    "filters": {
+      "role": "Role",
+      "allRoles": "All roles",
+      "status": "Status",
+      "anyStatus": "Any status"
+    },
+    "columns": {
+      "user": "User",
+      "role": "Role",
+      "scope": "Scope",
+      "lastActive": "Last active",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "invited": "Invited",
+      "revoked": "Revoked"
+    },
+    "lastActive": {
+      "now": "Active now",
+      "today": "Today, {time}",
+      "yesterday": "Yesterday"
+    },
+    "scopeLabel": {
+      "company": "Whole company",
+      "everything": "All branches and sites",
+      "branches": "{count} branches",
+      "sites": "{count} sites"
+    },
+    "scopeKinds": {
+      "company": "Whole company",
+      "branch": "Branches",
+      "site": "Sites"
+    },
+    "actions": {
+      "changeRole": "Change role",
+      "resend": "Resend invite",
+      "restore": "Restore access",
+      "revoke": "Revoke access",
+      "cantRevokeSelf": "You can’t revoke yourself"
+    },
+    "revoke": {
+      "title": "Revoke access for {name}",
+      "message": "They will be signed out and can no longer open the dashboard.",
+      "cancel": "Cancel",
+      "confirm": "Revoke access"
+    },
+    "toasts": {
+      "resent": "Invite resent to {email}",
+      "restored": "{name} can sign in again",
+      "keepAdmin": "Keep at least one Company admin",
+      "revoked": "Access revoked for {name}",
+      "roleUpdated": "Role updated",
+      "roleCreated": "Role created"
+    },
+    "defaultRoles": {
+      "admin": {
+        "name": "Company admin",
+        "desc": "Full access to every branch, site and setting, including users and billing."
+      },
+      "hr": {
+        "name": "HR manager",
+        "desc": "Manages people, leave and attendance across the company. No user administration."
+      },
+      "branch": {
+        "name": "Branch manager",
+        "desc": "Runs one or more branches: schedules, approvals, employees and sites inside their scope."
+      },
+      "site": {
+        "name": "Site manager",
+        "desc": "Handles daily operations on assigned sites, including proxy check-ins."
+      },
+      "viewer": {
+        "name": "Read-only viewer",
+        "desc": "Can see data within their scope but cannot change anything."
+      }
+    },
+    "invite": {
+      "open": "Invite user",
+      "titleNew": "Invite user",
+      "titleEdit": "Change role & scope",
+      "email": "Email",
+      "emailPlaceholder": "name@company.com",
+      "role": "Role",
+      "scope": "Scope",
+      "fixedCompany": "Whole company — this role isn’t limited to branches or sites.",
+      "message": "Message",
+      "optional": "(optional)",
+      "messagePlaceholder": "You’ve been invited to manage attendance on StaffSync. Accept to set your password.",
+      "cancel": "Cancel",
+      "send": "Send invite",
+      "save": "Save changes",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
+        "taken": "This person already has access",
+        "pickBranch": "Select at least one branch",
+        "pickSite": "Select at least one site"
+      },
+      "toasts": {
+        "sent": "Invite sent to {email}",
+        "changed": "{name} is now {role}",
+        "keepAdmin": "Keep at least one Company admin"
+      }
+    },
+    "roles": {
+      "create": "Create role",
+      "default": "Default",
+      "custom": "Custom",
+      "userCount": "{count, plural, one {# user} other {# users}}",
+      "summary": "{count} of {total} permissions · {scope}",
+      "blocked": "{count, plural, one {# user still has} other {# users still have}} this role. Reassign them first.",
+      "showUsers": "Show these users",
+      "confirmDelete": "Delete {name}?",
+      "deleted": "Role “{name}” deleted",
+      "view": "View",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "cancel": "Cancel"
+    },
+    "scopes": {
+      "company": {
+        "name": "Whole company",
+        "desc": "Every branch and site."
+      },
+      "branches": {
+        "name": "Selected branches",
+        "desc": "Only the branches you tick."
+      },
+      "ownBranch": {
+        "name": "Own branch",
+        "desc": "The branch each user is assigned to."
+      },
+      "sites": {
+        "name": "Selected sites",
+        "desc": "Only the sites you tick."
+      },
+      "ownSite": {
+        "name": "Own site",
+        "desc": "The site each user is assigned to."
+      },
+      "self": {
+        "name": "Self only",
+        "desc": "Just the user’s own records."
+      }
+    },
+    "modules": {
+      "att": {
+        "name": "Attendance",
+        "sub": "Records, corrections and live board"
+      },
+      "proxy": {
+        "name": "Check-in on behalf",
+        "sub": "Proxy check-in and check-out"
+      },
+      "fraud": {
+        "name": "Fraud alerts",
+        "sub": "Flagged check-ins and resolution"
+      },
+      "emp": {
+        "name": "Employees",
+        "sub": "Profiles, devices and badges"
+      },
+      "site": {
+        "name": "Sites",
+        "sub": "Geofences, QR codes, rules"
+      },
+      "branch": {
+        "name": "Branches",
+        "sub": "Branch setup and holidays"
+      },
+      "sch": {
+        "name": "Schedules",
+        "sub": "Shifts, interventions, publishing"
+      },
+      "lva": {
+        "name": "Leave approval",
+        "sub": "Review and decide requests"
+      },
+      "lvs": {
+        "name": "Leave settings",
+        "sub": "Policies and balances"
+      },
+      "rep": {
+        "name": "Reports",
+        "sub": "Run and schedule reports"
+      },
+      "exp": {
+        "name": "Export",
+        "sub": "Download CSV, Excel and PDF"
+      },
+      "usr": {
+        "name": "Users & roles",
+        "sub": "Dashboard access and roles"
+      },
+      "audit": {
+        "name": "Audit log",
+        "sub": "Who changed what"
+      },
+      "set": {
+        "name": "Settings",
+        "sub": "Company-wide configuration"
+      },
+      "bill": {
+        "name": "Billing",
+        "sub": "Plan, invoices and seats"
+      }
+    },
+    "editor": {
+      "back": "Users & roles",
+      "titles": {
+        "create": "Create role",
+        "duplicate": "Duplicate role",
+        "edit": "Edit role"
+      },
+      "copyName": "{name} (copy)",
+      "customDesc": "Custom role.",
+      "status": {
+        "readOnly": "Default role · read-only",
+        "unsaved": "Unsaved changes",
+        "notSaved": "Not saved yet",
+        "saved": "All changes saved"
+      },
+      "duplicateToCustomise": "Duplicate to customise",
+      "close": "Close",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "createRole": "Create role",
+      "readOnlyNote": "Default roles are read-only. Duplicate one to customise it.",
+      "details": "Role details",
+      "name": "Role name",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this role for?",
+      "dataScope": "Data scope",
+      "dataScopeHint": "Which records this role’s users can work with.",
+      "treeHintBranches": "Pick the branches this role covers",
+      "treeHintSites": "Pick the sites this role covers",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "siteCount": "{count, plural, one {# site} other {# sites}}",
+      "companyWideNote": "Users & roles, Settings and Billing always apply company-wide, whatever the data scope.",
+      "permissions": "Permissions",
+      "enabled": "{count} of {total} enabled. Creating, editing or deleting also turns on viewing.",
+      "module": "Module",
+      "all": "All",
+      "selectModule": "Select all for {name}",
+      "canExport": "Can export data",
+      "actions": {
+        "view": "View",
+        "create": "Create",
+        "edit": "Edit",
+        "delete": "Delete",
+        "approve": "Approve"
+      },
+      "preview": "Preview",
+      "canSee": "Users with this role can see",
+      "navigation": "Navigation they’ll get",
+      "theyCan": "They can",
+      "theyCant": "They can’t",
+      "cantDelete": "Delete anything",
+      "usersAffected": "{count, plural, one {# user currently has} other {# users currently have}} this role.",
+      "see": {
+        "company": "Everything in the company — all branches and sites.",
+        "branches": "Only {names}.",
+        "ownBranch": "Only the branch each user is assigned to.",
+        "sites": "Only {names}.",
+        "ownSite": "Only the site each user is assigned to.",
+        "self": "Only their own records.",
+        "noBranch": "No branch picked yet.",
+        "noSite": "No site picked yet."
+      },
+      "nav": {
+        "overview": "Overview",
+        "live": "Live board",
+        "alerts": "Alerts",
+        "attendance": "Attendance",
+        "employees": "Employees",
+        "sites": "Branches & sites",
+        "schedules": "Schedules",
+        "leave": "Leave",
+        "reports": "Reports",
+        "users": "Users & access",
+        "audit": "Audit log",
+        "settings": "Settings"
+      },
+      "can": {
+        "att": {
+          "edit": "Edit and add attendance records"
+        },
+        "proxy": {
+          "create": "Check people in on their behalf"
+        },
+        "fraud": {
+          "approve": "Approve or reject fraud flags"
+        },
+        "emp": {
+          "create": "Add employees"
+        },
+        "sch": {
+          "edit": "Edit and publish schedules"
+        },
+        "lva": {
+          "approve": "Approve or reject leave"
+        },
+        "exp": {
+          "create": "Export data"
+        },
+        "usr": {
+          "edit": "Manage users and roles"
+        },
+        "set": {
+          "edit": "Change company settings"
+        },
+        "bill": {
+          "view": "See billing"
+        },
+        "not": {
+          "usr": {
+            "edit": "Manage users or roles"
+          },
+          "set": {
+            "edit": "Change settings"
+          },
+          "bill": {
+            "view": "See billing"
+          }
+        }
+      },
+      "errors": {
+        "nameRequired": "Role name is required",
+        "nameTaken": "A role with this name already exists",
+        "pickBranch": "Select at least one branch",
+        "pickSite": "Select at least one site",
+        "noPerms": "Enable at least one permission"
+      },
+      "discard": {
+        "title": "Discard unsaved changes?",
+        "message": "You’ve changed this role. If you leave now, your changes will be lost.",
+        "keep": "Keep editing",
+        "confirm": "Discard changes"
+      }
+    }
+  },
+  "Settings": {
+    "title": "Settings",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saved": "Saved",
+    "edit": "Edit",
+    "uploadLogo": "Upload logo",
+    "logoUploaded": "Logo uploaded",
+    "nav": {
+      "company": {
+        "label": "Company profile",
+        "desc": "Your organisation’s identity and regional defaults."
+      },
+      "attendance": {
+        "label": "Attendance rules",
+        "desc": "How check-ins are validated and what counts as late, early or missing."
+      },
+      "leave": {
+        "label": "Leave policies",
+        "desc": "Leave types, approval workflow and public holidays."
+      },
+      "notif": {
+        "label": "Notifications",
+        "desc": "Who is told what, and through which channel."
+      },
+      "integ": {
+        "label": "Integrations",
+        "desc": "Payroll export, API access, webhooks and single sign-on."
+      },
+      "billing": {
+        "label": "Billing",
+        "desc": "Plan, usage, invoices and payment method."
+      },
+      "danger": {
+        "label": "Danger zone",
+        "desc": "Irreversible actions for the whole company."
+      }
+    },
+    "groups": {
+      "profile": {
+        "title": "Company profile",
+        "sub": "Shown on invoices, reports and emails."
+      },
+      "punctuality": {
+        "title": "Punctuality",
+        "sub": "Defaults for new sites. Sites can override them."
+      },
+      "checkout": {
+        "title": "Check-out & overtime"
+      },
+      "verification": {
+        "title": "Verification"
+      },
+      "workflow": {
+        "title": "Approval workflow"
+      },
+      "holidays": {
+        "title": "Public holidays by branch",
+        "sub": "Holidays are excluded from leave duration."
+      },
+      "payroll": {
+        "title": "Payroll export"
+      }
+    },
+    "fields": {
+      "logo": {
+        "label": "Logo",
+        "hint": "Square image, at least 200 px."
+      },
+      "name": {
+        "label": "Company name"
+      },
+      "addr": {
+        "label": "Address",
+        "hint": "Registered address."
+      },
+      "tz": {
+        "label": "Default timezone",
+        "hint": "Used for new branches and reports."
+      },
+      "lang": {
+        "label": "Language",
+        "hint": "Dashboard and email language."
+      },
+      "dfmt": {
+        "label": "Date format"
+      },
+      "tfmt": {
+        "label": "Time format"
+      },
+      "wk": {
+        "label": "Week starts on",
+        "hint": "Affects schedules and calendars."
+      },
+      "grace": {
+        "label": "Grace period for lateness",
+        "hint": "Minutes after shift start before someone counts as late."
+      },
+      "early": {
+        "label": "Early-leave tolerance",
+        "hint": "Minutes before shift end that are still fine."
+      },
+      "autoOut": {
+        "label": "Auto check-out time",
+        "hint": "Open shifts are closed at this time."
+      },
+      "miss": {
+        "label": "Missing check-out handling"
+      },
+      "ot": {
+        "label": "Overtime rule"
+      },
+      "otApp": {
+        "label": "Overtime needs approval",
+        "hint": "Overtime stays pending until a manager approves."
+      },
+      "gps": {
+        "label": "Minimum GPS accuracy",
+        "hint": "Check-ins less accurate than this are flagged."
+      },
+      "mock": {
+        "label": "Block mock locations",
+        "hint": "Reject check-ins from spoofed GPS."
+      },
+      "selfie": {
+        "label": "Require selfie by default"
+      },
+      "qr": {
+        "label": "Require QR scan by default"
+      },
+      "offline": {
+        "label": "Allow offline check-in",
+        "hint": "Records are kept on the phone until it syncs."
+      },
+      "sync": {
+        "label": "Max sync delay",
+        "hint": "Offline check-ins older than this are flagged."
+      },
+      "wf": {
+        "label": "Approval levels"
+      },
+      "hLyon": {
+        "label": "Lyon"
+      },
+      "hParis": {
+        "label": "Paris Nord"
+      },
+      "hMrs": {
+        "label": "Marseille"
+      },
+      "pay": {
+        "label": "Export format",
+        "hint": "Used by timesheet and overtime exports."
+      },
+      "paySplit": {
+        "label": "Split overtime into its own column"
+      },
+      "sso": {
+        "label": "Provider"
+      },
+      "ssoDom": {
+        "label": "Email domain",
+        "hint": "People with this domain use SSO."
+      },
+      "ssoUrl": {
+        "label": "Metadata URL"
+      },
+      "ssoForce": {
+        "label": "Require SSO",
+        "hint": "Disables password sign-in for this domain."
+      }
+    },
+    "options": {
+      "tfmt": {
+        "24h": "24-hour (14:30)",
+        "12h": "12-hour (2:30 PM)"
+      },
+      "wk": {
+        "monday": "Monday",
+        "sunday": "Sunday",
+        "saturday": "Saturday"
+      },
+      "miss": {
+        "flag": "Flag for review",
+        "auto": "Auto check-out at shift end",
+        "ignore": "Ignore"
+      },
+      "ot": {
+        "daily8": "Daily, over 8 hours",
+        "weekly40": "Weekly, over 40 hours",
+        "approval": "Only when approved"
+      },
+      "wf": {
+        "one": "One level — site or branch manager",
+        "two": "Two levels — manager, then HR"
+      },
+      "hLyon": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgium (national)",
+        "custom": "Custom calendar"
+      },
+      "hParis": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgium (national)",
+        "custom": "Custom calendar"
+      },
+      "hMrs": {
+        "fr": "France (national)",
+        "alsace": "France – Alsace-Moselle",
+        "be": "Belgium (national)",
+        "custom": "Custom calendar"
+      },
+      "pay": {
+        "silae": "Silae",
+        "payfit": "PayFit",
+        "adp": "ADP",
+        "csv": "Generic CSV",
+        "xlsx": "Excel"
+      },
+      "sso": {
+        "none": "Not configured",
+        "google": "Google Workspace",
+        "entra": "Microsoft Entra ID",
+        "saml": "Generic SAML 2.0"
+      }
+    },
+    "units": {
+      "min": "min",
+      "m": "m",
+      "hours": "hours"
+    },
+    "errors": {
+      "required": "Required",
+      "email": "Enter a valid email",
+      "url": "Enter a valid URL",
+      "range": "Enter a number from {min} to {max}"
+    },
+    "colors": {
+      "0": "Blue",
+      "1": "Violet",
+      "2": "Orange",
+      "3": "Green",
+      "4": "Amber",
+      "5": "Grey"
+    },
+    "leaveTypes": {
+      "title": "Leave types",
+      "sub": "Each type has its own allowance and rules.",
+      "add": "Add leave type",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "yes": "Yes",
+      "no": "No",
+      "paidYes": "Paid",
+      "paidNo": "Unpaid",
+      "days": "{count} d",
+      "columns": {
+        "type": "Type",
+        "pay": "Pay",
+        "daysYear": "Days / year",
+        "doc": "Doc",
+        "notice": "Notice",
+        "half": "Half",
+        "carry": "Carry-over"
+      },
+      "addTitle": "Add leave type",
+      "editTitle": "Edit leave type",
+      "name": "Name",
+      "nameError": "Name is required",
+      "colour": "Colour",
+      "paid": "Paid",
+      "allowance": "Allowance per year (days)",
+      "allowanceError": "Enter 0 or more",
+      "document": "Document required",
+      "notice": "Minimum notice (days)",
+      "half": "Half days allowed",
+      "carry": "Carry-over max (days)",
+      "added": "Leave type added",
+      "updated": "Leave type updated",
+      "deleted": "Leave type deleted",
+      "deleteTitle": "Delete “{name}”?",
+      "deleteMessage": "Existing requests keep their type, but employees can no longer request it."
+    },
+    "notifications": {
+      "title": "Notification matrix",
+      "sub": "Tick the channels for each event, then choose who receives it.",
+      "event": "Event",
+      "sentTo": "Sent to",
+      "nobody": "Nobody",
+      "channels": {
+        "inApp": "In-app",
+        "push": "Push",
+        "email": "Email",
+        "sms": "SMS"
+      },
+      "roles": {
+        "admin": "Company admin",
+        "hr": "HR manager",
+        "branch": "Branch manager",
+        "site": "Site manager",
+        "employee": "Employee"
+      },
+      "events": {
+        "fraud": {
+          "name": "Fraud flag raised",
+          "desc": "A check-in is flagged as suspicious."
+        },
+        "noshow": {
+          "name": "No-show after grace period",
+          "desc": "Employee hasn’t checked in on time."
+        },
+        "miss": {
+          "name": "Missing check-out",
+          "desc": "Shift ended without a check-out."
+        },
+        "lvnew": {
+          "name": "New leave request",
+          "desc": "An employee submits leave."
+        },
+        "lvdec": {
+          "name": "Leave decision",
+          "desc": "A request is approved or rejected."
+        },
+        "unc": {
+          "name": "Uncovered intervention",
+          "desc": "An intervention has nobody assigned."
+        }
+      }
+    },
+    "keys": {
+      "title": "API keys",
+      "sub": "Keys give programmatic access. Treat them like passwords.",
+      "create": "Create key",
+      "createTitle": "Create API key",
+      "createdTitle": "Key created",
+      "name": "Key name",
+      "namePlaceholder": "e.g. Payroll sync",
+      "nameError": "Give the key a name",
+      "copyNow": "Copy it now. You won’t be able to see it again.",
+      "secret": "Secret key",
+      "done": "Done",
+      "cancel": "Cancel",
+      "revoke": "Revoke",
+      "empty": "No API keys yet.",
+      "createdNow": "Created just now · never used",
+      "createdSeed": "Created 12 Aug · used today",
+      "revokeTitle": "Revoke “{name}”?",
+      "revokeMessage": "Anything using this key will stop working immediately.",
+      "revokeConfirm": "Revoke key",
+      "revoked": "Key revoked"
+    },
+    "hooks": {
+      "title": "Webhooks",
+      "sub": "We send a signed POST to your URL when these events happen.",
+      "add": "Add webhook",
+      "addTitle": "Add webhook",
+      "createdTitle": "Webhook added",
+      "url": "Endpoint URL",
+      "urlError": "Enter an HTTPS URL",
+      "eventsLabel": "Events",
+      "eventsError": "Pick at least one event",
+      "copyNow": "Copy the signing secret now. You won’t be able to see it again.",
+      "secret": "Signing secret",
+      "done": "Done",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "empty": "No webhooks yet.",
+      "noEvents": "No events",
+      "enabled": "Webhook {url} enabled",
+      "deleteTitle": "Delete this webhook?",
+      "deleted": "Webhook deleted",
+      "events": {
+        "checkinFlagged": "Check-in flagged",
+        "checkinCreated": "Check-in created",
+        "leaveRequested": "Leave requested",
+        "leaveApproved": "Leave approved",
+        "employeeDeactivated": "Employee deactivated",
+        "schedulePublished": "Schedule published"
+      }
+    },
+    "sso": {
+      "title": "Single sign-on",
+      "sub": "Let people sign in with your identity provider.",
+      "edit": "Edit",
+      "test": "Test connection",
+      "connected": "Connection to {provider} succeeded"
+    },
+    "billing": {
+      "title": "Plan & usage",
+      "renews": "Renews on {date} · billed monthly",
+      "usage": "{used} of {cap} employees",
+      "seatsLeft": "{count, plural, one {# seat left} other {# seats left}}",
+      "current": "Current",
+      "price": "{price} per employee / month",
+      "capacity": "Up to {count} employees",
+      "yourPlan": "Your plan",
+      "tooMany": "Too many employees",
+      "upgrade": "Upgrade",
+      "downgrade": "Downgrade",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "changeTitle": "{direction, select, up {Upgrade to {plan}?} other {Downgrade to {plan}?}}",
+      "changeMessage": "New price {price} per employee per month from your next invoice.",
+      "changed": "Plan changed to {plan}",
+      "plans": {
+        "starter": {
+          "name": "Starter"
+        },
+        "growth": {
+          "name": "Growth"
+        },
+        "scale": {
+          "name": "Scale"
+        }
+      },
+      "payment": "Payment method",
+      "update": "Update",
+      "cardEnding": "Visa ending {last4}",
+      "cardExpiry": "Expires {date} · {name}",
+      "card": {
+        "title": "Update payment method",
+        "number": "Card number",
+        "numberError": "Enter a valid card number",
+        "expiry": "Expiry (MM/YY)",
+        "expiryError": "Use MM/YY",
+        "save": "Save card",
+        "updated": "Payment method updated"
+      },
+      "invoices": "Invoices",
+      "paid": "Paid",
+      "download": "Download",
+      "downloading": "Downloading {id}"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "sub": "These actions can’t be undone.",
+      "export": {
+        "title": "Export all data",
+        "desc": "Employees, attendance, leave and the audit log as a ZIP. We’ll email you a download link.",
+        "button": "Request export",
+        "requested": "Export requested · link will be emailed to you"
+      },
+      "delete": {
+        "title": "Delete company",
+        "desc": "Permanently deletes {name} with all its branches, employees, records and users.",
+        "button": "Delete company",
+        "confirmTitle": "Delete {name}?",
+        "confirmMessage": "All data will be erased within 30 days. Everyone loses access immediately.",
+        "typePrefix": "Type",
+        "typeSuffix": "to confirm",
+        "cancel": "Cancel",
+        "scheduled": "Deletion scheduled · check your email to confirm"
+      }
+    }
+  },
+  "Profile": {
+    "saved": "Profile saved",
+    "cancel": "Cancel",
+    "save": "Save",
+    "photoUpdated": "Photo updated",
+    "changePhoto": "Change photo",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "notifications": "Notifications"
+    },
+    "details": {
+      "title": "Personal details",
+      "edit": "Edit details",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "language": "Language",
+      "timezone": "Timezone"
+    },
+    "access": {
+      "title": "Your role & access",
+      "role": "Role",
+      "scope": "Data scope",
+      "settings": "Company settings",
+      "allowed": "Allowed",
+      "noAccess": "No access",
+      "settingsNote": "Company-wide settings (attendance rules, leave policies, billing…) are managed separately from your personal profile.",
+      "noSettingsNote": "Your role doesn’t include company settings. A company admin can grant the “Settings” permission in Users & roles.",
+      "openSettings": "Open company settings"
+    },
+    "edit": {
+      "title": "Edit personal details",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "language": "Language",
+      "timezone": "Timezone",
+      "required": "Required",
+      "emailInvalid": "Enter a valid email"
+    },
+    "password": {
+      "title": "Password",
+      "sub": "Use at least 10 characters.",
+      "change": "Change password",
+      "modalTitle": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "update": "Update password",
+      "updated": "Password updated · other sessions signed out",
+      "currentError": "Enter your current password",
+      "lengthError": "At least 10 characters",
+      "matchError": "Passwords don’t match"
+    },
+    "twofa": {
+      "title": "Two-factor authentication",
+      "sub": "Protects your account if your password is stolen.",
+      "intro": "Add a second step at sign-in using an authenticator app.",
+      "setUp": "Set up two-factor",
+      "scan": "1. Scan this code with your authenticator app, or enter the key",
+      "enterCode": "2. Enter the 6-digit code it shows.",
+      "codeLabel": "6-digit code",
+      "verify": "Verify",
+      "cancel": "Cancel",
+      "codeError": "Enter the 6-digit code from your app",
+      "saveCodes": "Save these backup codes. Each works once if you lose your phone.",
+      "newCodes": "New backup codes",
+      "download": "Download",
+      "saved": "I’ve saved them",
+      "done": "Done",
+      "enabled": "Enabled",
+      "enabledToast": "Two-factor authentication is on",
+      "regenerate": "New backup codes",
+      "turnOff": "Turn off",
+      "offTitle": "Turn off two-factor?",
+      "offMessage": "Your account will only be protected by your password.",
+      "offToast": "Two-factor turned off"
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "sub": "Devices currently signed in to your account.",
+      "signOutOthers": "Sign out all others",
+      "signedOutOthers": "Signed out of other sessions",
+      "thisDevice": "This device",
+      "meta": "{when, select, now {{place}, France · active now} hours {{place}, France · 2 hours ago} other {{place}, France · 3 days ago}}",
+      "signOut": "Sign out",
+      "signedOut": "Signed out {device}"
+    },
+    "notifications": {
+      "title": "My notifications",
+      "sub": "Only affects you. Company-wide rules are set in Settings.",
+      "event": "Event"
+    }
+  },
+  "Audit": {
+    "title": "Audit log",
+    "subtitle": "A read-only record of who changed what, and when.",
+    "company": "Company",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "search": "Search target, reason or user",
+    "count": "{count, plural, one {# entry} other {# entries}}",
+    "badRange": "End date is before the start date",
+    "opening": "Opening {target}",
+    "nothingToExport": "Nothing to export",
+    "exported": "Exported {count, plural, one {# entry} other {# entries}}",
+    "reasonGiven": "Reason given",
+    "noChanges": "No value changes were recorded.",
+    "entry": "Entry",
+    "session": "Session {id}",
+    "showMore": "Show {count} more",
+    "empty": {
+      "title": "No entries found",
+      "hint": "Try widening the date range or clearing some filters."
+    },
+    "ranges": {
+      "0": "Today",
+      "7": "Last 7 days",
+      "30": "Last 30 days",
+      "all": "Any time",
+      "custom": "Custom range"
+    },
+    "filters": {
+      "range": "Date range",
+      "actor": "User",
+      "action": "Action",
+      "type": "Target type",
+      "branch": "Branch",
+      "site": "Site",
+      "allUsers": "All users",
+      "allActions": "All actions",
+      "allTypes": "All target types",
+      "allBranches": "All branches",
+      "allSites": "All sites",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "when": "When",
+      "actor": "Actor",
+      "action": "Action",
+      "target": "Target",
+      "scope": "Scope",
+      "ipDevice": "IP / device"
+    },
+    "diff": {
+      "field": "Field",
+      "before": "Before",
+      "after": "After"
+    },
+    "actions": {
+      "rec": "Record edited",
+      "proxy": "Proxy check-in",
+      "flag": "Flag approved",
+      "flagr": "Flag rejected",
+      "lvok": "Leave approved",
+      "lvno": "Leave rejected",
+      "role": "Role changed",
+      "set": "Settings changed",
+      "deact": "Employee deactivated",
+      "emp": "Employee updated",
+      "site": "Site updated",
+      "login": "Sign-in",
+      "sched": "Schedule published",
+      "exp": "Report exported"
+    },
+    "targetTypes": {
+      "rec": "Attendance record",
+      "emp": "Employee",
+      "lv": "Leave request",
+      "role": "Role",
+      "set": "Setting",
+      "site": "Site",
+      "user": "User",
+      "sched": "Schedule",
+      "rep": "Report",
+      "flag": "Fraud flag"
+    },
+    "actorRoles": {
+      "admin": "Company admin",
+      "branch": "Branch manager",
+      "site": "Site manager",
+      "payroll": "Payroll officer"
+    },
+    "export": {
+      "button": "Export",
+      "csv": "Export filtered entries (CSV)",
+      "xlsx": "Export filtered entries (Excel)",
+      "timestamp": "Timestamp",
+      "actor": "Actor",
+      "role": "Role",
+      "action": "Action",
+      "targetType": "Target type",
+      "target": "Target",
+      "scope": "Scope",
+      "ip": "IP",
+      "device": "Device",
+      "reason": "Reason",
+      "changes": "Changes"
+    }
+  },
+  "Reports": {
+    "title": "Reports",
+    "subtitle": "Choose a report to open, or pick up where you left off.",
+    "search": "Search reports",
+    "noMatch": "No report matches “{query}”.",
+    "tabs": {
+      "library": "All reports",
+      "saved": "Saved & scheduled"
+    },
+    "categories": {
+      "time": "Time & attendance",
+      "leave": "Leave",
+      "sites": "Sites & compliance"
+    },
+    "types": {
+      "timesheet": {
+        "name": "Timesheet",
+        "desc": "Scheduled vs worked hours per person, ready for payroll."
+      },
+      "hours": {
+        "name": "Hours worked",
+        "desc": "Worked hours with variance against the plan."
+      },
+      "lateness": {
+        "name": "Lateness",
+        "desc": "Late arrivals, minutes lost and punctuality."
+      },
+      "absences": {
+        "name": "Absences",
+        "desc": "Excused and unexcused absences."
+      },
+      "overtime": {
+        "name": "Overtime",
+        "desc": "Overtime hours, approved or pending."
+      },
+      "leave": {
+        "name": "Leave taken",
+        "desc": "Days taken per leave type."
+      },
+      "flagged": {
+        "name": "Flagged check-ins",
+        "desc": "Fraud and anomaly flags and how they were resolved."
+      },
+      "site": {
+        "name": "Site attendance summary",
+        "desc": "Expected vs present, lates and flags per site."
+      },
+      "proxy": {
+        "name": "Proxy check-ins",
+        "desc": "Check-ins made on behalf of employees."
+      }
+    },
+    "cols": {
+      "timesheet": {
+        "sch": "Scheduled",
+        "wrk": "Worked",
+        "brk": "Breaks",
+        "ot": "Overtime",
+        "days": "Days worked"
+      },
+      "hours": {
+        "wrk": "Worked",
+        "sch": "Scheduled",
+        "var": "Variance",
+        "avg": "Avg per day"
+      },
+      "lateness": {
+        "n": "Late arrivals",
+        "min": "Minutes late",
+        "avg": "Avg minutes",
+        "ot": "On-time rate"
+      },
+      "absences": {
+        "n": "Absences",
+        "exc": "Excused",
+        "unx": "Unexcused",
+        "rate": "Absence rate"
+      },
+      "overtime": {
+        "ot": "Overtime",
+        "apr": "Approved",
+        "pen": "Pending",
+        "sh": "Shifts over 8 h"
+      },
+      "leave": {
+        "an": "Annual",
+        "rtt": "RTT",
+        "sick": "Sick",
+        "fam": "Family event",
+        "tot": "Total"
+      },
+      "flagged": {
+        "n": "Flags",
+        "apr": "Approved",
+        "rej": "Rejected",
+        "open": "Still open"
+      },
+      "site": {
+        "exp": "Expected",
+        "pres": "Present",
+        "rate": "Attendance",
+        "late": "Lates",
+        "fl": "Flags"
+      },
+      "proxy": {
+        "n": "Proxy check-ins",
+        "qr": "Via badge QR",
+        "man": "Manual by manager",
+        "dl": "Avg delay"
+      }
+    },
+    "units": {
+      "h": "h",
+      "d": "d",
+      "n": "n",
+      "min": "min",
+      "%": "%"
+    },
+    "ranges": {
+      "7": {
+        "label": "Last 7 days",
+        "short": "Oct 9 – 15"
+      },
+      "month": {
+        "label": "This month",
+        "short": "Oct 1 – 15"
+      },
+      "last": {
+        "label": "Last month",
+        "short": "September"
+      },
+      "q": {
+        "label": "Last quarter",
+        "short": "Jul – Sep"
+      },
+      "custom": {
+        "label": "Custom range",
+        "short": "Custom"
+      }
+    },
+    "groups": {
+      "employee": {
+        "label": "Employee",
+        "plural": "employees"
+      },
+      "site": {
+        "label": "Site",
+        "plural": "sites"
+      },
+      "branch": {
+        "label": "Branch",
+        "plural": "branches"
+      },
+      "day": {
+        "label": "Day",
+        "plural": "days"
+      }
+    },
+    "export": {
+      "formats": {
+        "csv": "CSV",
+        "xlsx": "Excel",
+        "pdf": "PDF"
+      },
+      "menu": {
+        "csv": "Export CSV",
+        "xlsx": "Export Excel",
+        "pdf": "Export PDF"
+      }
+    },
+    "saved": {
+      "allBranches": "All branches",
+      "allSites": "all sites",
+      "sitesCount": "{count} sites",
+      "customDates": "custom dates",
+      "notScheduled": "Not scheduled",
+      "paused": "Paused",
+      "neverSent": "Never sent",
+      "lastSent": "Last sent {date}",
+      "nextSend": "Next send {date}",
+      "open": "Open",
+      "more": "More actions for {name}",
+      "editSchedule": "Edit schedule",
+      "scheduleEmail": "Schedule email",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirmDelete": "{scheduled, select, yes {Delete {name} and its email schedule?} other {Delete {name}?}}",
+      "deleted": "Report deleted",
+      "empty": "Nothing saved yet. Open a report and choose Save."
+    },
+    "view": {
+      "back": "Back to reports",
+      "reports": "Reports",
+      "save": "Save",
+      "schedule": "Schedule",
+      "export": "Export",
+      "nothingToExport": "Nothing to export yet",
+      "exported": "Exported {count, plural, one {# row} other {# rows}} as {format}",
+      "dates": "Dates",
+      "groupBy": "Group by",
+      "scope": "Scope",
+      "columns": "Columns",
+      "everything": "Everything",
+      "branchesCount": "{count} branches",
+      "sitesCount": "{count} sites",
+      "peopleCount": "{count} people",
+      "pickDates": "Pick dates",
+      "endBeforeStart": "End date is before the start date.",
+      "chooseBoth": "Choose both dates.",
+      "from": "From",
+      "to": "To",
+      "colError": "Select at least one column",
+      "table": "Table",
+      "chart": "Chart",
+      "summary": "{count} {noun} · {range} 2026",
+      "metric": "Metric",
+      "total": "Total · {count} {noun}",
+      "noColumns": "Select at least one column to see the report.",
+      "fixRange": "Fix the date range to see the report.",
+      "noMatch": "Nothing matches this scope. Widen the scope or reset it."
+    },
+    "scope": {
+      "title": "Report scope",
+      "hint": "Leave a section empty to include everything.",
+      "branches": "Branches",
+      "sites": "Sites",
+      "employees": "Employees",
+      "selected": "{count} selected",
+      "all": "all",
+      "searchEmployees": "Search employees",
+      "reset": "Reset to everything",
+      "done": "Done"
+    },
+    "save": {
+      "titleNew": "Save report",
+      "titleUpdate": "Update saved report",
+      "name": "Report name",
+      "nameError": "Give the report a name",
+      "hint": "Keeps the dates, scope, grouping and columns.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "saved": "Report saved"
+    },
+    "schedule": {
+      "title": "Schedule email delivery",
+      "currentReport": "Current report",
+      "name": "Report name",
+      "nameError": "Give the report a name",
+      "frequency": "Frequency",
+      "freqs": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "dayDaily": "On",
+      "dayWeekly": "Day of week",
+      "dayMonthly": "Day of month",
+      "everyDay": "Every day",
+      "weekdays": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "monthDays": {
+        "1": "1st",
+        "5": "5th",
+        "15": "15th",
+        "last": "Last day"
+      },
+      "sendAt": "Send at",
+      "recipients": "Recipients",
+      "removeRecipient": "Remove {email}",
+      "emailPlaceholder": "name@company.com",
+      "add": "Add",
+      "emailInvalid": "Enter a valid email address",
+      "recipientError": "Add at least one recipient",
+      "format": "Format",
+      "active": "Active",
+      "activeHint": "Paused schedules keep their settings but send nothing.",
+      "summary": "{freq, select, daily {Sends every day at {time}} weekly {Sends every {day} at {time}} other {Sends monthly ({day}) at {time}}} to {count, plural, one {# recipient} other {# recipients}} as {format}.",
+      "remove": "Remove schedule",
+      "cancel": "Cancel",
+      "save": "Save schedule",
+      "saved": "Schedule saved · {count, plural, one {# recipient} other {# recipients}}",
+      "removed": "Schedule removed"
+    }
+  }
+}
