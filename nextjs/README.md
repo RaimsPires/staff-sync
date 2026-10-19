@@ -1,6 +1,6 @@
 # StaffSync admin: Next.js + TypeScript + Tailwind
 
-All 30 screens of the prototype, ported to Next.js (App Router).
+All 31 screens of the prototype (`src/screens/`), ported to Next.js (App Router). The prototype's `StaffSync.dc.html` shell/Screens menu is replaced by real routes + `screen-host.tsx`.
 
 ```bash
 npm install

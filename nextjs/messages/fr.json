@@ -851,5 +851,6 @@
     "revoke_access_for_p0": "Revoke access for {p0}?",
     "they_will_be_signed_out": "They will be signed out and can no longer open the dashboard. Their activity history is kept, and you can restore access later.",
     "revoke_access": "Revoke access"
-  }
+  },
+  "AdminLeave": {}
 }
