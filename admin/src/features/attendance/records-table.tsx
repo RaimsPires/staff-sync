@@ -6,11 +6,12 @@ import { MethodIcon } from "@/components/ui/method-icon";
 import { Avatar } from "@/components/ui/misc";
 import { StatusChip } from "@/components/ui/status-chip";
 import { DEMO_MONTH, DEMO_TODAY, DEMO_YEAR } from "@/data/live";
-import { branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import type { AttendanceRecord } from "@/types/domain";
 import type { Column } from "./filters-bar";
 import { employeeCode, isFlagged, methodOf, type Sort, type SortKey } from "./model";
+import { useClock } from "@/lib/preferences";
 
 const SORTABLE: Partial<Record<Column, SortKey>> = { date: "date", employee: "employee", site: "site", in: "in", out: "out", worked: "worked", status: "status", edited: "edited" };
 
@@ -31,6 +32,8 @@ const th = "h-[38px] whitespace-nowrap border-b border-border px-3 font-medium";
 const td = "px-3 py-2.5 align-middle";
 
 export function RecordsTable({ rows, hidden, columns, sort, onSort, selected, onToggle, onTogglePage, openId, onOpen }: Props) {
+  const clock = useClock();
+  const org = useOrg();
   const t = useTranslations("Attendance");
   const tKinds = useTranslations("Drawer.kinds");
   const format = useFormatter();
@@ -66,7 +69,7 @@ export function RecordsTable({ rows, hidden, columns, sort, onSort, selected, on
         <tbody>
           {rows.map((r) => {
             const day = r.date ?? DEMO_TODAY;
-            const site = siteById(r.site);
+            const site = org.siteById(r.site);
             const flagged = isFlagged(r) || r.fraud;
             const method = methodOf({ ...r, date: day });
             const edit = r.approved ? { by: t("approvedBy", { name: r.approved }), at: r.approvedAt ?? "" } : (r.edit ?? (r.proxyBy ? { by: r.proxyBy, at: "15 Oct" } : null));
@@ -105,26 +108,26 @@ export function RecordsTable({ rows, hidden, columns, sort, onSort, selected, on
                       return (
                         <td key={c} className={td}>
                           <div className="whitespace-nowrap">{site.name}</div>
-                          <div className="text-[11.5px] text-text-3">{branchOfSite(r.site).name}</div>
+                          <div className="text-[11.5px] text-text-3">{org.branchOfSite(r.site).name}</div>
                         </td>
                       );
                     case "scheduled":
                       return (
                         <td key={c} className={td}>
-                          <div className="whitespace-nowrap font-mono text-[12.5px]">{r.sched}</div>
+                          <div className="whitespace-nowrap font-mono text-[12.5px]">{clock.range(r.sched)}</div>
                           <div className="text-[11.5px] text-text-3">{tKinds(r.kind)}</div>
                         </td>
                       );
                     case "in":
                       return (
                         <td key={c} className={cn(td, "font-mono text-[12.5px]", r.status === "late" ? "text-warn" : flagged ? "text-bad" : r.in ? "text-text" : "text-text-3")}>
-                          {r.in || "—"}
+                          {r.in ? clock.time(r.in) : "—"}
                         </td>
                       );
                     case "out":
                       return (
                         <td key={c} className={cn(td, "font-mono text-[12.5px]", r.status === "early" ? "text-warn" : r.status === "overtime" ? "text-violet" : r.status === "missing" ? "text-orange" : r.out ? "text-text" : "text-text-3")}>
-                          {r.out || (r.in && day === DEMO_TODAY && r.status !== "missing" ? "…" : "—")}
+                          {r.out ? clock.time(r.out) : (r.in && day === DEMO_TODAY && r.status !== "missing" ? "…" : "—")}
                         </td>
                       );
                     case "worked":

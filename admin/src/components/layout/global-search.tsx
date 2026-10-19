@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { forwardRef, useMemo, useState } from "react";
 import { avatarColors, initials } from "@/components/ui/misc";
 import { StatusChip } from "@/components/ui/status-chip";
-import { BRANCHES, siteById } from "@/data/org";
-import { ROLE_SITES } from "@/lib/permissions";
-import { sitesIn } from "@/lib/scope";
+import { useOrg } from "@/lib/org";
+import { roleSiteIds, sitesIn } from "@/lib/scope";
 import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
 import { useSession } from "@/store/session";
 import { useAccess } from "@/store/use-access";
+import { useRuledRecords } from "@/lib/attendance-rules";
 
 interface Props {
   open: boolean;
@@ -23,32 +23,33 @@ interface Props {
 
 /** Search across employees, sites and branches in the current scope. ⌘K / Ctrl+K focuses it. */
 export const GlobalSearch = forwardRef<HTMLInputElement, Props>(function GlobalSearch({ open, onOpen, onToggle, onClose }, inputRef) {
+  const org = useOrg();
   const t = useTranslations("Shell.search");
   const tg = useTranslations("Shell.search.groups");
   const tj = useTranslations("Data.jobs");
   const router = useRouter();
   const { role, siteIds } = useAccess();
   const setScope = useSession((s) => s.setScope);
-  const today = useData((s) => s.today);
+  const today = useRuledRecords(useData((s) => s.today));
   const [query, setQuery] = useState("");
 
   const q = query.trim().toLowerCase();
   const match = (v: string) => v.toLowerCase().includes(q);
   const limit = q ? 5 : 3;
-  const sites = sitesIn(siteIds);
-  const people = (ids: string[]) => ids.reduce((sum, id) => sum + siteById(id).expected, 0);
-  const allowed = ROLE_SITES[role];
+  const sites = sitesIn(siteIds, org);
+  const people = (ids: string[]) => ids.reduce((sum, id) => sum + org.siteById(id).expected, 0);
+  const allowed = roleSiteIds(role, org);
 
   const groups = useMemo(() => {
-    const employees = today.filter((r) => siteIds.includes(r.site)).filter((r) => !q || match(r.name) || match(tj(r.job)) || match(siteById(r.site).name));
-    const siteList = sites.filter((s) => !q || match(s.name) || match(s.address) || match(BRANCHES.find((b) => b.id === s.branchId)?.name ?? ""));
-    const branchList = BRANCHES.filter((b) => role !== "site" && b.siteIds.every((s) => allowed.includes(s))).filter((b) => !q || match(b.name));
+    const employees = today.filter((r) => siteIds.includes(r.site)).filter((r) => !q || match(r.name) || match(tj(r.job)) || match(org.siteById(r.site).name));
+    const siteList = sites.filter((s) => !q || match(s.name) || match(s.address) || match(org.branches.find((b) => b.id === s.branchId)?.name ?? ""));
+    const branchList = org.branches.filter((b) => role !== "site" && b.siteIds.every((s) => allowed.includes(s))).filter((b) => !q || match(b.name));
     return [
       { key: "employees", count: employees.length, items: employees.slice(0, limit).map((r) => ({
-        key: `e${r.id}`, title: r.name, sub: `${tj(r.job)} · ${siteById(r.site).name}`, avatar: r.name, status: (r.fraud ? "fraud" : r.status) as Parameters<typeof StatusChip>[0]["status"],
+        key: `e${r.id}`, title: r.name, sub: `${tj(r.job)} · ${org.siteById(r.site).name}`, avatar: r.name, status: (r.fraud ? "fraud" : r.status) as Parameters<typeof StatusChip>[0]["status"],
         go: () => router.push(`/attendance?drawer=${r.id}&date=today`) })) },
       { key: "sites", count: siteList.length, items: siteList.slice(0, limit).map((s) => ({
-        key: `s${s.id}`, title: s.name, sub: `${BRANCHES.find((b) => b.id === s.branchId)?.name} · ${s.address}`, icon: MapPin, tile: "bg-accent-soft text-accent",
+        key: `s${s.id}`, title: s.name, sub: `${org.branches.find((b) => b.id === s.branchId)?.name} · ${s.address}`, icon: MapPin, tile: "bg-accent-soft text-accent",
         go: () => router.push(`/dashboard?site=${s.id}`) })) },
       { key: "branches", count: branchList.length, items: branchList.slice(0, limit).map((b) => ({
         key: `b${b.id}`, title: b.name, sub: t("branchMeta", { sites: b.siteIds.length, people: people(b.siteIds) }), icon: GitBranch, tile: "bg-violet-bg text-violet",
@@ -56,7 +57,7 @@ export const GlobalSearch = forwardRef<HTMLInputElement, Props>(function GlobalS
     ].filter((g) => g.items.length > 0);
     // `match` and `people` are derived from q/siteIds, which are already dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, today, siteIds, role, limit, tj, router, setScope, t]);
+  }, [q, today, siteIds, role, limit, tj, router, setScope, t, org]);
 
   const scopeLabel = role === "admin" ? t("scopeCompany") : t("scopeLimited");
 

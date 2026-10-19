@@ -5,12 +5,14 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { UNCOVERED } from "@/data/live";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { useLeaveFormat } from "@/features/leave/use-leave-format";
+import { usePresence } from "@/lib/use-presence";
 import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
 import { pendingIn, useLeave } from "@/store/leave";
 import { useAccess } from "@/store/use-access";
+import { useLeaveTypes } from "@/features/leave/use-leave-types";
 
 type Kind = "fraud" | "leave" | "missing" | "uncov";
 const KIND: Record<Kind, { icon: LucideIcon; tile: string }> = {
@@ -31,9 +33,11 @@ interface Item {
 }
 
 export function NotificationsMenu({ open, onToggle, onClose }: { open: boolean; onToggle: () => void; onClose: () => void }) {
+  const { mounted, state } = usePresence(open, 120);
+  const org = useOrg();
   const t = useTranslations("Shell.notifications");
   const ta = useTranslations("Dashboard.attention");
-  const tLeave = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const tData = useTranslations("Data.interventions");
   const router = useRouter();
   const leaveFormat = useLeaveFormat();
@@ -47,15 +51,15 @@ export function NotificationsMenu({ open, onToggle, onClose }: { open: boolean; 
     const list: Item[] = [];
     const inScope = today.filter((r) => siteIds.includes(r.site));
     inScope.filter((r) => r.flag && !r.cleared && !r.fraud).forEach((r) =>
-      list.push({ id: `f${r.id}`, kind: "fraud", title: `${t("kinds.fraudTitle")} · ${r.name}`, description: r.flag === "dist" ? ta("fraud.distance", { distance: r.dist ?? "" }) : ta("fraud.mock"), site: siteById(r.site).name, time: r.in, href: `/attendance?drawer=${r.id}&date=today` }));
+      list.push({ id: `f${r.id}`, kind: "fraud", title: `${t("kinds.fraudTitle")} · ${r.name}`, description: r.flag === "dist" ? ta("fraud.distance", { distance: r.dist ?? "" }) : ta("fraud.mock"), site: org.siteById(r.site).name, time: r.in, href: `/attendance?drawer=${r.id}&date=today` }));
     inScope.filter((r) => r.status === "missing").forEach((r) =>
-      list.push({ id: `m${r.id}`, kind: "missing", title: `${t("kinds.missingTitle")} · ${r.name}`, description: t("missingDescription", { time: r.sched.split("–")[1] }), site: siteById(r.site).name, time: "06:15", href: `/attendance?drawer=${r.id}&date=today` }));
+      list.push({ id: `m${r.id}`, kind: "missing", title: `${t("kinds.missingTitle")} · ${r.name}`, description: t("missingDescription", { time: r.sched.split("–")[1] }), site: org.siteById(r.site).name, time: "06:15", href: `/attendance?drawer=${r.id}&date=today` }));
     UNCOVERED.filter((u) => siteIds.includes(u.site)).forEach((u) =>
-      list.push({ id: `u${u.id}`, kind: "uncov", title: t("kinds.uncovTitle"), description: tData(u.kind), site: siteById(u.site).name, time: u.time === "yesterday" ? ta("yesterday") : u.time, href: "/schedules" }));
+      list.push({ id: `u${u.id}`, kind: "uncov", title: t("kinds.uncovTitle"), description: tData(u.kind), site: org.siteById(u.site).name, time: u.time === "yesterday" ? ta("yesterday") : u.time, href: "/schedules" }));
     pendingIn(leaveRequests, siteIds).slice(0, 3).forEach((l) =>
-      list.push({ id: `l-${l.id}`, kind: "leave", title: `${t("kinds.leaveTitle")} · ${l.name}`, description: `${tLeave(l.type)} · ${leaveFormat.range(l.from, l.to)}`, site: siteById(l.site).name, time: leaveFormat.submitted(l.submitted), href: "/leave?tab=pending" }));
+      list.push({ id: `l-${l.id}`, kind: "leave", title: `${t("kinds.leaveTitle")} · ${l.name}`, description: `${leaveTypes.label(l.type)} · ${leaveFormat.range(l.from, l.to)}`, site: org.siteById(l.site).name, time: leaveFormat.submitted(l.submitted), href: "/leave?tab=pending" }));
     return list;
-  }, [today, leaveRequests, siteIds, t, ta, tLeave, tData, leaveFormat]);
+  }, [today, leaveRequests, siteIds, t, ta, leaveTypes, tData, leaveFormat, org]);
 
   const unread = items.filter((n) => !read[n.id]);
   const shown = tab === "unread" ? unread : items;
@@ -69,8 +73,8 @@ export function NotificationsMenu({ open, onToggle, onClose }: { open: boolean; 
           <span className="absolute -right-[5px] -top-[5px] box-border grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-solid border-surface bg-bad-dot px-[5px] text-[10.5px] font-bold text-white">{unread.length}</span>
         )}
       </button>
-      {open && (
-        <div role="dialog" aria-label={t("title")} className="absolute -right-24 top-[calc(100%+8px)] z-[2] flex w-[400px] max-w-[calc(100vw-24px)] animate-rise flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-pop lg:right-0">
+      {mounted && (
+        <div data-state={state} role="dialog" aria-label={t("title")} className="absolute -right-24 top-[calc(100%+8px)] z-[2] flex w-[400px] max-w-[calc(100vw-24px)] ss-drop flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-pop lg:right-0">
           <div className="flex items-center justify-between gap-2.5 px-4 pt-3.5">
             <span className="text-[15px] font-semibold">{t("title")}</span>
             <button onClick={() => setRead(Object.fromEntries(items.map((n) => [n.id, true])))} disabled={unread.length === 0} className={cn("border-0 bg-transparent py-1 text-[12.5px] font-medium", unread.length ? "text-accent" : "text-text-3")}>{t("markAll")}</button>

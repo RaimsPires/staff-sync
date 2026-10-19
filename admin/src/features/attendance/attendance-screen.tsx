@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { Popover } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
 import { EmptyState } from "@/components/ui/misc";
-import { branchById, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { exportTable, type ExportFormat, type Table } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
@@ -18,6 +18,8 @@ import { ALL_COLUMNS, FiltersBar, STATUS_OPTIONS, type Column } from "./filters-
 import { applyBaseFilters, applyFilters, DEFAULT_FILTERS, employeeCode, isFlagged, methodOf, rangeOf, sortRecords, statusOf, withDate, type Filters, type Sort, type SortKey } from "./model";
 import { RecordDrawer } from "./record-drawer";
 import { RecordsTable } from "./records-table";
+import { useRuledRecords } from "@/lib/attendance-rules";
+import { useDateFormat } from "@/lib/preferences";
 
 interface SavedView {
   id: string;
@@ -47,15 +49,17 @@ function initialFilters(initial: AttendanceInitial): Filters {
 }
 
 export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
+  const org = useOrg();
   const t = useTranslations("Attendance");
   const tStatus = useTranslations("Status");
   const router = useRouter();
   const format = useFormatter();
   const toast = useToast();
   const { siteIds, perms, scope, me } = useAccess();
-  const today = useData((s) => s.today);
-  const history = useData((s) => s.history);
+  const today = useRuledRecords(useData((s) => s.today));
+  const history = useRuledRecords(useData((s) => s.history));
   const updateRecord = useData((s) => s.updateRecord);
+  const numericDate = useDateFormat();
 
   const [filters, setFilters] = useState<Filters>(() => initialFilters(initial));
   const [sort, setSort] = useState<Sort>({ key: "date", dir: "desc" });
@@ -76,9 +80,9 @@ export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
   const allViews = [...builtinViews, ...views];
 
   const all = useMemo(() => [...today.map(withDate), ...history], [today, history]);
-  const base = useMemo(() => applyBaseFilters(all, filters, siteIds), [all, filters, siteIds]);
-  const filtered = useMemo(() => applyFilters(all, filters, siteIds), [all, filters, siteIds]);
-  const sorted = useMemo(() => sortRecords(filtered, sort), [filtered, sort]);
+  const base = useMemo(() => applyBaseFilters(all, filters, siteIds, org), [all, filters, siteIds, org]);
+  const filtered = useMemo(() => applyFilters(all, filters, siteIds, org), [all, filters, siteIds, org]);
+  const sorted = useMemo(() => sortRecords(filtered, sort, org), [filtered, sort, org]);
   const pages = Math.max(1, Math.ceil(sorted.length / perPage));
   const current = Math.min(page, pages);
   const rows = sorted.slice((current - 1) * perPage, current * perPage);
@@ -103,7 +107,7 @@ export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
 
   const [from, to] = rangeOf(filters);
   const rangeText = filters.range === "custom" ? `${format.dateTime(new Date(2026, 9, from), { day: "numeric", month: "short" })} – ${format.dateTime(new Date(2026, 9, to), { day: "numeric", month: "short" })}` : t(`ranges.${filters.range}`);
-  const scopeText = scope.kind === "company" ? t("scope.company") : scope.kind === "branch" ? (branchById(scope.id ?? "")?.name ?? "") : siteById(scope.id ?? "").name;
+  const scopeText = scope.kind === "company" ? t("scope.company") : scope.kind === "branch" ? (org.branchById(scope.id ?? "")?.name ?? "") : org.siteById(scope.id ?? "").name;
 
   const selectedRecords = all.filter((r) => selected.has(r.id));
   const pageIds = rows.map((r) => r.id);
@@ -112,7 +116,7 @@ export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
   const toTable = (list: AttendanceRecord[]): Table => [
     [t("export.date"), t("export.employeeId"), t("export.employee"), t("export.site"), t("export.scheduled"), t("export.checkIn"), t("export.checkOut"), t("export.worked"), t("export.status"), t("export.method"), t("export.flagged"), t("export.editedBy")],
     ...list.map((r) => [
-      `2026-10-${String(r.date ?? 15).padStart(2, "0")}`, employeeCode(r), r.name, siteById(r.site).name, r.sched, r.in, r.out, r.worked,
+      numericDate(Date.UTC(2026, 9, r.date ?? 15)), employeeCode(r), r.name, org.siteById(r.site).name, r.sched, r.in, r.out, r.worked,
       tStatus(r.fraud ? "fraud" : r.status), methodOf(r), isFlagged(r) ? t("export.yes") : "", r.edit?.by ?? "",
     ]),
   ];

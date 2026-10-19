@@ -4,9 +4,11 @@ import { Building2, GitBranch, MapPin, RefreshCw, type LucideIcon } from "lucide
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEMO_TODAY } from "@/data/live";
-import { COMPANY_NAME, branchById } from "@/data/org";
+import { lateShiftBySite, useAttendanceRules } from "@/lib/attendance-rules";
+import { useOrg } from "@/lib/org";
 import { sitesIn } from "@/lib/scope";
 import { cn } from "@/lib/utils";
+import { useData } from "@/store/data";
 import { useAccess } from "@/store/use-access";
 import { pendingIn, useLeave } from "@/store/leave";
 import { ActivityCard } from "./activity-card";
@@ -20,6 +22,7 @@ import { kpiDelta, methodCounts, punctuality, siteDay, sumBy, trendSeries } from
 import { PunctualityCard, type PunctualityGroup } from "./punctuality-card";
 import { TrendCard, type TrendRange } from "./trend-card";
 import { useLiveFeed } from "./use-live-feed";
+import { useSettings } from "@/store/settings";
 
 const SCOPE_ICON: Record<string, { icon: LucideIcon; chip: string }> = {
   company: { icon: Building2, chip: "bg-neutral-bg text-text" },
@@ -28,9 +31,11 @@ const SCOPE_ICON: Record<string, { icon: LucideIcon; chip: string }> = {
 };
 
 export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?: boolean; initialSite?: string | null }) {
+  const org = useOrg();
   const t = useTranslations("Dashboard");
   const tk = useTranslations("Dashboard.kpi");
   const { role, scope, siteIds, perms, me } = useAccess();
+  const companyName = useSettings((st) => st.values.name);
   const leaveRequests = useLeave((s) => s.requests);
 
   const [day, setDay] = useState(DEMO_TODAY);
@@ -45,14 +50,17 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
   const isToday = day === DEMO_TODAY;
   const feed = useLiveFeed(!isNew, isToday && !paused, siteIds);
 
-  const rows = useMemo(() => sitesIn(siteIds).map((s) => siteDay(s, day)), [siteIds, day]);
+  const rules = useAttendanceRules();
+  const todayRecords = useData((s) => s.today);
+  const lateShift = useMemo(() => lateShiftBySite(todayRecords, rules), [todayRecords, rules]);
+  const rows = useMemo(() => sitesIn(siteIds, org).map((s) => siteDay(s, day, lateShift[s.id] ?? 0)), [siteIds, day, org, lateShift]);
   const expected = sumBy(rows, "expected");
   const present = sumBy(rows, "present");
   const pending = pendingIn(leaveRequests, siteIds).length;
   const trend = useMemo(() => trendSeries(rows, day, range), [rows, day, range]);
   const methods = useMemo(() => methodCounts(rows), [rows]);
   const canGroup = scope.kind === "company";
-  const punct = useMemo(() => punctuality(rows, canGroup ? by : "site"), [rows, by, canGroup]);
+  const punct = useMemo(() => punctuality(rows, canGroup ? by : "site", org), [rows, by, canGroup, org]);
 
   if (isNew) return <NewCompanyView firstName={me.name.split(" ")[0]} />;
 
@@ -70,14 +78,14 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
     kpi("pending", pending, "down", "var(--warn-dot)", "/leave?tab=pending"),
   ];
 
-  const branch = scope.kind === "branch" ? branchById(scope.id ?? "") : undefined;
+  const branch = scope.kind === "branch" ? org.branchById(scope.id ?? "") : undefined;
   const scopedSite = scope.kind === "site" ? rows[0] : undefined;
   const scopeLabel =
     scope.kind === "company"
-      ? t("scope.company", { company: COMPANY_NAME })
+      ? t("scope.company", { company: companyName })
       : scope.kind === "branch"
         ? t("scope.branch", { branch: branch?.name ?? "" })
-        : t("scope.site", { site: scopedSite?.name ?? "", branch: branchById(scopedSite?.branchId ?? "")?.name ?? "" });
+        : t("scope.site", { site: scopedSite?.name ?? "", branch: org.branchById(scopedSite?.branchId ?? "")?.name ?? "" });
   const { icon: ScopeIcon, chip } = SCOPE_ICON[scope.kind];
 
   const ago = feed.tick - feed.refreshedAt;

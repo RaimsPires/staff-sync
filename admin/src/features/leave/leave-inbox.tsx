@@ -5,13 +5,14 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Avatar } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
-import { BRANCHES, SITES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useLeave } from "@/store/leave";
 import { useAccess } from "@/store/use-access";
 import type { LeaveRequest } from "@/types/leave";
-import { DAY_MS, LEAVE_TYPES, overlapping, parseIso, TODAY_ISO, TYPE_STYLE } from "./model";
+import { DAY_MS, overlapping, parseIso, TODAY_ISO } from "./model";
 import { useLeaveFormat } from "./use-leave-format";
+import { useLeaveTypes } from "./use-leave-types";
 
 const TABS = ["pending", "approved", "rejected", "cancelled", "all"] as const;
 type Tab = (typeof TABS)[number];
@@ -19,8 +20,9 @@ const select = "h-[34px] max-w-[190px] rounded-[9px] border border-solid border-
 const GRID = "grid grid-cols-[28px_minmax(170px,1.3fr)_120px_minmax(130px,1fr)_70px_70px_minmax(160px,1.2fr)_90px_minmax(130px,auto)] items-center gap-3";
 
 export function LeaveInbox({ initialTab, onOpen }: { initialTab: Tab; onOpen: (id: string) => void }) {
+  const org = useOrg();
   const t = useTranslations("Leave.inbox");
-  const tt = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const ts = useTranslations("Leave.stages");
   const tRoles = useTranslations("Alerts.roles");
   const format = useFormatter();
@@ -47,12 +49,12 @@ export function LeaveInbox({ initialTab, onOpen }: { initialTab: Tab; onOpen: (i
   const today = parseIso(TODAY_ISO);
   const days = range === "all" ? null : Number(range);
   const list = scoped.filter((r) =>
-    (tab === "all" || r.status === tab) && (branch === "all" || siteById(r.site).branchId === branch) && (site === "all" || r.site === site) && (type === "all" || r.type === type) &&
+    (tab === "all" || r.status === tab) && (branch === "all" || org.siteById(r.site).branchId === branch) && (site === "all" || r.site === site) && (type === "all" || r.type === type) &&
     (emp === "all" || r.name === emp) && (!mine || (r.waitingOnMe && r.status === "pending")) && (days === null || (parseIso(r.to) >= today && parseIso(r.from) <= today + days * DAY_MS)),
   );
   const pendingInList = list.filter((r) => r.status === "pending");
   const allSelected = pendingInList.length > 0 && pendingInList.every((r) => selected.includes(r.id));
-  const sitesAvailable = SITES.filter((s) => siteIds.includes(s.id) && (branch === "all" || s.branchId === branch));
+  const sitesAvailable = org.sites.filter((s) => siteIds.includes(s.id) && (branch === "all" || s.branchId === branch));
   const need = text.trim().length < 3;
   const negatives = scoped.filter((r) => selected.includes(r.id) && r.balance < 0).length;
   const hasFilter = branch !== "all" || site !== "all" || type !== "all" || range !== "all" || emp !== "all" || mine;
@@ -102,9 +104,9 @@ export function LeaveInbox({ initialTab, onOpen }: { initialTab: Tab; onOpen: (i
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <select value={branch} onChange={(e) => { setBranch(e.target.value); setSite("all"); setSelected([]); }} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+        <select value={branch} onChange={(e) => { setBranch(e.target.value); setSite("all"); setSelected([]); }} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{org.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
         <select value={site} onChange={(e) => { setSite(e.target.value); setSelected([]); }} aria-label={t("filters.site")} className={select}><option value="all">{t("filters.allSites")}</option>{sitesAvailable.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
-        <select value={type} onChange={(e) => { setType(e.target.value); setSelected([]); }} aria-label={t("filters.type")} className={select}><option value="all">{t("filters.allTypes")}</option>{LEAVE_TYPES.map((k) => <option key={k} value={k}>{tt(k)}</option>)}</select>
+        <select value={type} onChange={(e) => { setType(e.target.value); setSelected([]); }} aria-label={t("filters.type")} className={select}><option value="all">{t("filters.allTypes")}</option>{leaveTypes.types.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
         <select value={range} onChange={(e) => { setRange(e.target.value as typeof range); setSelected([]); }} aria-label={t("filters.dates")} className={select}><option value="all">{t("filters.anyDates")}</option><option value="7">{t("filters.next7")}</option><option value="30">{t("filters.next30")}</option></select>
         <select value={emp} onChange={(e) => { setEmp(e.target.value); setSelected([]); }} aria-label={t("filters.employee")} className={select}><option value="all">{t("filters.allEmployees")}</option>{names.map((n) => <option key={n}>{n}</option>)}</select>
         <button aria-pressed={mine} onClick={() => { setMine(!mine); setSelected([]); if (!mine) setTab("pending"); }} className={cn("flex h-[34px] items-center gap-1.5 rounded-[9px] border border-solid px-3 text-[13px] font-medium", mine ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>
@@ -146,7 +148,7 @@ export function LeaveInbox({ initialTab, onOpen }: { initialTab: Tab; onOpen: (i
             const pend = r.status === "pending";
             const on = selected.includes(r.id);
             const overlaps = pend ? overlapping(r, all) : [];
-            const style = TYPE_STYLE[r.type];
+            const style = leaveTypes.get(r.type);
             return (
               <div key={r.id} className="border-b border-border last:border-b-0">
                 <div role="button" tabIndex={0} onClick={() => onOpen(r.id)} onKeyDown={(e) => e.key === "Enter" && onOpen(r.id)} className={cn(GRID, "cursor-pointer px-4 py-3 text-[13.5px]", on ? "bg-accent-soft" : "hover:bg-hover")}>
@@ -155,15 +157,15 @@ export function LeaveInbox({ initialTab, onOpen }: { initialTab: Tab; onOpen: (i
                     className={cn("grid size-[18px] cursor-pointer place-items-center rounded-[5px] border-[1.5px] border-solid text-white", on ? "border-accent bg-accent" : "border-border-strong", !pend && "invisible")}>{on && <Check size={12} strokeWidth={3.2} />}</div>
                   <div className="flex min-w-0 items-center gap-2.5">
                     <Avatar name={r.name} size={34} />
-                    <div className="min-w-0"><div className="truncate font-medium">{r.name}</div><div className="truncate text-[12px] text-text-3">{siteById(r.site).name} · {tRoles(r.role)}</div></div>
+                    <div className="min-w-0"><div className="truncate font-medium">{r.name}</div><div className="truncate text-[12px] text-text-3">{org.siteById(r.site).name} · {tRoles(r.role)}</div></div>
                   </div>
-                  <div><span className={cn("rounded-full px-2 py-[3px] text-[12px] font-medium", style.pill)}>{tt(r.type)}</span></div>
+                  <div><span style={style.pill} className="rounded-full px-2 py-[3px] text-[12px] font-medium">{leaveTypes.label(r.type)}</span></div>
                   <div className="text-text-2">{dateLabel(r)}</div>
                   <div className="text-text-2">{duration(r)}</div>
                   <div className="flex items-center gap-1.5" title={r.status === "pending" ? t(r.balance < 0 ? "exceedsBalance" : "remaining", { count: Math.abs(r.balance) }) : undefined}>
                     <span className="font-mono text-[12.5px]" style={{ color: pend && r.balance < 0 ? "var(--bad)" : "var(--text-2)" }}>{pend ? (r.balance >= 0 ? `${r.balance} d` : `−${Math.abs(r.balance)} d`) : "—"}</span>
                     {r.attachment && <Paperclip size={13} className="text-text-3" aria-label={t("attachment")} />}
-                    {overlaps.length > 0 && <span title={t("overlapWith", { names: overlaps.map((o) => o.name.split(" ")[0]).join(", "), site: siteById(r.site).name })}><TriangleAlert size={14} className="text-warn" /></span>}
+                    {overlaps.length > 0 && <span title={t("overlapWith", { names: overlaps.map((o) => o.name.split(" ")[0]).join(", "), site: org.siteById(r.site).name })}><TriangleAlert size={14} className="text-warn" /></span>}
                   </div>
                   <div className="min-w-0">
                     <div className={cn("text-[13px] font-medium", r.status === "approved" ? "text-ok" : r.status === "rejected" ? "text-bad" : r.status === "cancelled" ? "text-text-3" : r.waitingOnMe ? "text-accent" : "text-text")}>{stageLabel(r)}</div>

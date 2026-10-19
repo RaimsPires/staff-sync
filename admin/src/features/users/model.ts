@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { BRANCHES, SITES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import type { AccessRole, DashboardUser } from "@/types/users";
 
 const ROLE_TONES = [
@@ -22,22 +22,30 @@ export function useRoleText() {
   };
 }
 
-export const branchName = (id: string) => BRANCHES.find((b) => b.id === id)?.name ?? id;
-
 /** Short scope description for the users table; the tooltip lists everything. */
 export function useScopeText() {
+  const org = useOrg();
+  const branchName = (id: string) => org.branchById(id)?.name ?? id;
   const t = useTranslations("Users.scopeLabel");
   return {
     label: (s: DashboardUser["scope"]) => {
       if (s.kind === "company") return t("company");
       const one = s.ids.length === 1;
       if (s.kind === "branch") return one ? branchName(s.ids[0]) : t("branches", { count: s.ids.length });
-      return one ? siteById(s.ids[0]).name : t("sites", { count: s.ids.length });
+      return one ? org.siteById(s.ids[0]).name : t("sites", { count: s.ids.length });
     },
     tip: (s: DashboardUser["scope"]) =>
-      s.kind === "company" ? t("everything") : s.kind === "branch" ? s.ids.map(branchName).join(", ") : s.ids.map((id) => siteById(id).name).join(", "),
+      s.kind === "company" ? t("everything") : s.kind === "branch" ? s.ids.map(branchName).join(", ") : s.ids.map((id) => org.siteById(id).name).join(", "),
   };
 }
 
-export const SITE_OPTIONS = SITES.map((s) => ({ id: s.id, name: s.name }));
-export const BRANCH_OPTIONS = BRANCHES.map((b) => ({ id: b.id, name: b.name }));
+/** Branches and sites a role can be scoped to, for pickers. */
+export function useScopeOptions() {
+  const org = useOrg();
+  return {
+    sites: org.sites.map((s) => ({ id: s.id, name: s.name })),
+    branches: org.branches.map((b) => ({ id: b.id, name: b.name })),
+    branchName: (id: string) => org.branchById(id)?.name ?? id,
+    siteName: (id: string) => org.siteById(id).name,
+  };
+}

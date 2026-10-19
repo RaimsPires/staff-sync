@@ -1,13 +1,15 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, Save } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
 import { AuthToolbar } from "@/features/auth/auth-toolbar";
+import { localized } from "@/lib/plans";
 import { cn } from "@/lib/utils";
-import { TOTAL_STEPS } from "./constants";
+import { usePlans } from "@/store/plans";
+import { DONE_STEP, TOTAL_STEPS } from "./constants";
 import { OnboardingProvider, useOnboarding } from "./store";
 import { AccountStep } from "./steps/account-step";
 import { BranchStep } from "./steps/branch-step";
@@ -56,7 +58,7 @@ function Wizard() {
         </main>
       </div>
       <span className="sr-only" aria-live="polite">
-        {inWizard ? t("progress", { step, label: t(`steps.${step}.label`) }) : t("complete")}
+        {inWizard ? t("progress", { step, total: TOTAL_STEPS, label: t(`steps.${step}.label`) }) : t("complete")}
       </span>
     </div>
   );
@@ -103,9 +105,9 @@ function StepRail() {
 
       <ol className="m-0 flex flex-1 list-none flex-col p-0">
         {STEP_IDS.map((n) => {
-          const done = n < step || step === 9;
+          const done = n < step || step === DONE_STEP;
           const current = n === step;
-          const locked = n > maxStep || step === 9 || (step >= 3 && n <= 2);
+          const locked = n > maxStep || step === DONE_STEP || (step >= 3 && n <= 2);
           return (
             <li key={n}>
               <button
@@ -151,14 +153,14 @@ function WizardHeader() {
   const toast = useToast();
   const step = useOnboarding((s) => s.step);
   const email = useOnboarding((s) => s.form.email);
-  const pct = step === 9 ? 100 : Math.round(((step - 1) / TOTAL_STEPS) * 100);
+  const pct = step === DONE_STEP ? 100 : Math.round(((step - 1) / TOTAL_STEPS) * 100);
 
   return (
     <header className="flex h-[60px] flex-none items-center gap-3.5 border-b border-border bg-surface px-7">
       <Image src="/staffsync-logo.png" alt="" width={28} height={28} className="object-contain min-[1000px]:hidden" />
       <div className="flex max-w-[340px] flex-1 flex-col gap-1.5">
         <div className="text-[12.5px] text-text-2">
-          {step === 9 ? t("complete") : t("progress", { step, label: t(`steps.${step}.label`) })}
+          {step === DONE_STEP ? t("complete") : t("progress", { step, total: TOTAL_STEPS, label: t(`steps.${step}.label`) })}
         </div>
         <div className="h-1 overflow-hidden rounded bg-neutral-bg" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full rounded bg-accent transition-[width] duration-300" style={{ width: `${pct}%` }} />
@@ -186,7 +188,7 @@ function StepIntro() {
   return (
     <>
       <div>
-        <div className="mb-1.5 font-mono text-[12px] font-medium text-accent">{t("eyebrow", { step })}</div>
+        <div className="mb-1.5 font-mono text-[12px] font-medium text-accent">{t("eyebrow", { step, total: TOTAL_STEPS })}</div>
         <h1 className="m-0 text-[26px] font-semibold tracking-tight">{t(`steps.${step}.title`)}</h1>
         <p className="mb-0 mt-1.5 text-[14px] text-text-2 text-pretty">{t(`steps.${step}.description`)}</p>
       </div>
@@ -208,7 +210,11 @@ function WizardFooter() {
   const skipTeam = useOnboarding((s) => s.skipTeam);
 
   const invited = form.mode === "manual" ? form.people.filter((p) => p.name.trim() && p.contact.trim()).length : form.csvCount;
-  const planName = form.plan ? t(`done.plans.${form.plan}`) : "";
+  const locale = useLocale();
+  const plans = usePlans((s) => s.plans);
+  const trialDays = usePlans((s) => s.trialDays);
+  const chosen = plans.find((p) => p.id === form.plan);
+  const planName = chosen ? localized(chosen.name, locale) : "";
   const label =
     step === 1
       ? t("nav.createAccount")
@@ -219,9 +225,7 @@ function WizardFooter() {
             ? t("nav.sendInvites", { count: invited })
             : t("nav.continue")
           : step === 8
-            ? form.plan === "trial" || !form.plan
-              ? t("nav.startTrial")
-              : t("nav.startTrialOn", { plan: planName })
+            ? chosen ? t("nav.startTrialOn", { plan: planName, days: trialDays }) : t("nav.startTrial", { days: trialDays })
             : t("nav.continue");
 
   return (

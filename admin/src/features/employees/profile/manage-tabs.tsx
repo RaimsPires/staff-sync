@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/misc";
 import { Modal } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
-import { SITES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import type { Employee } from "@/types/employee";
-import { DEVICES, hashOf, LEAVE_HISTORY, LEAVE_TYPES, type LeaveKey, type RecurringSchedule } from "./profile-model";
+import { DEVICES, hashOf, LEAVE_HISTORY, LEAVE_USED, type LeaveKey, type RecurringSchedule } from "./profile-model";
+import { useWorkspace, useWorkspaces, type ProfileDoc, type ProfileNote } from "@/store/employee-workspace";
+import { useLeaveTypes } from "@/features/leave/use-leave-types";
 
 const card = "rounded-xl border border-border bg-surface shadow-card";
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
@@ -26,6 +28,7 @@ export type AddLog = (action: string, detail: string) => void;
 // ---------------------------------------------------------------- schedule
 
 export function ScheduleTab({ emp, schedules, onChange, addLog }: { emp: Employee; schedules: RecurringSchedule[]; onChange: (s: RecurringSchedule[]) => void; addLog: AddLog }) {
+  const org = useOrg();
   const t = useTranslations("Employees.profile.schedule");
   const td = useTranslations("Employees.profile.days");
   const toast = useToast();
@@ -60,7 +63,7 @@ export function ScheduleTab({ emp, schedules, onChange, addLog }: { emp: Employe
               <div className="text-[13.5px] font-medium">{label(s)}</div>
               <div className="font-mono text-[12.5px] text-text-2">{s.start} – {s.end}</div>
             </div>
-            <span className="text-[12.5px] text-text-3">{siteById(s.site).name}</span>
+            <span className="text-[12.5px] text-text-3">{org.siteById(s.site).name}</span>
             <button onClick={() => setDraft({ ...s })} aria-label={t("edit")} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-2"><Pencil size={14} /></button>
             <button onClick={() => { onChange(schedules.filter((x) => x.id !== s.id)); addLog("scheduleRemoved", `${label(s)} ${s.start} – ${s.end}`); toast(t("removed")); }} aria-label={t("remove")} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-bad"><Trash2 size={14} /></button>
           </div>
@@ -100,7 +103,7 @@ export function ScheduleTab({ emp, schedules, onChange, addLog }: { emp: Employe
               <label className="flex flex-col gap-1.5 text-[13px] font-medium">{t("start")}<input type="time" value={draft.start} onChange={(e) => setDraft({ ...draft, start: e.target.value, error: undefined })} className={cn(fieldClass, "font-mono")} /></label>
               <label className="flex flex-col gap-1.5 text-[13px] font-medium">{t("end")}<input type="time" value={draft.end} onChange={(e) => setDraft({ ...draft, end: e.target.value, error: undefined })} className={cn(fieldClass, "font-mono")} /></label>
               <label className="flex flex-col gap-1.5 text-[13px] font-medium">{t("site")}
-                <select value={draft.site} onChange={(e) => setDraft({ ...draft, site: e.target.value })} className={fieldClass}>{SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+                <select value={draft.site} onChange={(e) => setDraft({ ...draft, site: e.target.value })} className={fieldClass}>{org.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
               </label>
             </div>
             {draft.error && <span role="alert" className="text-[12.5px] text-bad">{draft.error}</span>}
@@ -120,7 +123,7 @@ function InterventionDate({ iso }: { iso: string }) {
 
 export function LeaveTab({ emp, adjustments, onAdjust, addLog }: { emp: Employee; adjustments: Partial<Record<LeaveKey, number>>; onAdjust: (type: LeaveKey, days: number) => void; addLog: AddLog }) {
   const t = useTranslations("Employees.profile.leave");
-  const tt = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const tl = useTranslations("Employees.profile.leave.types");
   const format = useFormatter();
   const toast = useToast();
@@ -132,7 +135,8 @@ export function LeaveTab({ emp, adjustments, onAdjust, addLog }: { emp: Employee
   const history = emp.status === "invited" ? [] : LEAVE_HISTORY;
   const tone = { approved: "bg-ok-bg text-ok", pending: "bg-warn-bg text-warn", rejected: "bg-bad-bg text-bad" } as const;
   const range = (a: string, b: string) => (a === b ? format.dateTime(new Date(`${a}T00:00`), { day: "numeric", month: "short" }) : `${format.dateTime(new Date(`${a}T00:00`), { day: "numeric", month: "short" })} – ${format.dateTime(new Date(`${b}T00:00`), { day: "numeric", month: "short" })}`);
-  const leaveTypeName = (k: LeaveKey) => (k === "annual" ? tt("annual") : k === "rtt" ? tt("rtt") : k === "sick" ? tt("sick") : tt("family"));
+  const leaveTypeName = (k: LeaveKey) => leaveTypes.label(k);
+  const balanceTypes = leaveTypes.types.filter((x) => x.allowance > 0);
 
   const apply = () => {
     if (!valid) return;
@@ -149,12 +153,12 @@ export function LeaveTab({ emp, adjustments, onAdjust, addLog }: { emp: Employee
         <section className={cn(card, "px-[18px] py-4")}>
           <h2 className="mb-3 mt-0 text-[14.5px] font-semibold">{t("balances")}</h2>
           <div className="flex flex-col gap-3.5">
-            {LEAVE_TYPES.map((lt) => {
-              const total = lt.total + (adjustments[lt.key] ?? 0);
-              const left = total - lt.used;
+            {balanceTypes.map((lt) => {
+              const total = lt.allowance + (adjustments[lt.id] ?? 0);
+              const left = total - (LEAVE_USED[lt.id] ?? 0);
               return (
-                <div key={lt.key}>
-                  <div className="mb-1 flex justify-between text-[13px]"><span className="font-medium">{leaveTypeName(lt.key)}</span><span className="font-mono text-text-2">{t("left", { left: Math.round(left * 10) / 10, total })}</span></div>
+                <div key={lt.id}>
+                  <div className="mb-1 flex justify-between text-[13px]"><span className="font-medium">{lt.label}</span><span className="font-mono text-text-2">{t("left", { left: Math.round(left * 10) / 10, total })}</span></div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-neutral-bg"><div className="h-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, (left / Math.max(total, 1)) * 100))}%` }} /></div>
                 </div>
               );
@@ -164,7 +168,7 @@ export function LeaveTab({ emp, adjustments, onAdjust, addLog }: { emp: Employee
         <section className={cn(card, "flex flex-col gap-2.5 px-[18px] py-4")}>
           <h2 className="m-0 text-[14.5px] font-semibold">{t("adjust")}</h2>
           <div className="grid grid-cols-2 gap-2.5">
-            <select value={type} onChange={(e) => setType(e.target.value as LeaveKey)} aria-label={t("type")} className={fieldClass}>{LEAVE_TYPES.map((x) => <option key={x.key} value={x.key}>{leaveTypeName(x.key)}</option>)}</select>
+            <select value={type} onChange={(e) => setType(e.target.value as LeaveKey)} aria-label={t("type")} className={fieldClass}>{balanceTypes.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
             <input type="number" step={0.5} value={days} onChange={(e) => setDays(e.target.value)} placeholder={t("daysPlaceholder")} aria-label={t("days")} className={fieldClass} />
           </div>
           <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("reasonPlaceholder")} aria-label={t("reason")} className={fieldClass} />
@@ -238,18 +242,21 @@ export function DeviceTab({ emp, unbound, onReset, addLog, actor }: { emp: Emplo
 
 // ---------------------------------------------------------------- documents & notes
 
-interface Doc { name: string; meta: string }
-const BASE_DOCS: Doc[] = [
+const BASE_DOCS: ProfileDoc[] = [
   { name: "Employment contract.pdf", meta: "184 KB · 4 Mar 2024 · Claire Vasseur" },
   { name: "ID document.jpg", meta: "1.2 MB · 4 Mar 2024 · Claire Vasseur" },
   { name: "Safety training certificate.pdf", meta: "96 KB · 2 Jun 2025 · Nadia Koné" },
 ];
 
-export function DocsTab({ addLog, actor }: { addLog: AddLog; actor: string }) {
+export function DocsTab({ empId, addLog, actor }: { empId: string; addLog: AddLog; actor: string }) {
   const t = useTranslations("Employees.profile.docs");
   const toast = useToast();
-  const [docs, setDocs] = useState<Doc[]>(BASE_DOCS);
-  const [notes, setNotes] = useState([{ who: "Marc Olivier", when: "18 Sep", text: t("seedNote") }]);
+  const ws = useWorkspace(empId);
+  const patch = useWorkspaces((s) => s.patch);
+  const docs = ws.docs ?? BASE_DOCS;
+  const notes = ws.notes ?? [{ who: "Marc Olivier", when: "18 Sep", text: t("seedNote") }];
+  const setDocs = (next: (d: ProfileDoc[]) => ProfileDoc[]) => patch(empId, (w) => ({ docs: next(w.docs ?? BASE_DOCS) }));
+  const setNotes = (next: (n: ProfileNote[]) => ProfileNote[]) => patch(empId, (w) => ({ notes: next(w.notes ?? notes) }));
   const [text, setText] = useState("");
 
   return (
@@ -288,6 +295,7 @@ export function DocsTab({ addLog, actor }: { addLog: AddLog; actor: string }) {
 // ---------------------------------------------------------------- activity
 
 export function ActivityTab({ emp, log, actor }: { emp: Employee; log: LogEntry[]; actor: string }) {
+  const org = useOrg();
   const t = useTranslations("Employees.profile.activity");
   const model = DEVICES[hashOf(emp.id) % 4];
   const base: LogEntry[] = [
@@ -306,7 +314,7 @@ export function ActivityTab({ emp, log, actor }: { emp: Employee; log: LogEntry[
       {all.map((e, i) => (
         <div key={i} className="flex items-start gap-3 border-b border-border px-4 py-3 last:border-b-0">
           <span className="mt-1.5 size-2 flex-none rounded-full bg-accent" />
-          <div className="min-w-0 flex-1"><div className="text-[13.5px] font-medium">{t(`actions.${e.action}`, { site: emp.siteIds[0] ? siteById(emp.siteIds[0]).name : "" })}</div><div className="text-[12.5px] text-text-3">{e.detail}</div></div>
+          <div className="min-w-0 flex-1"><div className="text-[13.5px] font-medium">{t(`actions.${e.action}`, { site: emp.siteIds[0] ? org.siteById(emp.siteIds[0]).name : "" })}</div><div className="text-[12.5px] text-text-3">{e.detail}</div></div>
           <span className="whitespace-nowrap text-[12px] text-text-3">{e.when}</span>
         </div>
       ))}

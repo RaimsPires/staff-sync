@@ -20,6 +20,8 @@ import { searchAddress, type GeocodeResult } from "@/services/geocode";
 import { useSites } from "@/store/sites";
 import type { Geofence, LatLng } from "@/types/domain";
 import type { ManagedSite } from "@/types/site";
+import { useSettings } from "@/store/settings";
+import type { SettingsValues } from "@/types/settings";
 
 const DEFAULT_VIEW: LatLng = [46.6, 2.5];
 const card = "rounded-xl border border-border bg-surface shadow-card";
@@ -51,13 +53,14 @@ interface Form {
   drawing: boolean;
 }
 
-function initial(site: ManagedSite | null): Form {
+/** A new site starts from the company-wide rules in Settings; existing sites keep their own values. */
+function initial(site: ManagedSite | null, defaults: SettingsValues): Form {
   const poly = site?.geofence.kind === "polygon";
   return {
-    name: site?.name ?? "", code: site?.code ?? "", codeTouched: !!site, branchId: site?.branchId ?? "lyon", timezone: site?.timezone ?? "Europe/Paris",
+    name: site?.name ?? "", code: site?.code ?? "", codeTouched: !!site, branchId: site?.branchId ?? "lyon", timezone: site?.timezone ?? defaults.tz,
     address: site?.address ?? "", managers: site ? [...site.managers] : [], assigned: [], hoursStart: site?.hours.start ?? "08:00", hoursEnd: site?.hours.end ?? "16:00",
-    breakMinutes: String(site?.hours.breakMinutes ?? 30), requireSelfie: site?.requireSelfie ?? true, requireQr: site?.requireQr ?? true,
-    registeredDeviceOnly: site?.registeredDeviceOnly ?? false, allowOffline: site?.allowOffline ?? true, minAccuracy: String(site?.minAccuracy ?? 50), active: site?.active ?? true,
+    breakMinutes: String(site?.hours.breakMinutes ?? 30), requireSelfie: site?.requireSelfie ?? defaults.selfie, requireQr: site?.requireQr ?? defaults.qr,
+    registeredDeviceOnly: site?.registeredDeviceOnly ?? false, allowOffline: site?.allowOffline ?? defaults.offline, minAccuracy: String(site?.minAccuracy ?? defaults.gps), active: site?.active ?? true,
     shape: poly ? "polygon" : "circle", center: site && !poly ? site.position : null,
     radius: site?.geofence.kind === "circle" ? site.geofence.radius : 150, points: site?.geofence.kind === "polygon" ? site.geofence.points : [], drawing: false,
   };
@@ -79,8 +82,9 @@ function Editor({ site }: { site: ManagedSite | null }) {
   const sites = useSites((s) => s.sites);
   const branches = useSites((s) => s.branches);
   const saveSite = useSites((s) => s.saveSite);
+  const defaults = useSettings((s) => s.values);
 
-  const [f, setF] = useState<Form>(() => initial(site));
+  const [f, setF] = useState<Form>(() => initial(site, defaults));
   const [tried, setTried] = useState(false);
   const [satellite, setSatellite] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -169,7 +173,7 @@ function Editor({ site }: { site: ManagedSite | null }) {
     const geo: Geofence = geofence.kind === "polygon" ? { ...geofence, hectares: Math.round((metrics.area / 10_000) * 10) / 10 } : geofence;
     const saved = {
       id: site?.id, name: f.name.trim(), code: f.code.trim().toUpperCase(), branchId: f.branchId, address: f.address.trim(), timezone: f.timezone,
-      position, geofence: geo, managers: f.managers, employees: f.assigned.length || site?.employees || 0, expected: site?.expected ?? 0, present: site?.present ?? 0,
+      position, geofence: geo, managers: f.managers, employees: f.assigned.length || site?.employees || 0, phone: site?.phone ?? "", expected: site?.expected ?? 0, present: site?.present ?? 0, late: site?.late ?? 0, absent: site?.absent ?? 0, flagged: site?.flagged ?? 0, leave: site?.leave ?? 0,
       requireSelfie: f.requireSelfie, requireQr: f.requireQr, registeredDeviceOnly: f.registeredDeviceOnly, allowOffline: f.allowOffline, minAccuracy: Number(f.minAccuracy),
       active: f.active, hours: { start: f.hoursStart, end: f.hoursEnd, breakMinutes: Number(f.breakMinutes) || 0 },
     };

@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { Avatar } from "@/components/ui/misc";
 import { EmptyState } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
-import { siteById, branchOfSite } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { FENCE_HEALTH } from "@/data/live";
 import { sitesIn } from "@/lib/scope";
 import { parseTime } from "@/lib/time";
@@ -19,6 +19,7 @@ import { GridCard, ListRow } from "./board-row";
 import { countFor, isFlagged, matchesFilter, presenceOf, PRESENCE_ORDER, type CounterKey, type StatusFilter } from "./board-model";
 import { ProxyCheckDialog, type ProxyCheckResult } from "./proxy-check-dialog";
 import { useBoardFeed } from "./use-board-feed";
+import { useRuledRecords } from "@/lib/attendance-rules";
 
 const COUNTERS: { key: CounterKey; filter: StatusFilter; dot: string }[] = [
   { key: "expected", filter: "all", dot: "var(--neutral-dot)" },
@@ -41,12 +42,13 @@ const FENCE_TONE = { ok: "bg-ok-bg text-ok", warn: "bg-warn-bg text-warn", bad: 
 const FENCE_DOT = { ok: "bg-ok-dot", warn: "bg-warn-dot", bad: "bg-bad-dot" } as const;
 
 export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string }) {
+  const org = useOrg();
   const t = useTranslations("Live");
   const tj = useTranslations("Data.jobs");
   const router = useRouter();
   const toast = useToast();
   const { role, siteIds, perms, me } = useAccess();
-  const today = useData((s) => s.today);
+  const today = useRuledRecords(useData((s) => s.today));
   const updateRecord = useData((s) => s.updateRecord);
 
   const [site, setSite] = useState(initialSite);
@@ -64,7 +66,7 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
   const inSite = site === "all" ? records : records.filter((r) => r.site === site);
   const q = query.trim().toLowerCase();
   const searched = q ? inSite.filter((r) => r.name.toLowerCase().includes(q) || tj(r.job).toLowerCase().includes(q)) : inSite;
-  const sites = sitesIn(siteIds);
+  const sites = sitesIn(siteIds, org);
   const shownSites = site === "all" ? sites : sites.filter((s) => s.id === site);
 
   const sections = shownSites
@@ -102,7 +104,7 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
       onCheckIn: () => setDialog({ id: r.id, kind: "in" }),
       onCheckOut: () => setDialog({ id: r.id, kind: "out" }),
       onView: () => router.push(`/attendance?drawer=${r.id}&date=today`),
-      onCall: () => toast(t("calling", { name: r.name, phone: `${siteById(r.site).phone} ${10 + r.id}` }), "info"),
+      onCall: () => toast(t("calling", { name: r.name, phone: `${org.siteById(r.site).phone} ${10 + r.id}` }), "info"),
     };
   };
 
@@ -270,7 +272,7 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
                 <span>
                   <span className="block text-[15px] font-semibold">{s.name}</span>
                   <span className="block text-[12px] text-text-3">
-                    {branchOfSite(s.id).name} · {s.address}
+                    {org.branchOfSite(s.id).name} · {s.address}
                   </span>
                 </span>
               </button>

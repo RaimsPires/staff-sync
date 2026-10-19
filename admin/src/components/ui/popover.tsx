@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { usePresence } from "@/lib/use-presence";
 import { useEscape } from "./overlay";
 
 interface PopoverProps {
@@ -21,15 +22,18 @@ export function Popover({ trigger, children, align = "left", up, panelClassName,
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   useEscape(open, close);
+  const { mounted, state } = usePresence(open, 120);
   return (
     <div className={cn("relative", className)}>
       {trigger({ open, toggle: () => setOpen((v) => !v) })}
-      {open && (
+      {mounted && (
         <>
-          <div className="fixed inset-0 z-30" onClick={close} />
+          <div className="fixed inset-0 z-30" onClick={close} hidden={!open} />
           <div
+            data-state={state}
+            data-up={up ? "" : undefined}
             className={cn(
-              "absolute z-[31] animate-rise rounded-xl border border-border bg-surface shadow-pop",
+              "ss-drop absolute z-[31] rounded-xl border border-border bg-surface shadow-pop",
               up ? "bottom-[calc(100%+6px)]" : "top-[calc(100%+6px)]",
               align === "right" ? "right-0" : "left-0",
               panelClassName,

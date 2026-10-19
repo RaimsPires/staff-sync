@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { BRANCHES, SITES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { formatTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useSchedule } from "@/store/schedule";
@@ -15,8 +15,9 @@ import { PublishDialog } from "./publish-dialog";
 import { ScheduleModal } from "./schedule-modal";
 import { ShiftDialog, draftOf, newDraft, type ShiftDraft } from "./shift-dialog";
 import { ShiftBlock, type DragHandlers, type ViewMode } from "./shift-block";
+import { useSettings } from "@/store/settings";
 import {
-  dateOf, DAY_END, DAY_START, DEFAULT_FILTERS, findConflicts, HOLIDAYS, LEAVE_DAYS, mondayOf, PLANNED, plannedBy, PX_PER_HOUR, TODAY_INDEX, TRACK_WIDTH,
+  dateOf, DAY_END, DAY_START, DEFAULT_FILTERS, findConflicts, HOLIDAYS, LEAVE_DAYS, weekStartOf, WEEK_START_OFFSET, PLANNED, plannedBy, PX_PER_HOUR, TODAY_INDEX, TRACK_WIDTH,
   type Filters, type Shift,
 } from "./model";
 
@@ -25,6 +26,7 @@ type Group = "emp" | "site";
 interface Row { key: string; label: string; sub: string; emp?: string | null; site?: string }
 
 export function SchedulesScreen() {
+  const org = useOrg();
   const t = useTranslations("Schedules");
   const tj = useTranslations("Employees.titles");
   const th = useTranslations("Schedules.holidays");
@@ -54,17 +56,18 @@ export function SchedulesScreen() {
   const canEdit = perms.admin || perms.edit || perms.org;
 
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
-  const sitesAvailable = SITES.filter((s) => siteIds.includes(s.id) && (filters.branch === "all" || s.branchId === filters.branch));
-  const people = PLANNED.filter((p) => siteIds.includes(p.site) && (filters.branch === "all" || siteById(p.site).branchId === filters.branch));
+  const sitesAvailable = org.sites.filter((s) => siteIds.includes(s.id) && (filters.branch === "all" || s.branchId === filters.branch));
+  const people = PLANNED.filter((p) => siteIds.includes(p.site) && (filters.branch === "all" || org.siteById(p.site).branchId === filters.branch));
   const visible = useCallback(
-    (x: Shift) => siteIds.includes(x.site) && (filters.site === "all" || x.site === filters.site) && (filters.type === "all" || x.type === filters.type) && (filters.emp === "all" || x.emp === filters.emp) && (filters.branch === "all" || siteById(x.site).branchId === filters.branch),
-    [filters, siteIds],
+    (x: Shift) => siteIds.includes(x.site) && (filters.site === "all" || x.site === filters.site) && (filters.type === "all" || x.type === filters.type) && (filters.emp === "all" || x.emp === filters.emp) && (filters.branch === "all" || org.siteById(x.site).branchId === filters.branch),
+    [filters, siteIds, org],
   );
 
   const conflicts = useMemo(() => findConflicts(shifts), [shifts]);
   const conflictCount = Object.keys(conflicts).filter((id) => { const x = shifts.find((y) => y.id === id); return x && visible(x); }).length;
   const dirtyCount = Object.keys(dirty).filter((id) => shifts.some((x) => x.id === id)).length + deleted;
-  const monday = mondayOf(anchor);
+  const weekOffset = WEEK_START_OFFSET[useSettings((s) => s.values.wk)];
+  const monday = weekStartOf(anchor, weekOffset);
 
   // Resize an end time by dragging the handle; the move/up listeners live on the window.
   useEffect(() => {
@@ -106,7 +109,7 @@ export function SchedulesScreen() {
   };
 
   const openShift = (x: Shift) => { if (!justResized.current && canEdit) setDraft(draftOf(x)); };
-  const openNew = (d: number, emp: string | null, site: string | null, start?: number) => canEdit && setDraft(newDraft(d, emp, site, start));
+  const openNew = (d: number, emp: string | null, site: string | null, start?: number) => canEdit && setDraft(newDraft(d, emp, site, org, start));
 
   /** Drop a dragged shift, intervention or employee onto a row/day (and minute in the day view). */
   const dropOn = (e: React.DragEvent, rowKey: string | null, d: number, minute: number | null) => {
@@ -130,7 +133,7 @@ export function SchedulesScreen() {
       scheduleIntervention(it.id, { d, emp, site: rowKey !== null && group === "site" ? rowKey : it.site, s: s0, e: Math.min(1439, s0 + (it.e - it.s)), type: "int", title: it.title });
       toast(emp ? t("toasts.assignedTo", { title: it.title, name: emp.split(" ")[0] }) : t("toasts.scheduledOpen", { title: it.title }));
     } else {
-      const site = rowKey !== null && group === "site" ? rowKey : filters.site !== "all" ? filters.site : (plannedBy(p.name)?.site ?? SITES[0].id);
+      const site = rowKey !== null && group === "site" ? rowKey : filters.site !== "all" ? filters.site : (plannedBy(p.name)?.site ?? org.sites[0].id);
       const s0 = minute !== null ? Math.round(minute / 15) * 15 : 480;
       addShift({ d, emp: p.name, site, s: s0, e: Math.min(1439, s0 + 480), type: "rec", title: "" });
       toast(t("toasts.added", { name: p.name.split(" ")[0] }));
@@ -142,7 +145,7 @@ export function SchedulesScreen() {
     const list = shifts.filter((x) => x.d >= from && x.d <= to && visible(x));
     let rows: Row[];
     if (group === "emp") {
-      rows = people.filter((p) => filters.emp === "all" || p.name === filters.emp).map((p) => ({ key: p.name, label: p.name, sub: `${tj(p.title)} · ${siteById(p.site).name.split(" ")[0]}`, emp: p.name }));
+      rows = people.filter((p) => filters.emp === "all" || p.name === filters.emp).map((p) => ({ key: p.name, label: p.name, sub: `${tj(p.title)} · ${org.siteById(p.site).name.split(" ")[0]}`, emp: p.name }));
       if (list.some((x) => !x.emp)) rows.unshift({ key: "", label: t("unassigned"), sub: t("needsEmployee"), emp: null });
     } else rows = sitesAvailable.filter((s) => filters.site === "all" || s.id === filters.site).map((s) => ({ key: s.id, label: s.name, sub: s.branchId, site: s.id }));
     return { rows, list };
@@ -173,7 +176,7 @@ export function SchedulesScreen() {
     ? { changed: Object.keys(dirty).filter((id) => shifts.some((x) => x.id === id)).length, deleted, employees: new Set(Object.keys(dirty).map((id) => shifts.find((x) => x.id === id)?.emp).filter(Boolean)).size, conflicts: conflictCount }
     : null;
 
-  const weekdayNames = Array.from({ length: 7 }, (_, i) => format.dateTime(dateOf(i), { weekday: "short", timeZone: "UTC" }));
+  const weekdayNames = Array.from({ length: 7 }, (_, i) => format.dateTime(dateOf(weekOffset + i), { weekday: "short", timeZone: "UTC" }));
   const holidayName = (d: number) => (HOLIDAYS[d] ? th(HOLIDAYS[d]) : "");
 
   // ------------------------------------------------------------------ grids
@@ -265,7 +268,7 @@ export function SchedulesScreen() {
     const first = Math.round((Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), 1) - dateOf(0).getTime()) / 864e5);
     const last = Math.round((Date.UTC(a.getUTCFullYear(), a.getUTCMonth() + 1, 0) - dateOf(0).getTime()) / 864e5);
     const weeks: number[] = [];
-    for (let w = Math.floor(first / 7) * 7; w <= last; w += 7) weeks.push(w);
+    for (let w = weekStartOf(first, weekOffset); w <= last; w += 7) weeks.push(w);
     return (
       <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-card">
         <div className="min-w-[760px]">
@@ -333,7 +336,7 @@ export function SchedulesScreen() {
           </div>
         )}
         <select value={filters.branch} onChange={(e) => set({ branch: e.target.value, site: "all", emp: "all" })} aria-label={t("filters.branch")} className={select}>
-          <option value="all">{t("filters.allBranches")}</option>{BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+          <option value="all">{t("filters.allBranches")}</option>{org.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
         <select value={filters.site} onChange={(e) => set({ site: e.target.value })} aria-label={t("filters.site")} className={select}>
           <option value="all">{t("filters.allSites")}</option>{sitesAvailable.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -361,10 +364,10 @@ export function SchedulesScreen() {
           <aside className="flex w-[260px] max-w-full flex-none flex-col gap-3.5">
             <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
               <div className="border-b border-border px-3.5 py-3"><div className="text-[14px] font-semibold">{t("openInterventions")}</div><div className="mt-0.5 text-[12px] text-text-3">{t("dragHint")}</div></div>
-              {interventions.filter((i) => siteIds.includes(i.site) && (filters.site === "all" || i.site === filters.site) && (filters.branch === "all" || siteById(i.site).branchId === filters.branch)).map((i) => (
+              {interventions.filter((i) => siteIds.includes(i.site) && (filters.site === "all" || i.site === filters.site) && (filters.branch === "all" || org.siteById(i.site).branchId === filters.branch)).map((i) => (
                 <div key={i.id} draggable onDragStart={(e) => drag.start(e, { k: "int", id: i.id })} onDragEnd={drag.end} className="flex cursor-grab items-start gap-2.5 border-t border-border px-3.5 py-2.5">
                   <span className="mt-1.5 size-2 flex-none rounded-full bg-orange-dot" />
-                  <div className="min-w-0"><div className="text-[13px] font-medium">{i.title}</div><div className="text-[12px] text-text-3">{siteById(i.site).name}</div><div className="font-mono text-[11.5px] text-text-2">{format.dateTime(dateOf(i.d), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })} · {formatTime(i.s)}–{formatTime(i.e)}</div></div>
+                  <div className="min-w-0"><div className="text-[13px] font-medium">{i.title}</div><div className="text-[12px] text-text-3">{org.siteById(i.site).name}</div><div className="font-mono text-[11.5px] text-text-2">{format.dateTime(dateOf(i.d), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })} · {formatTime(i.s)}–{formatTime(i.e)}</div></div>
                 </div>
               ))}
               {interventions.length === 0 && <div className="border-t border-border px-3.5 py-6 text-center text-[13px] text-text-3">{t("noOpen")}</div>}

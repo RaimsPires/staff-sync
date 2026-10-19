@@ -1,5 +1,5 @@
 import { QR_RECORD_IDS, DEMO_TODAY } from "@/data/live";
-import { branchOfSite, siteById } from "@/data/org";
+import type { Org } from "@/lib/org";
 import { parseTime } from "@/lib/time";
 import type { AttendanceRecord, RecordStatus } from "@/types/domain";
 
@@ -57,14 +57,14 @@ export const activeFilterCount = (f: Filters): number =>
   (f.statuses.length ? 1 : 0) + (f.method !== "all" ? 1 : 0) + (f.flaggedOnly ? 1 : 0) + (f.offlineOnly ? 1 : 0);
 
 /** Everything except the status filter, so status counts can show what each option would add. */
-export function applyBaseFilters(records: AttendanceRecord[], f: Filters, accessibleSites: string[]): AttendanceRecord[] {
+export function applyBaseFilters(records: AttendanceRecord[], f: Filters, accessibleSites: string[], org: Org): AttendanceRecord[] {
   const [from, to] = rangeOf(f);
   const q = f.employee.trim().toLowerCase();
   return records.filter(
     (r) =>
       accessibleSites.includes(r.site) &&
       (r.date ?? DEMO_TODAY) >= from && (r.date ?? DEMO_TODAY) <= to &&
-      (f.branch === "all" || branchOfSite(r.site).id === f.branch) &&
+      (f.branch === "all" || org.branchOfSite(r.site).id === f.branch) &&
       (f.site === "all" || r.site === f.site) &&
       (!q || r.name.toLowerCase().includes(q) || employeeCode(r).toLowerCase().includes(q)) &&
       (f.method === "all" || methodOf(r) === f.method) &&
@@ -73,8 +73,8 @@ export function applyBaseFilters(records: AttendanceRecord[], f: Filters, access
   );
 }
 
-export const applyFilters = (records: AttendanceRecord[], f: Filters, accessibleSites: string[]): AttendanceRecord[] => {
-  const base = applyBaseFilters(records, f, accessibleSites);
+export const applyFilters = (records: AttendanceRecord[], f: Filters, accessibleSites: string[], org: Org): AttendanceRecord[] => {
+  const base = applyBaseFilters(records, f, accessibleSites, org);
   return f.statuses.length ? base.filter((r) => f.statuses.includes(statusOf(r))) : base;
 };
 
@@ -90,20 +90,20 @@ const workedMinutes = (r: AttendanceRecord): number => {
 };
 const timeKey = (t: string) => (t ? t : "99:99");
 
-const sortValue: Record<SortKey, (r: AttendanceRecord) => string | number> = {
+const sortValue = (org: Org): Record<SortKey, (r: AttendanceRecord) => string | number> => ({
   date: (r) => (r.date ?? DEMO_TODAY) * 10_000 + (r.in ? Number(r.in.replace(":", "")) : 0),
   employee: (r) => r.name,
-  site: (r) => siteById(r.site).name,
+  site: (r) => org.siteById(r.site).name,
   in: (r) => timeKey(r.in),
   out: (r) => timeKey(r.out),
   worked: workedMinutes,
   status: statusOf,
   edited: (r) => r.edit?.at ?? "",
-};
+});
 
-export function sortRecords(records: AttendanceRecord[], sort: Sort): AttendanceRecord[] {
+export function sortRecords(records: AttendanceRecord[], sort: Sort, org: Org): AttendanceRecord[] {
   const dir = sort.dir === "asc" ? 1 : -1;
-  const value = sortValue[sort.key];
+  const value = sortValue(org)[sort.key];
   return [...records].sort((a, b) => {
     const x = value(a);
     const y = value(b);

@@ -95,12 +95,12 @@
       "help": "Need help?",
       "book": "Book a 15-min setup call"
     },
-    "progress": "Step {step} of 8 · {label}",
+    "progress": "Step {step} of {total} · {label}",
     "complete": "Setup complete",
     "saveLater": "Save and continue later",
     "savedLater": "Progress saved. We emailed {email} a link to resume.",
     "you": "you",
-    "eyebrow": "STEP {step} / 8",
+    "eyebrow": "STEP {step} / {total}",
     "summary": "{count, plural, one {Fix # field to continue.} other {Fix # fields to continue.}}",
     "nav": {
       "back": "Back",
@@ -109,15 +109,15 @@
       "createAccount": "Create account",
       "verify": "Verify",
       "sendInvites": "{count, plural, one {Send # invite} other {Send # invites}}",
-      "startTrial": "Start free trial",
-      "startTrialOn": "Start trial on {plan}"
+      "startTrial": "Start {days}-day free trial",
+      "startTrialOn": "Start {days}-day trial on {plan}"
     },
     "steps": {
       "1": {
         "label": "Create account",
         "sub": "Your admin login",
         "title": "Create your account",
-        "description": "Start your 14-day free trial. No card required."
+        "description": "Start your 30-day free trial. No card required."
       },
       "2": {
         "label": "Verify email",
@@ -159,7 +159,7 @@
         "label": "Choose plan",
         "sub": "Billed per employee",
         "title": "Choose a plan",
-        "description": "Pick what fits now. You can change plans at any time."
+        "description": "Pick what fits now. Your 30-day free trial starts on this plan, and you can change plans at any time."
       }
     },
     "account": {
@@ -316,65 +316,6 @@
       "columns": "Columns: name, phone_or_email, role, site.",
       "downloadTemplate": "Download CSV template"
     },
-    "plan": {
-      "billing": "Billing period",
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "choose": "Plans",
-      "recommended": "Recommended for {size} people",
-      "custom": "Custom",
-      "decimal": ".",
-      "billedYearly": "Billed yearly",
-      "billedMonthly": "Billed monthly",
-      "footnote": "Every plan starts with a 14-day free trial. No card required.",
-      "plans": {
-        "trial": {
-          "name": "Free trial",
-          "unit": "for 14 days",
-          "note": "Full Business features",
-          "capacity": "Up to 25 employees",
-          "features": {
-            "1": "1 branch, 3 sites",
-            "2": "Mobile check-in with geofence",
-            "3": "Leave requests"
-          }
-        },
-        "starter": {
-          "name": "Starter",
-          "unit": "/ employee / mo",
-          "note": "",
-          "capacity": "Up to 50 employees",
-          "features": {
-            "1": "Unlimited sites",
-            "2": "Fraud flags & GPS proof",
-            "3": "Check-in on behalf"
-          }
-        },
-        "business": {
-          "name": "Business",
-          "unit": "/ employee / mo",
-          "note": "",
-          "capacity": "Up to 250 employees",
-          "features": {
-            "1": "Everything in Starter",
-            "2": "Branch & site-level roles",
-            "3": "Polygon geofences",
-            "4": "Payroll exports"
-          }
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "unit": "",
-          "note": "Volume pricing",
-          "capacity": "250+ employees",
-          "features": {
-            "1": "SSO & SCIM",
-            "2": "Custom data retention",
-            "3": "Dedicated success manager"
-          }
-        }
-      }
-    },
     "done": {
       "fallbackName": "there",
       "title": "You’re all set, {name}!",
@@ -386,13 +327,8 @@
         "company": "Company",
         "branchSite": "Branch → Site",
         "hours": "Hours",
-        "invitedPlan": "Invited · Plan"
-      },
-      "plans": {
-        "trial": "Free trial",
-        "starter": "Starter",
-        "business": "Business",
-        "enterprise": "Enterprise"
+        "invitedPlan": "Invited · Plan",
+        "trial": "{plan} · {days}-day trial"
       },
       "nextSteps": "Next steps",
       "checklist": {
@@ -444,6 +380,21 @@
       "personContact": "Add a phone number or email so we can send the invite.",
       "personInvalid": "That doesn’t look like a valid phone number or email.",
       "planRequired": "Select a plan to continue."
+    },
+    "plan": {
+      "billing": "Billing period",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "choose": "Plans",
+      "recommended": "Recommended for {size} people",
+      "custom": "Custom",
+      "billedYearly": "Billed yearly",
+      "billedMonthly": "Billed monthly",
+      "unit": "/ employee / mo",
+      "volumePricing": "Volume pricing",
+      "upTo": "Up to {count} employees",
+      "unlimitedEmployees": "Unlimited employees",
+      "footnote": "Every plan starts with a {days}-day free trial. No card required."
     }
   },
   "Nav": {
@@ -2705,7 +2656,7 @@
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "upgrade": "Upgrade",
-    "planName": "Business plan",
+    "planName": "{plan} plan",
     "employees": "employees",
     "groups": {
       "monitor": "Monitor",
@@ -2800,6 +2751,10 @@
         "branch": "Branch manager",
         "site": "Site manager"
       }
+    },
+    "preview": {
+      "banner": "Previewing the “{role}” role. Pages and buttons follow its permissions; your data scope is unchanged.",
+      "exit": "Exit preview"
     }
   },
   "Schedules": {
@@ -3155,7 +3110,9 @@
       "edit": "Edit",
       "duplicate": "Duplicate",
       "delete": "Delete",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "preview": "Preview",
+      "previewing": "Previewing “{name}”"
     },
     "scopes": {
       "company": {
@@ -3252,6 +3209,7 @@
         "duplicate": "Duplicate role",
         "edit": "Edit role"
       },
+      "notFound": "Role not found",
       "copyName": "{name} (copy)",
       "customDesc": "Custom role.",
       "status": {
@@ -3773,32 +3731,9 @@
     },
     "billing": {
       "title": "Plan & usage",
-      "renews": "Renews on {date} · billed monthly",
+      "renews": "Renews on {date} · billed {cycle}",
       "usage": "{used} of {cap} employees",
-      "seatsLeft": "{count, plural, one {# seat left} other {# seats left}}",
-      "current": "Current",
       "price": "{price} per employee / month",
-      "capacity": "Up to {count} employees",
-      "yourPlan": "Your plan",
-      "tooMany": "Too many employees",
-      "upgrade": "Upgrade",
-      "downgrade": "Downgrade",
-      "cancel": "Cancel",
-      "confirm": "Confirm",
-      "changeTitle": "{direction, select, up {Upgrade to {plan}?} other {Downgrade to {plan}?}}",
-      "changeMessage": "New price {price} per employee per month from your next invoice.",
-      "changed": "Plan changed to {plan}",
-      "plans": {
-        "starter": {
-          "name": "Starter"
-        },
-        "growth": {
-          "name": "Growth"
-        },
-        "scale": {
-          "name": "Scale"
-        }
-      },
       "payment": "Payment method",
       "update": "Update",
       "cardEnding": "Visa ending {last4}",
@@ -3815,7 +3750,12 @@
       "invoices": "Invoices",
       "paid": "Paid",
       "download": "Download",
-      "downloading": "Downloading {id}"
+      "downloading": "Downloading {id}",
+      "monthly": "monthly",
+      "yearly": "yearly",
+      "comparePlans": "Compare & change plan",
+      "customPrice": "Custom pricing",
+      "usageUnlimited": "{used} employees · no limit"
     },
     "danger": {
       "title": "Danger zone",
@@ -4333,5 +4273,60 @@
       "saved": "Schedule saved · {count, plural, one {# recipient} other {# recipients}}",
       "removed": "Schedule removed"
     }
+  },
+  "Plans": {
+    "title": "Plans",
+    "subtitle": "Compare what each plan includes and change your subscription.",
+    "back": "Billing",
+    "billingPeriod": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "−20%",
+    "currentPlan": "Current plan",
+    "usage": "{used} of {cap} employees",
+    "usageUnlimited": "{used} employees · no limit",
+    "renews": "Renews on {date}",
+    "current": "Current",
+    "recommended": "Most popular",
+    "custom": "Custom",
+    "perEmployee": "/ employee / mo",
+    "volumePricing": "Volume pricing",
+    "billedMonthly": "Billed monthly",
+    "billedYearly": "Billed yearly",
+    "upTo": "Up to {count} employees",
+    "unlimitedEmployees": "Unlimited employees",
+    "unlimited": "Unlimited",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "yourPlan": "Your plan",
+    "switchBilling": "Switch to {cycle}",
+    "contactSales": "Contact sales",
+    "salesToast": "Our sales team will contact you",
+    "tooMany": "Too many employees",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "compare": "Compare plans",
+    "feature": "Feature",
+    "groups": {
+      "usage": "Usage & limits",
+      "tracking": "Time tracking",
+      "management": "Management",
+      "security": "Security",
+      "support": "Support"
+    },
+    "confirm": {
+      "upgradeTitle": "Upgrade to {plan}?",
+      "downgradeTitle": "Downgrade to {plan}?",
+      "billingTitle": "Switch to {cycle} billing?",
+      "message": "New price {price} per employee per month, billed {cycle}, from your next invoice.",
+      "cancel": "Cancel",
+      "ok": "Confirm",
+      "done": "Plan changed to {plan}"
+    },
+    "cycles": {
+      "monthly": "monthly",
+      "yearly": "yearly"
+    },
+    "trialEnds": "Free trial ends on {date}"
   }
 }

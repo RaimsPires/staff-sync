@@ -9,7 +9,7 @@ import { Modal } from "@/components/ui/overlay";
 import { StatusChip } from "@/components/ui/status-chip";
 import { useToast } from "@/components/ui/toast";
 import { RECORDS } from "@/data/records";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { DEMO_TODAY } from "@/data/live";
 import { formatDuration, parseTime, wrapDelta } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -46,6 +46,7 @@ export function AddRecordDialog({
 }
 
 function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; actor: string; onClose: () => void; onOpenRecord: (id: number) => void }) {
+  const org = useOrg();
   const t = useTranslations("Attendance.add");
   const tStatus = useTranslations("Status");
   const tJobs = useTranslations("Data.jobs");
@@ -201,7 +202,7 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
                         <span className="flex-1">
                           <span className="block text-[13.5px] font-medium text-text">{r.name}</span>
                           <span className="block text-[12px] text-text-3">
-                            {employeeCode(r)} · {siteById(r.site).name}
+                            {employeeCode(r)} · {org.siteById(r.site).name}
                           </span>
                         </span>
                       </button>
@@ -221,7 +222,7 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
               {!site && <option value="">{t("selectSite")}</option>}
               {siteIds.map((id) => (
                 <option key={id} value={id}>
-                  {siteById(id).name}
+                  {org.siteById(id).name}
                 </option>
               ))}
             </select>
@@ -262,7 +263,7 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
               <TriangleAlert size={15} /> {t("overlapTitle")} <StatusChip status={overlap.status} className="ml-1" />
             </div>
             <div className="text-[12.5px]">
-              {t("overlapDescription", { range: overlap.in ? `${overlap.in}–${overlap.out || "…"}` : tStatus(overlap.status), site: siteById(overlap.site).name, day })}{" "}
+              {t("overlapDescription", { range: overlap.in ? `${overlap.in}–${overlap.out || "…"}` : tStatus(overlap.status), site: org.siteById(overlap.site).name, day })}{" "}
               <a href="#" onClick={(e) => { e.preventDefault(); onClose(); onOpenRecord(overlap.id); }} className="font-medium text-inherit underline">
                 {t("openExisting")}
               </a>

@@ -11,7 +11,7 @@ import { Chip } from "@/components/ui/chip";
 import { Popover } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
 import { JOB_TITLES, PLAN_LIMIT } from "@/data/employees";
-import { BRANCHES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { exportCsv } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
@@ -25,6 +25,7 @@ const select = "h-[34px] rounded-[9px] border border-solid border-border-strong 
 const BAR = { ok: "bg-ok-dot", warn: "bg-warn-dot", bad: "bg-bad-dot" } as const;
 
 export function EmployeesScreen() {
+  const org = useOrg();
   const t = useTranslations("Employees");
   const tTitles = useTranslations("Employees.titles");
   const toast = useToast();
@@ -40,13 +41,13 @@ export function EmployeesScreen() {
   const canManage = perms.admin || perms.edit;
   const visible = useMemo(() => filterEmployees(employees, filters, siteIds), [employees, filters, siteIds]);
   const scoped = employees.filter((e) => e.siteIds.some((s) => siteIds.includes(s)));
-  const sitesAvailable = siteIds.filter((id) => filters.branch === "all" || BRANCHES.find((b) => b.id === filters.branch)?.siteIds.includes(id));
+  const sitesAvailable = siteIds.filter((id) => filters.branch === "all" || org.branches.find((b) => b.id === filters.branch)?.siteIds.includes(id));
   const set = (patch: Partial<EmployeeFilters>) => setFilters((f) => ({ ...f, ...patch }));
 
   const exportList = () => {
     exportCsv("employees.csv", [
       [t("columns.name"), t("columns.id"), t("columns.branch"), t("columns.title"), t("columns.phone"), t("columns.status")],
-      ...visible.map((e) => [e.name, e.id, BRANCHES.find((b) => b.id === e.branchId)?.name ?? "", tTitles(e.title), e.phone, t(`status.${e.status}`)]),
+      ...visible.map((e) => [e.name, e.id, org.branches.find((b) => b.id === e.branchId)?.name ?? "", tTitles(e.title), e.phone, t(`status.${e.status}`)]),
     ]);
     toast(t("exported", { count: visible.length }));
   };
@@ -90,14 +91,14 @@ export function EmployeesScreen() {
         </label>
         <select value={filters.branch} onChange={(e) => set({ branch: e.target.value, site: "all" })} aria-label={t("filters.branch")} className={select}>
           <option value="all">{t("filters.allBranches")}</option>
-          {BRANCHES.map((b) => (
+          {org.branches.map((b) => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}
         </select>
         <select value={filters.site} onChange={(e) => set({ site: e.target.value })} aria-label={t("filters.site")} className={select}>
           <option value="all">{t("filters.allSites")}</option>
           {sitesAvailable.map((id) => (
-            <option key={id} value={id}>{siteById(id).name}</option>
+            <option key={id} value={id}>{org.siteById(id).name}</option>
           ))}
         </select>
         <select value={filters.title} onChange={(e) => set({ title: e.target.value as EmployeeFilters["title"] })} aria-label={t("filters.title")} className={select}>
@@ -152,10 +153,10 @@ export function EmployeesScreen() {
                         </span>
                       </Link>
                     </td>
-                    <td className="px-3 py-2.5">{BRANCHES.find((b) => b.id === e.branchId)?.name}</td>
+                    <td className="px-3 py-2.5">{org.branches.find((b) => b.id === e.branchId)?.name}</td>
                     <td className="px-3 py-2.5">
                       {e.siteIds.map((id) => (
-                        <div key={id} className="whitespace-nowrap text-[12.5px]">{siteById(id).name}</div>
+                        <div key={id} className="whitespace-nowrap text-[12.5px]">{org.siteById(id).name}</div>
                       ))}
                     </td>
                     <td className="px-3 py-2.5">{tTitles(e.title)}</td>

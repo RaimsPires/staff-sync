@@ -5,15 +5,17 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Avatar } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
-import { siteById, branchOfSite } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { hashOf } from "@/features/employees/profile/profile-model";
 import { useEscape } from "@/components/ui/overlay";
 import { cn } from "@/lib/utils";
 import { type Decision, useLeave } from "@/store/leave";
 import { useAccess } from "@/store/use-access";
 import type { LeaveRequest } from "@/types/leave";
-import { DAY_MS, parseIso, STATUS_STYLE, TYPE_STYLE, weekdayOf } from "./model";
+import { DAY_MS, parseIso, STATUS_STYLE, weekdayOf } from "./model";
 import { useLeaveFormat } from "./use-leave-format";
+import { useLeaveTypes } from "./use-leave-types";
+import { useSettings } from "@/store/settings";
 
 const card = "flex flex-col gap-3 rounded-xl border border-border bg-surface p-[16px_18px] shadow-card";
 const COVERAGE = { good: "bg-ok-bg text-ok", tight: "bg-warn-bg text-warn", short: "bg-bad-bg text-bad" } as const;
@@ -26,8 +28,10 @@ export function LeaveDrawer({ requestId, onClose }: { requestId: string | null; 
 }
 
 function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => void }) {
+  const org = useOrg();
+  const oneLevel = useSettings((st) => st.values.wf === "one");
   const t = useTranslations("Leave.drawer");
-  const tt = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const tStatus = useTranslations("Status");
   const tRoles = useTranslations("Alerts.roles");
   const format = useFormatter();
@@ -43,13 +47,13 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
   const [zoom, setZoom] = useState(100);
   useEscape(true, onClose);
 
-  const site = siteById(r.site);
+  const site = org.siteById(r.site);
   const first = r.name.split(" ")[0];
   const from = parseIso(r.from);
   const to = parseIso(r.to);
   const before = r.balance + r.days;
   const over = r.balance < 0;
-  const sameBranch = useMemo(() => all.filter((o) => o.id !== r.id && (o.status === "approved" || o.status === "pending") && branchOfSite(o.site).id === branchOfSite(r.site).id && parseIso(o.from) <= to + 7 * DAY_MS && parseIso(o.to) >= from), [all, r, from, to]);
+  const sameBranch = useMemo(() => all.filter((o) => o.id !== r.id && (o.status === "approved" || o.status === "pending") && org.branchOfSite(o.site).id === org.branchOfSite(r.site).id && parseIso(o.from) <= to + 7 * DAY_MS && parseIso(o.to) >= from), [all, r, from, to, org]);
 
   // Coverage calendar: whole weeks around the request, red dots for colleagues at the same site who are off.
   const calStart = from - weekdayOf(from) * DAY_MS;
@@ -86,9 +90,9 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
 
   const trail = [
     { tone: "ok" as const, mark: "✓", who: r.name, action: t("trail.submitted"), role: t("trail.employee"), when: leaveFormat.submitted(r.submitted), comment: "" },
-    r.stage === "site"
+    ...(oneLevel ? [] : [r.stage === "site"
       ? { tone: "warn" as const, mark: "2", who: MANAGERS[r.site], action: t("trail.awaitingRecommendation"), role: t("trail.siteManager"), when: t("trail.currentStep"), comment: "" }
-      : { tone: "ok" as const, mark: "✓", who: MANAGERS[r.site], action: t("trail.recommended"), role: t("trail.siteManager"), when: format.dateTime(new Date(parseIso(r.submitted) + DAY_MS), { day: "numeric", month: "short" }), comment: r.type === "sick" ? t("trail.sickComment") : t("trail.okComment") },
+      : { tone: "ok" as const, mark: "✓", who: MANAGERS[r.site], action: t("trail.recommended"), role: t("trail.siteManager"), when: format.dateTime(new Date(parseIso(r.submitted) + DAY_MS), { day: "numeric", month: "short" }), comment: r.type === "sick" ? t("trail.sickComment") : t("trail.okComment") }]),
     ...(r.status === "approved" ? [{ tone: "ok" as const, mark: "✓", who: r.stageBy ?? "", action: t("trail.approved"), role: "HR", when: r.log.length ? t("trail.justNow") : t("trail.decided"), comment: "" }]
       : r.status === "rejected" ? [{ tone: "bad" as const, mark: "×", who: r.stageBy ?? "Claire Vasseur", action: t("trail.rejected"), role: "HR", when: r.log.length ? t("trail.justNow") : t("trail.decided"), comment: r.rejection ?? "" }]
       : r.status === "cancelled" ? [{ tone: "neutral" as const, mark: "–", who: first, action: t("trail.cancelled"), role: t("trail.employee"), when: "", comment: "" }]
@@ -112,14 +116,14 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
           <Avatar name={r.name} size={48} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2.5"><div className="text-[17px] font-semibold">{r.name}</div><span className={cn("rounded-md px-[9px] py-[3px] text-[12px] font-medium", STATUS_STYLE[r.status])}>{tStatus(r.status)}</span></div>
-            <div className="mt-0.5 text-[12.5px] text-text-3">{tRoles(r.role)} · {site.name} · {branchOfSite(r.site).name}</div>
+            <div className="mt-0.5 text-[12.5px] text-text-3">{tRoles(r.role)} · {site.name} · {org.branchOfSite(r.site).name}</div>
           </div>
           <button onClick={onClose} aria-label={t("close")} className="grid size-8 place-items-center rounded-lg border-0 bg-transparent text-text-2 hover:bg-hover"><X size={20} /></button>
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-[22px] py-[18px]">
           <section className={card}>
-            <div className="flex items-center justify-between gap-2"><div className="text-[14.5px] font-semibold">{t("request")} <span className="font-mono text-[12px] font-normal text-text-3">{r.id}</span></div><span className={cn("rounded-full px-[9px] py-[3px] text-[12px] font-medium", TYPE_STYLE[r.type].pill)}>{tt(r.type)}</span></div>
+            <div className="flex items-center justify-between gap-2"><div className="text-[14.5px] font-semibold">{t("request")} <span className="font-mono text-[12px] font-normal text-text-3">{r.id}</span></div><span style={leaveTypes.get(r.type).pill} className="rounded-full px-[9px] py-[3px] text-[12px] font-medium">{leaveTypes.label(r.type)}</span></div>
             <dl className="m-0 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-border bg-border">
               {([["dates", leaveFormat.range(r.from, r.to)], ["duration", r.half ? t("halfDayOf", { half: r.half }) : t("workingDays", { count: r.days })], ["halfDay", r.half ? t(r.half === "AM" ? "morningOff" : "afternoonOff") : t("fullDays")], ["submitted", `${format.dateTime(new Date(r.submitted), { day: "numeric", month: "short" })}${r.attachment ? ` · ${t("withAttachment")}` : ""}`]] as const).map(([k, v]) => (
                 <div key={k} className="bg-surface px-3 py-2.5"><dt className="text-[11.5px] text-text-3">{t(`facts.${k}`)}</dt><dd className="m-0 mt-0.5 text-[13px] font-medium">{v}</dd></div>
@@ -142,7 +146,7 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
           </section>
 
           <section className={card}>
-            <div className="text-[14.5px] font-semibold">{t("balanceOf", { type: tt(r.type) })}</div>
+            <div className="text-[14.5px] font-semibold">{t("balanceOf", { type: leaveTypes.label(r.type) })}</div>
             <div className="flex items-center gap-2">
               {([["before", `${before < 0 ? "−" : ""}${Math.abs(before)}`, "text-text", "border-border bg-surface"], ["requested", `− ${r.half ? "0.5" : r.days}`, "text-accent", "border-accent bg-accent-soft"], ["after", `${r.balance < 0 ? "−" : ""}${Math.abs(r.balance)}`, over ? "text-bad" : "text-ok", over ? "border-bad-dot bg-bad-bg" : "border-border bg-surface"]] as const).map(([k, v, tone, box]) => (
                 <div key={k} className={cn("flex-1 rounded-[10px] border border-solid px-3 py-2.5 text-center", box)}><div className="text-[11.5px] text-text-3">{t(`balance.${k}`)}</div><div className={cn("text-[20px] font-semibold", tone)}>{v}</div></div>
@@ -168,7 +172,7 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
             <ul className="m-0 flex list-none flex-wrap gap-3.5 p-0 text-[12px] text-text-2"><li className="flex items-center gap-1.5"><span className="size-2.5 rounded-[3px] border border-solid border-accent bg-accent-soft" />{t("thisRequest")}</li><li className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-bad-dot" />{t("colleagueOff")}</li></ul>
             {overlaps.length > 0 ? (
               <div className="flex flex-col gap-1.5"><div className="text-[12.5px] font-medium text-text-2">{t("alsoOff")}</div>
-                {overlaps.map((o) => <div key={o.id} className="flex items-center gap-2.5 text-[13px]"><span className="font-medium">{o.name}</span><span className="text-[12.5px] text-text-3">{leaveFormat.range(o.from, o.to)}</span><span className={cn("ml-auto rounded-md px-2 py-0.5 text-[12px]", o.site === r.site ? "bg-warn-bg text-warn" : "bg-neutral-bg text-neutral")}>{o.site === r.site ? t("sameSite") : t("sameBranch", { site: siteById(o.site).name.split(" ")[0] })} · {t(o.status === "approved" ? "approvedShort" : "pendingShort")}</span></div>)}
+                {overlaps.map((o) => <div key={o.id} className="flex items-center gap-2.5 text-[13px]"><span className="font-medium">{o.name}</span><span className="text-[12.5px] text-text-3">{leaveFormat.range(o.from, o.to)}</span><span className={cn("ml-auto rounded-md px-2 py-0.5 text-[12px]", o.site === r.site ? "bg-warn-bg text-warn" : "bg-neutral-bg text-neutral")}>{o.site === r.site ? t("sameSite") : t("sameBranch", { site: org.siteById(o.site).name.split(" ")[0] })} · {t(o.status === "approved" ? "approvedShort" : "pendingShort")}</span></div>)}
               </div>
             ) : <div className="text-[13px] text-ok">{t("nobodyElse", { site: site.name })}</div>}
             <div className="flex flex-col gap-1.5 border-t border-border pt-3"><div className="text-[12.5px] font-medium text-text-2">{t("affected", { count: affected.length })}</div>
@@ -192,7 +196,7 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
           <section className={card}>
             <div className="text-[14.5px] font-semibold">{t("history", { name: first })}</div>
             <div className="overflow-hidden rounded-[10px] border border-border">
-              {history.map((h, i) => <div key={i} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 border-b border-border px-3 py-2 text-[12.5px] last:border-b-0"><span className={cn("rounded-full px-2 py-0.5 text-[12px] font-medium", TYPE_STYLE[h.type].pill)}>{tt(h.type)}</span><span className="text-text-2">{h.range}</span><span className="font-mono text-text-3">{h.days}</span><span className={cn("rounded-md px-2 py-0.5 text-[12px]", STATUS_STYLE[h.status])}>{tStatus(h.status)}</span></div>)}
+              {history.map((h, i) => <div key={i} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 border-b border-border px-3 py-2 text-[12.5px] last:border-b-0"><span style={leaveTypes.get(h.type).pill} className="rounded-full px-2 py-0.5 text-[12px] font-medium">{leaveTypes.label(h.type)}</span><span className="text-text-2">{h.range}</span><span className="font-mono text-text-3">{h.days}</span><span className={cn("rounded-md px-2 py-0.5 text-[12px]", STATUS_STYLE[h.status])}>{tStatus(h.status)}</span></div>)}
             </div>
           </section>
         </div>

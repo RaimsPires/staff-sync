@@ -3,7 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { DEMO_MONTH, DEMO_TODAY, DEMO_YEAR } from "@/data/live";
-import { BRANCHES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import type { Employee } from "@/types/employee";
 import { minutesLabel, monthStats, round1, weekdayIndex, type DayRecord, type DayStatus } from "./profile-model";
@@ -15,6 +15,7 @@ const DAY_STYLE: Record<DayStatus, string> = {
 const DAY_DOT: Record<DayStatus, string> = { present: "var(--ok-dot)", late: "var(--warn-dot)", absent: "var(--bad-dot)", leave: "var(--violet-dot)" };
 
 export function OverviewTab({ emp, records }: { emp: Employee; records: DayRecord[] }) {
+  const org = useOrg();
   const t = useTranslations("Employees.profile");
   const format = useFormatter();
   const stats = monthStats(records);
@@ -47,8 +48,8 @@ export function OverviewTab({ emp, records }: { emp: Employee; records: DayRecor
           {emp.siteIds.map((id, i) => (
             <div key={id} className={cn("flex items-center gap-2.5 py-[9px]", i > 0 && "border-t border-border")}>
               <div className="flex-1">
-                <div className="text-[13.5px] font-medium">{siteById(id).name}</div>
-                <div className="text-[12px] text-text-3">{BRANCHES.find((b) => b.id === siteById(id).branchId)?.name}</div>
+                <div className="text-[13.5px] font-medium">{org.siteById(id).name}</div>
+                <div className="text-[12px] text-text-3">{org.branches.find((b) => b.id === org.siteById(id).branchId)?.name}</div>
               </div>
               <span className={cn("rounded-full px-2 py-[3px] text-[12px]", i ? "bg-neutral-bg text-neutral" : "bg-accent-soft text-accent")}>{t(i ? "secondary" : "defaultSite")}</span>
             </div>
@@ -61,7 +62,7 @@ export function OverviewTab({ emp, records }: { emp: Employee; records: DayRecor
             <div key={r.day} className={cn("flex items-center gap-3 py-[9px] text-[13px]", i > 0 && "border-t border-border")}>
               <span className="w-24 font-medium">{format.dateTime(dateOf(r.day), { weekday: "short", day: "numeric", month: "short" })}</span>
               <span className="font-mono text-[12.5px] text-text-2">08:00 – 16:00</span>
-              <span className="ml-auto text-right text-text-3">{siteById(emp.siteIds[i % emp.siteIds.length] ?? "pd").name}</span>
+              <span className="ml-auto text-right text-text-3">{org.siteById(emp.siteIds[i % emp.siteIds.length] ?? "pd").name}</span>
             </div>
           ))}
         </section>

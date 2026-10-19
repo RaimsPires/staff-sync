@@ -1,6 +1,8 @@
-import type { LatLng, OnboardingForm, PlanId } from "./types";
+import type { LatLng, OnboardingForm } from "./types";
 
 export const TOTAL_STEPS = 8;
+/** The confirmation screen after the last step. */
+export const DONE_STEP = TOTAL_STEPS + 1;
 
 export const SIZES = ["1–25", "26–50", "51–250", "251–1000", "1000+"] as const;
 
@@ -39,28 +41,6 @@ export const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as con
 export const DEFAULT_PIN: LatLng = [45.7605, 4.859];
 
 export const FREE_EMAIL = /@(gmail|yahoo|hotmail|outlook|live|icloud|orange|free|laposte)\./i;
-
-export interface PlanDef {
-  id: PlanId;
-  /** Euro price per employee per month, or null when the plan has custom pricing. */
-  price: { monthly: number; yearly: number } | null;
-  /** Number of feature lines under `Onboarding.plan.plans.<id>.features`. */
-  features: number;
-}
-
-export const PLANS: PlanDef[] = [
-  { id: "trial", price: { monthly: 0, yearly: 0 }, features: 3 },
-  { id: "starter", price: { monthly: 3, yearly: 2.4 }, features: 3 },
-  { id: "business", price: { monthly: 5, yearly: 4 }, features: 4 },
-  { id: "enterprise", price: null, features: 3 },
-];
-
-/** Plan suggested for a company size bucket. */
-export function recommendedPlan(size: string): PlanId | null {
-  const i = SIZES.indexOf(size as (typeof SIZES)[number]);
-  if (i < 0) return null;
-  return i === 0 ? "trial" : i === 1 ? "starter" : i === 2 ? "business" : "enterprise";
-}
 
 export const INITIAL_FORM: OnboardingForm = {
   name: "",

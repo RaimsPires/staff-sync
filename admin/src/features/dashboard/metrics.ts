@@ -1,4 +1,4 @@
-import { BRANCHES } from "@/data/org";
+import type { Org } from "@/lib/org";
 import { DEMO_TODAY, METHOD_SPLIT } from "@/data/live";
 import type { Site } from "@/types/domain";
 
@@ -21,7 +21,8 @@ export interface SiteDay {
 /** Past days vary around today's figures so the date picker has something to show. */
 export const dayFactor = (day: number): number => (day === DEMO_TODAY ? 1 : 1 + (((day * 37) % 9) - 4) / 60);
 
-export function siteDay(site: Site, day: number): SiteDay {
+/** `lateShift` is today's change in late arrivals caused by the grace period in Settings. */
+export function siteDay(site: Site, day: number, lateShift = 0): SiteDay {
   const today = day === DEMO_TODAY;
   const vf = dayFactor(day);
   const present = today ? site.present : Math.min(site.expected, Math.round(site.present * vf));
@@ -32,7 +33,7 @@ export function siteDay(site: Site, day: number): SiteDay {
     address: site.address,
     expected: site.expected,
     present,
-    late: Math.round(site.late * (today ? 1 : vf)),
+    late: Math.min(present, Math.max(0, Math.round((site.late + lateShift) * (today ? 1 : vf)))),
     absent: Math.max(0, site.expected - present - site.leave),
     leave: site.leave,
     flagged: today ? site.flagged : Math.round(site.flagged * vf),
@@ -132,16 +133,16 @@ export interface PunctualityRow {
   latePct: number;
 }
 
-export function punctuality(rows: SiteDay[], by: "branch" | "site"): PunctualityRow[] {
+export function punctuality(rows: SiteDay[], by: "branch" | "site", org: Org): PunctualityRow[] {
   const groups =
     by === "branch"
-      ? BRANCHES.map((b) => {
+      ? org.branches.map((b) => {
           const vs = rows.filter((r) => b.siteIds.includes(r.id));
           return { key: b.id, name: b.name, siteCount: vs.length, present: sumBy(vs, "present"), late: sumBy(vs, "late") };
         }).filter((g) => g.siteCount > 0)
       : rows.map((r) => ({
           key: r.id, name: r.name, siteCount: 1, present: r.present, late: r.late,
-          branchName: BRANCHES.find((b) => b.id === r.branchId)?.name,
+          branchName: org.branches.find((b) => b.id === r.branchId)?.name,
         }));
   return groups
     .map((g) => ({ ...g, onTimePct: ((g.present - g.late) / g.present) * 100, latePct: (g.late / g.present) * 100 }))

@@ -1,33 +1,33 @@
-import { SITES } from "@/data/org";
+import { SEED_SITES } from "@/data/org";
 import type { ManagedBranch, ManagedSite } from "@/types/site";
 
 const EXTRA = {
-  pd: { code: "PDT", employees: 42, expected: 38, present: 35, managers: ["Nadia Koné"], selfie: true, qr: true },
-  cf: { code: "CFD", employees: 31, expected: 27, present: 25, managers: ["Julien Roche"], selfie: true, qr: false },
-  sd: { code: "SDH", employees: 58, expected: 52, present: 46, managers: ["Marc Olivier"], selfie: false, qr: true },
-  rl: { code: "RLG", employees: 47, expected: 41, present: 38, managers: ["Marc Olivier"], selfie: true, qr: true },
-  pv: { code: "PVY", employees: 36, expected: 31, present: 30, managers: ["Sarah Benoît"], selfie: true, qr: false },
+  pd: { code: "PDT", employees: 42, managers: ["Nadia Koné"], selfie: true, qr: true },
+  cf: { code: "CFD", employees: 31, managers: ["Julien Roche"], selfie: true, qr: false },
+  sd: { code: "SDH", employees: 58, managers: ["Marc Olivier"], selfie: false, qr: true },
+  rl: { code: "RLG", employees: 47, managers: ["Marc Olivier"], selfie: true, qr: true },
+  pv: { code: "PVY", employees: 36, managers: ["Sarah Benoît"], selfie: true, qr: false },
 } as const;
 
-const base = (s: (typeof SITES)[number]): ManagedSite => {
+const base = (s: (typeof SEED_SITES)[number]): ManagedSite => {
   const x = EXTRA[s.id as keyof typeof EXTRA];
   return {
     id: s.id, name: s.name, code: x.code, branchId: s.branchId, address: s.address, timezone: "Europe/Paris", position: s.position, geofence: s.geofence,
-    managers: [...x.managers], employees: x.employees, expected: x.expected, present: x.present, requireSelfie: x.selfie, requireQr: x.qr,
+    managers: [...x.managers], phone: s.phone, employees: x.employees, expected: s.expected, present: s.present, late: s.late, absent: s.absent, flagged: s.flagged, leave: s.leave, requireSelfie: x.selfie, requireQr: x.qr,
     registeredDeviceOnly: false, allowOffline: true, minAccuracy: 50, active: true, hours: { start: "08:00", end: "16:00", breakMinutes: 30 },
   };
 };
 
 export const MANAGED_SITES: ManagedSite[] = [
-  ...SITES.map(base),
+  ...SEED_SITES.map(base),
   {
     id: "bx", name: "Bordeaux Dock", code: "BDX", branchId: "bdx", address: "5 Cours du Médoc, Bordeaux", timezone: "Europe/Paris", position: [44.8626, -0.5612],
-    geofence: { kind: "circle", radius: 220 }, managers: ["Hugo Martel"], employees: 0, expected: 0, present: 0, requireSelfie: false, requireQr: true,
+    geofence: { kind: "circle", radius: 220 }, managers: ["Hugo Martel"], phone: "", employees: 0, expected: 0, present: 0, late: 0, absent: 0, flagged: 0, leave: 0, requireSelfie: false, requireQr: true,
     registeredDeviceOnly: false, allowOffline: true, minAccuracy: 50, active: false, hours: { start: "08:00", end: "16:00", breakMinutes: 30 },
   },
   {
     id: "li", name: "Lille Annex", code: "LIL", branchId: "pn", address: "17 Rue Solférino, Lille", timezone: "Europe/Paris", position: [50.6292, 3.0573],
-    geofence: { kind: "circle", radius: 120 }, managers: ["Marc Olivier"], employees: 12, expected: 10, present: 7, requireSelfie: true, requireQr: true,
+    geofence: { kind: "circle", radius: 120 }, managers: ["Marc Olivier"], phone: "", employees: 12, expected: 10, present: 7, late: 1, absent: 1, flagged: 0, leave: 1, requireSelfie: true, requireQr: true,
     registeredDeviceOnly: false, allowOffline: true, minAccuracy: 50, active: true, hours: { start: "08:00", end: "16:00", breakMinutes: 30 },
   },
 ];

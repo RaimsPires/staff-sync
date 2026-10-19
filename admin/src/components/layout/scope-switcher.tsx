@@ -3,12 +3,14 @@
 import { Building2, Check, ChevronDown, ChevronRight, GitBranch, MapPin, Search, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { BRANCHES, COMPANY_NAME, siteById } from "@/data/org";
-import { ROLE_SITES } from "@/lib/permissions";
+import { useOrg } from "@/lib/org";
+import { roleSiteIds } from "@/lib/scope";
+import { usePresence } from "@/lib/use-presence";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/store/session";
 import { useAccess } from "@/store/use-access";
 import type { Scope } from "@/types/auth";
+import { useSettings } from "@/store/settings";
 
 const KIND: Record<Scope["kind"], { icon: LucideIcon; tile: string }> = {
   company: { icon: Building2, tile: "bg-text text-surface" },
@@ -25,30 +27,32 @@ interface Row {
   toggleBranch?: string;
 }
 
-const people = (ids: string[]) => ids.reduce((sum, id) => sum + siteById(id).expected, 0);
-
 /** Company → branch → site picker that filters every screen to one level. */
 export function ScopeSwitcher({ open, onToggle, onClose }: { open: boolean; onToggle: () => void; onClose: () => void }) {
+  const { mounted, state } = usePresence(open, 120);
+  const org = useOrg();
   const t = useTranslations("Shell.scope");
   const { role, scope } = useAccess();
+  const companyName = useSettings((st) => st.values.name);
   const setScope = useSession((s) => s.setScope);
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
-  const allowed = ROLE_SITES[role];
+  const allowed = roleSiteIds(role, org);
+  const people = (ids: string[]) => ids.reduce((sum, id) => sum + org.siteById(id).expected, 0);
   const canCompany = role === "admin";
-  const branches = BRANCHES.filter((b) => role !== "site" && b.siteIds.every((s) => allowed.includes(s)));
+  const branches = org.branches.filter((b) => role !== "site" && b.siteIds.every((s) => allowed.includes(s)));
   const q = query.trim().toLowerCase();
   const match = (v: string) => v.toLowerCase().includes(q);
   const peopleLabel = (ids: string[]) => t("meta", { sites: ids.length, people: people(ids) });
   const selected = (s: Scope) => scope.kind === s.kind && (s.kind === "company" || scope.id === s.id);
 
   const rows: Row[] = [];
-  const company = (indent: number): Row => ({ key: "company", scope: { kind: "company" }, label: COMPANY_NAME, sub: `${t("all")} · ${peopleLabel(allowed)}`, indent });
-  const branchRow = (b: (typeof BRANCHES)[number], indent: number, tree: boolean): Row => ({ key: `b-${b.id}`, scope: { kind: "branch", id: b.id }, label: b.name, sub: peopleLabel(b.siteIds), indent, toggleBranch: tree ? b.id : undefined });
+  const company = (indent: number): Row => ({ key: "company", scope: { kind: "company" }, label: companyName, sub: `${t("all")} · ${peopleLabel(allowed)}`, indent });
+  const branchRow = (b: (typeof org.branches)[number], indent: number, tree: boolean): Row => ({ key: `b-${b.id}`, scope: { kind: "branch", id: b.id }, label: b.name, sub: peopleLabel(b.siteIds), indent, toggleBranch: tree ? b.id : undefined });
   const siteRow = (id: string, indent: number, path: boolean): Row => {
-    const s = siteById(id);
-    const branch = BRANCHES.find((b) => b.id === s.branchId)?.name;
+    const s = org.siteById(id);
+    const branch = org.branches.find((b) => b.id === s.branchId)?.name;
     return { key: `s-${id}`, scope: { kind: "site", id }, label: s.name, sub: `${path ? `${branch} · ` : ""}${t("people", { count: s.expected })} · ${s.address.split(", ").pop()}`, indent };
   };
 
@@ -60,16 +64,16 @@ export function ScopeSwitcher({ open, onToggle, onClose }: { open: boolean; onTo
     });
     if (role === "site") allowed.forEach((id) => rows.push(siteRow(id, 0, true)));
   } else {
-    if (canCompany && (match(COMPANY_NAME) || match(t("all")))) rows.push(company(0));
+    if (canCompany && (match(companyName) || match(t("all")))) rows.push(company(0));
     branches.filter((b) => match(b.name)).forEach((b) => rows.push(branchRow(b, 0, false)));
-    allowed.filter((id) => match(siteById(id).name) || match(siteById(id).address)).forEach((id) => rows.push(siteRow(id, 0, true)));
+    allowed.filter((id) => match(org.siteById(id).name) || match(org.siteById(id).address)).forEach((id) => rows.push(siteRow(id, 0, true)));
   }
 
-  const branchName = BRANCHES.find((b) => b.id === scope.id)?.name ?? "";
-  const siteName = scope.kind === "site" && scope.id ? siteById(scope.id).name : "";
-  const siteBranch = scope.kind === "site" && scope.id ? (BRANCHES.find((b) => b.id === siteById(scope.id!).branchId)?.name ?? "") : "";
+  const branchName = org.branches.find((b) => b.id === scope.id)?.name ?? "";
+  const siteName = scope.kind === "site" && scope.id ? org.siteById(scope.id).name : "";
+  const siteBranch = scope.kind === "site" && scope.id ? (org.branches.find((b) => b.id === org.siteById(scope.id!).branchId)?.name ?? "") : "";
   const label = scope.kind === "company" ? t("all") : scope.kind === "branch" ? branchName : siteName;
-  const kicker = scope.kind === "company" ? COMPANY_NAME : scope.kind === "branch" ? `${COMPANY_NAME} › ${t("branch")}` : `${COMPANY_NAME} › ${siteBranch}`;
+  const kicker = scope.kind === "company" ? companyName : scope.kind === "branch" ? `${companyName} › ${t("branch")}` : `${companyName} › ${siteBranch}`;
   const { icon: Icon, tile } = KIND[scope.kind];
 
   return (
@@ -88,8 +92,8 @@ export function ScopeSwitcher({ open, onToggle, onClose }: { open: boolean; onTo
         <ChevronDown size={15} className="flex-none text-text-3" />
       </button>
 
-      {open && (
-        <div role="dialog" aria-label={t("title")} className="absolute left-0 top-[calc(100%+8px)] z-[2] w-[340px] max-w-[calc(100vw-24px)] animate-rise overflow-hidden rounded-xl border border-border bg-surface shadow-pop">
+      {mounted && (
+        <div data-state={state} role="dialog" aria-label={t("title")} className="absolute left-0 top-[calc(100%+8px)] z-[2] w-[340px] max-w-[calc(100vw-24px)] ss-drop overflow-hidden rounded-xl border border-border bg-surface shadow-pop">
           <div className="border-b border-border p-2.5">
             <label className="flex h-9 items-center gap-2 rounded-[9px] border border-solid border-border-strong px-2.5 text-text-3">
               <Search size={15} />

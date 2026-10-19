@@ -1,6 +1,7 @@
 import type { AlertRole } from "@/data/alerts";
 
-export type LeaveType = "annual" | "rtt" | "sick" | "family" | "unpaid";
+/** Id of a leave type defined in Settings (built-ins: annual, rtt, sick, family, unpaid). */
+export type LeaveType = string;
 export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
 
 /**

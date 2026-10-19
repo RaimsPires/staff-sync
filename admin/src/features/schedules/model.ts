@@ -14,7 +14,11 @@ export const indexOfIso = (iso: string): number => {
 };
 /** 0 = Monday … 6 = Sunday for a day index. */
 export const weekdayOf = (d: number): number => ((d % 7) + 7) % 7;
-export const mondayOf = (d: number): number => Math.floor(d / 7) * 7;
+/** First day of the week containing day index `d`; `offset` is how far the week start is from Monday (0 Monday, 5 Saturday, 6 Sunday). */
+export const weekStartOf = (d: number, offset = 0): number => d - ((weekdayOf(d) - offset + 7) % 7);
+
+/** Offset from Monday for the "week starts on" setting. */
+export const WEEK_START_OFFSET = { monday: 0, saturday: 5, sunday: 6 } as const;
 
 export type ShiftType = "rec" | "int";
 

@@ -1,19 +1,32 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { localized, planPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
-import { PLANS, recommendedPlan } from "../constants";
+import { usePlans } from "@/store/plans";
+import { SIZES } from "../constants";
 import { useOnboarding } from "../store";
 import { useStepErrors } from "../use-step-errors";
 
+/** Plan suggested for a company size bucket, by the employee cap each plan covers. */
+const RECOMMENDED = ["starter", "starter", "business", "enterprise", "enterprise"] as const;
+
 export function PlanStep() {
   const t = useTranslations("Onboarding.plan");
+  const format = useFormatter();
+  const locale = useLocale();
+  const plans = usePlans((s) => s.plans);
+  const features = usePlans((s) => s.features);
+  const trialDays = usePlans((s) => s.trialDays);
   const form = useOnboarding((s) => s.form);
   const set = useOnboarding((s) => s.set);
   const { error } = useStepErrors(8);
-  const recommended = recommendedPlan(form.size);
+  const sizeIndex = SIZES.indexOf(form.size as (typeof SIZES)[number]);
+  const recommended = sizeIndex < 0 ? null : RECOMMENDED[sizeIndex];
   const yearly = form.billing === "yearly";
+  const money = (n: number) => format.number(n, { style: "currency", currency: "EUR", minimumFractionDigits: Number.isInteger(n) ? 0 : 2 });
+  const label = (id: string) => { const f = features.find((x) => x.id === id); return f ? localized(f.label, locale) : id; };
 
   return (
     <>
@@ -37,9 +50,9 @@ export function PlanStep() {
       </div>
 
       <div role="radiogroup" aria-label={t("choose")} className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-        {PLANS.map((plan) => {
+        {plans.filter((p) => p.active).map((plan) => {
           const selected = form.plan === plan.id;
-          const price = plan.price ? (yearly ? plan.price.yearly : plan.price.monthly) : null;
+          const price = planPrice(plan, form.billing);
           return (
             <button
               key={plan.id}
@@ -59,7 +72,7 @@ export function PlanStep() {
                 </span>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-semibold">{t(`plans.${plan.id}.name`)}</span>
+                <span className="text-[15px] font-semibold">{localized(plan.name, locale)}</span>
                 <span
                   className={cn(
                     "box-border size-[18px] rounded-full bg-surface",
@@ -69,21 +82,21 @@ export function PlanStep() {
               </div>
               <div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-[28px] font-semibold tracking-tight">
-                    {price === null ? t("custom") : price === 0 ? "€0" : `€${(Number.isInteger(price) ? String(price) : price.toFixed(2)).replace(".", t("decimal"))}`}
-                  </span>
-                  <span className="text-[12.5px] text-text-3">{t(`plans.${plan.id}.unit`)}</span>
+                  <span className="text-[28px] font-semibold tracking-tight">{price === null ? t("custom") : money(price)}</span>
+                  {price !== null && <span className="text-[12.5px] text-text-3">{t("unit")}</span>}
                 </div>
                 <div className="min-h-[18px] text-[12.5px] text-text-2">
-                  {plan.id === "starter" || plan.id === "business" ? t(yearly ? "billedYearly" : "billedMonthly") : t(`plans.${plan.id}.note`)}
+                  {price === null ? t("volumePricing") : t(yearly ? "billedYearly" : "billedMonthly")}
                 </div>
               </div>
-              <div className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[12.5px] font-medium text-text-2">{t(`plans.${plan.id}.capacity`)}</div>
+              <div className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[12.5px] font-medium text-text-2">
+                {plan.employeeCap === null ? t("unlimitedEmployees") : t("upTo", { count: plan.employeeCap })}
+              </div>
               <ul className="m-0 flex list-none flex-col gap-[7px] p-0">
-                {Array.from({ length: plan.features }, (_, i) => (
-                  <li key={i} className="flex gap-2 text-[12.5px] text-text-2">
+                {plan.highlights.filter((id) => id !== "employees").map((id) => (
+                  <li key={id} className="flex gap-2 text-[12.5px] text-text-2">
                     <Check size={14} strokeWidth={2.4} className="mt-px flex-none text-ok-dot" />
-                    {t(`plans.${plan.id}.features.${i + 1}`)}
+                    {label(id)}
                   </li>
                 ))}
               </ul>
@@ -92,7 +105,7 @@ export function PlanStep() {
         })}
       </div>
       {error("plan") && <p className="m-0 text-center text-[12.5px] text-bad">{error("plan")}</p>}
-      <p className="m-0 text-center text-[12.5px] text-text-3">{t("footnote")}</p>
+      <p className="m-0 text-center text-[12.5px] text-text-3">{t("footnote", { days: trialDays })}</p>
     </>
   );
 }

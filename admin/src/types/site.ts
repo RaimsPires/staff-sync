@@ -10,10 +10,16 @@ export interface ManagedSite {
   position: LatLng;
   geofence: Geofence;
   managers: string[];
+  phone: string;
   /** Employees assigned to the site. */
   employees: number;
+  /** Today's headcount figures; the dashboard and attendance read them. */
   expected: number;
   present: number;
+  late: number;
+  absent: number;
+  flagged: number;
+  leave: number;
   requireSelfie: boolean;
   requireQr: boolean;
   registeredDeviceOnly: boolean;

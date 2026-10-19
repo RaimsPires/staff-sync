@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/misc";
 import { Modal } from "@/components/ui/overlay";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { AttendanceRecord } from "@/types/domain";
@@ -60,6 +60,7 @@ function ProxyForm({
   onCancel: () => void;
   onConfirm: (result: ProxyCheckResult) => void;
 }) {
+  const org = useOrg();
   const t = useTranslations("Live.proxy");
   const [time, setTime] = useState(defaultTime);
   const [reason, setReason] = useState("");
@@ -87,7 +88,7 @@ function ProxyForm({
           <div className="min-w-0">
             <div className="text-[16px] font-semibold">{t(kind === "in" ? "titleIn" : "titleOut")}</div>
             <div className="truncate text-[12.5px] font-normal text-text-3">
-              {record.name} · {siteById(record.site).name} · {record.sched}
+              {record.name} · {org.siteById(record.site).name} · {record.sched}
             </div>
           </div>
         </div>

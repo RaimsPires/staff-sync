@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { avatarColors, initials } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
 import { ALERTS, FENCE_RADIUS, type AlertItem, type AlertReason, type AlertTab, type RejectOutcome } from "@/data/alerts";
-import { BRANCHES, branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { AlertDetail } from "./alert-detail";
@@ -40,6 +40,7 @@ function Checkbox({ checked, onClick, label, hidden }: { checked: boolean; onCli
 }
 
 export function AlertsScreen() {
+  const org = useOrg();
   const t = useTranslations("Alerts");
   const tItems = useTranslations("Alerts.items");
   const toast = useToast();
@@ -64,7 +65,7 @@ export function AlertsScreen() {
 
   const visible = scoped.filter((it) => {
     if (tab === "resolved" ? it.status === "open" : it.status !== "open" || it.tab !== tab) return false;
-    if (branch !== "all" && branchOfSite(it.site).id !== branch) return false;
+    if (branch !== "all" && org.branchOfSite(it.site).id !== branch) return false;
     if (site !== "all" && it.site !== site) return false;
     if (reason !== "all" && it.reason !== reason) return false;
     if (date !== "all" && it.days > Number(date)) return false;
@@ -75,7 +76,7 @@ export function AlertsScreen() {
   const current = scoped.find((i) => i.id === openId) ?? null;
   const selectableOpen = visible.filter((i) => i.status === "open");
   const allSelected = selectableOpen.length > 0 && selectableOpen.every((i) => selected.includes(i.id));
-  const siteOptions = BRANCHES.flatMap((b) => (branch === "all" || b.id === branch ? b.siteIds : [])).filter((id) => siteIds.includes(id));
+  const siteOptions = org.branches.flatMap((b) => (branch === "all" || b.id === branch ? b.siteIds : [])).filter((id) => siteIds.includes(id));
   const hasFilter = branch !== "all" || site !== "all" || reason !== "all" || date !== "all" || !!query;
   const needBulkText = bulkText.trim().length < 3;
 
@@ -147,14 +148,14 @@ export function AlertsScreen() {
       <div className="flex flex-wrap items-center gap-2">
         <select value={branch} onChange={(e) => { setBranch(e.target.value); setSite("all"); setSelected([]); }} aria-label={t("filters.branch")} className={select}>
           <option value="all">{t("filters.allBranches")}</option>
-          {BRANCHES.map((b) => (
+          {org.branches.map((b) => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}
         </select>
         <select value={site} onChange={(e) => { setSite(e.target.value); setSelected([]); }} aria-label={t("filters.site")} className={select}>
           <option value="all">{t("filters.allSites")}</option>
           {siteOptions.map((id) => (
-            <option key={id} value={id}>{siteById(id).name}</option>
+            <option key={id} value={id}>{org.siteById(id).name}</option>
           ))}
         </select>
         <select value={reason} onChange={(e) => { setReason(e.target.value as "all" | AlertReason); setSelected([]); }} aria-label={t("filters.reason")} className={select}>
@@ -236,8 +237,8 @@ export function AlertsScreen() {
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate">{siteById(it.site).name}</div>
-                    <div className="text-[12px] text-text-3">{branchOfSite(it.site).name}</div>
+                    <div className="truncate">{org.siteById(it.site).name}</div>
+                    <div className="text-[12px] text-text-3">{org.branchOfSite(it.site).name}</div>
                   </div>
                   <div className="leading-snug text-text-2">{when(it)}</div>
                   <div>

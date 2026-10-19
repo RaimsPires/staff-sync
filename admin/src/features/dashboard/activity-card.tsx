@@ -6,11 +6,12 @@ import { useMemo } from "react";
 import { StatusChip, type ChipStatus } from "@/components/ui/status-chip";
 import { avatarColors, initials } from "@/components/ui/misc";
 import { DEMO_TODAY, QR_RECORD_IDS } from "@/data/live";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
 import type { LiveEvent } from "@/types/domain";
+import { useRuledRecords } from "@/lib/attendance-rules";
 
 type Method = "self" | "proxy" | "qr";
 const METHOD_ICON: Record<Method, LucideIcon> = { self: Smartphone, proxy: UserCheck, qr: QrCode };
@@ -46,9 +47,10 @@ export function ActivityCard({
   paused: boolean;
   onTogglePause: () => void;
 }) {
+  const org = useOrg();
   const t = useTranslations("Dashboard.activity");
   const tm = useTranslations("Dashboard.methods");
-  const today = useData((s) => s.today);
+  const today = useRuledRecords(useData((s) => s.today));
   const isToday = day === DEMO_TODAY;
 
   const rows = useMemo<Row[]>(() => {
@@ -111,7 +113,7 @@ export function ActivityCard({
                 <div className="truncate text-[13.5px]">
                   <strong className="font-semibold">{r.name}</strong> <span className="text-text-2">{t(r.act === "in" ? "checkedIn" : "checkedOut")}</span>
                 </div>
-                <div className="truncate text-[12px] text-text-3">{siteById(r.site).name}</div>
+                <div className="truncate text-[12px] text-text-3">{org.siteById(r.site).name}</div>
               </div>
               <span title={tm(`${r.method}.label`)} className="grid size-[26px] flex-none place-items-center rounded-[7px] border border-border bg-surface-2 text-text-2">
                 <Icon size={14} />

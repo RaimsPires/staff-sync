@@ -12,7 +12,7 @@ import { StatusChip, STATUS_TONE, type ChipStatus } from "@/components/ui/status
 import { MethodIcon, type MethodKey } from "@/components/ui/method-icon";
 import { useToast } from "@/components/ui/toast";
 import { DEMO_TODAY } from "@/data/live";
-import { branchOfSite, managerOf } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { formatDuration, parseTime, wrapDelta } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
@@ -20,6 +20,7 @@ import { useData } from "@/store/data";
 import type { AttendanceRecord, FieldChange, HistoryEntry, RecordNote, RecordStatus } from "@/types/domain";
 import { employeeCode, scheduleMinutes } from "./model";
 import { useRecordView } from "./use-record-view";
+import { useRuledRecords } from "@/lib/attendance-rules";
 
 const NOW_AT = "15 Oct 10:42";
 const EDIT_STATUSES: RecordStatus[] = ["ontime", "late", "early", "absent", "missing", "overtime", "leave", "holiday"];
@@ -37,8 +38,8 @@ type EditState =
 
 /** Side panel with everything about one attendance record: times, location, timeline, edits and notes. */
 export function RecordDrawer({ recordId, onClose }: { recordId: number | null; onClose: () => void }) {
-  const today = useData((s) => s.today);
-  const history = useData((s) => s.history);
+  const today = useRuledRecords(useData((s) => s.today));
+  const history = useRuledRecords(useData((s) => s.history));
   const record = useMemo(
     () => (recordId === null ? null : (today.find((r) => r.id === recordId) ?? history.find((r) => r.id === recordId) ?? null)),
     [recordId, today, history],
@@ -48,6 +49,7 @@ export function RecordDrawer({ recordId, onClose }: { recordId: number | null; o
 }
 
 function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: () => void }) {
+  const org = useOrg();
   const t = useTranslations("Drawer");
   const tStatus = useTranslations("Status");
   const tJobs = useTranslations("Data.jobs");
@@ -61,7 +63,7 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
   const addNote = useData((s) => s.addNote);
   const sessionHistory = useData((s) => s.recordHistory[record.id]);
   const sessionNotes = useData((s) => s.recordNotes[record.id]);
-  const view = useRecordView(record, me.name, managerOf);
+  const view = useRecordView(record, me.name, org.managerOf);
 
   const [edit, setEdit] = useState<EditState | null>(null);
   const [noteText, setNoteText] = useState("");
@@ -86,9 +88,9 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
     : [];
   const historyList = [...seedHistory, ...(sessionHistory ?? [])].reverse();
   const seedNotes: RecordNote[] = record.flag
-    ? [{ by: managerOf(record.site), at: `${NOW_AT.slice(0, 6)} 09:05`, text: t(record.flag === "dist" ? "seed.noteDistance" : "seed.noteMock") }]
+    ? [{ by: org.managerOf(record.site), at: `${NOW_AT.slice(0, 6)} 09:05`, text: t(record.flag === "dist" ? "seed.noteDistance" : "seed.noteMock") }]
     : record.status === "missing"
-      ? [{ by: managerOf(record.site), at: `${day} Oct 06:20`, text: t("seed.noteMissing") }]
+      ? [{ by: org.managerOf(record.site), at: `${day} Oct 06:20`, text: t("seed.noteMissing") }]
       : [];
   const notes = [...seedNotes, ...(sessionNotes ?? [])];
 
@@ -214,7 +216,7 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
                 {tJobs(record.job)} · {site.name}
               </div>
               <div className="font-mono text-[11.5px] text-text-3">
-                {employeeCode(record)} · {branchOfSite(record.site).name}
+                {employeeCode(record)} · {org.branchOfSite(record.site).name}
               </div>
             </div>
             <button onClick={() => router.push("/employees")} className={secondaryButton}>

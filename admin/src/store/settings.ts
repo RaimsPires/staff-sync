@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { DEFAULT_SETTINGS, SEED_HOOKS, SEED_KEYS, SEED_LEAVE_TYPES } from "@/data/settings";
-import type { ApiKey, LeaveTypeDef, PlanId, SettingsValues, Webhook } from "@/types/settings";
+import type { ApiKey, LeaveTypeDef, SettingsValues, Webhook } from "@/types/settings";
 
 const random = (len: number) => Array.from({ length: len }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("");
 
@@ -9,10 +9,9 @@ interface SettingsState {
   leaveTypes: LeaveTypeDef[];
   keys: ApiKey[];
   hooks: Webhook[];
-  plan: PlanId;
   /** Changes apply immediately; there is no separate save step. */
   patch: (p: Partial<SettingsValues>) => void;
-  saveLeaveType: (t: Omit<LeaveTypeDef, "id"> & { id: string | null }) => void;
+  saveLeaveType: (t: Omit<LeaveTypeDef, "id" | "builtIn"> & { id: string | null }) => void;
   deleteLeaveType: (id: string) => void;
   /** Creates a key and returns the secret, which is shown only once. */
   createKey: (name: string) => string;
@@ -21,7 +20,6 @@ interface SettingsState {
   addHook: (url: string, events: string[]) => string;
   toggleHook: (id: string) => void;
   deleteHook: (id: string) => void;
-  setPlan: (p: PlanId) => void;
 }
 
 export const useSettings = create<SettingsState>((set) => ({
@@ -29,11 +27,10 @@ export const useSettings = create<SettingsState>((set) => ({
   leaveTypes: SEED_LEAVE_TYPES,
   keys: SEED_KEYS,
   hooks: SEED_HOOKS,
-  plan: "growth",
   patch: (p) => set((s) => ({ values: { ...s.values, ...p } })),
   saveLeaveType: ({ id, ...rest }) =>
     set((s) => ({
-      leaveTypes: id ? s.leaveTypes.map((x) => (x.id === id ? { id, ...rest } : x)) : [...s.leaveTypes, { id: `t${Date.now()}`, ...rest }],
+      leaveTypes: id ? s.leaveTypes.map((x) => (x.id === id ? { ...rest, id, builtIn: x.builtIn } : x)) : [...s.leaveTypes, { ...rest, id: `t${Date.now()}`, builtIn: false }],
     })),
   deleteLeaveType: (id) => set((s) => ({ leaveTypes: s.leaveTypes.filter((x) => x.id !== id) })),
   createKey: (name) => {
@@ -48,5 +45,4 @@ export const useSettings = create<SettingsState>((set) => ({
   },
   toggleHook: (id) => set((s) => ({ hooks: s.hooks.map((h) => (h.id === id ? { ...h, on: !h.on } : h)) })),
   deleteHook: (id) => set((s) => ({ hooks: s.hooks.filter((h) => h.id !== id) })),
-  setPlan: (plan) => set({ plan }),
 }));

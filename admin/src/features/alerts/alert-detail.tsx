@@ -6,7 +6,7 @@ import { useState } from "react";
 import { RecordMap } from "@/components/map/record-map";
 import { Avatar } from "@/components/ui/misc";
 import { ESCALATION_ADMINS, FENCE_RADIUS, type AlertItem, type RejectOutcome } from "@/data/alerts";
-import { branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { offsetMeters } from "@/lib/geo";
 import { cn } from "@/lib/utils";
 import { REASON_TONE, STATUS_STYLE, useAlertWhen } from "./shared";
@@ -28,6 +28,7 @@ export function AlertDetail({ item, ...handlers }: { item: AlertItem } & DetailH
 }
 
 function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: AlertItem } & DetailHandlers) {
+  const org = useOrg();
   const t = useTranslations("Alerts.detail");
   const ta = useTranslations("Alerts");
   const tItems = useTranslations("Alerts.items");
@@ -37,7 +38,7 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
   const [outcome, setOutcome] = useState<RejectOutcome>("absent");
   const [escTo, setEscTo] = useState(ESCALATION_ADMINS[0]);
 
-  const site = siteById(item.site);
+  const site = org.siteById(item.site);
   const fence = FENCE_RADIUS[item.site];
   const hasPosition = item.tab !== "unc";
   const isIntervention = item.tab === "unc";
@@ -97,7 +98,7 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
         <div className="min-w-0 flex-1">
           <div className="text-[15.5px] font-semibold">{title}</div>
           <div className="text-[12.5px] text-text-3">
-            {roleLabel} · {site.name}, {branchOfSite(item.site).name}
+            {roleLabel} · {site.name}, {org.branchOfSite(item.site).name}
           </div>
         </div>
         <span className={cn("rounded-md px-2 py-[3px] text-[12px] font-medium", status.className)}>{ta(`status.${item.status}`)}</span>

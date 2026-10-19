@@ -23,6 +23,3 @@ const SEEDS: Seed[] = [
 ];
 
 export const LEAVE_REQUESTS: LeaveRequest[] = SEEDS.map((s) => ({ ...s, waitingOnMe: s.waitingOnMe ?? false, log: [] }));
-
-/** Yearly entitlement in days per leave type. */
-export const ENTITLEMENT: Record<string, number> = { annual: 25, rtt: 10, sick: 5, family: 4, unpaid: 0 };

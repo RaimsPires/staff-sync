@@ -95,12 +95,12 @@
       "help": "Besoin d’aide ?",
       "book": "Réserver un appel de 15 min"
     },
-    "progress": "Étape {step} sur 8 · {label}",
+    "progress": "Étape {step} sur {total} · {label}",
     "complete": "Configuration terminée",
     "saveLater": "Enregistrer et continuer plus tard",
     "savedLater": "Progression enregistrée. Nous avons envoyé un lien de reprise à {email}.",
     "you": "vous",
-    "eyebrow": "ÉTAPE {step} / 8",
+    "eyebrow": "ÉTAPE {step} / {total}",
     "summary": "{count, plural, one {Corrigez # champ pour continuer.} other {Corrigez # champs pour continuer.}}",
     "nav": {
       "back": "Retour",
@@ -109,15 +109,15 @@
       "createAccount": "Créer le compte",
       "verify": "Vérifier",
       "sendInvites": "{count, plural, one {Envoyer # invitation} other {Envoyer # invitations}}",
-      "startTrial": "Démarrer l’essai gratuit",
-      "startTrialOn": "Démarrer l’essai {plan}"
+      "startTrial": "Démarrer l’essai gratuit de {days} jours",
+      "startTrialOn": "Démarrer l’essai de {days} jours sur {plan}"
     },
     "steps": {
       "1": {
         "label": "Créer un compte",
         "sub": "Votre accès admin",
         "title": "Créez votre compte",
-        "description": "Démarrez votre essai gratuit de 14 jours. Aucune carte requise."
+        "description": "Démarrez votre essai gratuit de 30 jours. Aucune carte requise."
       },
       "2": {
         "label": "Vérifier l’e-mail",
@@ -159,7 +159,7 @@
         "label": "Choisir une offre",
         "sub": "Facturé par employé",
         "title": "Choisissez une offre",
-        "description": "Choisissez ce qui convient aujourd’hui. Vous pouvez changer d’offre à tout moment."
+        "description": "Choisissez ce qui convient. Votre essai gratuit de 30 jours démarre sur cette offre, et vous pouvez en changer à tout moment."
       }
     },
     "account": {
@@ -316,65 +316,6 @@
       "columns": "Colonnes : name, phone_or_email, role, site.",
       "downloadTemplate": "Télécharger le modèle CSV"
     },
-    "plan": {
-      "billing": "Période de facturation",
-      "monthly": "Mensuel",
-      "yearly": "Annuel",
-      "choose": "Offres",
-      "recommended": "Recommandé pour {size} personnes",
-      "custom": "Sur mesure",
-      "decimal": ",",
-      "billedYearly": "Facturé annuellement",
-      "billedMonthly": "Facturé mensuellement",
-      "footnote": "Chaque offre commence par un essai gratuit de 14 jours. Aucune carte requise.",
-      "plans": {
-        "trial": {
-          "name": "Essai gratuit",
-          "unit": "pendant 14 jours",
-          "note": "Toutes les fonctions Business",
-          "capacity": "Jusqu’à 25 employés",
-          "features": {
-            "1": "1 agence, 3 sites",
-            "2": "Pointage mobile avec géorepérage",
-            "3": "Demandes de congé"
-          }
-        },
-        "starter": {
-          "name": "Starter",
-          "unit": "/ employé / mois",
-          "note": "",
-          "capacity": "Jusqu’à 50 employés",
-          "features": {
-            "1": "Sites illimités",
-            "2": "Alertes de fraude et preuve GPS",
-            "3": "Pointage pour un tiers"
-          }
-        },
-        "business": {
-          "name": "Business",
-          "unit": "/ employé / mois",
-          "note": "",
-          "capacity": "Jusqu’à 250 employés",
-          "features": {
-            "1": "Tout Starter",
-            "2": "Rôles par agence et par site",
-            "3": "Géorepérages polygonaux",
-            "4": "Exports de paie"
-          }
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "unit": "",
-          "note": "Tarifs au volume",
-          "capacity": "Plus de 250 employés",
-          "features": {
-            "1": "SSO et SCIM",
-            "2": "Rétention des données sur mesure",
-            "3": "Responsable de compte dédié"
-          }
-        }
-      }
-    },
     "done": {
       "fallbackName": "vous",
       "title": "Tout est prêt, {name} !",
@@ -386,13 +327,8 @@
         "company": "Entreprise",
         "branchSite": "Agence → Site",
         "hours": "Horaires",
-        "invitedPlan": "Invités · Offre"
-      },
-      "plans": {
-        "trial": "Essai gratuit",
-        "starter": "Starter",
-        "business": "Business",
-        "enterprise": "Enterprise"
+        "invitedPlan": "Invités · Offre",
+        "trial": "{plan} · essai de {days} jours"
       },
       "nextSteps": "Prochaines étapes",
       "checklist": {
@@ -444,6 +380,21 @@
       "personContact": "Ajoutez un téléphone ou un e-mail pour envoyer l’invitation.",
       "personInvalid": "Ce n’est pas un numéro de téléphone ou un e-mail valide.",
       "planRequired": "Choisissez une offre pour continuer."
+    },
+    "plan": {
+      "billing": "Période de facturation",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "choose": "Offres",
+      "recommended": "Recommandé pour {size} personnes",
+      "custom": "Sur mesure",
+      "billedYearly": "Facturé annuellement",
+      "billedMonthly": "Facturé mensuellement",
+      "unit": "/ employé / mois",
+      "volumePricing": "Tarif selon volume",
+      "upTo": "Jusqu’à {count} employés",
+      "unlimitedEmployees": "Employés illimités",
+      "footnote": "Chaque offre démarre par un essai gratuit de {days} jours. Aucune carte requise."
     }
   },
   "Nav": {
@@ -2705,7 +2656,7 @@
     "collapse": "Réduire le menu",
     "expand": "Déployer le menu",
     "upgrade": "Mettre à niveau",
-    "planName": "Offre Business",
+    "planName": "Offre {plan}",
     "employees": "employés",
     "groups": {
       "monitor": "Suivi",
@@ -2800,6 +2751,10 @@
         "branch": "Responsable d’agence",
         "site": "Cheffe de site"
       }
+    },
+    "preview": {
+      "banner": "Aperçu du rôle « {role} ». Les pages et boutons suivent ses permissions ; votre périmètre de données reste inchangé.",
+      "exit": "Quitter l’aperçu"
     }
   },
   "Schedules": {
@@ -3155,7 +3110,9 @@
       "edit": "Modifier",
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "preview": "Aperçu",
+      "previewing": "Aperçu de « {name} »"
     },
     "scopes": {
       "company": {
@@ -3252,6 +3209,7 @@
         "duplicate": "Dupliquer un rôle",
         "edit": "Modifier le rôle"
       },
+      "notFound": "Rôle introuvable",
       "copyName": "{name} (copie)",
       "customDesc": "Rôle personnalisé.",
       "status": {
@@ -3773,32 +3731,9 @@
     },
     "billing": {
       "title": "Offre et consommation",
-      "renews": "Renouvellement le {date} · facturé mensuellement",
+      "renews": "Renouvellement le {date} · facturation {cycle}",
       "usage": "{used} employés sur {cap}",
-      "seatsLeft": "{count, plural, one {# licence restante} other {# licences restantes}}",
-      "current": "Actuelle",
       "price": "{price} par employé / mois",
-      "capacity": "Jusqu’à {count} employés",
-      "yourPlan": "Votre offre",
-      "tooMany": "Trop d’employés",
-      "upgrade": "Passer à l’offre supérieure",
-      "downgrade": "Passer à l’offre inférieure",
-      "cancel": "Annuler",
-      "confirm": "Confirmer",
-      "changeTitle": "{direction, select, up {Passer à l’offre {plan} ?} other {Revenir à l’offre {plan} ?}}",
-      "changeMessage": "Nouveau prix : {price} par employé et par mois dès votre prochaine facture.",
-      "changed": "Offre changée pour {plan}",
-      "plans": {
-        "starter": {
-          "name": "Starter"
-        },
-        "growth": {
-          "name": "Growth"
-        },
-        "scale": {
-          "name": "Scale"
-        }
-      },
       "payment": "Moyen de paiement",
       "update": "Modifier",
       "cardEnding": "Visa se terminant par {last4}",
@@ -3815,7 +3750,12 @@
       "invoices": "Factures",
       "paid": "Payée",
       "download": "Télécharger",
-      "downloading": "Téléchargement de {id}"
+      "downloading": "Téléchargement de {id}",
+      "monthly": "mensuelle",
+      "yearly": "annuelle",
+      "comparePlans": "Comparer et changer d’offre",
+      "customPrice": "Tarif sur mesure",
+      "usageUnlimited": "{used} employés · sans limite"
     },
     "danger": {
       "title": "Zone de danger",
@@ -4333,5 +4273,60 @@
       "saved": "Programmation enregistrée · {count, plural, one {# destinataire} other {# destinataires}}",
       "removed": "Programmation supprimée"
     }
+  },
+  "Plans": {
+    "title": "Offres",
+    "subtitle": "Comparez le contenu de chaque offre et modifiez votre abonnement.",
+    "back": "Facturation",
+    "billingPeriod": "Période de facturation",
+    "monthly": "Mensuelle",
+    "yearly": "Annuelle",
+    "save": "−20 %",
+    "currentPlan": "Offre actuelle",
+    "usage": "{used} sur {cap} employés",
+    "usageUnlimited": "{used} employés · sans limite",
+    "renews": "Renouvellement le {date}",
+    "current": "Actuelle",
+    "recommended": "La plus choisie",
+    "custom": "Sur mesure",
+    "perEmployee": "/ employé / mois",
+    "volumePricing": "Tarif selon volume",
+    "billedMonthly": "Facturé mensuellement",
+    "billedYearly": "Facturé annuellement",
+    "upTo": "Jusqu’à {count} employés",
+    "unlimitedEmployees": "Employés illimités",
+    "unlimited": "Illimité",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "yourPlan": "Votre offre",
+    "switchBilling": "Passer en facturation {cycle}",
+    "contactSales": "Contacter les ventes",
+    "salesToast": "Notre équipe commerciale vous contactera",
+    "tooMany": "Trop d’employés",
+    "upgrade": "Passer à cette offre",
+    "downgrade": "Rétrograder",
+    "compare": "Comparer les offres",
+    "feature": "Fonctionnalité",
+    "groups": {
+      "usage": "Utilisation et limites",
+      "tracking": "Pointage",
+      "management": "Gestion",
+      "security": "Sécurité",
+      "support": "Support"
+    },
+    "confirm": {
+      "upgradeTitle": "Passer à {plan} ?",
+      "downgradeTitle": "Rétrograder vers {plan} ?",
+      "billingTitle": "Passer en facturation {cycle} ?",
+      "message": "Nouveau prix : {price} par employé et par mois, facturé {cycle}, dès votre prochaine facture.",
+      "cancel": "Annuler",
+      "ok": "Confirmer",
+      "done": "Offre changée pour {plan}"
+    },
+    "cycles": {
+      "monthly": "mensuelle",
+      "yearly": "annuelle"
+    },
+    "trialEnds": "Fin de l’essai gratuit le {date}"
   }
 }

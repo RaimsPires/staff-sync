@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { createStore, useStore, type StoreApi } from "zustand";
-import { INITIAL_FORM } from "./constants";
+import { INITIAL_FORM, TOTAL_STEPS } from "./constants";
 import type { OnboardingForm } from "./types";
 import { errorCount, validateStep } from "./validation";
 
@@ -65,7 +65,7 @@ const createOnboardingStore = (startStep: number) =>
     resend: () => set({ resendAt: Date.now() + RESEND_MS, code: EMPTY_CODE }),
     skipTeam: () => {
       set((s) => ({ form: { ...s.form, people: [{ name: "", contact: "", role: "employee" }] } }));
-      get().goStep(8);
+      get().goStep(TOTAL_STEPS);
     },
     toggleCheck: (i, value) =>
       set((s) => ({ checks: s.checks.map((c, j) => (j === i ? (value ?? !c) : c)) })),

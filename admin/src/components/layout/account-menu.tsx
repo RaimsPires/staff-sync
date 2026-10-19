@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useTransition } from "react";
 import { avatarColors, initials } from "@/components/ui/misc";
-import { COMPANY_NAME } from "@/data/org";
 import { setLocale } from "@/i18n/actions";
 import { locales, type Locale } from "@/i18n/config";
 import { useHydrated } from "@/lib/use-hydrated";
+import { usePresence } from "@/lib/use-presence";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { markSignedOut } from "@/lib/auth-cookie";
+import { useSettings } from "@/store/settings";
 
 const THEMES = [
   { id: "light", icon: Sun },
@@ -24,12 +25,14 @@ const seg = "flex gap-0.5 rounded-lg border border-solid border-border bg-surfac
 const segButton = (on: boolean) => cn("h-[26px] rounded-md border-0 text-[12px] font-semibold", on ? "bg-surface text-text shadow-[0_1px_2px_rgb(0_0_0/0.12)]" : "bg-transparent text-text-3");
 
 export function AccountMenu({ open, onToggle, onClose }: { open: boolean; onToggle: () => void; onClose: () => void }) {
+  const { mounted, state } = usePresence(open, 120);
   const t = useTranslations("Shell.account");
   const router = useRouter();
   const locale = useLocale() as Locale;
   const { theme = "system", setTheme } = useTheme();
   const hydrated = useHydrated();
   const { role, me } = useAccess();
+  const companyName = useSettings((st) => st.values.name);
   const [, startTransition] = useTransition();
   const go = (href: string) => { onClose(); router.push(href); };
   const changeLocale = (l: Locale) => startTransition(async () => { await setLocale(l); router.refresh(); });
@@ -41,14 +44,14 @@ export function AccountMenu({ open, onToggle, onClose }: { open: boolean; onTogg
         <span className="grid size-8 place-items-center rounded-full text-[12px] font-semibold" style={colors}>{initials(me.name)}</span>
         <ChevronDown size={15} />
       </button>
-      {open && (
-        <div role="menu" className="absolute right-0 top-[calc(100%+8px)] z-[2] w-[300px] animate-rise overflow-hidden rounded-xl border border-border bg-surface shadow-pop">
+      {mounted && (
+        <div data-state={state} role="menu" className="absolute right-0 top-[calc(100%+8px)] z-[2] w-[300px] ss-drop overflow-hidden rounded-xl border border-border bg-surface shadow-pop">
           <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
             <span className="grid size-10 flex-none place-items-center rounded-full text-[14px] font-semibold" style={colors}>{initials(me.name)}</span>
             <div className="min-w-0">
               <div className="font-semibold">{me.name}</div>
               <div className="truncate text-[12px] text-text-3">{me.email}</div>
-              <div className="mt-1"><span className="rounded-full bg-accent-soft px-[7px] py-0.5 text-[11px] font-semibold text-accent">{t("roleAt", { role: t(`roles.${role}`), company: COMPANY_NAME })}</span></div>
+              <div className="mt-1"><span className="rounded-full bg-accent-soft px-[7px] py-0.5 text-[11px] font-semibold text-accent">{t("roleAt", { role: t(`roles.${role}`), company: companyName })}</span></div>
             </div>
           </div>
           <div className="p-1.5">

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Modal } from "@/components/ui/overlay";
+import { Modal, KeepMounted } from "@/components/ui/overlay";
 import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -131,7 +131,7 @@ export function SecurityTab() {
       </section>
       <TwoFactor />
       <Sessions />
-      {open && <PasswordModal onClose={() => setOpen(false)} />}
+      <KeepMounted show={!!open}>{open && <PasswordModal onClose={() => setOpen(false)} />}</KeepMounted>
     </>
   );
 }

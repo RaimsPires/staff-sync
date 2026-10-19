@@ -165,6 +165,33 @@
   to { transform: rotate(360deg); }
 }
 
+/* Enter and exit motion for overlays; `data-state` is set by usePresence. */
+@keyframes ssFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ssFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes ssPopIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes ssPopOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(6px) scale(0.98); } }
+@keyframes ssDrawerOut { from { transform: none; opacity: 1; } to { transform: translateX(32px); opacity: 0; } }
+@keyframes ssDropIn { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes ssDropOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes ssDropUpIn { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes ssDropUpOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(4px) scale(0.98); } }
+
+.ss-fade[data-state="open"] { animation: ssFadeIn 0.18s ease-out both; }
+.ss-fade[data-state="closed"] { animation: ssFadeOut 0.16s ease-in both; }
+.ss-pop[data-state="open"] { animation: ssPopIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.ss-pop[data-state="closed"] { animation: ssPopOut 0.16s ease-in both; }
+.ss-slide[data-state="open"] { animation: ssDrawer 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.ss-slide[data-state="closed"] { animation: ssDrawerOut 0.18s ease-in both; }
+.ss-drop[data-state="open"] { animation: ssDropIn 0.16s ease-out both; transform-origin: top; }
+.ss-drop[data-state="closed"] { animation: ssDropOut 0.12s ease-in both; transform-origin: top; pointer-events: none; }
+.ss-drop[data-up][data-state="open"] { animation-name: ssDropUpIn; transform-origin: bottom; }
+.ss-drop[data-up][data-state="closed"] { animation-name: ssDropUpOut; transform-origin: bottom; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-fade, .ss-pop, .ss-slide, .ss-drop { animation-duration: 0.01ms !important; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+
 @layer base {
   html,
   body {

@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/overlay";
+import { Modal, KeepMounted } from "@/components/ui/overlay";
 import { Switch } from "@/components/ui/switch";
 import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
@@ -129,7 +129,7 @@ export function FormCard({ group }: { group: Group }) {
           </div>
         </div>
       ))}
-      {editing && <EditFieldsModal title={tGroup(`${group.id}.title`)} fields={editable} onClose={() => setEditing(false)} />}
+      <KeepMounted show={!!editing}>{editing && <EditFieldsModal title={tGroup(`${group.id}.title`)} fields={editable} onClose={() => setEditing(false)} />}</KeepMounted>
     </section>
   );
 }

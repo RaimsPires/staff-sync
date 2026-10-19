@@ -24,12 +24,9 @@ export const IDENTITY: Record<Role, Identity> = {
   site: { name: "Nadia Koné", email: "nadia.kone@batiplus.fr" },
 };
 
-/** Sites each role may ever see. The scope switcher narrows within this list. */
-export const ROLE_SITES: Record<Role, string[]> = {
-  admin: ["pd", "cf", "sd", "rl", "pv"],
-  branch: ["sd", "rl"],
-  site: ["pd"],
-};
+/** The branch a branch manager runs and the site a site manager is assigned to in the demo. */
+export const ROLE_BRANCH = "pn";
+export const ROLE_SITE = "pd";
 
 export const permissionsFor = (role: Role): Permissions => BY_ROLE[role];
 
@@ -49,4 +46,21 @@ export function canAccess(p: Permissions, page: AdminPage): boolean {
     default:
       return true;
   }
+}
+
+/** Page and action permissions implied by a role's permission list (see `lib/access-catalog.ts`). */
+export function permissionsFromList(perms: string[], isAdmin: boolean): Permissions {
+  const has = (k: string) => perms.includes(k);
+  return {
+    admin: isAdmin,
+    edit: has("att.edit"),
+    behalf: has("proxy.create"),
+    review: has("fraud.approve"),
+    approve: has("lva.approve"),
+    org: has("site.view") || has("branch.view"),
+    reports: has("rep.view"),
+    users: has("usr.view"),
+    settings: has("set.view") || has("bill.view"),
+    audit: has("audit.view"),
+  };
 }

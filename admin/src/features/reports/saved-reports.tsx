@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
-import { BRANCHES } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useReports } from "@/store/reports";
 import type { SavedReport } from "@/types/reports";
@@ -14,6 +14,7 @@ import type { SavedReport } from "@/types/reports";
 interface Props { onOpen: (r: SavedReport) => void; onSchedule: (r: SavedReport) => void }
 
 export function SavedReports({ onOpen, onSchedule }: Props) {
+  const org = useOrg();
   const t = useTranslations("Reports.saved");
   const tType = useTranslations("Reports.types");
   const tRange = useTranslations("Reports.ranges");
@@ -28,7 +29,7 @@ export function SavedReports({ onOpen, onSchedule }: Props) {
   const day = (iso: string) => format.dateTime(new Date(iso), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 
   const scope = (r: SavedReport) => [
-    r.branches.length ? r.branches.map((id) => BRANCHES.find((b) => b.id === id)?.name ?? id).join(", ") : t("allBranches"),
+    r.branches.length ? r.branches.map((id) => org.branches.find((b) => b.id === id)?.name ?? id).join(", ") : t("allBranches"),
     r.sites.length ? t("sitesCount", { count: r.sites.length }) : t("allSites"),
     r.range === "custom" ? t("customDates") : tRange(`${r.range}.label`).toLowerCase(),
   ].join(" · ");

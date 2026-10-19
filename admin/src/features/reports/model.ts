@@ -1,4 +1,4 @@
-import { SITES, branchOfSite } from "@/data/org";
+import type { Org } from "@/lib/org";
 import type { ExportKind, Frequency, GroupBy, RangeKey, ReportConfig, ReportType } from "@/types/reports";
 
 export const DAY_MS = 864e5;
@@ -76,26 +76,26 @@ export const rangeOf = (c: Pick<ReportConfig, "range" | "from" | "to">): [string
 export interface ReportData { rows: { key: string; vals: number[] }[]; cols: Col[]; days: number }
 
 /** Builds the (sample) report rows for a configuration. */
-export function computeReport(c: ReportConfig, dayLabel: (ms: number) => string, siteLabel: (id: string) => string, branchLabel: (id: string) => string): ReportData {
+export function computeReport(c: ReportConfig, org: Org, dayLabel: (ms: number) => string): ReportData {
   const spec = REPORTS[c.type];
   const [from, to] = rangeOf(c);
   const days = from && to ? Math.max(0, Math.round((parseDay(to) - parseDay(from)) / DAY_MS) + 1) : 0;
   const cols = spec.cols.filter((x) => c.cols.includes(x.key));
   if (!days || !cols.length) return { rows: [], cols, days };
 
-  const inSite = (id: string) => (!c.branches.length || c.branches.includes(branchOfSite(id).id)) && (!c.sites.length || c.sites.includes(id));
+  const inSite = (id: string) => (!c.branches.length || c.branches.includes(org.branchOfSite(id).id)) && (!c.sites.length || c.sites.includes(id));
   let keys: [string, string][] = [];
   if (c.group === "employee") keys = REPORT_PEOPLE.filter(([n, s]) => inSite(s) && (!c.emps.length || c.emps.includes(n))).map(([n]) => [n, n]);
-  else if (c.group === "site") keys = SITES.filter((s) => inSite(s.id)).map((s) => [siteLabel(s.id), s.id]);
+  else if (c.group === "site") keys = org.sites.filter((s) => inSite(s.id)).map((s) => [s.name, s.id]);
   else if (c.group === "branch") {
-    const ids = [...new Set(SITES.filter((s) => inSite(s.id)).map((s) => s.branchId))];
-    keys = ids.map((id) => [branchLabel(id), id]);
+    const ids = [...new Set(org.sites.filter((s) => inSite(s.id)).map((s) => s.branchId))];
+    keys = ids.map((id) => [org.branchById(id)?.name ?? id, id]);
   } else for (let i = 0; i < Math.min(days, 31); i++) { const d = parseDay(from) + i * DAY_MS; keys.push([dayLabel(d), String(d)]); }
 
   const weekdays = Math.max(1, Math.round((days * 5) / 7));
   const size = (id: string) =>
     c.group === "employee" ? 1 : c.group === "site" ? REPORT_PEOPLE.filter(([, s]) => s === id).length || 1
-    : c.group === "branch" ? REPORT_PEOPLE.filter(([, s]) => branchOfSite(s).id === id).length : REPORT_PEOPLE.filter(([, s]) => inSite(s)).length;
+    : c.group === "branch" ? REPORT_PEOPLE.filter(([, s]) => org.branchOfSite(s).id === id).length : REPORT_PEOPLE.filter(([, s]) => inSite(s)).length;
 
   const rows = keys.map(([label, id]) => {
     const work = c.group === "day" ? (new Date(Number(id)).getUTCDay() % 6 === 0 ? 0 : 1) : weekdays;

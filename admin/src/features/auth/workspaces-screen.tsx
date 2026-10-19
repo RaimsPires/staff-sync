@@ -122,7 +122,7 @@ export function WorkspacesScreen({ workspaces }: { workspaces: Workspace[] }) {
                     <div className="-mt-1 mb-1 ml-[18px] flex items-center gap-2 text-[12.5px] text-warn">
                       <TriangleAlert size={14} />
                       {t("trialEndedDescription")}{" "}
-                      <a href="/onboarding?step=8" className="font-medium">
+                      <a href="/settings/plans" className="font-medium">
                         {t("choosePlan")}
                       </a>
                     </div>

@@ -7,10 +7,11 @@ export async function generateMetadata() {
   return { title: t("users") };
 }
 
-export default function UsersPage() {
+export default async function UsersPage({ searchParams }: PageProps<"/users">) {
+  const { tab } = await searchParams;
   return (
     <PageGuard page="users">
-      <UsersScreen />
+      <UsersScreen initialTab={tab === "roles" ? "roles" : "users"} />
     </PageGuard>
   );
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/overlay";
 import { Switch } from "@/components/ui/switch";
 import { controlClass } from "@/components/ui/text-field";
-import { BRANCHES, SITES } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import type { ExportKind, Frequency, ReportConfig, ReportSchedule } from "@/types/reports";
 import { EMAIL, EXPORT_KINDS, FREQUENCIES, MONTH_DAYS, REPORT_PEOPLE, WEEKDAYS } from "./model";
@@ -17,10 +17,11 @@ const seg = (on: boolean) => cn("h-[34px] flex-1 border-0 text-[13px]", on ? "bg
 
 /** Which branches, sites and people a report covers. Empty means everything. */
 export function ScopeDialog({ config, onChange, onClose }: { config: ReportConfig; onChange: (p: Partial<ReportConfig>) => void; onClose: () => void }) {
+  const org = useOrg();
   const t = useTranslations("Reports.scope");
   const [query, setQuery] = useState("");
   const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
-  const sites = SITES.filter((s) => !config.branches.length || config.branches.includes(s.branchId));
+  const sites = org.sites.filter((s) => !config.branches.length || config.branches.includes(s.branchId));
   const people = REPORT_PEOPLE.filter(([n]) => n.toLowerCase().includes(query.toLowerCase()));
 
   return (
@@ -28,7 +29,7 @@ export function ScopeDialog({ config, onChange, onClose }: { config: ReportConfi
       footer={<><Button variant="ghost" className="mr-auto text-accent" onClick={() => { onChange({ branches: [], sites: [], emps: [] }); setQuery(""); }}>{t("reset")}</Button><Button variant="primary" onClick={onClose}>{t("done")}</Button></>}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5 text-[12.5px] font-medium text-text-2">{t("branches")}
-          <div className="flex flex-wrap gap-1.5">{BRANCHES.map((b) => <button key={b.id} type="button" aria-pressed={config.branches.includes(b.id)} onClick={() => onChange({ branches: toggle(config.branches, b.id), sites: [] })} className={chip(config.branches.includes(b.id))}>{b.name}</button>)}</div>
+          <div className="flex flex-wrap gap-1.5">{org.branches.map((b) => <button key={b.id} type="button" aria-pressed={config.branches.includes(b.id)} onClick={() => onChange({ branches: toggle(config.branches, b.id), sites: [] })} className={chip(config.branches.includes(b.id))}>{b.name}</button>)}</div>
         </div>
         <div className="flex flex-col gap-1.5 text-[12.5px] font-medium text-text-2">{t("sites")}
           <div className="flex flex-wrap gap-1.5">{sites.map((s) => <button key={s.id} type="button" aria-pressed={config.sites.includes(s.id)} onClick={() => onChange({ sites: toggle(config.sites, s.id) })} className={chip(config.sites.includes(s.id))}>{s.name}</button>)}</div>

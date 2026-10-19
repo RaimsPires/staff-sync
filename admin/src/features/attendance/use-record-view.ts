@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { DEMO_MONTH, DEMO_TODAY, DEMO_YEAR } from "@/data/live";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { offsetMeters } from "@/lib/geo";
 import { formatDuration, formatTime, parseTime, wrapDelta } from "@/lib/time";
 import type { AttendanceRecord, LatLng } from "@/types/domain";
@@ -42,6 +42,7 @@ const DEVICES = ["iPhone 13 · iOS 18.1", "Pixel 7 · Android 15", "Galaxy A54 �
  * location facts, map points and the event timeline. Pure data plus translated strings.
  */
 export function useRecordView(record: AttendanceRecord | null, actor: string, manager: (siteId: string) => string) {
+  const org = useOrg();
   const t = useTranslations("Drawer");
   const tEvents = useTranslations("Drawer.events");
   const tStatus = useTranslations("Status");
@@ -49,7 +50,7 @@ export function useRecordView(record: AttendanceRecord | null, actor: string, ma
 
   return useMemo(() => {
     if (!record) return null;
-    const site = siteById(record.site);
+    const site = org.siteById(record.site);
     const day = record.date ?? DEMO_TODAY;
     const outside = record.flag === "dist" && !record.cleared;
     const mock = record.flag === "mock" && !record.cleared;
@@ -132,5 +133,5 @@ export function useRecordView(record: AttendanceRecord | null, actor: string, ma
       statusLabel: tStatus(record.fraud ? "fraud" : record.status),
       recordCode: `REC-${record.id < 1000 ? `15${String(record.id).padStart(3, "0")}` : record.id}`,
     };
-  }, [record, actor, manager, t, tEvents, tStatus, tKinds]);
+  }, [record, actor, manager, t, tEvents, tStatus, tKinds, org]);
 }

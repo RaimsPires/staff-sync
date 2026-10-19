@@ -106,13 +106,10 @@ export const defaultSchedules = (emp: Employee): RecurringSchedule[] => [
   ...(emp.siteIds[1] ? [{ id: 2, days: [5], start: "08:00", end: "12:00", site: emp.siteIds[1] }] : []),
 ];
 
-export const LEAVE_TYPES = [
-  { key: "annual", total: 25, used: 15 },
-  { key: "rtt", total: 10, used: 1 },
-  { key: "sick", total: 5, used: 1 },
-  { key: "family", total: 4, used: 0 },
-] as const;
-export type LeaveKey = (typeof LEAVE_TYPES)[number]["key"];
+/** Days already taken this year, per leave type id (sample data; types added in Settings start at 0). */
+export const LEAVE_USED: Record<string, number> = { annual: 15, rtt: 1, sick: 1, family: 0 };
+/** Id of a leave type defined in Settings. */
+export type LeaveKey = string;
 
 export interface LeaveRow {
   type: LeaveKey;

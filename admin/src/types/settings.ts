@@ -18,9 +18,12 @@ export interface SettingsValues {
 }
 
 export interface LeaveTypeDef {
-  id: string; name: string; color: string; paid: boolean; allowance: number; document: boolean; notice: number; half: boolean; carry: number;
+  id: string;
+  /** Built-in types show a translated name until someone renames them (null). */
+  name: string | null;
+  builtIn: boolean;
+  color: string; paid: boolean; allowance: number; document: boolean; notice: number; half: boolean; carry: number;
 }
 
 export interface ApiKey { id: string; name: string; prefix: string; created: "seed" | "now" }
 export interface Webhook { id: string; url: string; events: string[]; on: boolean }
-export type PlanId = "starter" | "growth" | "scale";

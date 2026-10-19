@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrg } from "@/lib/org";
 import { Check, FileSpreadsheet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -39,6 +40,7 @@ function Wizard({ onClose }: { onClose: () => void }) {
   const t = useTranslations("Employees.import");
   const te = useTranslations("Employees.titles");
   const toast = useToast();
+  const org = useOrg();
   const employees = useEmployees((s) => s.employees);
   const addMany = useEmployees((s) => s.addMany);
 
@@ -49,7 +51,7 @@ function Wizard({ onClose }: { onClose: () => void }) {
   const [map, setMap] = useState<ColumnMap>(DEFAULT_MAP);
   const [imported, setImported] = useState(0);
 
-  const preview = useMemo(() => (step >= 3 ? validateRows(rows, map, employees.map((e) => e.id)) : []), [step, rows, map, employees]);
+  const preview = useMemo(() => (step >= 3 ? validateRows(rows, map, employees.map((e) => e.id), org) : []), [step, rows, map, employees, org]);
   const ok = preview.filter((p) => p.errors.length === 0);
   const bad = preview.length - ok.length;
   const missingRequired = IMPORT_FIELDS.some((f) => f.required && map[f.key] === "");
@@ -73,7 +75,7 @@ function Wizard({ onClose }: { onClose: () => void }) {
     if (step === 1 && fileName) setStep(2);
     else if (step === 2 && !missingRequired) setStep(3);
     else if (step === 3 && ok.length > 0) {
-      addMany(ok.map(rowToEmployee));
+      addMany(ok.map((p) => rowToEmployee(p, org)));
       setImported(ok.length);
       setStep(4);
     } else if (step === 4) onClose();

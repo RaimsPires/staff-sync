@@ -8,10 +8,11 @@ import { Avatar } from "@/components/ui/misc";
 import { Popover } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
 import { ACTION_TONES, AUDIT_ACTIONS, AUDIT_ACTORS, AUDIT_ENTRIES, AUDIT_TARGET_TYPES } from "@/data/audit";
-import { BRANCHES, branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { exportTable } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import type { AuditEntry } from "@/types/audit";
+import { useDateFormat } from "@/lib/preferences";
 
 const DAY = 864e5;
 const TODAY = Date.UTC(2026, 9, 15);
@@ -26,19 +27,21 @@ interface Filters { q: string; range: string; from: string; to: string; actor: s
 const DEFAULTS: Filters = { q: "", range: "30", from: "", to: "", actor: "all", action: "all", type: "all", branch: "all", site: "all" };
 
 export function AuditScreen() {
+  const org = useOrg();
   const t = useTranslations("Audit");
   const tAction = useTranslations("Audit.actions");
   const tType = useTranslations("Audit.targetTypes");
   const tRoles = useTranslations("Audit.actorRoles");
   const format = useFormatter();
   const toast = useToast();
+  const numericDate = useDateFormat();
   const [f, setF] = useState<Filters>(DEFAULTS);
   const [open, setOpen] = useState<string | null>(null);
   const [shown, setShown] = useState(PAGE);
   const set = (p: Partial<Filters>) => { setF((x) => ({ ...x, ...p })); setOpen(null); setShown(PAGE); };
 
   const actorOf = (id: string) => AUDIT_ACTORS.find((a) => a.id === id)!;
-  const scopeOf = (e: AuditEntry) => (e.site ? siteById(e.site).name : t("company"));
+  const scopeOf = (e: AuditEntry) => (e.site ? org.siteById(e.site).name : t("company"));
   const stamp = (e: AuditEntry) => format.dateTime(new Date(TODAY - e.daysAgo * DAY), { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   const dayLabel = (e: AuditEntry) => (e.daysAgo === 0 ? t("today") : e.daysAgo === 1 ? t("yesterday") : format.dateTime(new Date(TODAY - e.daysAgo * DAY), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }));
 
@@ -50,20 +53,20 @@ export function AuditScreen() {
       if (f.actor !== "all" && e.actor !== f.actor) return false;
       if (f.action !== "all" && e.action !== f.action) return false;
       if (f.type !== "all" && e.targetType !== f.type) return false;
-      if (f.branch !== "all" && !(e.site && branchOfSite(e.site).id === f.branch)) return false;
+      if (f.branch !== "all" && !(e.site && org.branchOfSite(e.site).id === f.branch)) return false;
       if (f.site !== "all" && e.site !== f.site) return false;
       return !q || e.target.toLowerCase().includes(q) || e.reason.toLowerCase().includes(q) || actorOf(e.actor).name.toLowerCase().includes(q);
     });
-  }, [f]);
+  }, [f, org]);
 
   const badRange = f.range === "custom" && f.from && f.to && f.to < f.from;
   const hasFilter = JSON.stringify(f) !== JSON.stringify(DEFAULTS);
-  const sites = BRANCHES.flatMap((b) => (f.branch === "all" || f.branch === b.id ? b.siteIds : [])).map(siteById);
+  const sites = org.branches.flatMap((b) => (f.branch === "all" || f.branch === b.id ? b.siteIds : [])).map(org.siteById);
 
   const exportList = async (kind: "csv" | "xlsx") => {
     if (!list.length) return toast(t("nothingToExport"), "bad");
     const head = [t("export.timestamp"), t("export.actor"), t("export.role"), t("export.action"), t("export.targetType"), t("export.target"), t("export.scope"), t("export.ip"), t("export.device"), t("export.reason"), t("export.changes")];
-    const rows = list.map((e) => { const a = actorOf(e.actor); return [`${stamp(e)}, ${e.time}`, a.name, tRoles(a.role), tAction(e.action), tType(e.targetType), e.target, scopeOf(e), a.ip, a.device, e.reason, e.diff.map((d) => `${d.field}: ${d.before} → ${d.after}`).join("; ")]; });
+    const rows = list.map((e) => { const a = actorOf(e.actor); return [`${numericDate(new Date(TODAY - e.daysAgo * DAY))}, ${e.time}`, a.name, tRoles(a.role), tAction(e.action), tType(e.targetType), e.target, scopeOf(e), a.ip, a.device, e.reason, e.diff.map((d) => `${d.field}: ${d.before} → ${d.after}`).join("; ")]; });
     await exportTable(kind, "audit-log", t("title"), [head, ...rows]);
     toast(t("exported", { count: list.length }));
   };
@@ -83,7 +86,7 @@ export function AuditScreen() {
         <select value={f.actor} onChange={(e) => set({ actor: e.target.value })} aria-label={t("filters.actor")} className={select}><option value="all">{t("filters.allUsers")}</option>{AUDIT_ACTORS.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select>
         <select value={f.action} onChange={(e) => set({ action: e.target.value })} aria-label={t("filters.action")} className={select}><option value="all">{t("filters.allActions")}</option>{AUDIT_ACTIONS.map((a) => <option key={a} value={a}>{tAction(a)}</option>)}</select>
         <select value={f.type} onChange={(e) => set({ type: e.target.value })} aria-label={t("filters.type")} className={select}><option value="all">{t("filters.allTypes")}</option>{AUDIT_TARGET_TYPES.map((k) => <option key={k} value={k}>{tType(k)}</option>)}</select>
-        <select value={f.branch} onChange={(e) => set({ branch: e.target.value, site: "all" })} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+        <select value={f.branch} onChange={(e) => set({ branch: e.target.value, site: "all" })} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{org.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
         <select value={f.site} onChange={(e) => set({ site: e.target.value })} aria-label={t("filters.site")} className={select}><option value="all">{t("filters.allSites")}</option>{sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
         {f.range === "custom" && (<>
           <input type="date" value={f.from} onChange={(e) => set({ from: e.target.value })} aria-label={t("filters.from")} className={cn(dateInput, "border-border-strong")} />

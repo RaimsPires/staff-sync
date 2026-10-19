@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { ALL_PERMISSIONS } from "@/lib/access-catalog";
 import { cn } from "@/lib/utils";
+import { usePreview } from "@/store/preview";
 import { usersOfRole, useUsers } from "@/store/users";
 import type { AccessRole } from "@/types/users";
 import { roleTone, useRoleText } from "./model";
@@ -23,6 +24,7 @@ export function RolesGrid({ onOpen, onShowUsers }: Props) {
   const roleText = useRoleText();
   const { roles, users, deleteRole } = useUsers();
   const [asking, setAsking] = useState<string | null>(null);
+  const preview = usePreview();
 
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(310px,1fr))] gap-3">
@@ -56,6 +58,7 @@ export function RolesGrid({ onOpen, onShowUsers }: Props) {
             <div className="mt-0.5 flex gap-1.5">
               <button onClick={() => onOpen(r.builtIn ? "view" : "edit", r)} className={btn}>{r.builtIn ? t("view") : t("edit")}</button>
               <button onClick={() => onOpen("duplicate", r)} className={btn}>{t("duplicate")}</button>
+              <button onClick={() => { preview.set(r.id); toast(t("previewing", { name: roleText.name(r) })); }} className={btn}>{t("preview")}</button>
               {!r.builtIn && <button onClick={() => setAsking(ask ? null : r.id)} className={cn(btn, "text-bad")}>{t("delete")}</button>}
             </div>
           </article>

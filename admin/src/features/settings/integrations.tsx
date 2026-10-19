@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Modal } from "@/components/ui/overlay";
+import { Modal, KeepMounted } from "@/components/ui/overlay";
 import { Switch } from "@/components/ui/switch";
 import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
@@ -95,7 +95,7 @@ function ApiKeys() {
         </div>
       ))}
       {keys.length === 0 && <div className="px-[18px] py-6 text-[13px] text-text-3">{t("empty")}</div>}
-      {creating && <KeyModal onClose={() => setCreating(false)} />}
+      <KeepMounted show={!!creating}>{creating && <KeyModal onClose={() => setCreating(false)} />}</KeepMounted>
       <ConfirmDialog open={revoking !== null} danger title={t("revokeTitle", { name: revoking?.name ?? "" })} message={t("revokeMessage")} cancelLabel={t("cancel")} okLabel={t("revokeConfirm")} onCancel={() => setRevoking(null)} onOk={() => { if (revoking) { revokeKey(revoking.id); toast(t("revoked")); } setRevoking(null); }} />
     </section>
   );
@@ -119,7 +119,7 @@ function Webhooks() {
         </div>
       ))}
       {hooks.length === 0 && <div className="px-[18px] py-6 text-[13px] text-text-3">{t("empty")}</div>}
-      {adding && <HookModal onClose={() => setAdding(false)} />}
+      <KeepMounted show={!!adding}>{adding && <HookModal onClose={() => setAdding(false)} />}</KeepMounted>
       <ConfirmDialog open={deleting !== null} danger title={t("deleteTitle")} message={deleting?.url ?? ""} cancelLabel={t("cancel")} okLabel={t("delete")} onCancel={() => setDeleting(null)} onOk={() => { if (deleting) { deleteHook(deleting.id); toast(t("deleted")); } setDeleting(null); }} />
     </section>
   );
@@ -155,7 +155,7 @@ function Sso() {
         </div>
       )}
       {on && <div className="border-t border-border px-[18px] py-3"><Button variant="primary" onClick={test}>{t("test")}</Button></div>}
-      {editing && <EditFieldsModal title={t("title")} fields={fields.filter((f): f is Exclude<FieldSpec, { kind: "tog" | "logo" }> => f.kind !== "tog" && f.kind !== "logo")} onClose={() => setEditing(false)} />}
+      <KeepMounted show={!!editing}>{editing && <EditFieldsModal title={t("title")} fields={fields.filter((f): f is Exclude<FieldSpec, { kind: "tog" | "logo" }> => f.kind !== "tog" && f.kind !== "logo")} onClose={() => setEditing(false)} />}</KeepMounted>
     </section>
   );
 }

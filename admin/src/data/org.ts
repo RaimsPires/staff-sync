@@ -1,6 +1,6 @@
 import type { Branch, Site } from "@/types/domain";
 
-export const BRANCHES: Branch[] = [
+export const SEED_BRANCHES: Branch[] = [
   { id: "lyon", name: "Lyon", siteIds: ["pd", "cf"] },
   { id: "pn", name: "Paris Nord", siteIds: ["sd", "rl"] },
   { id: "mrs", name: "Marseille", siteIds: ["pv"] },
@@ -9,7 +9,7 @@ export const BRANCHES: Branch[] = [
 export const COMPANY_NAME = "Batiplus Group";
 export const COMPANY_EMPLOYEES = 198;
 
-export const SITES: Site[] = [
+export const SEED_SITES: Site[] = [
   {
     id: "pd", name: "Part-Dieu Tower", branchId: "lyon", address: "17 Bd Vivier-Merle, Lyon",
     position: [45.7605, 4.859], geofence: { kind: "circle", radius: 150 },
@@ -53,19 +53,3 @@ export const SITES: Site[] = [
     expected: 24, present: 19, late: 1, absent: 2, flagged: 1, leave: 2,
   },
 ];
-
-export const siteById = (id: string): Site => {
-  const site = SITES.find((s) => s.id === id);
-  if (!site) throw new Error(`Unknown site: ${id}`);
-  return site;
-};
-
-export const branchById = (id: string): Branch | undefined => BRANCHES.find((b) => b.id === id);
-export const branchOfSite = (siteId: string): Branch => {
-  const b = BRANCHES.find((x) => x.siteIds.includes(siteId));
-  if (!b) throw new Error(`Site without branch: ${siteId}`);
-  return b;
-};
-
-/** Manager of a site, used as the default "proxy by" name. */
-export const managerOf = (siteId: string): string => siteById(siteId).manager;

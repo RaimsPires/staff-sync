@@ -1,6 +1,6 @@
-import { BRANCHES, SITES } from "@/data/org";
+import type { Org } from "@/lib/org";
 import { JOB_TITLES } from "@/data/employees";
-import type { AppStatus, Employee, EmployeeStatus, JobTitle } from "@/types/employee";
+import type { AppStatus, Employee, EmployeeStatus, JobTitle, LeavePolicy } from "@/types/employee";
 
 export interface EmployeeFilters {
   query: string;
@@ -84,10 +84,10 @@ export interface PreviewRow {
   errors: RowError[];
 }
 
-export function validateRows(rows: string[][], map: ColumnMap, existingIds: string[]): PreviewRow[] {
+export function validateRows(rows: string[][], map: ColumnMap, existingIds: string[], org: Org): PreviewRow[] {
   const taken = new Set(existingIds);
   const seen = new Set<string>();
-  const siteNames = SITES.map((s) => s.name);
+  const siteNames = org.sites.map((s) => s.name);
   const cell = (r: string[], key: ImportField) => (map[key] === "" ? "" : (r[map[key]] ?? "").trim());
   return rows.map((r, i) => {
     const row: PreviewRow = { line: i + 1, name: cell(r, "name"), id: cell(r, "id"), phone: cell(r, "phone"), branch: cell(r, "branch"), site: cell(r, "site"), title: cell(r, "title"), errors: [] };
@@ -102,11 +102,24 @@ export function validateRows(rows: string[][], map: ColumnMap, existingIds: stri
   });
 }
 
-export function rowToEmployee(p: PreviewRow): Employee {
-  const site = SITES.find((s) => s.name === p.site);
-  const branchId = BRANCHES.find((b) => b.name === p.branch)?.id ?? site?.branchId ?? "lyon";
+export function rowToEmployee(p: PreviewRow, org: Org): Employee {
+  const site = org.sites.find((s) => s.name === p.site);
+  const branchId = org.branches.find((b) => b.name === p.branch)?.id ?? site?.branchId ?? "lyon";
   return {
     id: p.id, name: p.name, branchId, siteIds: site ? [site.id] : [], title: (p.title as JobTitle) || "cleaner", phone: p.phone || "—",
     app: p.phone ? "invited" : "none", attendance: 0, status: "invited", access: "employee", contract: "cdi", startDate: "2026-10-15", selfie: "inherit",
   };
+}
+
+/** How much of each leave type's yearly allowance a contract policy grants (1 = the full allowance). */
+const POLICY_SHARE: Record<LeavePolicy, Record<string, number>> = {
+  std: {},
+  part: { annual: 0.8, rtt: 0 },
+  fixed: { annual: 0.1, rtt: 0, sick: 0.6, family: 0.5 },
+};
+
+/** Starting leave balances for a policy, based on the leave types set up in Settings. */
+export function policyBalances(policy: LeavePolicy, types: { id: string; allowance: number }[]): Record<string, number> {
+  const share = POLICY_SHARE[policy];
+  return Object.fromEntries(types.map((t) => [t.id, Math.round(t.allowance * (share[t.id] ?? 1) * 10) / 10]));
 }

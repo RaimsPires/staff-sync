@@ -11,15 +11,16 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Popover } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { BRANCHES } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useEmployees } from "@/store/employees";
+import { useWorkspace, useWorkspaces } from "@/store/employee-workspace";
 import { EmployeeFormDrawer } from "../employee-form-drawer";
 import { statusTone } from "../model";
-import { ActivityTab, DeviceTab, DocsTab, LeaveTab, ScheduleTab, type LogEntry } from "./manage-tabs";
+import { ActivityTab, DeviceTab, DocsTab, LeaveTab, ScheduleTab } from "./manage-tabs";
 import { AttendanceTab, OverviewTab } from "./overview-tabs";
-import { defaultSchedules, monthRecords, type LeaveKey, type RecurringSchedule } from "./profile-model";
+import { defaultSchedules, monthRecords } from "./profile-model";
 
 const TABS = ["overview", "attendance", "schedule", "leave", "device", "docs", "activity"] as const;
 type Tab = (typeof TABS)[number];
@@ -39,6 +40,7 @@ function OutOfScope() {
 }
 
 function Profile({ id }: { id: string }) {
+  const org = useOrg();
   const t = useTranslations("Employees.profile");
   const te = useTranslations("Employees");
   const tTitles = useTranslations("Employees.titles");
@@ -50,14 +52,14 @@ function Profile({ id }: { id: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [editing, setEditing] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
-  const [schedules, setSchedules] = useState<RecurringSchedule[]>(() => defaultSchedules(emp));
-  const [adjustments, setAdjustments] = useState<Partial<Record<LeaveKey, number>>>({});
-  const [unbound, setUnbound] = useState(false);
-  const [log, setLog] = useState<LogEntry[]>([]);
+  const ws = useWorkspace(id);
+  const patch = useWorkspaces((s) => s.patch);
+  const schedules = useMemo(() => ws.schedules ?? defaultSchedules(emp), [ws.schedules, emp]);
+  const { adjustments, unbound, log } = ws;
   const records = useMemo(() => monthRecords(emp), [emp]);
   const canManage = perms.admin || perms.edit;
 
-  const addLog = (action: string, detail: string) => setLog((l) => [{ action, detail, when: t("justNow") }, ...l]);
+  const addLog = (action: string, detail: string) => patch(id, (w) => ({ log: [{ action, detail, when: t("justNow") }, ...w.log] }));
   const noPhone = emp.phone === "—";
   const contact = (kind: "call" | "message" | "email") =>
     toast(kind === "email" ? t("toasts.email", { name: emp.name }) : noPhone ? t("toasts.noPhone") : t(kind === "call" ? "toasts.calling" : "toasts.messaging", { name: emp.name }));
@@ -84,7 +86,7 @@ function Profile({ id }: { id: string }) {
           <div className="mt-1.5 flex flex-wrap gap-x-3.5 gap-y-1.5 text-[13.5px] text-text-2">
             <span className="font-mono text-[12.5px]">{emp.id}</span>
             <span>{tTitles(emp.title)}</span>
-            <span>{BRANCHES.find((b) => b.id === emp.branchId)?.name}</span>
+            <span>{org.branches.find((b) => b.id === emp.branchId)?.name}</span>
             <span>{t("role", { role: te(`form.accessRoles.${emp.access}`) })}</span>
           </div>
         </div>
@@ -129,10 +131,10 @@ function Profile({ id }: { id: string }) {
 
       {tab === "overview" && <OverviewTab emp={emp} records={records} />}
       {tab === "attendance" && <AttendanceTab emp={emp} records={records} />}
-      {tab === "schedule" && <ScheduleTab emp={emp} schedules={schedules} onChange={setSchedules} addLog={addLog} />}
-      {tab === "leave" && <LeaveTab emp={emp} adjustments={adjustments} onAdjust={(k, d) => setAdjustments((a) => ({ ...a, [k]: (a[k] ?? 0) + d }))} addLog={addLog} />}
-      {tab === "device" && <DeviceTab emp={emp} unbound={unbound} onReset={() => setUnbound(true)} addLog={addLog} actor={me.name} />}
-      {tab === "docs" && <DocsTab addLog={addLog} actor={me.name} />}
+      {tab === "schedule" && <ScheduleTab emp={emp} schedules={schedules} onChange={(next) => patch(id, () => ({ schedules: next }))} addLog={addLog} />}
+      {tab === "leave" && <LeaveTab emp={emp} adjustments={adjustments} onAdjust={(k, d) => patch(id, (w) => ({ adjustments: { ...w.adjustments, [k]: (w.adjustments[k] ?? 0) + d } }))} addLog={addLog} />}
+      {tab === "device" && <DeviceTab emp={emp} unbound={unbound} onReset={() => patch(id, () => ({ unbound: true }))} addLog={addLog} actor={me.name} />}
+      {tab === "docs" && <DocsTab empId={id} addLog={addLog} actor={me.name} />}
       {tab === "activity" && <ActivityTab emp={emp} log={log} actor={me.name} />}
 
       <EmployeeFormDrawer open={editing} employee={emp} onClose={() => setEditing(false)} />

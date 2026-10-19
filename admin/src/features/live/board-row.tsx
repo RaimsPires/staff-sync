@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { parseTime } from "@/lib/time";
 import type { AttendanceRecord } from "@/types/domain";
 import { distanceLabel, isFlagged, methodOf, presenceOf } from "./board-model";
+import { useAttendanceRules } from "@/lib/attendance-rules";
+import { useClock } from "@/lib/preferences";
 
 export interface RowHandlers {
   selected: boolean;
@@ -32,6 +34,7 @@ interface Props extends RowHandlers {
 /** Status pill plus the small explanatory line under it. */
 function StatusCell({ record, nowMinutes }: { record: AttendanceRecord; nowMinutes: number }) {
   const t = useTranslations("Live.row");
+  const { grace } = useAttendanceRules();
   const presence = presenceOf(record);
   const start = record.sched.split("–")[0];
   const lateBy = nowMinutes - parseTime(start);
@@ -40,12 +43,12 @@ function StatusCell({ record, nowMinutes }: { record: AttendanceRecord; nowMinut
 
   if (presence === "not") {
     chip =
-      lateBy > 0 ? (
+      lateBy > grace ? (
         <Chip tone="warn">{t("notArrived")}</Chip>
       ) : (
         <StatusChip status="scheduled" />
       );
-    note = lateBy > 0 ? t("minutesLate", { count: lateBy }) : t("dueAt", { time: start });
+    note = lateBy > grace ? t("minutesLate", { count: lateBy }) : t("dueAt", { time: start });
   } else if (presence === "left") {
     chip = record.status === "early" || record.status === "overtime" ? <StatusChip status={record.status} /> : <Chip tone="neutral">{t("left")}</Chip>;
   } else {
@@ -106,6 +109,7 @@ const timeClass = "whitespace-nowrap p-[10px_12px] font-mono text-[12.5px]";
 
 /** One employee as a table row. */
 export function ListRow(props: Props) {
+  const clock = useClock();
   const t = useTranslations("Live");
   const { record: r, selected, fresh, nowMinutes, jobLabel, onToggle } = props;
   const flagged = isFlagged(r);
@@ -126,10 +130,10 @@ export function ListRow(props: Props) {
           </div>
         </div>
       </td>
-      <td className={timeClass}>{r.sched}</td>
-      <td className={cn(timeClass, r.status === "late" ? "text-warn" : flagged ? "text-bad" : r.in ? "text-text" : "text-text-3")}>{r.in || "—"}</td>
+      <td className={timeClass}>{clock.range(r.sched)}</td>
+      <td className={cn(timeClass, r.status === "late" ? "text-warn" : flagged ? "text-bad" : r.in ? "text-text" : "text-text-3")}>{r.in ? clock.time(r.in) : "—"}</td>
       <td className={cn(timeClass, r.status === "early" ? "text-warn" : r.status === "overtime" ? "text-violet" : r.out ? "text-text" : "text-text-3")}>
-        {r.out || "—"}
+        {r.out ? clock.time(r.out) : "—"}
       </td>
       <td className="p-[10px_12px]">
         <StatusCell record={r} nowMinutes={nowMinutes} />
@@ -150,6 +154,7 @@ export function ListRow(props: Props) {
 
 /** One employee as a card. */
 export function GridCard(props: Props) {
+  const clock = useClock();
   const t = useTranslations("Live");
   const { record: r, selected, fresh, nowMinutes, jobLabel, onToggle } = props;
   const flagged = isFlagged(r);
@@ -174,7 +179,7 @@ export function GridCard(props: Props) {
       <div className="grid grid-cols-3 gap-1.5 text-[11px] text-text-3">
         <div>
           <div>{t("columns.scheduled")}</div>
-          <div className="font-mono text-[12px] font-medium text-text">{r.sched}</div>
+          <div className="font-mono text-[12px] font-medium text-text">{clock.range(r.sched)}</div>
         </div>
         <div>
           <div>{t("in")}</div>
@@ -182,7 +187,7 @@ export function GridCard(props: Props) {
         </div>
         <div>
           <div>{t("out")}</div>
-          <div className={cn("font-mono text-[12px] font-medium", r.out ? "text-text" : "text-text-3")}>{r.out || "—"}</div>
+          <div className={cn("font-mono text-[12px] font-medium", r.out ? "text-text" : "text-text-3")}>{r.out ? clock.time(r.out) : "—"}</div>
         </div>
       </div>
       <div className="flex items-center gap-1.5 border-t border-border pt-2.5">

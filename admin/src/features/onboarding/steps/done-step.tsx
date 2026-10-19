@@ -1,10 +1,13 @@
 "use client";
 
 import { ArrowRight, Check, PartyPopper } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
+import { localized } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { usePlans } from "@/store/plans";
 import { useSession } from "@/store/session";
 import { DAY_KEYS } from "../constants";
 import { useOnboarding } from "../store";
@@ -15,6 +18,7 @@ const CHECKLIST = ["app", "managers", "schedules"] as const;
 export function DoneStep() {
   const t = useTranslations("Onboarding.done");
   const hours = useTranslations("Onboarding.hours");
+  const locale = useLocale();
   const toast = useToast();
   const form = useOnboarding((s) => s.form);
   const checks = useOnboarding((s) => s.checks);
@@ -26,7 +30,12 @@ export function DoneStep() {
   const weekdaysOnly = workDays.length === 5 && form.days.slice(0, 5).every(Boolean);
   const dayRange = weekdaysOnly ? hours("weekdays") : workDays.map((d) => hours(`days.${d}`)).join(", ") || hours("noDays");
   const invited = form.mode === "manual" ? form.people.filter((p) => p.name.trim() && p.contact.trim()).length : form.csvCount;
-  const planName = form.plan ? t(`plans.${form.plan}`) : "—";
+  const plans = usePlans((s) => s.plans);
+  const trialDays = usePlans((s) => s.trialDays);
+  const startTrial = usePlans((s) => s.startTrial);
+  const chosen = plans.find((p) => p.id === form.plan);
+  const planName = chosen ? t("recap.trial", { plan: localized(chosen.name, locale), days: trialDays }) : "—";
+  useEffect(() => { if (chosen) startTrial(chosen.id, form.billing); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const recap = [
     { label: t("recap.company"), value: form.company || "—" },

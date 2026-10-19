@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { UNCOVERED, UNSCHEDULED } from "@/data/live";
-import { siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { RejectLeaveDialog } from "@/features/leave/reject-leave-dialog";
 import { useLeaveFormat } from "@/features/leave/use-leave-format";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ import { useData } from "@/store/data";
 import { pendingIn, useLeave } from "@/store/leave";
 import { useAccess as useAccessStore } from "@/store/use-access";
 import type { Permissions } from "@/types/auth";
+import { useLeaveTypes } from "@/features/leave/use-leave-types";
+import { useRuledRecords } from "@/lib/attendance-rules";
 
 type AttentionType = "fraud" | "missing" | "unsched" | "leave" | "uncov";
 type TabKey = "all" | AttentionType;
@@ -42,13 +44,14 @@ const STYLE: Record<AttentionType, { icon: LucideIcon; box: string }> = {
 const TABS: TabKey[] = ["all", "fraud", "missing", "unsched", "leave", "uncov"];
 
 export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: Permissions }) {
+  const org = useOrg();
   const t = useTranslations("Dashboard.attention");
-  const tLeave = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const tData = useTranslations("Data.interventions");
   const router = useRouter();
   const toast = useToast();
   const leaveFormat = useLeaveFormat();
-  const today = useData((s) => s.today);
+  const today = useRuledRecords(useData((s) => s.today));
   const leaveRequests = useLeave((s) => s.requests);
   const handled = useData((s) => s.handled);
   const updateRecord = useData((s) => s.updateRecord);
@@ -61,7 +64,7 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
   const items = useMemo<Item[]>(() => {
     const list: Item[] = [];
     const inScope = today.filter((r) => siteIds.includes(r.site));
-    const siteName = (id: string) => siteById(id).name;
+    const siteName = (id: string) => org.siteById(id).name;
     const view = (href: string): Action => ({ label: t("view"), run: () => router.push(href) });
 
     inScope
@@ -124,7 +127,7 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
     pendingIn(leaveRequests, siteIds).forEach((l) =>
         list.push({
           id: `l-${l.id}`, type: "leave", title: t("leave.title", { name: l.name }),
-          description: `${tLeave(l.type)} · ${leaveFormat.range(l.from, l.to)} · ${siteName(l.site)}`,
+          description: `${leaveTypes.label(l.type)} · ${leaveFormat.range(l.from, l.to)} · ${siteName(l.site)}`,
           time: leaveFormat.submitted(l.submitted),
           actions: perms.approve
             ? [
@@ -147,7 +150,7 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
       }),
     );
     return list.filter((i) => !handled[i.id]);
-  }, [today, leaveRequests, handled, siteIds, perms, t, tLeave, tData, router, toast, leaveFormat, updateRecord, decide, me.name, markHandled]);
+  }, [today, leaveRequests, handled, siteIds, perms, t, leaveTypes, tData, router, toast, leaveFormat, updateRecord, decide, me.name, markHandled, org]);
 
   const visibleTabs = TABS.filter((k) => k === "all" || k === tab || items.some((i) => i.type === k));
   const shown = tab === "all" ? items : items.filter((i) => i.type === tab);

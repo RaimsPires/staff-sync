@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Popover } from "@/components/ui/popover";
 import { DEMO_MONTH, DEMO_TODAY, DEMO_YEAR } from "@/data/live";
-import { BRANCHES, branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { activeFilterCount, RANGE_DAYS, rangeOf, type Filters, type RangeKey } from "./model";
 import type { RecordStatus } from "@/types/domain";
@@ -43,6 +43,7 @@ export function FiltersBar({
   onToggleColumn: (c: Column) => void;
   onSaveView: (name: string) => void;
 }) {
+  const org = useOrg();
   const t = useTranslations("Attendance");
   const tStatus = useTranslations("Status");
   const format = useFormatter();
@@ -51,15 +52,15 @@ export function FiltersBar({
   const [from, to] = rangeOf(filters);
   const day = (d: number) => format.dateTime(new Date(DEMO_YEAR, DEMO_MONTH, d), { day: "numeric", month: "short" });
   const rangeLabel = filters.range === "custom" ? `${day(from)} – ${day(to)}` : t(`ranges.${filters.range}`);
-  const accessibleBranches = BRANCHES.filter((b) => b.siteIds.some((s) => accessibleSites.includes(s)));
-  const sites = accessibleSites.filter((id) => filters.branch === "all" || branchOfSite(id).id === filters.branch).map(siteById);
+  const accessibleBranches = org.branches.filter((b) => b.siteIds.some((s) => accessibleSites.includes(s)));
+  const sites = accessibleSites.filter((id) => filters.branch === "all" || org.branchOfSite(id).id === filters.branch).map(org.siteById);
   const active = activeFilterCount(filters);
   const statusLabel = filters.statuses.length === 1 ? tStatus(filters.statuses[0]) : t("filters.status");
 
   const summary = [
     rangeLabel,
-    filters.branch !== "all" && BRANCHES.find((b) => b.id === filters.branch)?.name,
-    filters.site !== "all" && siteById(filters.site).name,
+    filters.branch !== "all" && org.branches.find((b) => b.id === filters.branch)?.name,
+    filters.site !== "all" && org.siteById(filters.site).name,
     filters.employee.trim() && `“${filters.employee}”`,
     filters.statuses.length > 0 && filters.statuses.map((s) => tStatus(s)).join(", "),
     filters.method !== "all" && t(`methods.${filters.method}`),

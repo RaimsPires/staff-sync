@@ -10,19 +10,16 @@ import { Switch } from "@/components/ui/switch";
 import { SelectField, TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
 import { JOB_TITLES, PLAN_LIMIT } from "@/data/employees";
-import { BRANCHES, SITES } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useEmployees } from "@/store/employees";
 import type { AccessRole, Contract, Employee, EmployeeDraft, JobTitle, LeavePolicy } from "@/types/employee";
+import { useLeaveTypes } from "@/features/leave/use-leave-types";
+import { policyBalances } from "./model";
 
 const ACCESS: AccessRole[] = ["employee", "teamLead", "siteManager", "branchManager", "admin"];
 const CONTRACTS: Contract[] = ["cdi", "cdd", "interim", "intern", "part"];
-const LEAVE_TYPES = ["annual", "rtt", "sick", "family"] as const;
-const POLICIES: Record<LeavePolicy, Record<(typeof LEAVE_TYPES)[number], number>> = {
-  std: { annual: 25, rtt: 10, sick: 5, family: 4 },
-  part: { annual: 20, rtt: 0, sick: 5, family: 4 },
-  fixed: { annual: 2.5, rtt: 0, sick: 3, family: 2 },
-};
+const POLICY_IDS: LeavePolicy[] = ["std", "part", "fixed"];
 const NEEDS_SCOPE: AccessRole[] = ["teamLead", "siteManager", "branchManager"];
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -44,20 +41,20 @@ interface Form {
   selfie: Employee["selfie"];
   pin: string;
   policy: LeavePolicy;
-  balances: Record<(typeof LEAVE_TYPES)[number], number>;
+  balances: Record<string, number>;
   sms: boolean;
   mail: boolean;
 }
 
 const newPin = () => String(1000 + Math.floor(Math.random() * 9000));
 
-function initialForm(emp: Employee | null): Form {
+function initialForm(emp: Employee | null, balances: Record<string, number>): Form {
   const [first = "", ...rest] = emp ? emp.name.split(" ") : [];
   return {
     first, last: rest.join(" "), idMode: emp ? "manual" : "auto", id: emp?.id ?? "", phone: emp && emp.phone !== "—" ? emp.phone : "", email: emp?.email ?? "",
     branchId: emp?.branchId ?? "", title: emp?.title ?? "", access: emp?.access ?? "employee", scope: "", startDate: emp?.startDate ?? "", contract: emp?.contract ?? "cdi",
     siteIds: emp ? [...emp.siteIds] : [], smartphone: emp ? emp.app !== "none" : true, selfie: emp?.selfie ?? "inherit", pin: emp?.pin ?? newPin(),
-    policy: "std", balances: { ...POLICIES.std }, sms: true, mail: false,
+    policy: "std", balances: { ...balances }, sms: true, mail: false,
   };
 }
 
@@ -67,12 +64,14 @@ export function EmployeeFormDrawer({ open, employee, onClose }: { open: boolean;
 }
 
 function FormBody({ employee, onClose }: { employee: Employee | null; onClose: () => void }) {
+  const org = useOrg();
+  const leaveTypes = useLeaveTypes();
   const t = useTranslations("Employees.form");
   const tTitles = useTranslations("Employees.titles");
   const toast = useToast();
   const employees = useEmployees((s) => s.employees);
   const upsert = useEmployees((s) => s.upsert);
-  const [f, setF] = useState<Form>(() => initialForm(employee));
+  const [f, setF] = useState<Form>(() => initialForm(employee, policyBalances("std", leaveTypes.types)));
   const [tried, setTried] = useState(false);
 
   const isAdd = !employee;
@@ -118,7 +117,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
     upsert(draft, employee?.id);
     toast(isAdd ? t("added", { name: draft.name }) + (draft.invite ? ` · ${t("inviteSent")}` : "") : t("updated", { name: draft.name }));
     if (another) {
-      setF(initialForm(null));
+      setF(initialForm(null, policyBalances("std", leaveTypes.types)));
       setTried(false);
     } else onClose();
   };
@@ -204,7 +203,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
           <div className="grid grid-cols-2 gap-3.5">
             <SelectField label={`${t("branch")} *`} value={f.branchId} onChange={(e) => set("branchId", e.target.value)} error={err("branchId")}>
               <option value="">{t("select")}</option>
-              {BRANCHES.map((b) => (
+              {org.branches.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
                 </option>
@@ -250,7 +249,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
         <section className={section}>
           <h3 className={heading}>{t("sites")}</h3>
           <div className="flex flex-col gap-2">
-            {SITES.map((s) => {
+            {org.sites.map((s) => {
               const on = f.siteIds.includes(s.id);
               const isDefault = f.siteIds[0] === s.id;
               return (
@@ -258,7 +257,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
                   <input type="checkbox" checked={on} onChange={() => toggleSite(s.id)} aria-label={s.name} className="m-0 size-4 accent-accent" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[13.5px] font-medium">{s.name}</div>
-                    <div className="text-[12px] text-text-3">{BRANCHES.find((b) => b.id === s.branchId)?.name}</div>
+                    <div className="text-[12px] text-text-3">{org.branches.find((b) => b.id === s.branchId)?.name}</div>
                   </div>
                   {on && (
                     <button type="button" onClick={() => makeDefault(s.id)} className={cn("h-7 rounded-md border border-solid px-2.5 text-[12px] font-medium", isDefault ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>
@@ -269,7 +268,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
               );
             })}
           </div>
-          {err("siteIds") ? <span className="text-[12.5px] text-bad">{err("siteIds")}</span> : <span className="text-[12.5px] text-text-3">{f.siteIds.length ? t("sitesSummary", { count: f.siteIds.length, site: SITES.find((s) => s.id === f.siteIds[0])?.name ?? "" }) : t("noSites")}</span>}
+          {err("siteIds") ? <span className="text-[12.5px] text-bad">{err("siteIds")}</span> : <span className="text-[12.5px] text-text-3">{f.siteIds.length ? t("sitesSummary", { count: f.siteIds.length, site: org.sites.find((s) => s.id === f.siteIds[0])?.name ?? "" }) : t("noSites")}</span>}
         </section>
 
         <section className={section}>
@@ -316,16 +315,16 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
 
         <section className={section}>
           <h3 className={heading}>{t("leave")}</h3>
-          <SelectField label={t("policy")} value={f.policy} onChange={(e) => { const p = e.target.value as LeavePolicy; set("policy", p); set("balances", { ...POLICIES[p] }); }}>
-            {(Object.keys(POLICIES) as LeavePolicy[]).map((p) => (
+          <SelectField label={t("policy")} value={f.policy} onChange={(e) => { const p = e.target.value as LeavePolicy; set("policy", p); set("balances", policyBalances(p, leaveTypes.types)); }}>
+            {POLICY_IDS.map((p) => (
               <option key={p} value={p}>
                 {t(`policies.${p}`)}
               </option>
             ))}
           </SelectField>
           <div className="grid grid-cols-4 gap-3">
-            {LEAVE_TYPES.map((k) => (
-              <TextField key={k} label={t(`balances.${k}`)} type="number" min={0} step={0.5} value={f.balances[k]} onChange={(e) => set("balances", { ...f.balances, [k]: Number(e.target.value) })} />
+            {leaveTypes.types.filter((x) => x.allowance > 0).map((x) => (
+              <TextField key={x.id} label={x.label} type="number" min={0} step={0.5} value={f.balances[x.id] ?? 0} onChange={(e) => set("balances", { ...f.balances, [x.id]: Number(e.target.value) })} />
             ))}
           </div>
         </section>

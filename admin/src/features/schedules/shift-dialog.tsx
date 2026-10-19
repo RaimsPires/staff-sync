@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/overlay";
 import { SelectField, TextField } from "@/components/ui/text-field";
-import { SITES } from "@/data/org";
+import { useOrg, type Org } from "@/lib/org";
 import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useSchedule } from "@/store/schedule";
@@ -22,8 +22,8 @@ export interface ShiftDraft {
   end: string;
 }
 
-export const newDraft = (d: number, emp: string | null, site: string | null, start = 480): ShiftDraft => ({
-  id: null, type: "rec", title: "", emp: emp ?? "", site: site ?? (emp ? (plannedBy(emp)?.site ?? SITES[0].id) : SITES[0].id), date: isoOf(d),
+export const newDraft = (d: number, emp: string | null, site: string | null, org: Org, start = 480): ShiftDraft => ({
+  id: null, type: "rec", title: "", emp: emp ?? "", site: site ?? (emp ? (plannedBy(emp)?.site ?? org.sites[0].id) : org.sites[0].id), date: isoOf(d),
   start: formatTime(start), end: formatTime(Math.min(1439, start + 480)),
 });
 
@@ -35,6 +35,7 @@ export function ShiftDialog({ draft, onClose, onSaved, onDeleted }: { draft: Shi
 }
 
 function Form({ initial, onClose, onSaved, onDeleted }: { initial: ShiftDraft; onClose: () => void; onSaved: (editing: boolean) => void; onDeleted: () => void }) {
+  const org = useOrg();
   const t = useTranslations("Schedules.shift");
   const tj = useTranslations("Employees.titles");
   const tc = useTranslations("Schedules.conflicts");
@@ -55,7 +56,7 @@ function Form({ initial, onClose, onSaved, onDeleted }: { initial: ShiftDraft; o
 
   const probe: Shift | null = f.emp && !errors.time ? { id: "__draft", emp: f.emp, site: f.site, d: indexOfIso(f.date), s: parseTime(f.start), e: parseTime(f.end), type: f.type, title: "" } : null;
   const conflict = probe ? findConflicts([...shifts.filter((x) => x.id !== f.id), probe])["__draft"] : undefined;
-  const warning = !conflict ? "" : conflict.kind === "leave" ? tc("leave", { name: conflict.emp }) : tc("overlap", { site: SITES.find((s) => s.id === conflict.site)?.name ?? "", from: formatTime(conflict.from), to: formatTime(conflict.to) });
+  const warning = !conflict ? "" : conflict.kind === "leave" ? tc("leave", { name: conflict.emp }) : tc("overlap", { site: org.sites.find((s) => s.id === conflict.site)?.name ?? "", from: formatTime(conflict.from), to: formatTime(conflict.to) });
 
   const save = () => {
     setTried(true);
@@ -96,7 +97,7 @@ function Form({ initial, onClose, onSaved, onDeleted }: { initial: ShiftDraft; o
           {PLANNED.map((p) => <option key={p.name} value={p.name}>{p.name} · {tj(p.title)}</option>)}
         </SelectField>
         <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>
-          {SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {org.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </SelectField>
         <div className="grid grid-cols-3 gap-3">
           <TextField label={t("date")} type="date" value={f.date} onChange={(e) => set("date", e.target.value)} />

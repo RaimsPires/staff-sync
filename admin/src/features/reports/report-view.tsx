@@ -1,5 +1,6 @@
 "use client";
 
+import { KeepMounted } from "@/components/ui/overlay";
 import { Check, ChevronDown, ChevronLeft } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { Segmented } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
-import { BRANCHES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { exportTable } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import type { ExportKind, GroupBy, RangeKey, ReportConfig } from "@/types/reports";
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export function ReportView({ config, onChange, title, onBack, onSave, onSchedule }: Props) {
+  const org = useOrg();
   const t = useTranslations("Reports.view");
   const tRange = useTranslations("Reports.ranges");
   const tGroup = useTranslations("Reports.groups");
@@ -44,8 +46,8 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
   const [from, to] = rangeOf(config);
   const badRange = !from || !to || parseDay(to) < parseDay(from);
   const data = useMemo(
-    () => computeReport(config, (ms) => format.dateTime(new Date(ms), { day: "numeric", month: "short", timeZone: "UTC" }), (id) => siteById(id).name, (id) => BRANCHES.find((b) => b.id === id)?.name ?? id),
-    [config, format],
+    () => computeReport(config, org, (ms) => format.dateTime(new Date(ms), { day: "numeric", month: "short", timeZone: "UTC" })),
+    [config, org, format],
   );
   const label = (key: string) => tCol(`${config.type}.${key}`);
   const header = (c: (typeof data.cols)[number]) => `${label(c.key)}${c.unit === "%" ? "" : ` (${tUnit(c.unit)})`}`;
@@ -62,8 +64,8 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
 
   const nScope = (config.branches.length ? 1 : 0) + (config.sites.length ? 1 : 0) + (config.emps.length ? 1 : 0);
   const scopeLabel = nScope === 0 ? t("everything") : [
-    config.branches.length && (config.branches.length === 1 ? (BRANCHES.find((b) => b.id === config.branches[0])?.name ?? "") : t("branchesCount", { count: config.branches.length })),
-    config.sites.length && (config.sites.length === 1 ? siteById(config.sites[0]).name.split(" ")[0] : t("sitesCount", { count: config.sites.length })),
+    config.branches.length && (config.branches.length === 1 ? (org.branches.find((b) => b.id === config.branches[0])?.name ?? "") : t("branchesCount", { count: config.branches.length })),
+    config.sites.length && (config.sites.length === 1 ? org.siteById(config.sites[0]).name.split(" ")[0] : t("sitesCount", { count: config.sites.length })),
     config.emps.length && (config.emps.length === 1 ? config.emps[0].split(" ")[0] : t("peopleCount", { count: config.emps.length })),
   ].filter(Boolean).join(" · ");
   const rangeLabel = config.range === "custom" ? (from && to ? `${shortDay(parseDay(from))} – ${shortDay(parseDay(to))}` : t("pickDates")) : tRange(`${config.range}.label`);
@@ -179,7 +181,7 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
       ) : (
         <div className="rounded-xl border border-dashed border-border-strong bg-surface px-4 py-12 text-center text-[13.5px] text-text-3">{noRowsText}</div>
       )}
-      {scopeOpen && <ScopeDialog config={config} onChange={onChange} onClose={() => setScopeOpen(false)} />}
+      <KeepMounted show={!!scopeOpen}>{scopeOpen && <ScopeDialog config={config} onChange={onChange} onClose={() => setScopeOpen(false)} />}</KeepMounted>
     </div>
   );
 }

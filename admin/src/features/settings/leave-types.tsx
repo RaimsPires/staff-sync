@@ -4,26 +4,27 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Modal } from "@/components/ui/overlay";
+import { Modal, KeepMounted } from "@/components/ui/overlay";
 import { Switch } from "@/components/ui/switch";
 import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
 import { TYPE_COLORS } from "@/data/settings";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/store/settings";
-import type { LeaveTypeDef } from "@/types/settings";
+import { type ResolvedLeaveType, useLeaveTypes } from "@/features/leave/use-leave-types";
 
 const GRID = "grid grid-cols-[minmax(160px,1.4fr)_80px_90px_70px_80px_70px_80px_120px] items-center gap-2.5";
 interface Draft { id: string | null; name: string; color: string; paid: boolean; allowance: string; document: boolean; notice: string; half: boolean; carry: string }
 
-const toDraft = (t: LeaveTypeDef | null): Draft =>
-  t ? { ...t, allowance: String(t.allowance), notice: String(t.notice), carry: String(t.carry) }
+const toDraft = (t: ResolvedLeaveType | null): Draft =>
+  t ? { ...t, name: t.label, allowance: String(t.allowance), notice: String(t.notice), carry: String(t.carry) }
     : { id: null, name: "", color: TYPE_COLORS[0], paid: true, allowance: "20", document: false, notice: "0", half: true, carry: "0" };
 
-function TypeModal({ type, onClose }: { type: LeaveTypeDef | null; onClose: () => void }) {
+function TypeModal({ type, onClose }: { type: ResolvedLeaveType | null; onClose: () => void }) {
   const t = useTranslations("Settings.leaveTypes");
   const tc = useTranslations("Settings");
   const tColor = useTranslations("Settings.colors");
+  const tDefault = useTranslations("Leave.types");
   const toast = useToast();
   const saveLeaveType = useSettings((s) => s.saveLeaveType);
   const [d, setD] = useState<Draft>(() => toDraft(type));
@@ -34,7 +35,8 @@ function TypeModal({ type, onClose }: { type: LeaveTypeDef | null; onClose: () =
 
   const save = () => {
     if (badName || badAllow) return setTried(true);
-    saveLeaveType({ id: d.id, name: d.name.trim(), color: d.color, paid: d.paid, allowance: Number(d.allowance), document: d.document, notice: Number(d.notice) || 0, half: d.half, carry: Number(d.carry) || 0 });
+    const name = d.name.trim();
+    saveLeaveType({ id: d.id, name: type?.builtIn && name === tDefault(type.id) ? null : name, color: d.color, paid: d.paid, allowance: Number(d.allowance), document: d.document, notice: Number(d.notice) || 0, half: d.half, carry: Number(d.carry) || 0 });
     toast(t(type ? "updated" : "added"));
     onClose();
   };
@@ -73,9 +75,10 @@ function TypeModal({ type, onClose }: { type: LeaveTypeDef | null; onClose: () =
 export function LeaveTypesCard() {
   const t = useTranslations("Settings.leaveTypes");
   const toast = useToast();
-  const { leaveTypes, deleteLeaveType } = useSettings();
-  const [editing, setEditing] = useState<{ type: LeaveTypeDef | null } | null>(null);
-  const [deleting, setDeleting] = useState<LeaveTypeDef | null>(null);
+  const { deleteLeaveType } = useSettings();
+  const { types: leaveTypes } = useLeaveTypes();
+  const [editing, setEditing] = useState<{ type: ResolvedLeaveType | null } | null>(null);
+  const [deleting, setDeleting] = useState<ResolvedLeaveType | null>(null);
   const days = (n: number) => (n ? t("days", { count: n }) : "—");
 
   return (
@@ -91,7 +94,7 @@ export function LeaveTypesCard() {
           </div>
           {leaveTypes.map((x) => (
             <div key={x.id} className={cn(GRID, "border-t border-border px-[18px] py-[11px] text-[13px]")}>
-              <div className="flex items-center gap-[9px]"><span className="size-3 rounded" style={{ background: x.color }} /><span className="font-medium">{x.name}</span></div>
+              <div className="flex items-center gap-[9px]"><span className="size-3 rounded" style={{ background: x.color }} /><span className="font-medium">{x.label}</span></div>
               <span>{t(x.paid ? "paidYes" : "paidNo")}</span>
               <span className="font-mono">{x.allowance}</span>
               <span>{x.document ? t("yes") : "—"}</span>
@@ -103,8 +106,8 @@ export function LeaveTypesCard() {
           ))}
         </div>
       </div>
-      {editing && <TypeModal type={editing.type} onClose={() => setEditing(null)} />}
-      <ConfirmDialog open={deleting !== null} danger title={t("deleteTitle", { name: deleting?.name ?? "" })} message={t("deleteMessage")} cancelLabel={t("cancel")} okLabel={t("delete")} onCancel={() => setDeleting(null)} onOk={() => { if (deleting) { deleteLeaveType(deleting.id); toast(t("deleted")); } setDeleting(null); }} />
+      <KeepMounted show={!!editing}>{editing && <TypeModal type={editing.type} onClose={() => setEditing(null)} />}</KeepMounted>
+      <ConfirmDialog open={deleting !== null} danger title={t("deleteTitle", { name: deleting?.label ?? "" })} message={t("deleteMessage")} cancelLabel={t("cancel")} okLabel={t("delete")} onCancel={() => setDeleting(null)} onOk={() => { if (deleting) { deleteLeaveType(deleting.id); toast(t("deleted")); } setDeleting(null); }} />
     </section>
   );
 }

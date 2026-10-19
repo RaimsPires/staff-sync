@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/overlay";
 import { Switch } from "@/components/ui/switch";
 import { SelectField, TextField } from "@/components/ui/text-field";
-import { SITES } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useSchedule } from "@/store/schedule";
@@ -89,6 +89,7 @@ export function ScheduleModal({ open, onClose, onSaved }: { open: boolean; onClo
 }
 
 function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mode: "draft" | "publish"; count: number; notify: boolean; firstDay: number | null }) => void }) {
+  const org = useOrg();
   const t = useTranslations("Schedules.modal");
   const td = useTranslations("Schedules.days");
   const tj = useTranslations("Employees.titles");
@@ -217,7 +218,7 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
                 </>
               )}
             </div>
-            <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>{SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
+            <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>{org.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
             <div className="flex flex-col gap-1.5">
               <span className="text-[12.5px] font-medium text-text-2">{t("days")}</span>
               <div role="group" aria-label={t("days")} className="flex flex-wrap gap-1.5">
@@ -257,7 +258,7 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
         ) : (
           <>
             <TextField label={t("interventionTitle")} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder={t("titlePlaceholder")} error={err("title")} />
-            <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>{SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
+            <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>{org.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
             <div className="grid grid-cols-3 gap-3">
               <TextField label={t("date")} type="date" value={f.date} onChange={(e) => set("date", e.target.value)} error={err("date")} />
               <TextField label={t("start")} type="time" value={f.start} onChange={(e) => set("start", e.target.value)} className="font-mono" />

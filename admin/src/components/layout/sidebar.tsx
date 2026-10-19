@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsLeft, ChevronsRight, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -11,13 +11,16 @@ import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
 import { pendingIn, useLeave } from "@/store/leave";
 import { useSession } from "@/store/session";
+import { localized } from "@/lib/plans";
+import { usePresence } from "@/lib/use-presence";
+import { useCurrentPlan, usePlans } from "@/store/plans";
 import { useAccess } from "@/store/use-access";
 
-const PLAN = { used: 84, cap: 100 };
 
 /** Fixed left navigation. Below 1024px it becomes a slide-in drawer. */
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const t = useTranslations("Shell");
+  const locale = useLocale();
   const nav = useTranslations("Nav.pages");
   const pathname = usePathname();
   const router = useRouter();
@@ -27,23 +30,28 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const today = useData((s) => s.today);
   const leaveRequests = useLeave((s) => s.requests);
   const collapsed = hydrated && storedCollapsed;
+  const backdrop = usePresence(open, 200);
 
   const counts = {
     alerts: today.filter((r) => siteIds.includes(r.site) && ((r.flag && !r.cleared && !r.fraud) || r.status === "missing")).length,
     leave: pendingIn(leaveRequests, siteIds).length,
   };
-  const pct = Math.round((PLAN.used / PLAN.cap) * 100);
+  const plan = useCurrentPlan();
+  const used = usePlans((s) => s.subscription.seatsUsed);
+  const usage = plan.employeeCap ? `${used}/${plan.employeeCap}` : String(used);
+  const planName = t("planName", { plan: localized(plan.name, locale) });
+  const pct = plan.employeeCap ? Math.round((used / plan.employeeCap) * 100) : 0;
   const planColor = pct >= 90 ? "var(--bad-dot)" : pct >= 80 ? "var(--warn-dot)" : "var(--accent)";
   // Labels stay visible on the tablet drawer even when the desktop rail is collapsed.
   const hideOnRail = collapsed ? "lg:hidden" : "";
 
   return (
     <>
-      {open && <div className="fixed inset-0 z-[59] bg-overlay lg:hidden" onClick={onClose} aria-hidden />}
+      {backdrop.mounted && <div data-state={backdrop.state} className="ss-fade fixed inset-0 z-[59] bg-overlay lg:hidden" onClick={onClose} aria-hidden />}
       <aside
         aria-label={t("navigation")}
         className={cn(
-          "fixed inset-y-0 left-0 z-[60] box-border flex h-screen w-[280px] flex-col border-r border-border bg-sidebar px-3 pb-3 pt-3.5 transition-[width,transform] duration-200",
+          "fixed inset-y-0 left-0 z-[60] box-border flex h-screen w-[280px] flex-col border-r border-border bg-sidebar px-3 pb-3 pt-3.5 transition-[width,transform] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
           "lg:sticky lg:top-0 lg:z-[6] lg:translate-x-0 lg:self-start lg:shadow-none",
           collapsed ? "lg:w-[68px]" : "lg:w-[248px]",
           open ? "translate-x-0 shadow-pop" : "-translate-x-[104%]",
@@ -109,14 +117,14 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           <>
             <div className={cn("mt-3 flex flex-col gap-2 rounded-[10px] border border-border bg-surface-2 p-3", hideOnRail)}>
               <div className="flex items-baseline justify-between gap-2">
-                <span className="whitespace-nowrap text-[12.5px] font-semibold">{t("planName")}</span>
-                <a href="/onboarding?step=8" onClick={(e) => { e.preventDefault(); router.push("/onboarding?step=8"); }} className="text-[12px] font-medium">{t("upgrade")}</a>
+                <span className="whitespace-nowrap text-[12.5px] font-semibold">{planName}</span>
+                <a href="/settings/plans" onClick={(e) => { e.preventDefault(); router.push("/settings/plans"); }} className="text-[12px] font-medium">{t("upgrade")}</a>
               </div>
               <div className="h-1.5 overflow-hidden rounded-md bg-neutral-bg"><div className="h-full rounded-md" style={{ width: `${pct}%`, background: planColor }} /></div>
-              <div className="whitespace-nowrap text-[12px] text-text-2"><span className="font-mono text-[12px] font-semibold text-text">{PLAN.used}/{PLAN.cap}</span> {t("employees")}</div>
+              <div className="whitespace-nowrap text-[12px] text-text-2"><span className="font-mono text-[12px] font-semibold text-text">{usage}</span> {t("employees")}</div>
             </div>
             {collapsed && (
-              <button onClick={() => router.push("/onboarding?step=8")} title={`${t("planName")} · ${PLAN.used}/${PLAN.cap} ${t("employees")}`} className="mt-2.5 hidden flex-col items-center gap-[5px] rounded-[10px] border border-solid border-border bg-surface-2 py-2 text-text lg:flex">
+              <button onClick={() => router.push("/settings/plans")} title={`${planName} · ${usage} ${t("employees")}`} className="mt-2.5 hidden flex-col items-center gap-[5px] rounded-[10px] border border-solid border-border bg-surface-2 py-2 text-text lg:flex">
                 <span className="font-mono text-[11px] font-semibold">{pct}%</span>
                 <span className="block h-1 w-7 overflow-hidden rounded bg-neutral-bg"><span className="block h-full" style={{ width: `${pct}%`, background: planColor }} /></span>
               </button>

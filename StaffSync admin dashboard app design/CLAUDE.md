@@ -1,3 +1,0 @@
-
-- StaffSync is split by screen. `StaffSync.dc.html` is the router/shell (Screens menu + `<dc-import>` per route). Each screen is its own Design Component with its own template + logic: `SignIn`, `Invite`, `Workspaces`, `Onboarding`, `Admin` (`*.dc.html`). Admin pages are templates `AdminDashboard/Live/Attendance/Leave/Other/Drawer.dc.html` receiving the `ad` prop; their shared logic lives in `Admin.dc.html`.
-- New screen = new `Name.dc.html` (template + `class Component extends DCLogic`, vals returned under a namespace key), a route `<sc-if>` + `<dc-import dc-props=...>` in `StaffSync.dc.html`, and a Screens menu entry.

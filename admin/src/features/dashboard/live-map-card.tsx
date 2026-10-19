@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { SitesMap, type SitePin } from "@/components/map/sites-map";
 import { Avatar } from "@/components/ui/misc";
-import { BRANCHES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { siteHealth, type SiteDay } from "./metrics";
 
@@ -25,17 +25,18 @@ export function LiveMapCard({
   selectedId: string | null;
   onSelect: (id: string | null) => void;
 }) {
+  const org = useOrg();
   const t = useTranslations("Dashboard");
   const pins: SitePin[] = useMemo(
     () =>
       rows.map((r) => ({
         id: r.id,
-        position: siteById(r.id).position,
+        position: org.siteById(r.id).position,
         tone: TONES[siteHealth(r)],
         count: `${r.present}/${r.expected}`,
         label: shortName(r.name),
       })),
-    [rows],
+    [rows, org],
   );
   const selected = rows.find((r) => r.id === selectedId);
 
@@ -67,9 +68,10 @@ export function LiveMapCard({
 }
 
 function SitePopup({ row, onClose }: { row: SiteDay; onClose: () => void }) {
+  const org = useOrg();
   const t = useTranslations("Dashboard");
-  const site = siteById(row.id);
-  const branch = BRANCHES.find((b) => b.id === row.branchId);
+  const site = org.siteById(row.id);
+  const branch = org.branches.find((b) => b.id === row.branchId);
   const health = siteHealth(row);
   const pct = Math.round((row.present / row.expected) * 100);
 

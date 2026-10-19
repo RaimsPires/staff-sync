@@ -10,7 +10,7 @@ import type { ScopeKind } from "@/types/auth";
 import { cn } from "@/lib/utils";
 import { activeAdmins, useUsers } from "@/store/users";
 import type { DashboardUser } from "@/types/users";
-import { BRANCH_OPTIONS, SITE_OPTIONS, useRoleText } from "./model";
+import { useRoleText, useScopeOptions } from "./model";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -34,6 +34,7 @@ function InviteForm({ target, onClose }: { target: NonNullable<InviteTarget>; on
   const tScope = useTranslations("Users.scopeKinds");
   const toast = useToast();
   const roleText = useRoleText();
+  const scopeOptions = useScopeOptions();
   const { users, roles, invite, assign } = useUsers();
   const [d, setD] = useState<Draft>(() => initial(target));
   const set = (p: Partial<Draft>) => setD((x) => ({ ...x, ...p }));
@@ -42,7 +43,7 @@ function InviteForm({ target, onClose }: { target: NonNullable<InviteTarget>; on
   const role = roles.find((r) => r.id === d.roleId);
   // A role fixes its scope kind unless it allows any.
   const needKind: ScopeKind = !role ? "company" : role.scope === "any" ? d.kind : role.scope;
-  const options = needKind === "branch" ? BRANCH_OPTIONS : needKind === "site" ? SITE_OPTIONS : [];
+  const options = needKind === "branch" ? scopeOptions.branches : needKind === "site" ? scopeOptions.sites : [];
 
   const email = d.email.trim();
   const taken = isNew && users.some((u) => u.email.toLowerCase() === email.toLowerCase());

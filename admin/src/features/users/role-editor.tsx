@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { BRANCHES, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { ALL_PERMISSIONS, CAN_KEYS, CANT_KEYS, MODULES, NAV_RULES, PERM_ACTIONS, ROLE_SCOPES, type ModuleKey } from "@/lib/access-catalog";
 import { cn } from "@/lib/utils";
 import { useUsers, usersOfRole } from "@/store/users";
 import type { AccessRole, RoleDraft, RoleScopeKey } from "@/types/users";
-import { branchName, useRoleText } from "./model";
+import { useRoleText, useScopeOptions } from "./model";
 
 export type EditorMode = "create" | "edit" | "duplicate" | "view";
 
@@ -40,6 +40,7 @@ interface Props {
 }
 
 export function RoleEditor({ role, mode, onSave, onCancel, onDuplicate }: Props) {
+  const org = useOrg();
   const t = useTranslations("Users.editor");
   const tMod = useTranslations("Users.modules");
   const tAct = useTranslations("Users.editor.actions");
@@ -47,6 +48,7 @@ export function RoleEditor({ role, mode, onSave, onCancel, onDuplicate }: Props)
   const tNav = useTranslations("Users.editor.nav");
   const tCan = useTranslations("Users.editor.can");
   const roleText = useRoleText();
+  const scopeOptions = useScopeOptions();
   const { roles, users } = useUsers();
   const locked = mode === "view";
 
@@ -119,12 +121,12 @@ export function RoleEditor({ role, mode, onSave, onCancel, onDuplicate }: Props)
   const showTree = isBranches || draft.scopeKey === "sites";
   const userCount = role && mode === "edit" ? usersOfRole(users, role.id) : 0;
   const total = MODULES.reduce((n, m) => n + m.actions.length, 0);
-  const allIds = isBranches ? BRANCHES.map((b) => b.id) : BRANCHES.flatMap((b) => b.siteIds);
+  const allIds = isBranches ? org.branches.map((b) => b.id) : org.branches.flatMap((b) => b.siteIds);
 
   const seeScope = (() => {
     switch (draft.scopeKey) {
-      case "branches": return draft.scopeIds.length ? t("see.branches", { names: draft.scopeIds.map(branchName).join(", ") }) : t("see.noBranch");
-      case "sites": return draft.scopeIds.length ? t("see.sites", { names: draft.scopeIds.map((id) => siteById(id).name).join(", ") }) : t("see.noSite");
+      case "branches": return draft.scopeIds.length ? t("see.branches", { names: draft.scopeIds.map(scopeOptions.branchName).join(", ") }) : t("see.noBranch");
+      case "sites": return draft.scopeIds.length ? t("see.sites", { names: draft.scopeIds.map((id) => org.siteById(id).name).join(", ") }) : t("see.noSite");
       default: return t(`see.${draft.scopeKey}`);
     }
   })();
@@ -186,7 +188,7 @@ export function RoleEditor({ role, mode, onSave, onCancel, onDuplicate }: Props)
                   <div className="flex-1" />
                   {!locked && <><button onClick={() => set({ scopeIds: allIds })} className="border-0 bg-transparent text-[12.5px] text-accent">{t("selectAll")}</button><button onClick={() => set({ scopeIds: [] })} className="border-0 bg-transparent text-[12.5px] text-accent">{t("clear")}</button></>}
                 </div>
-                {BRANCHES.map((b, i) => {
+                {org.branches.map((b, i) => {
                   const all = isBranches ? draft.scopeIds.includes(b.id) : b.siteIds.every((k) => draft.scopeIds.includes(k));
                   const some = !isBranches && b.siteIds.some((k) => draft.scopeIds.includes(k));
                   const flip = () => set(isBranches
@@ -204,8 +206,8 @@ export function RoleEditor({ role, mode, onSave, onCancel, onDuplicate }: Props)
                         const flipSite = () => !isBranches && set({ scopeIds: on ? draft.scopeIds.filter((x) => x !== k) : [...draft.scopeIds, k] });
                         return (
                           <div key={k} onClick={flipSite} className={cn("flex items-center gap-2.5 py-[7px] pl-10 pr-3 hover:bg-hover", locked || isBranches ? "cursor-default opacity-65" : "cursor-pointer")}>
-                            <Box state={on ? "on" : "off"} size={16} label={siteById(k).name} disabled={locked || isBranches} onClick={flipSite} />
-                            <span className="text-[13px]">{siteById(k).name}</span>
+                            <Box state={on ? "on" : "off"} size={16} label={org.siteById(k).name} disabled={locked || isBranches} onClick={flipSite} />
+                            <span className="text-[13px]">{org.siteById(k).name}</span>
                           </div>
                         );
                       })}

@@ -1,11 +1,10 @@
 import type { LatLng } from "@/types/domain";
+import type { BillingCycle, PlanId } from "@/types/plans";
 
 export type StepNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export type TeamRole = "employee" | "site" | "branch" | "admin";
 export type TeamMode = "manual" | "csv";
-export type Billing = "monthly" | "yearly";
-export type PlanId = "trial" | "starter" | "business" | "enterprise";
 
 export interface Person {
   name: string;
@@ -59,7 +58,7 @@ export interface OnboardingForm {
   csvRows: CsvRow[];
   csvCount: number;
   // 8. plan
-  billing: Billing;
+  billing: BillingCycle;
   plan: PlanId | "";
 }
 

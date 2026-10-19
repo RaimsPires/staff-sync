@@ -3,19 +3,20 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { BRANCHES, SITES, branchOfSite, siteById } from "@/data/org";
+import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useLeave } from "@/store/leave";
 import { useAccess } from "@/store/use-access";
-import type { LeaveType } from "@/types/leave";
-import { DAY_MS, HOLIDAY_ISO, LEAVE_TYPES, parseIso, toIso, TODAY_ISO, TYPE_STYLE, weekdayOf } from "./model";
+import { DAY_MS, HOLIDAY_ISO, parseIso, toIso, TODAY_ISO, weekdayOf } from "./model";
+import { useLeaveTypes } from "./use-leave-types";
 
 const select = "h-[34px] max-w-[190px] rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text";
 const TODAY = parseIso(TODAY_ISO);
 
 export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
+  const org = useOrg();
   const t = useTranslations("Leave.calendar");
-  const tt = useTranslations("Leave.types");
+  const leaveTypes = useLeaveTypes();
   const tRoles = useTranslations("Alerts.roles");
   const tHol = useTranslations("Leave.calendar.holidays");
   const format = useFormatter();
@@ -27,7 +28,7 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
   const [group, setGroup] = useState<"site" | "branch">("site");
   const [branch, setBranch] = useState("all");
   const [site, setSite] = useState("all");
-  const [type, setType] = useState<"all" | LeaveType>("all");
+  const [type, setType] = useState("all");
   const [status, setStatus] = useState<"all" | "approved" | "pending">("all");
   const [emp, setEmp] = useState("all");
   const [only, setOnly] = useState(false);
@@ -43,9 +44,9 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
 
   const people = useMemo(() => [...new Map(requests.filter((r) => siteIds.includes(r.site)).map((r) => [r.name, { name: r.name, site: r.site, role: r.role }])).values()], [requests, siteIds]);
   const items = requests.filter((r) => (r.status === "approved" || r.status === "pending") && (status === "all" || r.status === status) && (type === "all" || r.type === type));
-  const visiblePeople = people.filter((p) => (branch === "all" || branchOfSite(p.site).id === branch) && (site === "all" || p.site === site) && (emp === "all" || p.name === emp));
-  const sitesAvailable = SITES.filter((s) => siteIds.includes(s.id) && (branch === "all" || s.branchId === branch));
-  const keyOf = (siteId: string) => (group === "site" ? siteId : branchOfSite(siteId).id);
+  const visiblePeople = people.filter((p) => (branch === "all" || org.branchOfSite(p.site).id === branch) && (site === "all" || p.site === site) && (emp === "all" || p.name === emp));
+  const sitesAvailable = org.sites.filter((s) => siteIds.includes(s.id) && (branch === "all" || s.branchId === branch));
+  const keyOf = (siteId: string) => (group === "site" ? siteId : org.branchOfSite(siteId).id);
 
   const barsOf = (name: string) =>
     items.filter((r) => r.name === name && parseIso(r.to) >= period.a && parseIso(r.from) <= period.b).map((r) => {
@@ -83,7 +84,7 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
   const cellBg = (x: (typeof days)[number]) => (x.holiday ? "bg-warn-bg" : x.today ? "bg-accent-soft" : x.weekend ? "bg-surface-2" : "bg-transparent");
   const rangeLabel = scale === "month" ? format.dateTime(new Date(period.a), { month: "long", year: "numeric", timeZone: "UTC" }) : `Q${Math.floor(m / 3) + 1} ${y}`;
   const weekdayLetters = Array.from({ length: 7 }, (_, i) => format.dateTime(new Date(Date.UTC(2026, 9, 12 + i)), { weekday: "narrow", timeZone: "UTC" }));
-  const groupName = (k: string) => (group === "site" ? siteById(k).name : (BRANCHES.find((b) => b.id === k)?.name ?? k));
+  const groupName = (k: string) => (group === "site" ? org.siteById(k).name : (org.branches.find((b) => b.id === k)?.name ?? k));
 
   return (
     <div className="flex flex-col gap-3">
@@ -96,16 +97,16 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         <div className="min-w-[130px] text-[15px] font-semibold">{rangeLabel}</div>
         <div role="group" aria-label={t("groupBy")} className="flex overflow-hidden rounded-[9px] border border-border-strong">{(["site", "branch"] as const).map((k) => <button key={k} aria-pressed={group === k} onClick={() => setGroup(k)} className={cn("h-[34px] border-0 px-3 text-[13px]", group === k ? "bg-accent text-white" : "bg-surface text-text-2")}>{t(`groups.${k}`)}</button>)}</div>
-        <select value={branch} onChange={(e) => { setBranch(e.target.value); setSite("all"); setEmp("all"); }} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+        <select value={branch} onChange={(e) => { setBranch(e.target.value); setSite("all"); setEmp("all"); }} aria-label={t("filters.branch")} className={select}><option value="all">{t("filters.allBranches")}</option>{org.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
         <select value={site} onChange={(e) => setSite(e.target.value)} aria-label={t("filters.site")} className={select}><option value="all">{t("filters.allSites")}</option>{sitesAvailable.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
-        <select value={type} onChange={(e) => setType(e.target.value as typeof type)} aria-label={t("filters.type")} className={select}><option value="all">{t("filters.allTypes")}</option>{LEAVE_TYPES.map((k) => <option key={k} value={k}>{tt(k)}</option>)}</select>
+        <select value={type} onChange={(e) => setType(e.target.value)} aria-label={t("filters.type")} className={select}><option value="all">{t("filters.allTypes")}</option>{leaveTypes.types.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
         <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} aria-label={t("filters.status")} className={select}><option value="all">{t("filters.both")}</option><option value="approved">{t("filters.approvedOnly")}</option><option value="pending">{t("filters.pendingOnly")}</option></select>
         <select value={emp} onChange={(e) => setEmp(e.target.value)} aria-label={t("filters.employee")} className={select}><option value="all">{t("filters.allEmployees")}</option>{people.map((p) => p.name).sort().map((n2) => <option key={n2}>{n2}</option>)}</select>
         <button aria-pressed={only} onClick={() => setOnly(!only)} className={cn("h-[34px] rounded-[9px] border border-solid px-3 text-[13px] font-medium", only ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>{t("onlyWithLeave")}</button>
       </div>
 
       <ul className="m-0 flex list-none flex-wrap gap-4 p-0 text-[12px] text-text-2">
-        {LEAVE_TYPES.map((k) => <li key={k} className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: TYPE_STYLE[k].color }} />{tt(k)}</li>)}
+        {leaveTypes.types.map((x) => <li key={x.id} className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: x.color }} />{x.label}</li>)}
         <li className="flex items-center gap-1.5"><span className="size-3 rounded border border-solid border-info bg-[repeating-linear-gradient(135deg,var(--info)_0_2px,transparent_2px_7px)]" />{t("pendingHatched")}</li>
       </ul>
 
@@ -134,15 +135,15 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
               </div>
               {g.rows.map(({ p, bars }) => (
                 <div key={p.name} className="flex border-b border-border last:border-b-0">
-                  <div className="sticky left-0 z-[2] flex w-[190px] flex-none flex-col justify-center border-r border-border bg-surface px-3 py-1.5"><div className="truncate text-[13px] font-medium">{p.name}</div><div className="truncate text-[11.5px] text-text-3">{tRoles(p.role)} · {siteById(p.site).name.split(" ")[0]}</div></div>
+                  <div className="sticky left-0 z-[2] flex w-[190px] flex-none flex-col justify-center border-r border-border bg-surface px-3 py-1.5"><div className="truncate text-[13px] font-medium">{p.name}</div><div className="truncate text-[11.5px] text-text-3">{tRoles(p.role)} · {org.siteById(p.site).name.split(" ")[0]}</div></div>
                   <div className="relative h-11 flex-none" style={{ width: n * cw }}>
                     <div className="absolute inset-0 flex">{days.map((x) => <div key={x.iso} className={cn("flex-none border-l border-border/40", cellBg(x))} style={{ width: cw }} />)}</div>
                     {bars.map(({ r, x, w }) => {
-                      const st = TYPE_STYLE[r.type];
+                      const st = { color: leaveTypes.get(r.type).color, soft: `color-mix(in srgb, ${leaveTypes.get(r.type).color} 16%, transparent)` };
                       const pending = r.status === "pending";
-                      const label = w >= 72 ? `${tt(r.type).split(" ")[0]} · ${r.half ? "½d" : `${r.days}d`}` : w >= 38 ? (r.half ? "½d" : `${r.days}d`) : "";
+                      const label = w >= 72 ? `${leaveTypes.label(r.type).split(" ")[0]} · ${r.half ? "½d" : `${r.days}d`}` : w >= 38 ? (r.half ? "½d" : `${r.days}d`) : "";
                       return (
-                        <button key={r.id} onClick={() => onOpen(r.id)} title={`${r.name} · ${tt(r.type)} · ${r.half ? "½d" : `${r.days}d`} · ${t(pending ? "pending" : "approved")}`}
+                        <button key={r.id} onClick={() => onOpen(r.id)} title={`${r.name} · ${leaveTypes.label(r.type)} · ${r.half ? "½d" : `${r.days}d`} · ${t(pending ? "pending" : "approved")}`}
                           className="absolute top-2 h-7 overflow-hidden whitespace-nowrap rounded-md border border-solid px-1.5 text-left text-[11.5px] font-medium"
                           style={{ left: x, width: w, borderColor: st.color, color: pending ? st.color : "#fff", background: pending ? `repeating-linear-gradient(135deg, ${st.color} 0 2px, transparent 2px 7px), ${st.soft}` : st.color }}>
                           {label}

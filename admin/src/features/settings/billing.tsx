@@ -1,16 +1,17 @@
 "use client";
 
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Modal } from "@/components/ui/overlay";
+import { Modal, KeepMounted } from "@/components/ui/overlay";
 import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
-import { INVOICES, PLANS, SEATS_USED } from "@/data/settings";
+import { INVOICES } from "@/data/settings";
+import { localized, planPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
-import { useSettings } from "@/store/settings";
-import type { PlanId } from "@/types/settings";
+import { useCurrentPlan, usePlans } from "@/store/plans";
+import { useDateFormat } from "@/lib/preferences";
 
 const card = "overflow-hidden rounded-xl border border-border bg-surface shadow-card";
 
@@ -36,39 +37,38 @@ function CardModal({ onClose }: { onClose: () => void }) {
 
 export function BillingSection() {
   const t = useTranslations("Settings.billing");
-  const tPlan = useTranslations("Settings.billing.plans");
+  const tPlans = useTranslations("Plans");
   const format = useFormatter();
   const toast = useToast();
-  const { plan, setPlan } = useSettings();
-  const [changing, setChanging] = useState<PlanId | null>(null);
+  const locale = useLocale();
+  const numericDate = useDateFormat();
+  const { subscription } = usePlans();
+  const current = useCurrentPlan();
   const [card2, setCard] = useState(false);
-  const current = PLANS.find((p) => p.id === plan)!;
-  const left = current.cap - SEATS_USED;
-  const target = PLANS.find((p) => p.id === changing);
+  const used = subscription.seatsUsed;
+  const cap = current.employeeCap;
   const money = (n: number) => format.number(n, { style: "currency", currency: "EUR" });
+  const price = planPrice(current, subscription.billing);
 
   return (
     <>
       <section className={card}>
-        <div className="border-b border-border px-[18px] py-3.5"><h2 className="m-0 text-[14.5px] font-semibold">{t("title")}</h2><p className="mt-0.5 text-[12.5px] text-text-3">{t("renews", { date: format.dateTime(new Date("2026-11-01"), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) })}</p></div>
-        <div className="flex flex-col gap-1.5 px-[18px] py-4">
-          <div className="flex justify-between text-[13px]"><span className="font-medium">{t("usage", { used: SEATS_USED, cap: current.cap })}</span><span className="text-warn">{left <= 2 ? t("seatsLeft", { count: left }) : ""}</span></div>
-          <div className="h-2 overflow-hidden rounded bg-neutral-bg" role="progressbar" aria-valuenow={SEATS_USED} aria-valuemax={current.cap}><div className={cn("h-full", SEATS_USED / current.cap > 0.9 ? "bg-warn-dot" : "bg-accent")} style={{ width: `${Math.round((SEATS_USED / current.cap) * 100)}%` }} /></div>
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-[18px] py-3.5">
+          <div className="min-w-0 flex-1">
+            <h2 className="m-0 text-[14.5px] font-semibold">{t("title")}</h2>
+            {subscription.trialEndsOn && <p className="mt-0.5 text-[12.5px] text-text-3">{tPlans("trialEnds", { date: format.dateTime(new Date(subscription.trialEndsOn), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) })}</p>}
+            {subscription.renewsOn && <p className="mt-0.5 text-[12.5px] text-text-3">{t("renews", { date: format.dateTime(new Date(subscription.renewsOn), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }), cycle: t(subscription.billing) })}</p>}
+          </div>
+          <Link href="/settings/plans" className="inline-flex h-9 items-center rounded-[9px] bg-accent px-3.5 text-[13px] font-medium text-white no-underline hover:no-underline">{t("comparePlans")}</Link>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5 px-[18px] pb-[18px]">
-          {PLANS.map((p) => {
-            const cur = p.id === plan;
-            const small = p.cap < SEATS_USED;
-            const up = p.cap > current.cap;
-            return (
-              <div key={p.id} className={cn("flex flex-col gap-1.5 rounded-xl border-[1.5px] border-solid p-3.5", cur ? "border-accent bg-accent-soft" : "border-border bg-surface")}>
-                <div className="flex items-center gap-2"><b className="text-[15px]">{tPlan(`${p.id}.name`)}</b>{cur && <span className="rounded-full bg-accent px-2 py-0.5 text-[11.5px] text-white">{t("current")}</span>}</div>
-                <div className="text-[13px] text-text-2">{t("price", { price: money(p.price) })}</div>
-                <div className="text-[12.5px] text-text-3">{t("capacity", { count: p.cap })}</div>
-                <Button className="mt-1.5" disabled={cur || small} onClick={() => setChanging(p.id)}>{cur ? t("yourPlan") : small ? t("tooMany") : t(up ? "upgrade" : "downgrade")}</Button>
-              </div>
-            );
-          })}
+        <div className="flex flex-col gap-1.5 px-[18px] py-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 text-[13px]">
+            <span><b className="text-[15px]">{localized(current.name, locale)}</b> · {price === null ? t("customPrice") : t("price", { price: money(price) })}</span>
+            <span className="font-medium">{cap === null ? t("usageUnlimited", { used }) : t("usage", { used, cap })}</span>
+          </div>
+          {cap !== null && (
+            <div className="h-2 overflow-hidden rounded bg-neutral-bg" role="progressbar" aria-valuenow={used} aria-valuemax={cap}><div className={cn("h-full", used / cap > 0.9 ? "bg-warn-dot" : "bg-accent")} style={{ width: `${Math.min(100, Math.round((used / cap) * 100))}%` }} /></div>
+          )}
         </div>
       </section>
 
@@ -83,7 +83,7 @@ export function BillingSection() {
           {INVOICES.map((inv) => (
             <div key={inv.id} className="grid grid-cols-[130px_1fr_100px_90px_90px] items-center gap-2.5 border-t border-border px-[18px] py-[11px] text-[13px] first:border-t-0">
               <span className="font-mono text-[12.5px]">{inv.id}</span>
-              <span className="text-text-2">{format.dateTime(new Date(inv.date), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</span>
+              <span className="text-text-2">{numericDate(inv.date)}</span>
               <span className="font-mono">{money(inv.amount)}</span>
               <span><span className="rounded-md bg-ok-bg px-2 py-0.5 text-[12px] font-medium text-ok">{t("paid")}</span></span>
               <button onClick={() => toast(t("downloading", { id: inv.id }))} className="border-0 bg-transparent p-0 text-right text-[12.5px] text-accent">{t("download")}</button>
@@ -92,16 +92,7 @@ export function BillingSection() {
         </div></div>
       </section>
 
-      {card2 && <CardModal onClose={() => setCard(false)} />}
-      <ConfirmDialog
-        open={changing !== null}
-        title={t("changeTitle", { plan: target ? tPlan(`${target.id}.name`) : "", direction: target && target.cap > current.cap ? "up" : "down" })}
-        message={t("changeMessage", { price: money(target?.price ?? 0) })}
-        cancelLabel={t("cancel")}
-        okLabel={t("confirm")}
-        onCancel={() => setChanging(null)}
-        onOk={() => { if (target) { setPlan(target.id); toast(t("changed", { plan: tPlan(`${target.id}.name`) })); } setChanging(null); }}
-      />
+      <KeepMounted show={!!card2}>{card2 && <CardModal onClose={() => setCard(false)} />}</KeepMounted>
     </>
   );
 }
