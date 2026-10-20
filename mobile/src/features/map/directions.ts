@@ -1,10 +1,20 @@
-import { Alert, Linking, Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import type { LatLng } from '@/domain';
 
-type Provider = 'google' | 'apple' | 'waze';
+export type DirectionsProvider = 'google' | 'apple' | 'waze';
 
-const url = (p: Provider, to: LatLng, label: string): string => {
+export type DirectionsOption = { provider: DirectionsProvider; initial: string; color: string };
+
+/** Third-party brand colours (Google, Apple, Waze) from the design; intentionally identical in light and dark mode. */
+export const DIRECTIONS_OPTIONS: DirectionsOption[] = [
+  { provider: 'google', initial: 'G', color: '#1A8F4C' },
+  ...(Platform.OS === 'ios' ? [{ provider: 'apple' as const, initial: 'A', color: '#3A7BD5' }] : []),
+  { provider: 'waze', initial: 'W', color: '#2AA7D8' },
+];
+
+/** All links are fixed HTTPS templates with numeric coordinates only. */
+export const directionsUrl = (p: DirectionsProvider, to: LatLng, label: string): string => {
   const ll = `${to.lat},${to.lng}`;
   switch (p) {
     case 'google':
@@ -16,15 +26,4 @@ const url = (p: Provider, to: LatLng, label: string): string => {
   }
 };
 
-/** Lets the user choose a navigation app; all links are fixed HTTPS templates with numeric coordinates only. */
-export function openDirections(to: LatLng, label: string, t: (k: string) => string) {
-  const options: { text: string; provider: Provider }[] = [
-    ...(Platform.OS === 'ios' ? [{ text: t('map.appleMaps'), provider: 'apple' as const }] : []),
-    { text: t('map.googleMaps'), provider: 'google' },
-    { text: t('map.waze'), provider: 'waze' },
-  ];
-  Alert.alert(t('map.openWith'), undefined, [
-    ...options.map((o) => ({ text: o.text, onPress: () => void Linking.openURL(url(o.provider, to, label)) })),
-    { text: t('common.cancel'), style: 'cancel' as const },
-  ]);
-}
+export const openDirectionsWith = (p: DirectionsProvider, to: LatLng, label: string) => void Linking.openURL(directionsUrl(p, to, label));

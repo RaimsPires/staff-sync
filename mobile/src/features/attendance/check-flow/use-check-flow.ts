@@ -6,13 +6,17 @@ import { captureFix, type Fix } from '@/core/location/use-site-proximity';
 import { useOnline } from '@/core/network/use-online';
 import { AppError, repos, type CheckEvent, type CheckResult } from '@/data';
 import { useOfflineQueue } from '@/data/offline-queue';
-import { collectFlags, evaluateCheckOut, type Assignment, type Flag, type VerificationMethod } from '@/domain';
+import { collectFlags, evaluateCheckOut, isInsideGeofence, resolveGate, toIsoDate, type Assignment, type Flag, type VerificationMethod } from '@/domain';
 
 export type FlowMode = 'check_in' | 'check_out';
 
 export type FlowStep =
   | { name: 'locating' }
   | { name: 'location_failed' }
+  | { name: 'mock_location' }
+  | { name: 'device_unregistered' }
+  | { name: 'not_scheduled' }
+  | { name: 'not_at_site' }
   | { name: 'confirm' }
   | { name: 'verify'; method: VerificationMethod }
   | { name: 'submitting' }
@@ -33,24 +37,64 @@ export function useCheckFlow(assignment: Assignment | undefined, mode: FlowMode)
   const [fix, setFix] = useState<Fix>();
   const [note, setNote] = useState('');
   const [evidence, setEvidence] = useState<Evidence>({});
+  const [otherSite, setOtherSite] = useState<string>();
+  // Gates the user has knowingly passed ("check in anyway" / "check out anyway").
+  const [acceptUnscheduled, setAcceptUnscheduled] = useState(false);
+  const [acceptOutside, setAcceptOutside] = useState(false);
+  const scheduledHere = !!assignment && assignment.date === toIsoDate(new Date());
+
+  /** Picks the first blocking screen for a fix; `confirm` when nothing blocks. */
+  const gate = useCallback(
+    (f: Fix, ctx: { registered: boolean; unscheduledOk: boolean; outsideOk: boolean }): FlowStep => {
+      if (!assignment) return { name: 'confirm' };
+      return {
+        name: resolveGate({
+          mocked: f.mocked,
+          deviceRegistered: ctx.registered,
+          scheduledHere,
+          insideGeofence: isInsideGeofence(f, assignment.site.geofence),
+          mode,
+          unscheduledOk: ctx.unscheduledOk,
+          outsideOk: ctx.outsideOk,
+        }),
+      };
+    },
+    [assignment, mode, scheduledHere],
+  );
+
+  const [registered, setRegistered] = useState(true);
 
   const locate = useCallback(async () => {
     setStep({ name: 'locating' });
     try {
-      setFix(await captureFix());
-      setStep({ name: 'confirm' });
+      const [f, isRegistered, today] = await Promise.all([captureFix(), repos.profile.isDeviceRegistered(), repos.schedule.getToday()]);
+      setFix(f);
+      setRegistered(isRegistered);
+      setOtherSite(today.find((a) => a.site.id !== assignment?.site.id)?.site.name);
+      setStep(gate(f, { registered: isRegistered, unscheduledOk: acceptUnscheduled, outsideOk: acceptOutside }));
     } catch {
       setStep({ name: 'location_failed' });
     }
-  }, []);
+  }, [assignment?.site.id, gate, acceptUnscheduled, acceptOutside]);
 
   useEffect(() => {
-    void locate();
-  }, [locate]);
+    if (assignment && step.name === 'locating' && !fix) void locate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignment]);
+
+  /** "Check in / out anyway": passes the current gate and re-evaluates the next one. */
+  const acknowledge = useCallback(() => {
+    if (!fix) return;
+    const unscheduledOk = acceptUnscheduled || step.name === 'not_scheduled';
+    const outsideOk = acceptOutside || step.name === 'not_at_site';
+    setAcceptUnscheduled(unscheduledOk);
+    setAcceptOutside(outsideOk);
+    setStep(gate(fix, { registered, unscheduledOk, outsideOk }));
+  }, [fix, step.name, acceptUnscheduled, acceptOutside, gate, registered]);
 
   const previewFlags: Flag[] =
     assignment && fix
-      ? collectFlags({ site: assignment.site, deviceRegistered: true, scheduled: true, position: fix })
+      ? collectFlags({ site: assignment.site, deviceRegistered: registered, scheduled: scheduledHere || acceptUnscheduled, position: fix })
       : [];
 
   const earlyByMinutes =
@@ -71,6 +115,7 @@ export function useCheckFlow(assignment: Assignment | undefined, mode: FlowMode)
         selfieUri: ev.selfieUri,
         qrPayload: ev.qrPayload,
         note: note.trim() || undefined,
+        acceptUnscheduled: acceptUnscheduled || undefined,
       };
 
       if (!online) {
@@ -88,7 +133,7 @@ export function useCheckFlow(assignment: Assignment | undefined, mode: FlowMode)
         setStep(e instanceof AppError && e.code === 'CONFLICT' ? { name: 'already_done' } : { name: 'error' });
       }
     },
-    [assignment, fix, mode, note, online, enqueue, qc],
+    [assignment, fix, mode, note, online, enqueue, qc, acceptUnscheduled],
   );
 
   /** Moves from confirmation to the first required verification, or submits directly. */
@@ -110,5 +155,5 @@ export function useCheckFlow(assignment: Assignment | undefined, mode: FlowMode)
     [assignment, evidence, submit],
   );
 
-  return { step, fix, note, setNote, previewFlags, earlyByMinutes, confirm, verified, retry: locate };
+  return { step, fix, note, setNote, previewFlags, earlyByMinutes, confirm, verified, retry: locate, acknowledge, otherSite };
 }

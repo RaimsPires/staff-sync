@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSession } from '@/core/session/session-store';
 import { useSettings } from '@/core/settings/settings-store';
 import { ThemeProvider, useTheme } from '@/core/theme/theme-provider';
+import { Splash, ToastProvider } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -27,11 +28,12 @@ function RootStack() {
   }, [restore]);
 
   const ready = hydrated && status !== 'restoring';
+  // Hand over from the native splash to the in-app one immediately; it stays until hydration finishes.
   useEffect(() => {
-    if (ready) void SplashScreen.hideAsync();
-  }, [ready]);
+    void SplashScreen.hideAsync();
+  }, []);
 
-  if (!ready) return null;
+  if (!ready) return <Splash />;
 
   return (
     <>
@@ -44,7 +46,7 @@ function RootStack() {
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
         <Stack.Protected guard={status === 'needs_company'}>
-          <Stack.Screen name="company" />
+          <Stack.Screen name="(company)" />
         </Stack.Protected>
         <Stack.Protected guard={status === 'needs_setup'}>
           <Stack.Screen name="(setup)" />
@@ -67,7 +69,9 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <RootStack />
+            <ToastProvider>
+              <RootStack />
+            </ToastProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

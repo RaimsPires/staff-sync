@@ -16,7 +16,10 @@ type Props = {
   autoFocus?: boolean;
 };
 
-/** Single hidden input rendered as boxes: keeps paste / SMS autofill working. */
+/**
+ * One hidden input rendered as boxes, so paste and SMS autofill keep working.
+ * Box colours follow the design: red on error, blue when filled, grey when empty.
+ */
 export function CodeInput({ value, onChange, length, secure, error, label, autoFocus = true }: Props) {
   const { colors } = useTheme();
   const ref = useRef<TextInputInstance>(null);
@@ -25,18 +28,10 @@ export function CodeInput({ value, onChange, length, secure, error, label, autoF
     <Pressable onPress={() => ref.current?.focus()} accessibilityLabel={label} style={styles.row}>
       {Array.from({ length }, (_, i) => {
         const filled = i < value.length;
-        const active = i === value.length;
+        const border = error ? colors.danger : filled ? colors.primary : colors.fieldBorder;
         return (
-          <View
-            key={i}
-            style={[
-              styles.box,
-              {
-                backgroundColor: colors.card,
-                borderColor: error ? colors.danger : active ? colors.primary : colors.line,
-              },
-            ]}>
-            <Text variant="heading">{filled ? (secure ? '•' : value[i]) : ''}</Text>
+          <View key={i} style={[styles.box, { backgroundColor: colors.card, borderColor: border }]}>
+            <Text style={styles.digit}>{filled ? (secure ? '•' : value[i]) : ''}</Text>
           </View>
         );
       })}
@@ -58,7 +53,8 @@ export function CodeInput({ value, onChange, length, secure, error, label, autoF
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.sm, justifyContent: 'center' },
-  box: { flex: 1, maxWidth: 52, height: 60, borderRadius: radius.md, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', gap: spacing.sm },
+  box: { flex: 1, minWidth: 0, height: 64, borderRadius: radius.field, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  digit: { fontSize: 26, fontWeight: '800', lineHeight: 32 },
   hidden: { position: 'absolute', opacity: 0, width: 1, height: 1 },
 });

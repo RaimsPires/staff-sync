@@ -1,183 +1,185 @@
-import { useQuery } from '@tanstack/react-query';
-import Constants from 'expo-constants';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
-import { formatDate } from '@/core/format';
 import { useSession } from '@/core/session/session-store';
-import { useSettings, type Language, type NotificationPrefs, type ThemePreference } from '@/core/settings/settings-store';
 import { useTheme } from '@/core/theme/theme-provider';
-import { spacing } from '@/core/theme/tokens';
-import { repos } from '@/data';
-import { useOfflineQueue } from '@/data/offline-queue';
-import { qk } from '@/data/query-keys';
-import { Button, Card, Icon, Screen, Segmented, Text } from '@/ui';
+import { radius, spacing } from '@/core/theme/tokens';
+import { Icon, Screen, Text, initialsOf } from '@/ui';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View style={styles.section}>
-      <Text variant="label" tone="muted">{title.toUpperCase()}</Text>
-      <Card>{children}</Card>
-    </View>
-  );
-}
-
-function Line({ label, value }: { label: string; value: string }) {
+export function Row({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.between}>
-      <Text tone="muted">{label}</Text>
-      <Text variant="bodyStrong" style={styles.value}>{value}</Text>
-    </View>
-  );
-}
-
-function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.between}>
-      <Text style={styles.flex}>{label}</Text>
-      <Switch value={value} onValueChange={onChange} accessibilityLabel={label} trackColor={{ true: colors.primary, false: colors.line }} />
-    </View>
-  );
-}
-
-function Faq() {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState<number>();
-  return (
-    <View style={styles.faq}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <Pressable key={n} accessibilityRole="button" accessibilityState={{ expanded: open === n }} onPress={() => setOpen(open === n ? undefined : n)}>
-          <View style={styles.between}>
-            <Text variant="bodyStrong" style={styles.flex}>{t(`profile.faqItems.q${n}`)}</Text>
-            <Icon name={open === n ? 'chevron-up' : 'chevron-down'} size={18} tone="muted" />
-          </View>
-          {open === n ? <Text tone="muted" variant="caption">{t(`profile.faqItems.a${n}`)}</Text> : null}
-        </Pressable>
-      ))}
+      <Text tone="muted" style={styles.rowLabel}>
+        {label}
+      </Text>
+      <Text style={styles.rowValue}>{value}</Text>
     </View>
   );
 }
 
 export function ProfileScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const user = useSession((s) => s.user);
-  const signOut = useSession((s) => s.signOut);
-  const { language, theme, notifications, setLanguage, setTheme, setNotificationPrefs } = useSettings();
-  const pending = useOfflineQueue((s) => s.events.length);
-  const syncing = useOfflineQueue((s) => s.syncing);
-  const sync = useOfflineQueue((s) => s.sync);
-  const { data: device } = useQuery({ queryKey: qk.device, queryFn: () => repos.profile.getDevice() });
-  const [syncMsg, setSyncMsg] = useState<string>();
+  const [photo, setPhoto] = useState<string>();
 
   if (!user) return null;
-  const initials = user.name.split(' ').map((p) => p[0]).slice(0, 2).join('');
-  const siteNames = user.siteNames.join(', ');
-  const setPrefs = (patch: Partial<NotificationPrefs>) => setNotificationPrefs(patch);
 
-  const confirmLogout = () =>
-    Alert.alert(t('profile.logoutConfirm'), undefined, [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('profile.logout'), style: 'destructive', onPress: () => void signOut() },
-    ]);
+  // The picked photo is held in memory for this session only; there is no upload endpoint yet.
+  const changePhoto = async () => {
+    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7 });
+    if (!res.canceled) setPhoto(res.assets[0].uri);
+  };
+
+  const card = [styles.card, { backgroundColor: colors.card, borderColor: colors.line }];
 
   return (
-    <Screen>
-      <Text variant="title">{t('profile.title')}</Text>
+    <Screen contentStyle={styles.content}>
+      <View style={styles.titleRow}>
+        <Text variant="title">{t('profile.title')}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('profile.settings')}
+          onPress={() => router.push('/settings')}
+          style={[styles.gear, { backgroundColor: colors.card, borderColor: colors.line }]}>
+          <Icon name="settings-outline" size={22} />
+        </Pressable>
+      </View>
 
       <View style={styles.hero}>
-        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-          <Text variant="heading" tone="onPrimary">{initials}</Text>
+        <View>
+          <View style={[styles.avatar, { backgroundColor: colors.map }]}>
+            {photo ? (
+              <Image source={{ uri: photo }} style={styles.photo} />
+            ) : (
+              <Text style={[styles.initials, { color: colors.infoFg }]}>{initialsOf(user.name)}</Text>
+            )}
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('profile.changePhoto')}
+            onPress={() => void changePhoto()}
+            style={[styles.camera, { backgroundColor: colors.primary, borderColor: colors.bg }]}>
+            <Icon name="camera" size={18} tone="onPrimary" />
+          </Pressable>
         </View>
-        <View style={styles.flex}>
-          <Text variant="heading">{user.name}</Text>
-          <Text tone="muted">{user.title}</Text>
+        <Text variant="hero" style={styles.name}>
+          {user.name}
+        </Text>
+        <Text tone="muted">{user.title}</Text>
+        <View style={[styles.idPill, { backgroundColor: colors.infoBg }]}>
+          <Text variant="small" tone="infoFg">
+            {t('profile.idPill', { id: user.employeeId })}
+          </Text>
         </View>
       </View>
 
-      <Card>
-        <Line label={t('profile.employeeId')} value={user.employeeId} />
-        <Line label={t('profile.branch')} value={user.branch} />
-        <Line label={t('profile.sites')} value={siteNames} />
-        <Line label={t('profile.phone')} value={user.phone} />
-        <Line label={t('profile.email')} value={user.email} />
-        <Text variant="caption" tone="muted">{t('profile.readOnly')}</Text>
-        <Button variant="secondary" icon="call-outline" label={`${t('profile.manager')}: ${user.managerName}`} onPress={() => void Linking.openURL(`tel:${user.managerPhone}`)} />
-      </Card>
+      <View style={card}>
+        <Row label={t('profile.branch')} value={user.branch} />
+        <View style={[styles.divider, { backgroundColor: colors.soft }]} />
+        <Text variant="small" tone="muted">
+          {t('profile.sites')}
+        </Text>
+        <View style={styles.chips}>
+          {user.siteNames.map((s) => (
+            <View key={s} style={[styles.chip, { backgroundColor: colors.soft }]}>
+              <Text variant="caption" style={styles.chipLabel}>
+                {s}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
 
-      <Section title={t('profile.language')}>
-        <Segmented<Language>
-          options={[{ value: 'en', label: 'English' }, { value: 'fr', label: 'Français' }]}
-          value={language ?? (i18n.language === 'fr' ? 'fr' : 'en')}
-          onChange={setLanguage}
-        />
-        <Text variant="bodyStrong">{t('profile.theme')}</Text>
-        <Segmented<ThemePreference>
-          options={[
-            { value: 'light', label: t('profile.themeLight') },
-            { value: 'dark', label: t('profile.themeDark') },
-            { value: 'system', label: t('profile.themeSystem') },
-          ]}
-          value={theme}
-          onChange={setTheme}
-        />
-      </Section>
+      <View style={card}>
+        <Text variant="small" tone="muted">
+          {t('profile.manager')}
+        </Text>
+        <View style={styles.managerRow}>
+          <View style={[styles.managerAvatar, { backgroundColor: colors.soft }]}>
+            <Text style={[styles.managerInitials, { color: colors.infoFg }]}>{initialsOf(user.managerName)}</Text>
+          </View>
+          <View style={styles.flex}>
+            <Text variant="subheading" style={styles.managerName}>
+              {user.managerName}
+            </Text>
+            <Text variant="caption" tone="muted">
+              {t('profile.siteManager')}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('profile.callManager')}
+            onPress={() => void Linking.openURL(`tel:${user.managerPhone}`)}
+            style={[styles.round, { backgroundColor: colors.primary }]}>
+            <Icon name="call" size={18} tone="onPrimary" />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('profile.messageManager')}
+            onPress={() => void Linking.openURL(`sms:${user.managerPhone}`)}
+            style={[styles.round, styles.roundOutline, { backgroundColor: colors.card, borderColor: colors.primary }]}>
+            <Icon name="chatbubble-ellipses-outline" size={18} tone="primary" />
+          </Pressable>
+        </View>
+      </View>
 
-      <Section title={t('profile.notificationsSection')}>
-        <Toggle label={t('profile.shiftReminders')} value={notifications.shiftReminders} onChange={(v) => setPrefs({ shiftReminders: v })} />
-        {notifications.shiftReminders ? (
-          <Segmented<'15' | '30' | '60'>
-            options={(['15', '30', '60'] as const).map((m) => ({ value: m, label: t('profile.leadMinutes', { m }) }))}
-            value={String(notifications.reminderLeadMinutes) as '15' | '30' | '60'}
-            onChange={(v) => setPrefs({ reminderLeadMinutes: Number(v) as 15 | 30 | 60 })}
-          />
-        ) : null}
-        <Toggle label={t('profile.arrivalPrompt')} value={notifications.arrivalPrompt} onChange={(v) => setPrefs({ arrivalPrompt: v })} />
-        <Toggle label={t('profile.leaveUpdates')} value={notifications.leaveUpdates} onChange={(v) => setPrefs({ leaveUpdates: v })} />
-      </Section>
-
-      <Section title={t('profile.device')}>
-        <Line label={device?.model ?? '…'} value={device ? t('profile.deviceSince', { date: formatDate(device.registeredAt, 'd MMM yyyy', i18n.language) }) : ''} />
-      </Section>
-
-      <Section title={t('profile.offlineData')}>
-        <Text>{pending > 0 ? t('profile.pendingItems', { count: pending }) : t('profile.nothingPending')}</Text>
-        {syncMsg ? <Text variant="caption" tone="muted">{syncMsg}</Text> : null}
-        <Button
-          variant="secondary"
-          icon="sync"
-          label={t('profile.syncNow')}
-          loading={syncing}
-          disabled={pending === 0}
-          onPress={() => void sync().then((r) => setSyncMsg(t('profile.syncDone', { count: r.synced })))}
-        />
-      </Section>
-
-      <Section title={t('profile.privacy')}>
-        <Text variant="caption" tone="muted">{t('profile.privacyText')}</Text>
-      </Section>
-
-      <Section title={t('profile.help')}>
-        <Faq />
-      </Section>
-
-      <Text variant="caption" tone="muted" style={styles.center}>
-        {t('profile.version', { version: Constants.expoConfig?.version ?? '1.0.0' })}
-      </Text>
-      <Button variant="danger" icon="log-out-outline" label={t('profile.logout')} onPress={confirmLogout} />
+      <View style={card}>
+        <View style={styles.between}>
+          <Text variant="small" tone="muted">
+            {t('profile.contactDetails')}
+          </Text>
+          <View style={styles.lock}>
+            <Icon name="lock-closed" size={12} tone="muted" />
+            <Text variant="label" tone="muted" style={styles.lockLabel}>
+              {t('profile.readOnlyBadge')}
+            </Text>
+          </View>
+        </View>
+        <Row label={t('profile.phone')} value={user.phone} />
+        <Row label={t('profile.email')} value={user.email} />
+        <View style={[styles.hint, { backgroundColor: colors.bg }]}>
+          <Text variant="small" tone="muted" style={styles.hintText}>
+            {t('profile.contactHint')}
+          </Text>
+        </View>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  section: { gap: spacing.sm },
+  content: { gap: 14 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  gear: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  hero: { alignItems: 'center', gap: 6 },
+  avatar: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  photo: { width: 96, height: 96 },
+  initials: { fontSize: 34, fontWeight: '800' },
+  camera: { position: 'absolute', right: -2, bottom: -2, width: 44, height: 44, borderRadius: 22, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
+  name: { marginTop: 6 },
+  idPill: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: radius.pill },
+  card: { borderWidth: 1, borderRadius: radius.row, padding: 14, gap: 10 },
   between: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
-  value: { flexShrink: 1, textAlign: 'right' },
-  hero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  avatar: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
-  faq: { gap: spacing.lg },
-  center: { textAlign: 'center' },
+  rowLabel: { fontSize: 15 },
+  rowValue: { fontSize: 15, fontWeight: '800', flexShrink: 1, textAlign: 'right' },
+  divider: { height: 1 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill },
+  chipLabel: { fontWeight: '700' },
+  managerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  managerAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  managerInitials: { fontWeight: '800' },
+  managerName: { fontWeight: '800' },
+  round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  roundOutline: { borderWidth: 1.5 },
+  lock: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  lockLabel: { letterSpacing: 0, fontWeight: '700' },
+  hint: { borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10 },
+  hintText: { lineHeight: 18, fontWeight: '400' },
 });

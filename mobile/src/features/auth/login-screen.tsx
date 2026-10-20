@@ -1,82 +1,204 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Image, StyleSheet, View } from 'react-native';
-import { z } from 'zod';
+import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { AppError, repos } from '@/data';
+import { useOnline } from '@/core/network/use-online';
+import { useSettings } from '@/core/settings/settings-store';
+import { useTheme } from '@/core/theme/theme-provider';
 import { radius, spacing } from '@/core/theme/tokens';
-import { Button, Screen, Text, TextField } from '@/ui';
+import { AppError, repos } from '@/data';
+import { Button, Screen, Segmented, Text, Wordmark } from '@/ui';
 
 import { useAuthFlow } from './auth-flow-store';
-import { identifierSchema } from './schemas';
+import { CountryPicker } from './country-picker';
+import { defaultCountry, findCountry, formatAsYouType, maskPhone, parseLocalPhone, placeholderFor, type CountryCode } from './phone';
+import { emailSchema, maskEmail } from './schemas';
 
-const formSchema = z.object({ identifier: identifierSchema });
-type Form = z.infer<typeof formSchema>;
+type Mode = 'phone' | 'email';
 
 export function errorKey(e: unknown): string {
   if (e instanceof AppError) {
-    if (e.code === 'ACCOUNT_NOT_FOUND') return 'auth.accountNotFound';
-    if (e.code === 'ACCOUNT_DISABLED') return 'auth.accountDisabled';
+    if (e.code === 'ACCOUNT_NOT_FOUND') return 'auth.notInvitedBody';
+    if (e.code === 'ACCOUNT_DISABLED') return 'auth.deactivatedBody';
   }
   return 'common.genericError';
 }
 
-export function LoginScreen() {
+/** Shared by the login and "not invited" screens. */
+export function useContactAdmin() {
   const { t } = useTranslation();
-  const setIdentifier = useAuthFlow((s) => s.set);
-  const [serverError, setServerError] = useState<string>();
-  const { control, handleSubmit, formState } = useForm<Form>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { identifier: '' },
-  });
+  return () => Alert.alert(t('auth.contactAdmin'), t('auth.contactAdminInfo'));
+}
 
-  const submit = handleSubmit(async ({ identifier }) => {
-    setServerError(undefined);
+export function LoginScreen() {
+  const { t, i18n } = useTranslation();
+  const { colors } = useTheme();
+  const online = useOnline();
+  const setLanguage = useSettings((s) => s.setLanguage);
+  const setFlow = useAuthFlow((s) => s.set);
+  const contactAdmin = useContactAdmin();
+
+  const [mode, setMode] = useState<Mode>('phone');
+  const [countryCode, setCountryCode] = useState<CountryCode>(defaultCountry);
+  const [pickingCountry, setPickingCountry] = useState(false);
+  const [local, setLocal] = useState('');
+  const [email, setEmail] = useState('');
+  const [invalid, setInvalid] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [focused, setFocused] = useState(false);
+
+  const otherLanguage = i18n.language === 'fr' ? 'en' : 'fr';
+  const country = findCountry(countryCode, i18n.language);
+
+  const submit = async () => {
+    if (!online) return router.push('/offline');
+    const phone = mode === 'phone' ? parseLocalPhone(local, countryCode) : undefined;
+    const mail = mode === 'email' ? emailSchema.safeParse(email) : undefined;
+    if (mode === 'phone' ? !phone : !mail?.success) return setInvalid(true);
+    setInvalid(false);
+
+    const identifier = phone ? phone.e164 : (mail?.data as string);
+    const display = phone ? maskPhone(country.dial, phone.national) : maskEmail(mail?.data as string);
+    setBusy(true);
     try {
       await repos.auth.requestOtp(identifier);
-      setIdentifier(identifier);
+      setFlow({ identifier, display, mode });
       router.push('/otp');
     } catch (e) {
-      // Same wording for unknown/disabled accounts is the server's job; show what it returns.
-      setServerError(t(errorKey(e)));
+      if (e instanceof AppError && e.code === 'ACCOUNT_NOT_FOUND') router.push('/not-invited');
+      else if (e instanceof AppError && e.code === 'ACCOUNT_DISABLED') router.push({ pathname: '/deactivated', params: { company: e.meta?.company ?? '' } });
+      else setInvalid(true);
+    } finally {
+      setBusy(false);
     }
-  });
+  };
+
+  const inputBorder = invalid ? colors.danger : focused ? colors.primary : colors.fieldBorder;
 
   return (
     <Screen
-      footer={<Button label={t('auth.sendCode')} onPress={submit} loading={formState.isSubmitting} />}>
-      <View style={styles.header}>
-        <Image source={require('@/../assets/images/logo.png')} style={styles.logo} accessibilityLabel="StaffSync" />
-        <Text variant="title">{t('auth.loginTitle')}</Text>
-        <Text tone="muted">{t('auth.loginSubtitle')}</Text>
+      gutter={24}
+      footer={
+        <>
+          <Button large label={t('common.continue')} onPress={() => void submit()} loading={busy} />
+          <Pressable accessibilityRole="link" onPress={contactAdmin} style={styles.trouble}>
+            <Text variant="subheading" tone="primary">{t('auth.trouble')}</Text>
+          </Pressable>
+        </>
+      }>
+      <View style={styles.top}>
+        <Wordmark />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={otherLanguage === 'fr' ? 'Français' : 'English'}
+          onPress={() => setLanguage(otherLanguage)}
+          style={[styles.lang, { backgroundColor: colors.card, borderColor: colors.line }]}>
+          <Text variant="subheading">{otherLanguage === 'fr' ? 'Français' : 'English'}</Text>
+        </Pressable>
       </View>
-      <Controller
-        control={control}
-        name="identifier"
-        render={({ field }) => (
-          <TextField
-            label={t('auth.identifierLabel')}
-            placeholder={t('auth.identifierPlaceholder')}
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
+
+      <View style={styles.titles}>
+        <Text variant="display">{t('auth.welcomeBack')}</Text>
+        <Text tone="muted">{t('auth.loginHint')}</Text>
+      </View>
+
+      <Segmented<Mode>
+        large
+        options={[
+          { value: 'phone', label: t('auth.phoneTab') },
+          { value: 'email', label: t('auth.emailTab') },
+        ]}
+        value={mode}
+        onChange={(m) => {
+          setMode(m);
+          setInvalid(false);
+        }}
+      />
+
+      <View style={styles.field}>
+        <Text variant="caption" style={styles.label}>{mode === 'phone' ? t('auth.phoneLabel') : t('auth.emailLabel')}</Text>
+        {mode === 'phone' ? (
+          <View style={styles.phoneRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${country.name} ${country.dial}`}
+              onPress={() => setPickingCountry(true)}
+              style={[styles.dial, { backgroundColor: colors.card, borderColor: colors.fieldBorder }]}>
+              <Text style={styles.flag}>{country.flag}</Text>
+              <Text variant="subheading" style={styles.dialText}>{country.dial}</Text>
+              <Text variant="label" tone="muted">▼</Text>
+            </Pressable>
+            <TextInput
+              value={local}
+              onChangeText={(v) => {
+                setLocal(formatAsYouType(v, countryCode));
+                setInvalid(false);
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder={placeholderFor(countryCode) ?? t('auth.phonePlaceholder')}
+              placeholderTextColor={colors.muted}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              textContentType="telephoneNumber"
+              maxLength={24}
+              accessibilityLabel={t('auth.phoneLabel')}
+              style={[styles.input, styles.phoneInput, { backgroundColor: colors.card, color: colors.ink, borderColor: inputBorder }]}
+            />
+          </View>
+        ) : (
+          <TextInput
+            value={email}
+            onChangeText={(v) => {
+              setEmail(v);
+              setInvalid(false);
+            }}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={t('auth.emailPlaceholder')}
+            placeholderTextColor={colors.muted}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            autoComplete="username"
-            textContentType="username"
-            error={formState.errors.identifier ? t('auth.identifierInvalid') : serverError}
+            autoComplete="email"
+            textContentType="emailAddress"
+            accessibilityLabel={t('auth.emailLabel')}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.ink, borderColor: inputBorder }]}
           />
         )}
+        {invalid ? (
+          <Text variant="caption" tone="danger" accessibilityRole="alert">{t('auth.identifierInvalid')}</Text>
+        ) : (
+          <Text variant="caption" tone="muted">{mode === 'phone' ? t('auth.smsHint') : t('auth.mailHint')}</Text>
+        )}
+      </View>
+      <CountryPicker
+        visible={pickingCountry}
+        selected={countryCode}
+        lang={i18n.language}
+        onSelect={(code) => {
+          setCountryCode(code);
+          setLocal((v) => formatAsYouType(v.replace(/\D/g, ''), code));
+          setInvalid(false);
+        }}
+        onClose={() => setPickingCountry(false)}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { gap: spacing.sm, paddingTop: spacing.xxl },
-  logo: { width: 72, height: 72, borderRadius: radius.lg, marginBottom: spacing.sm },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.md },
+  lang: { minHeight: 44, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1, justifyContent: 'center' },
+  titles: { gap: spacing.sm, marginTop: spacing.xxxl + spacing.lg },
+  field: { gap: spacing.sm, marginTop: spacing.sm },
+  label: { fontWeight: '700' },
+  phoneRow: { flexDirection: 'row', gap: 10 },
+  dial: { height: 60, minWidth: 96, borderRadius: radius.field, borderWidth: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: spacing.md },
+  dialText: { fontSize: 18, fontWeight: '700' },
+  input: { height: 60, borderRadius: radius.field, borderWidth: 2, paddingHorizontal: spacing.lg, fontSize: 18, fontWeight: '600' },
+  phoneInput: { flex: 1, minWidth: 0, fontSize: 20 },
+  flag: { fontSize: 20 },
+  trouble: { alignItems: 'center', justifyContent: 'center', minHeight: 44, paddingVertical: spacing.sm },
 });

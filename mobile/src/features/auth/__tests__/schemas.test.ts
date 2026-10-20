@@ -1,4 +1,4 @@
-import { identifierSchema, maskIdentifier, otpSchema, pinSchema } from '../schemas';
+import { emailSchema, identifierSchema, maskEmail, maskIdentifier, otpSchema, pinSchema } from '../schemas';
 
 describe('identifierSchema', () => {
   it.each(['amina@staffsync.app', '+237 600 000 001', '237600000001', '600.000.001'])('accepts %s', (v) => {
@@ -23,5 +23,15 @@ describe('maskIdentifier', () => {
   it('hides most of the identifier', () => {
     expect(maskIdentifier('amina@staffsync.app')).toBe('a***@staffsync.app');
     expect(maskIdentifier('+237 600 000 001')).toBe('+237 ••• ••• 01');
+  });
+});
+
+describe('email helpers', () => {
+  it('validates emails', () => {
+    expect(emailSchema.safeParse('amina@staffsync.app').success).toBe(true);
+    expect(emailSchema.safeParse('amina@').success).toBe(false);
+  });
+  it('masks like the design', () => {
+    expect(maskEmail('amina@staffsync.app')).toBe('a***@staffsync.app');
   });
 });

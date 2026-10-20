@@ -1,23 +1,25 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useSession } from '@/core/session/session-store';
-import { spacing } from '@/core/theme/tokens';
+import { useTheme } from '@/core/theme/theme-provider';
+import { radius, spacing } from '@/core/theme/tokens';
 import { AppError, repos } from '@/data';
 import { Button, Screen, Text } from '@/ui';
 
 import { useAuthFlow } from './auth-flow-store';
-import { errorKey } from './login-screen';
 import { CodeInput } from './otp-input';
-import { maskIdentifier, otpSchema } from './schemas';
+import { otpSchema } from './schemas';
 
 const RESEND_SECONDS = 60;
+const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 export function OtpScreen() {
   const { t } = useTranslation();
-  const identifier = useAuthFlow((s) => s.identifier);
+  const { colors } = useTheme();
+  const { identifier, display, mode } = useAuthFlow();
   const clearFlow = useAuthFlow((s) => s.clear);
   const begin = useSession((s) => s.begin);
   const [code, setCode] = useState('');
@@ -28,7 +30,7 @@ export function OtpScreen() {
 
   // Nothing to verify without a prior login step (e.g. after a cold deep link).
   useEffect(() => {
-    if (!identifier) router.replace('/login');
+    if (!identifier) router.replace('/');
   }, [identifier]);
 
   useEffect(() => {
@@ -37,25 +39,23 @@ export function OtpScreen() {
     return () => clearTimeout(id);
   }, [seconds]);
 
-  const verify = async (value: string) => {
-    if (!otpSchema.safeParse(value).success || busy || locked) return;
+  const verify = async () => {
+    if (!otpSchema.safeParse(code).success || busy || locked) return;
     setBusy(true);
     setError(undefined);
     try {
-      const { session, companies } = await repos.auth.verifyOtp(identifier, value);
+      const { session, companies } = await repos.auth.verifyOtp(identifier, code);
       clearFlow();
       await begin(session, companies);
     } catch (e) {
       setCode('');
-      if (e instanceof AppError && e.code === 'OTP_INVALID') {
-        setError(t('auth.otpInvalid', { left: e.meta?.attemptsLeft ?? 0 }));
-      } else if (e instanceof AppError && e.code === 'OTP_LOCKED') {
+      if (e instanceof AppError && e.code === 'OTP_LOCKED') {
         setLocked(true);
         setError(t('auth.otpLocked'));
-      } else if (e instanceof AppError && e.code === 'OTP_EXPIRED') {
-        setError(t('auth.otpExpired'));
+      } else if (e instanceof AppError && (e.code === 'OTP_INVALID' || e.code === 'OTP_EXPIRED')) {
+        setError(t('auth.otpError'));
       } else {
-        setError(t(errorKey(e)));
+        setError(t('common.genericError'));
       }
     } finally {
       setBusy(false);
@@ -68,55 +68,55 @@ export function OtpScreen() {
     try {
       await repos.auth.requestOtp(identifier);
       setSeconds(RESEND_SECONDS);
-    } catch (e) {
-      setError(t(errorKey(e)));
+    } catch {
+      setError(t('common.genericError'));
     }
   };
 
   return (
     <Screen
-      footer={
-        <Button
-          label={t('common.continue')}
-          onPress={() => void verify(code)}
-          disabled={code.length !== 6 || locked}
-          loading={busy}
-        />
-      }>
-      <View style={styles.header}>
-        <Text variant="title">{t('auth.otpTitle')}</Text>
-        <Text tone="muted">{t('auth.otpSubtitle', { target: maskIdentifier(identifier) })}</Text>
-      </View>
-      <CodeInput
-        label={t('auth.otpTitle')}
-        value={code}
-        length={6}
-        error={!!error}
-        onChange={(v) => {
-          setCode(v);
-          if (v.length === 6) void verify(v);
-        }}
-      />
-      {error ? (
-        <Text tone="danger" accessibilityRole="alert" style={styles.center}>
-          {error}
+      gutter={24}
+      footer={<Button large label={t('auth.verify')} onPress={() => void verify()} disabled={code.length !== 6 || locked} loading={busy} />}>
+      <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.back}>
+        <Text style={styles.backText} tone="primary">‹ {t('common.back')}</Text>
+      </Pressable>
+
+      <View style={styles.titles}>
+        <Text variant="display">{t('auth.otpHeading')}</Text>
+        <Text tone="muted">
+          {t('auth.sentTo')} <Text variant="subheading">{display}</Text>
         </Text>
-      ) : null}
-      <View style={styles.actions}>
-        <Button
-          variant="ghost"
-          label={seconds > 0 ? t('auth.resendIn', { s: seconds }) : t('common.resend')}
-          onPress={() => void resend()}
-          disabled={seconds > 0 || locked}
-        />
-        <Button variant="ghost" label={t('auth.changeIdentifier')} onPress={() => router.back()} />
+        <Pressable accessibilityRole="link" onPress={() => router.back()} style={styles.change}>
+          <Text variant="subheading" tone="primary">{mode === 'email' ? t('auth.changeEmail') : t('auth.changeNumber')}</Text>
+        </Pressable>
       </View>
+
+      <CodeInput label={t('auth.otpHeading')} value={code} length={6} error={!!error} onChange={(v) => { setCode(v); setError(undefined); }} />
+
+      {error ? (
+        <View style={[styles.error, { backgroundColor: colors.dangerBg }]} accessibilityRole="alert">
+          <Text variant="subheading" tone="dangerFg">{error}</Text>
+        </View>
+      ) : null}
+
+      {seconds > 0 ? (
+        <Text tone="muted" variant="caption" style={styles.resend}>
+          {t('auth.resendCountdown')} <Text variant="subheading">{clock(seconds)}</Text>
+        </Text>
+      ) : (
+        <Pressable accessibilityRole="button" onPress={() => void resend()} disabled={locked} style={styles.change}>
+          <Text variant="subheading" tone="primary">{t('auth.resendNow')}</Text>
+        </Pressable>
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { gap: spacing.sm, paddingTop: spacing.xxl },
-  center: { textAlign: 'center' },
-  actions: { alignItems: 'center' },
+  back: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' },
+  backText: { fontSize: 18, fontWeight: '700' },
+  titles: { gap: spacing.sm, marginTop: spacing.sm },
+  change: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' },
+  error: { padding: 14, borderRadius: radius.md },
+  resend: { fontSize: 15 },
 });

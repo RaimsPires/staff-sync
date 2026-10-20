@@ -9,16 +9,21 @@ export const identifierSchema = z
   .trim()
   .refine((v) => EMAIL.test(v) || PHONE.test(v.replace(/[\s.-]/g, '')), { message: 'invalid' });
 
+export const emailSchema = z.string().trim().regex(EMAIL);
+
 export const otpSchema = z.string().regex(/^\d{6}$/);
 
 export const pinSchema = z.string().regex(/^\d{4}$/);
 
-/** Masks an identifier for display: `a***@company.com`, `+237 ••• ••• 89`. */
+/** Masks an email for display: `a***@company.com`. */
+export function maskEmail(value: string): string {
+  const [name, domain] = value.split('@');
+  return `${name.slice(0, 1)}***@${domain}`;
+}
+
+/** Compatibility helper for any caller that only has a raw identifier. */
 export function maskIdentifier(value: string): string {
-  if (value.includes('@')) {
-    const [name, domain] = value.split('@');
-    return `${name.slice(0, 1)}***@${domain}`;
-  }
+  if (value.includes('@')) return maskEmail(value);
   const digits = value.replace(/[\s.-]/g, '');
   return `${digits.slice(0, 4)} ••• ••• ${digits.slice(-2)}`;
 }

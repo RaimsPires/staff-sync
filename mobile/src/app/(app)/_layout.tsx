@@ -18,6 +18,7 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="check-in" options={{ presentation: 'modal' }} />
       <Stack.Screen name="check-out" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="attendance/correction" options={{ presentation: 'transparentModal', animation: 'fade' }} />
     </Stack>
   );
 }

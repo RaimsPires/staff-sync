@@ -28,3 +28,19 @@ export const STATUS_BG: Record<AttendanceStatus, keyof ThemeColors> = {
 };
 
 export const ALL_STATUSES = Object.keys(STATUS_TONE) as AttendanceStatus[];
+
+/** The four design filter groups; statuses outside every group (holiday) only show under "All". */
+export type StatusGroup = 'present' | 'late' | 'absent' | 'leave';
+
+export const GROUP_STATUSES: Record<StatusGroup, readonly AttendanceStatus[]> = {
+  present: ['on_time', 'overtime', 'early_leave', 'flagged', 'missing_checkout'],
+  late: ['late'],
+  absent: ['absent'],
+  leave: ['on_leave'],
+};
+
+export const GROUPS = Object.keys(GROUP_STATUSES) as StatusGroup[];
+
+export const GROUP_DOT: Record<StatusGroup, keyof ThemeColors> = { present: 'success', late: 'warning', absent: 'danger', leave: 'primary' };
+
+export const inGroup = (status: AttendanceStatus, group: StatusGroup | null) => !group || GROUP_STATUSES[group].includes(status);
