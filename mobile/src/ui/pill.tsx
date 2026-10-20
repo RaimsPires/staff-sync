@@ -5,7 +5,7 @@ import { radius, spacing, type ThemeColors } from '@/core/theme/tokens';
 
 import { Text, type TextProps } from './text';
 
-export type PillTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+export type PillTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'orange' | 'purple' | 'gray';
 
 type Style = { bg: keyof ThemeColors; fg: NonNullable<TextProps['tone']> };
 
@@ -15,6 +15,9 @@ const STYLES: Record<PillTone, Style> = {
   danger: { bg: 'dangerBg', fg: 'dangerFg' },
   info: { bg: 'infoBg', fg: 'primary' },
   neutral: { bg: 'soft', fg: 'muted' },
+  orange: { bg: 'orangeBg', fg: 'orangeFg' },
+  purple: { bg: 'purpleBg', fg: 'purpleFg' },
+  gray: { bg: 'grayBg', fg: 'grayFg' },
 };
 
 export function Pill({ label, tone = 'neutral' }: { label: string; tone?: PillTone }) {

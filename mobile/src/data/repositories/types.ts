@@ -30,8 +30,9 @@ export class AppError extends Error {
       | 'PIN_LOCKED'
       | 'NOT_FOUND'
       | 'CONFLICT'
+      | 'UNSCHEDULED'
       | 'VALIDATION',
-    public readonly meta?: { attemptsLeft?: number },
+    public readonly meta?: { attemptsLeft?: number; company?: string },
   ) {
     super(code);
   }
@@ -89,7 +90,7 @@ export interface AttendanceRepository {
   getRecord(id: string): Promise<AttendanceRecord>;
   /** Today's record for one assignment, or `null` before check-in. */
   getForAssignment(assignmentId: string): Promise<AttendanceRecord | null>;
-  getWeekSummary(): Promise<{ present: number; late: number; hoursWorked: number }>;
+  getWeekSummary(): Promise<{ present: number; late: number; hoursWorked: number; scheduledDays: number }>;
   checkIn(event: CheckEvent): Promise<CheckResult>;
   checkOut(event: CheckEvent): Promise<CheckResult>;
   /** Replays offline events; one result per `clientEventId`. */
@@ -142,7 +143,9 @@ export interface NotificationRepository {
 export interface ProfileRepository {
   get(): Promise<UserProfile>;
   /** Raised with the admin, who resets it. */
-  getDevice(): Promise<{ model: string; registeredAt: string }>;
+  getDevice(): Promise<{ model: string; registeredAt: string; lastActiveAt: string }>;
+  /** `false` when another phone is bound to the account. */
+  isDeviceRegistered(): Promise<boolean>;
 }
 
 export type RosterEntry = {
@@ -155,7 +158,13 @@ export type RosterEntry = {
   hasSmartphone: boolean;
   phone: string;
   note?: string;
+  role?: string;
+  checkInMethod?: 'gps' | 'qr' | 'manager';
+  /** Change made offline and not yet synced. */
+  queued?: boolean;
 };
+
+export type ManagerSite = { id: string; name: string; address: string; expected: number };
 
 export type ManagerSummary = {
   expected: number;
@@ -165,13 +174,37 @@ export type ManagerSummary = {
   absent: number;
   onLeave: number;
   flagged: number;
-  alerts: { kind: 'late' | 'flag' | 'missing_checkout' | 'leave_request'; text: string }[];
+  /** Leave requests still waiting for this manager's recommendation. */
+  pendingLeave: number;
+  alerts: ManagerAlert[];
+};
+
+export type ManagerAlert = {
+  id: string;
+  kind: 'late' | 'flag' | 'missing_checkout' | 'leave_request';
+  employeeId?: string;
+  name?: string;
+  phone?: string;
+  /** `HH:mm` of the event, when there is one. */
+  time?: string;
+  count?: number;
+};
+
+/** A leave request in the manager inbox, with what the manager needs to decide. */
+export type ManagerLeaveItem = LeaveRequest & {
+  employeeId: string;
+  role?: string;
+  sentAt: string;
+  /** Colleagues off on overlapping dates. */
+  others: { name: string; start: IsoDate; end: IsoDate; typeId: string }[];
 };
 
 export type ProxyInput = {
   employeeId?: string;
   badgeToken?: string;
   pin?: string;
+  /** Employee photo taken by the manager as an alternative to the PIN. */
+  photoUri?: string;
   note?: string;
   managerPosition: GeoPoint;
   type: 'check_in' | 'check_out';
@@ -179,12 +212,16 @@ export type ProxyInput = {
 };
 
 export interface ManagerRepository {
-  getSites(): Promise<{ id: string; name: string }[]>;
+  getSites(): Promise<ManagerSite[]>;
   getSummary(siteId: string): Promise<ManagerSummary>;
   getRoster(siteId: string): Promise<RosterEntry[]>;
   findByBadge(token: string): Promise<RosterEntry>;
+  /** Checks the employee's PIN ahead of the check; counts failed attempts. */
+  verifyPin(employeeId: string, pin: string): Promise<void>;
   proxyCheck(input: ProxyInput): Promise<{ entry: RosterEntry; flags: Flag[] }>;
   addNote(employeeId: string, note: string): Promise<void>;
-  leaveInbox(siteId: string): Promise<(LeaveRequest & { coverage: string[] })[]>;
+  leaveInbox(siteId: string): Promise<ManagerLeaveItem[]>;
+  /** The employee's scheduled shifts inside a date range (what a leave request would remove). */
+  employeeShifts(employeeId: string, start: IsoDate, end: IsoDate): Promise<{ date: IsoDate; start: string; end: string }[]>;
   recommend(id: string, decision: 'approve' | 'reject', comment: string): Promise<void>;
 }

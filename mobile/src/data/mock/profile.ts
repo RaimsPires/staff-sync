@@ -11,4 +11,8 @@ export const mockProfile: ProfileRepository = {
     await delay(80);
     return db.device;
   },
+  async isDeviceRegistered() {
+    await delay(60);
+    return !db.boundDevice || db.boundDevice === db.deviceId;
+  },
 };

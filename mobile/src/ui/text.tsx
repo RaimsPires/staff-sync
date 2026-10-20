@@ -5,7 +5,7 @@ import { typography, type ThemeColors, type TypographyVariant } from '@/core/the
 
 export type TextProps = RNTextProps & {
   variant?: TypographyVariant;
-  tone?: keyof Pick<ThemeColors, 'ink' | 'muted' | 'primary' | 'danger' | 'onPrimary' | 'successFg' | 'warningFg' | 'dangerFg'>;
+  tone?: keyof Pick<ThemeColors, 'ink' | 'muted' | 'primary' | 'danger' | 'onPrimary' | 'successFg' | 'warningFg' | 'dangerFg' | 'infoFg' | 'success' | 'warning' | 'flag' | 'faint' | 'orangeFg' | 'purpleFg' | 'grayFg'>;
 };
 
 export function Text({ variant = 'body', tone = 'ink', style, ...rest }: TextProps) {

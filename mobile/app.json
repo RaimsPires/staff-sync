@@ -12,7 +12,8 @@
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "appleTeamId": "KC5GDCL9AZ"
     },
     "android": {
       "package": "app.staffsync.mobile",
@@ -22,11 +23,17 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "CAMERA",
-        "READ_CALENDAR",
-        "WRITE_CALENDAR"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.RECORD_AUDIO"
       ],
       "blockedPermissions": [
         "RECORD_AUDIO",
@@ -41,9 +48,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FFFFFF",
+          "backgroundColor": "#0B2A52",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 160
+          "imageWidth": 120
         }
       ],
       [

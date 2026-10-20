@@ -1,3 +1,4 @@
+import * as Device from 'expo-device';
 import type {
   AppNotification,
   Assignment,
@@ -12,7 +13,7 @@ import type {
 } from '@/domain';
 import { toIsoDate } from '@/domain';
 
-import type { RosterEntry } from '../repositories/types';
+import type { ManagerLeaveItem, RosterEntry } from '../repositories/types';
 
 /**
  * In-memory fake backend. Seeded relative to "today" so the app always has a live-looking
@@ -64,8 +65,9 @@ export const SITE_B: Site = {
 };
 
 export const COMPANIES: Company[] = [
-  { id: 'co-1', name: 'Camtrans SARL' },
-  { id: 'co-2', name: 'Delta Logistics' },
+  { id: 'co-1', name: 'Ivoire Bâtiment', initials: 'IB', color: '#0A6AE6', role: 'employee' },
+  { id: 'co-2', name: 'Sahel Logistique', initials: 'SL', color: '#0B2A52', role: 'site_manager' },
+  { id: 'co-3', name: 'Café du Port', initials: 'CP', color: '#B45309', role: 'employee' },
 ];
 
 type Account = { identifiers: string[]; companies: string[]; profile: UserProfile; active: boolean };
@@ -77,7 +79,7 @@ const amina: UserProfile = {
   title: 'Site Technician',
   branch: 'Douala',
   email: 'amina@staffsync.app',
-  phone: '+237600000001',
+  phone: '+225 07 12 34 56 78',
   role: 'employee',
   siteIds: ['site-a', 'site-b'],
   siteNames: ['Bonanjo Tower Site', 'Akwa Warehouse'],
@@ -93,14 +95,14 @@ const karim: UserProfile = {
   employeeId: 'EMP-0007',
   title: 'Site Manager',
   email: 'karim@staffsync.app',
-  phone: '+237600000002',
+  phone: '+225 05 46 22 11 90',
   role: 'site_manager',
   managerName: 'Sandrine Eto',
   managerPhone: '+237600000009',
 };
 
 export const ACCOUNTS: Account[] = [
-  { identifiers: [amina.email, amina.phone], companies: ['co-1', 'co-2'], profile: amina, active: true },
+  { identifiers: [amina.email, amina.phone], companies: ['co-1', 'co-2', 'co-3'], profile: amina, active: true },
   { identifiers: [karim.email, karim.phone], companies: ['co-1'], profile: karim, active: true },
   {
     identifiers: ['disabled@staffsync.app'],
@@ -143,6 +145,11 @@ function buildAssignments(): Assignment[] {
     earlyLeaveToleranceMinutes: 10,
     instructions: 'Inspect loading bay 3 and the fire exits. Bring your safety badge and helmet.',
     updatedByAdmin: true,
+    previousStart: '12:00',
+    attachments: [
+      { name: 'Access-badge-procedure.pdf', size: '240 KB' },
+      { name: 'Floor-plan.png', size: '1.1 MB' },
+    ],
   });
   // Second assignment today so the Home carousel has something to swipe.
   if (isWeekday(now)) {
@@ -281,24 +288,27 @@ function buildNotifications(): AppNotification[] {
     { id: 'n2', kind: 'leave_decision', title: 'Leave approved', body: 'Your annual leave was approved by Sandrine Eto.', at: ago(180), read: false, href: '/leave/lv-1' },
     { id: 'n3', kind: 'schedule_change', title: 'Schedule updated', body: 'An intervention was added at Akwa Warehouse.', at: ago(300), read: false, href: '/schedule/as-intervention-1' },
     { id: 'n4', kind: 'flag_update', title: 'Check-in flagged', body: 'Your check-in could not be verified. Your admin has been notified.', at: ago(60 * 30), read: true },
+    { id: 'n6', kind: 'checkout_reminder', title: "You didn't check out", body: 'No check-out was recorded for your last shift. Tap to see what to do.', at: ago(60 * 10), read: false, href: '/forgotten-checkout' },
     { id: 'n5', kind: 'announcement', title: 'Safety briefing', body: 'Monthly safety briefing on Friday at 15:00.', at: ago(60 * 52), read: true },
   ];
 }
 
 export const ROSTER_SEED: RosterEntry[] = [
-  { employeeId: 'u-amina', name: 'Amina Diallo', scheduled: { start: '08:00', end: '17:00' }, status: 'not_arrived', hasSmartphone: true, phone: '+237600000001' },
-  { employeeId: 'u-paul', name: 'Paul Nkeng', scheduled: { start: '08:00', end: '17:00' }, status: 'on_time', checkInAt: '07:52', hasSmartphone: true, phone: '+237600000011' },
-  { employeeId: 'u-fatou', name: 'Fatou Sow', scheduled: { start: '08:00', end: '17:00' }, status: 'late', checkInAt: '08:34', hasSmartphone: true, phone: '+237600000012' },
-  { employeeId: 'u-joseph', name: 'Joseph Atangana', scheduled: { start: '08:00', end: '17:00' }, status: 'not_arrived', hasSmartphone: false, phone: '+237600000013' },
-  { employeeId: 'u-grace', name: 'Grace Tchamba', scheduled: { start: '08:00', end: '17:00' }, status: 'flagged', checkInAt: '08:05', hasSmartphone: true, phone: '+237600000014' },
-  { employeeId: 'u-ibrahim', name: 'Ibrahim Bello', scheduled: { start: '08:00', end: '17:00' }, status: 'on_leave', hasSmartphone: true, phone: '+237600000015' },
+  { employeeId: 'u-amina', name: 'Amina Diallo', role: 'Mason', scheduled: { start: '08:00', end: '17:00' }, status: 'not_arrived', hasSmartphone: true, phone: '+237600000001' },
+  { employeeId: 'u-paul', name: 'Paul Nkeng', role: 'Foreman', scheduled: { start: '08:00', end: '17:00' }, status: 'on_time', checkInAt: '07:52', checkInMethod: 'gps', hasSmartphone: true, phone: '+237600000011' },
+  { employeeId: 'u-fatou', name: 'Fatou Sow', role: 'Electrician', scheduled: { start: '08:00', end: '17:00' }, status: 'late', checkInAt: '08:34', checkInMethod: 'qr', hasSmartphone: true, phone: '+237600000012' },
+  { employeeId: 'u-joseph', name: 'Joseph Atangana', role: 'Laborer', scheduled: { start: '08:00', end: '17:00' }, status: 'not_arrived', hasSmartphone: false, phone: '+237600000013' },
+  { employeeId: 'u-grace', name: 'Grace Tchamba', role: 'Welder', scheduled: { start: '08:00', end: '17:00' }, status: 'flagged', checkInAt: '08:05', checkInMethod: 'gps', hasSmartphone: true, phone: '+237600000014' },
+  { employeeId: 'u-ibrahim', name: 'Ibrahim Bello', role: 'Plumber', scheduled: { start: '08:00', end: '17:00' }, status: 'on_leave', hasSmartphone: true, phone: '+237600000015' },
+  { employeeId: 'u-koffi', name: 'Koffi Kouassi', role: 'Driver', scheduled: { start: '06:00', end: '09:00' }, status: 'left', checkInAt: '05:52', checkOutAt: '09:02', checkInMethod: 'gps', hasSmartphone: true, phone: '+237600000016' },
+  { employeeId: 'u-adjoua', name: 'Adjoua Tano', role: 'Welder', scheduled: { start: '08:00', end: '17:00' }, status: 'absent', hasSmartphone: true, phone: '+237600000017' },
 ];
 
 /** Badge QR → employee, and 4-digit PINs for employees without a smartphone. */
 export const BADGES: Record<string, string> = { 'badge-joseph': 'u-joseph', 'badge-paul': 'u-paul' };
 export const PINS: Record<string, string> = { 'u-joseph': '4821', 'u-paul': '1357' };
 
-export const MANAGER_LEAVE: (LeaveRequest & { coverage: string[] })[] = [
+export const MANAGER_LEAVE: ManagerLeaveItem[] = [
   {
     id: 'ml-1',
     typeId: 'annual',
@@ -309,8 +319,11 @@ export const MANAGER_LEAVE: (LeaveRequest & { coverage: string[] })[] = [
     status: 'pending',
     approver: 'Karim Mbarga',
     employeeName: 'Paul Nkeng',
+    employeeId: 'u-paul',
+    role: 'Foreman',
+    sentAt: addDays(now, -1).toISOString(),
     timeline: [{ actor: 'Paul Nkeng', action: 'submitted', at: addDays(now, -1).toISOString() }],
-    coverage: ['Fatou Sow is also off on 16 and 17'],
+    others: [{ name: 'Fatou Sow', start: iso0(16), end: iso0(17), typeId: 'annual' }],
   },
   {
     id: 'ml-2',
@@ -323,8 +336,55 @@ export const MANAGER_LEAVE: (LeaveRequest & { coverage: string[] })[] = [
     status: 'pending',
     approver: 'Karim Mbarga',
     employeeName: 'Grace Tchamba',
+    employeeId: 'u-grace',
+    role: 'Welder',
+    sentAt: addDays(now, -0.2).toISOString(),
     timeline: [{ actor: 'Grace Tchamba', action: 'submitted', at: addDays(now, -0.2).toISOString() }],
-    coverage: [],
+    others: [],
+  },
+  {
+    id: 'ml-3',
+    typeId: 'annual',
+    start: iso0(-20),
+    end: iso0(-18),
+    days: 3,
+    reason: '',
+    status: 'approved',
+    approver: 'Karim Mbarga',
+    employeeName: 'Fatou Sow',
+    employeeId: 'u-fatou',
+    role: 'Electrician',
+    sentAt: addDays(now, -30).toISOString(),
+    recommendation: 'approve',
+    recommendationComment: 'Covered by Paul as foreman.',
+    timeline: [
+      { actor: 'Fatou Sow', action: 'submitted', at: addDays(now, -30).toISOString() },
+      { actor: 'Karim Mbarga', action: 'recommended', at: addDays(now, -29).toISOString(), comment: 'Covered by Paul as foreman.' },
+      { actor: 'Sandrine Eto', action: 'approved', at: addDays(now, -28).toISOString() },
+    ],
+    others: [],
+  },
+  {
+    id: 'ml-4',
+    typeId: 'annual',
+    start: iso0(-40),
+    end: iso0(-37),
+    days: 4,
+    reason: '',
+    status: 'rejected',
+    approver: 'Karim Mbarga',
+    employeeName: 'Koffi Kouassi',
+    employeeId: 'u-koffi',
+    role: 'Driver',
+    sentAt: addDays(now, -50).toISOString(),
+    recommendation: 'reject',
+    recommendationComment: 'Delivery deadline that week.',
+    timeline: [
+      { actor: 'Koffi Kouassi', action: 'submitted', at: addDays(now, -50).toISOString() },
+      { actor: 'Karim Mbarga', action: 'recommended', at: addDays(now, -49).toISOString(), comment: 'Delivery deadline that week.' },
+      { actor: 'Sandrine Eto', action: 'rejected', at: addDays(now, -48).toISOString() },
+    ],
+    others: [],
   },
 ];
 
@@ -338,7 +398,7 @@ export const db = {
   managerLeave: MANAGER_LEAVE.map((r) => ({ ...r })),
   holidays: [iso0(9)],
   pinAttempts: {} as Record<string, number>,
-  device: { model: 'This phone', registeredAt: now.toISOString() },
+  device: { model: Device.modelName ?? 'This phone', registeredAt: now.toISOString(), lastActiveAt: now.toISOString() },
   signedIn: null as UserProfile | null,
   deviceId: null as string | null,
   /** Server-known device id for the account (set on first registration). */

@@ -11,7 +11,7 @@ npm run typecheck
 npm test
 ```
 
-Mock login: `amina@staffsync.app` (employee, two companies) or `karim@staffsync.app` (site manager). OTP is `123456`. Proxy PINs: Joseph `4821`, Paul `1357`.
+Mock login (OTP `123456`): phone `+225 07 12 34 56 78` or `amina@staffsync.app` (employee in three companies), phone `+225 05 11 22 33 44` or `karim@staffsync.app` (site manager). `disabled@staffsync.app` shows the deactivated screen, any unknown number or email the "not invited" screen, and airplane mode the offline screen. Proxy PINs: Joseph `4821`, Paul `1357`.
 
 Google Maps on Android needs an API key in `app.json` (`android.config.googleMaps.apiKey`).
 

@@ -82,3 +82,12 @@ export function allowedLeaveActions(status: LeaveRequest['status']): readonly Le
       return [];
   }
 }
+
+/** What can be chosen for the first and last day of a request (the design's half-day rules). */
+export type HalfChoice = 'full' | HalfDay;
+
+export function halfDayChoices(singleDay: boolean): { first: readonly HalfChoice[]; last: readonly HalfChoice[] } {
+  // One day: full, morning or afternoon. Several days: the first day may only start in the
+  // afternoon, the last day may only end in the morning.
+  return singleDay ? { first: ['full', 'morning', 'afternoon'], last: [] } : { first: ['full', 'afternoon'], last: ['full', 'morning'] };
+}

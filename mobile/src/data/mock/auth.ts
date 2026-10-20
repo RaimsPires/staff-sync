@@ -14,7 +14,7 @@ export const mockAuth: AuthRepository = {
     await delay();
     const account = ACCOUNTS.find((a) => a.identifiers.some((i) => norm(i) === norm(identifier)));
     if (!account) throw new AppError('ACCOUNT_NOT_FOUND');
-    if (!account.active) throw new AppError('ACCOUNT_DISABLED');
+    if (!account.active) throw new AppError('ACCOUNT_DISABLED', { company: COMPANIES[0].name });
     db.otpAttempts = 0;
   },
 

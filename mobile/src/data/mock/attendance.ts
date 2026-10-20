@@ -105,7 +105,7 @@ export const mockAttendance: AttendanceRepository = {
     from.setDate(from.getDate() - 6);
     const recent = db.records.filter((r) => r.date >= from.toISOString().slice(0, 10));
     const s = summarize(recent);
-    return { present: s.present, late: s.late, hoursWorked: s.hoursWorked };
+    return { present: s.present, late: s.late, hoursWorked: s.hoursWorked, scheduledDays: 5 };
   },
 
   async checkIn(event) {

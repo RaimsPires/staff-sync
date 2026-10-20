@@ -28,6 +28,9 @@ export function evaluateCheckOut(
   return { status: 'on_time', earlyByMinutes: 0, overtimeMinutes: 0 };
 }
 
+/** Unpaid break deducted from the day's total in the check-out summary. */
+export const BREAK_MINUTES = 60;
+
 export function workedMinutes(checkIn: Date, checkOut: Date): number {
   return Math.max(0, minutesBetween(checkIn, checkOut));
 }
@@ -90,4 +93,39 @@ export function resolveCheckInButton({ position, site, checkedInAt, checkedOutAt
     return { kind: 'outside', distanceM: Math.round(distanceToGeofenceM(position, site.geofence)) };
   }
   return { kind: 'ready' };
+}
+
+export type DaySummary = { gross: number; total: number; scheduled: number; difference: number };
+
+/**
+ * Minutes for the check-out summary. The unpaid break comes off both the worked time and the
+ * scheduled time, so the difference reflects early leave or overtime only.
+ */
+export function daySummary(a: Pick<Assignment, 'date' | 'start' | 'end'>, checkIn: Date, checkOut: Date): DaySummary {
+  const gross = workedMinutes(checkIn, checkOut);
+  const total = Math.max(0, gross - BREAK_MINUTES);
+  const scheduled = Math.max(0, minutesBetween(atLocal(a.date, a.start), atLocal(a.date, a.end)) - BREAK_MINUTES);
+  return { gross, total, scheduled, difference: total - scheduled };
+}
+
+export type GateStep = 'mock_location' | 'device_unregistered' | 'not_scheduled' | 'not_at_site' | 'confirm';
+
+export type GateInput = {
+  mocked: boolean;
+  deviceRegistered: boolean;
+  scheduledHere: boolean;
+  insideGeofence: boolean;
+  mode: 'check_in' | 'check_out';
+  /** The user already chose "check in anyway" / "check out anyway" for that gate. */
+  unscheduledOk: boolean;
+  outsideOk: boolean;
+};
+
+/** First blocking screen of the check flow, in the order the design shows them; `confirm` when none apply. */
+export function resolveGate(i: GateInput): GateStep {
+  if (i.mocked) return 'mock_location';
+  if (!i.deviceRegistered) return 'device_unregistered';
+  if (!i.scheduledHere && !i.unscheduledOk) return 'not_scheduled';
+  if (i.mode === 'check_out' && !i.outsideOk && !i.insideGeofence) return 'not_at_site';
+  return 'confirm';
 }

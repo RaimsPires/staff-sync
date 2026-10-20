@@ -51,6 +51,9 @@ export type Assignment = {
   earlyLeaveToleranceMinutes: number;
   instructions?: string;
   updatedByAdmin?: boolean;
+  /** Start time before the admin's last change, shown in the "moved from" banner. */
+  previousStart?: string;
+  attachments?: { name: string; size: string }[];
 };
 
 export type FlagReason =
@@ -99,6 +102,9 @@ export type CorrectionRequest = {
   comment: string;
   status: CorrectionStatus;
   createdAt: IsoDateTime;
+  /** Admin's decision note, shown in the banner once the request is accepted or declined. */
+  adminResponse?: string;
+  decidedAt?: IsoDateTime;
 };
 
 export type LeaveStatus = 'pending' | 'changes_requested' | 'approved' | 'rejected' | 'cancelled';
@@ -144,6 +150,8 @@ export type LeaveRequest = {
   /** Set on requests an employee raised, used by the manager inbox. */
   employeeName?: string;
   recommendation?: 'approve' | 'reject';
+  /** The site manager's note to the admin, shown in the recommendation banner. */
+  recommendationComment?: string;
 };
 
 export type NotificationKind =
@@ -167,7 +175,15 @@ export type AppNotification = {
   href?: string;
 };
 
-export type Company = { id: string; name: string };
+export type Company = {
+  id: string;
+  name: string;
+  initials: string;
+  /** Brand colour of the company tile. */
+  color: string;
+  /** The user's role in that company. */
+  role: Role;
+};
 
 export type UserProfile = {
   id: string;

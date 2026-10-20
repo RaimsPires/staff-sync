@@ -9,6 +9,10 @@ type Props = {
   site: Site;
   user?: LatLng;
   interactive?: boolean;
+  /** Static preview: no user dot, no gestures, no border (used inside sheets and cards). */
+  snapshot?: boolean;
+  /** Bump to re-fit the camera to the site and user (the "Recenter" button). */
+  recenterKey?: number;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -29,23 +33,23 @@ function regionFor(site: Site, user?: LatLng) {
   };
 }
 
-export function SiteMap({ site, user, interactive = false, style }: Props) {
+export function SiteMap({ site, user, interactive = false, snapshot = false, recenterKey = 0, style }: Props) {
   const { colors, isDark } = useTheme();
   const fill = `${colors.primary}33`;
-  const key = `${site.id}-${user ? 'u' : 'n'}`;
+  const key = `${site.id}-${user ? 'u' : 'n'}-${recenterKey}`;
 
   return (
-    <View style={[styles.wrap, { borderColor: colors.line }, style]}>
+    <View style={[styles.wrap, { borderColor: snapshot ? 'transparent' : colors.line }, style]} pointerEvents={snapshot ? 'none' : 'auto'}>
       <MapView
         key={key}
         style={StyleSheet.absoluteFill}
         initialRegion={regionFor(site, user)}
         userInterfaceStyle={isDark ? 'dark' : 'light'}
-        scrollEnabled={interactive}
-        zoomEnabled={interactive}
+        scrollEnabled={interactive && !snapshot}
+        zoomEnabled={interactive && !snapshot}
         rotateEnabled={false}
         pitchEnabled={false}
-        showsUserLocation
+        showsUserLocation={!snapshot}
         toolbarEnabled={false}
         accessibilityLabel={site.name}>
         {site.geofence.kind === 'circle' ? (

@@ -19,7 +19,7 @@ export function TextField({ label, error, style, ...rest }: Props) {
         placeholderTextColor={colors.muted}
         style={[
           styles.input,
-          { backgroundColor: colors.card, color: colors.ink, borderColor: error ? colors.danger : colors.line },
+          { backgroundColor: colors.card, color: colors.ink, borderColor: error ? colors.danger : colors.fieldBorder },
           style,
         ]}
         {...rest}
