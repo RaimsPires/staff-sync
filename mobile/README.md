@@ -1,56 +1,37 @@
-# Welcome to your Expo app 👋
+# StaffSync mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo SDK 58 / React Native app for employees and site managers. Behaviour is specified in `../Mobile App.md`, visuals in `../StaffSync mobile app design/`, and the future API contract in `../Backend API.md`.
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+npm install --legacy-peer-deps
+npx expo run:ios        # or run:android. A dev build is required (react-native-maps), Expo Go is not enough
+npm run typecheck
+npm test
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Mock login: `amina@staffsync.app` (employee, two companies) or `karim@staffsync.app` (site manager). OTP is `123456`. Proxy PINs: Joseph `4821`, Paul `1357`.
 
-### Other setup steps
+Google Maps on Android needs an API key in `app.json` (`android.config.googleMaps.apiKey`).
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Architecture
 
-## Learn more
+```
+src/app/          expo-router routes only: each file re-exports a feature screen
+src/features/     one folder per feature: screens, hooks, queries, schemas
+src/domain/       pure TypeScript rules (status/lateness, geofence maths, leave day count). Unit-tested
+src/data/         repository interfaces + in-memory mock backend + offline queue
+src/core/         theme, i18n (EN/FR), settings, session, location, network, secure storage
+src/ui/           design-system primitives (Button, Card, Pill, Calendar, SiteMap, ...)
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Dependencies point inwards: screens → hooks → repositories (`data/index.ts`) → domain. To connect the real backend, implement the interfaces in `src/data/repositories/types.ts` over HTTP and swap them in `src/data/index.ts`; no screen changes.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Security
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Tokens and device id live only in Keychain/Keystore (`core/security/secure-storage.ts`); AsyncStorage holds non-sensitive preferences and the offline queue (GPS points, no credentials).
+- Identifiers entered at login are held in memory only, never in URLs or storage.
+- Check-ins are never blocked for location reasons; mock location, low accuracy, clock tampering and unregistered device are recorded as flags (mirrors the server pipeline).
+- Location is read on demand or while a map screen is open, never in the background.
+- Check-ins carry a `clientEventId` for idempotent offline sync.

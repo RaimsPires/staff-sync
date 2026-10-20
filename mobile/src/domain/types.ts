@@ -179,6 +179,7 @@ export type UserProfile = {
   phone: string;
   role: Role;
   siteIds: readonly string[];
+  siteNames: readonly string[];
   managerName: string;
   managerPhone: string;
   hasSmartphone: boolean;

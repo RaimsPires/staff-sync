@@ -80,6 +80,7 @@ const amina: UserProfile = {
   phone: '+237600000001',
   role: 'employee',
   siteIds: ['site-a', 'site-b'],
+  siteNames: ['Bonanjo Tower Site', 'Akwa Warehouse'],
   managerName: 'Karim Mbarga',
   managerPhone: '+237600000002',
   hasSmartphone: true,

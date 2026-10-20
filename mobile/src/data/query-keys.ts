@@ -1,0 +1,21 @@
+/** Central React Query keys so mutations can invalidate precisely. */
+export const qk = {
+  assignmentsToday: ['assignments', 'today'] as const,
+  assignment: (id: string) => ['assignments', id] as const,
+  range: (from: string, to: string) => ['assignments', 'range', from, to] as const,
+  record: (assignmentId: string) => ['attendance', 'for-assignment', assignmentId] as const,
+  attendanceRecord: (id: string) => ['attendance', 'record', id] as const,
+  attendanceMonth: (month: string) => ['attendance', 'month', month] as const,
+  week: ['attendance', 'week'] as const,
+  notifications: ['notifications'] as const,
+  leaveTypes: ['leave', 'types'] as const,
+  leaveBalances: ['leave', 'balances'] as const,
+  leaveList: ['leave', 'list'] as const,
+  leave: (id: string) => ['leave', id] as const,
+  profile: ['profile'] as const,
+  device: ['profile', 'device'] as const,
+  managerSites: ['manager', 'sites'] as const,
+  managerSummary: (siteId: string) => ['manager', 'summary', siteId] as const,
+  managerRoster: (siteId: string) => ['manager', 'roster', siteId] as const,
+  managerLeave: (siteId: string) => ['manager', 'leave', siteId] as const,
+};
