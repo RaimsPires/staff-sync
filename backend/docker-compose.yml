@@ -1,0 +1,27 @@
+# Local dev infrastructure. Host ports 5433/6380 avoid clashing with other local Postgres/Redis containers.
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: staffsync-db
+    environment:
+      POSTGRES_USER: staffsync
+      POSTGRES_PASSWORD: staffsync
+      POSTGRES_DB: staffsync
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - staffsync-pg:/var/lib/postgresql/data
+      - ./docker/01-app-role.sql:/docker-entrypoint-initdb.d/01-app-role.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U staffsync"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: staffsync-redis
+    ports:
+      - "127.0.0.1:6380:6379"
+
+volumes:
+  staffsync-pg:
