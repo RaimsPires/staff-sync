@@ -11,6 +11,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from staffsync.core.adapters import notify
 from staffsync.core.config import get_settings
 from staffsync.core.errors import AppError, ValidationFailed
+from staffsync.core.i18n import gettext_, recipient_locale
 from staffsync.core.logging import get_logger
 from staffsync.modules.auth.models import CompanyMember, User
 from staffsync.modules.billing.models import StripeEvent
@@ -167,11 +168,13 @@ async def apply_event(session: AsyncSession, event: Any) -> None:
     elif t == "invoice.payment_failed":
         company.subscription_status = "past_due"
         # the worker flips the company to read-only once the grace period has passed
+        lang = recipient_locale(None, company.locale)
         for e in await _owner_emails(session, company):
-            await notify("email", e, "Your last payment failed. Update your payment method to keep editing in StaffSync.", subject="Payment failed")
+            await notify("email", e, gettext_("Your last payment failed. Update your payment method to keep editing in StaffSync.", lang), subject=gettext_("Payment failed", lang))
     elif t == "customer.subscription.trial_will_end":
+        lang = recipient_locale(None, company.locale)
         for e in await _owner_emails(session, company):
-            await notify("email", e, "Your StaffSync trial ends in 3 days.", subject="Trial ending soon")
+            await notify("email", e, gettext_("Your StaffSync trial ends in 3 days.", lang), subject=gettext_("Trial ending soon", lang))
     session.add(company)
 
 

@@ -1,0 +1,780 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 11:57+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Invalid GeoJSON polygon"
+msgstr ""
+
+msgid "Geofence must be a Polygon"
+msgstr ""
+
+msgid "A polygon needs at least 3 points"
+msgstr ""
+
+msgid "The drawn area is not valid. Make sure its edges do not cross."
+msgstr ""
+
+msgid "Coordinates out of range (expected [lng, lat])"
+msgstr ""
+
+msgid "Radius must be between 1 and 2000 m"
+msgstr ""
+
+msgid "Coordinates out of range"
+msgstr ""
+
+msgid "Invalid cursor"
+msgstr ""
+
+msgid "A reason is required"
+msgstr ""
+
+msgid "Already deleted"
+msgstr ""
+
+msgid "Not deleted"
+msgstr ""
+
+msgid "This action is for employees"
+msgstr ""
+
+msgid "Session revoked"
+msgstr ""
+
+msgid "Select a company first"
+msgstr ""
+
+msgid "Account disabled"
+msgstr ""
+
+msgid "No access to this company"
+msgstr ""
+
+msgid "Please update the app"
+msgstr ""
+
+msgid "We couldn't process this request. Please check your input and try again."
+msgstr ""
+
+msgid "Please sign in to continue."
+msgstr ""
+
+msgid "You don't have permission to do this."
+msgstr ""
+
+msgid "We couldn't find what you were looking for."
+msgstr ""
+
+msgid "This action isn't available."
+msgstr ""
+
+msgid "This conflicts with existing data. Please refresh and try again."
+msgstr ""
+
+msgid "This action isn't allowed in the current situation."
+msgstr ""
+
+msgid "Please update the app to continue."
+msgstr ""
+
+msgid "You're doing that too often. Please wait a moment and try again."
+msgstr ""
+
+msgid "Something went wrong on our side. Please try again in a moment."
+msgstr ""
+
+msgid "The service is temporarily unavailable. Please try again shortly."
+msgstr ""
+
+msgid ""
+"Some of the information you entered isn't valid. Please review it and try"
+" again."
+msgstr ""
+
+msgid "This row is not valid."
+msgstr ""
+
+#, python-format
+msgid "The area must be between %(min_m2)s m² and %(max_km2)s km²."
+msgstr ""
+
+#, python-format
+msgid "Some settings are not recognised: %(names)s."
+msgstr ""
+
+#, python-format
+msgid "The value for \"%(key)s\" is not valid."
+msgstr ""
+
+#, python-format
+msgid "Sign-in with %(provider)s isn't set up."
+msgstr ""
+
+#, python-format
+msgid "%(count)d user still has this role."
+msgid_plural "%(count)d users still have this role."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "This action isn't possible from the current status."
+msgstr ""
+
+#, python-format
+msgid "Unknown events: %(names)s."
+msgstr ""
+
+#, python-format
+msgid "An import can contain at most %(max_rows)s rows."
+msgstr ""
+
+msgid "Reassign the sites and employees of this branch first."
+msgstr ""
+
+msgid "Duplicate employee number in the file."
+msgstr ""
+
+msgid "This account is disabled. Contact your administrator."
+msgstr ""
+
+msgid "The file or request is too large."
+msgstr ""
+
+msgid "Check your input"
+msgstr ""
+
+msgid "Sign-in required"
+msgstr ""
+
+msgid "Not allowed"
+msgstr ""
+
+msgid "Not found"
+msgstr ""
+
+msgid "Not available"
+msgstr ""
+
+msgid "Conflict"
+msgstr ""
+
+msgid "Update required"
+msgstr ""
+
+msgid "Too many requests"
+msgstr ""
+
+msgid "Something went wrong"
+msgstr ""
+
+msgid "Fake location detected"
+msgstr ""
+
+msgid "Device clock was changed"
+msgstr ""
+
+msgid "Impossible travel between check-ins"
+msgstr ""
+
+msgid "Unregistered device"
+msgstr ""
+
+msgid "Check-in synced late"
+msgstr ""
+
+msgid "Location accuracy too low"
+msgstr ""
+
+msgid "Outside the site area"
+msgstr ""
+
+msgid "Invalid QR code"
+msgstr ""
+
+msgid "Selfie missing"
+msgstr ""
+
+msgid "No shift scheduled"
+msgstr ""
+
+msgid "Missing check-out"
+msgstr ""
+
+msgid "This field is required."
+msgstr ""
+
+msgid "This is too short."
+msgstr ""
+
+msgid "This is too long."
+msgstr ""
+
+msgid "This doesn't have the expected format."
+msgstr ""
+
+msgid "This value isn't valid."
+msgstr ""
+
+msgid "This value is too small."
+msgstr ""
+
+msgid "This value is too large."
+msgstr ""
+
+msgid "Enter a whole number."
+msgstr ""
+
+msgid "Enter a number."
+msgstr ""
+
+msgid "Choose yes or no."
+msgstr ""
+
+msgid "This identifier isn't valid."
+msgstr ""
+
+msgid "Enter a valid date."
+msgstr ""
+
+msgid "Enter a valid date and time."
+msgstr ""
+
+msgid "Enter a valid time."
+msgstr ""
+
+msgid "The request body isn't valid."
+msgstr ""
+
+msgid "This isn't one of the allowed values."
+msgstr ""
+
+msgid "Add more items."
+msgstr ""
+
+msgid "Too many items."
+msgstr ""
+
+msgid "This field isn't allowed."
+msgstr ""
+
+msgid "Invalid or expired token"
+msgstr ""
+
+msgid "Invalid or expired ticket"
+msgstr ""
+
+msgid "Check-in approved"
+msgstr ""
+
+msgid "Check-in rejected"
+msgstr ""
+
+msgid "Site not found"
+msgstr ""
+
+msgid "Check-out must be after check-in"
+msgstr ""
+
+msgid "Unknown status"
+msgstr ""
+
+msgid "Overlaps an existing record"
+msgstr ""
+
+msgid "The record was changed by someone else"
+msgstr ""
+
+msgid "Overlaps another record"
+msgstr ""
+
+msgid "month must be YYYY-MM"
+msgstr ""
+
+msgid "Invalid If-Match header"
+msgstr ""
+
+msgid "Shift not found"
+msgstr ""
+
+msgid "This site does not accept check-ins"
+msgstr ""
+
+msgid "site_id or shift_id is required"
+msgstr ""
+
+msgid "You are already checked in"
+msgstr ""
+
+msgid "This shift already has a check-in"
+msgstr ""
+
+msgid "You are not checked in"
+msgstr ""
+
+msgid "Too many wrong PINs. Try again in 15 minutes."
+msgstr ""
+
+msgid "Wrong PIN"
+msgstr ""
+
+msgid "Badge not recognised"
+msgstr ""
+
+msgid "employee_id or badge_token is required"
+msgstr ""
+
+msgid "Employee is deactivated"
+msgstr ""
+
+msgid "You must be on site to check an employee in"
+msgstr ""
+
+msgid "The employee's PIN or a photo is required"
+msgstr ""
+
+msgid "Already checked in"
+msgstr ""
+
+msgid "Not checked in"
+msgstr ""
+
+msgid "Missing refresh token"
+msgstr ""
+
+msgid "CSRF token mismatch"
+msgstr ""
+
+msgid "Invalid email address"
+msgstr ""
+
+msgid "Invalid phone number"
+msgstr ""
+
+msgid "Too many failed attempts. Try again later."
+msgstr ""
+
+msgid "Terms must be accepted"
+msgstr ""
+
+msgid "An account with this email already exists"
+msgstr ""
+
+#, python-format
+msgid "Your StaffSync verification code is %(code)s"
+msgstr ""
+
+msgid "Verify your email"
+msgstr ""
+
+msgid "Invalid code"
+msgstr ""
+
+msgid "Too many attempts"
+msgstr ""
+
+msgid "Code expired"
+msgstr ""
+
+msgid "Invalid email or password"
+msgstr ""
+
+msgid "Verify your email first"
+msgstr ""
+
+msgid "Invalid ticket"
+msgstr ""
+
+msgid "Account not found, contact your admin"
+msgstr ""
+
+msgid "Please wait before requesting another code"
+msgstr ""
+
+msgid "Daily code limit reached"
+msgstr ""
+
+#, python-format
+msgid "Your StaffSync code is %(code)s"
+msgstr ""
+
+msgid "Your login code"
+msgstr ""
+
+msgid "Company not found"
+msgstr ""
+
+#, python-format
+msgid "Reset your StaffSync password: %(link)s"
+msgstr ""
+
+msgid "Reset your password"
+msgstr ""
+
+msgid "Invalid or expired reset link"
+msgstr ""
+
+msgid "Invitation not found"
+msgstr ""
+
+msgid "This invitation has expired. Ask for a new one."
+msgstr ""
+
+msgid "Current password is incorrect"
+msgstr ""
+
+msgid "Start the setup again"
+msgstr ""
+
+msgid "Password is incorrect"
+msgstr ""
+
+msgid "Invalid refresh token"
+msgstr ""
+
+msgid "Refresh token reuse detected"
+msgstr ""
+
+msgid "Refresh token expired"
+msgstr ""
+
+msgid "Unknown plan or interval"
+msgstr ""
+
+msgid "This plan is not available yet"
+msgstr ""
+
+msgid "No billing account yet"
+msgstr ""
+
+msgid "Invalid signature"
+msgstr ""
+
+msgid ""
+"Your last payment failed. Update your payment method to keep editing in "
+"StaffSync."
+msgstr ""
+
+msgid "Payment failed"
+msgstr ""
+
+msgid "Your StaffSync trial ends in 3 days."
+msgstr ""
+
+msgid "Trial ending soon"
+msgstr ""
+
+msgid "Unknown timezone"
+msgstr ""
+
+msgid "A branch with this code already exists"
+msgstr ""
+
+msgid "Archive the branch first"
+msgstr ""
+
+msgid "Branch code has been reused; change it before restoring"
+msgstr ""
+
+msgid "Typed company name does not match"
+msgstr ""
+
+msgid "Only the owner can delete the company"
+msgstr ""
+
+msgid "A correction is already pending for this record"
+msgstr ""
+
+msgid "Correction accepted"
+msgstr ""
+
+msgid "Correction declined"
+msgstr ""
+
+msgid "File must be UTF-8 encoded CSV"
+msgstr ""
+
+msgid "The file has no header row"
+msgstr ""
+
+msgid "Import job not found or expired"
+msgstr ""
+
+msgid "Email or phone required"
+msgstr ""
+
+msgid "Duplicate employee number in file"
+msgstr ""
+
+msgid "File too large (5 MB max)"
+msgstr ""
+
+msgid "This employee has no smartphone"
+msgstr ""
+
+msgid "This phone is not the registered device"
+msgstr ""
+
+msgid "The workspace is read-only until payment succeeds"
+msgstr ""
+
+msgid "Employee limit of your plan reached"
+msgstr ""
+
+msgid "Unknown site in list"
+msgstr ""
+
+msgid "Default site must be one of the assigned sites"
+msgstr ""
+
+msgid "Branch not found"
+msgstr ""
+
+msgid "An email or phone number is required so the employee can sign in"
+msgstr ""
+
+msgid "Email or phone already used"
+msgstr ""
+
+msgid "This person is already an employee"
+msgstr ""
+
+msgid "This employee number is already used"
+msgstr ""
+
+#, python-format
+msgid ""
+"%(company)s invites you to StaffSync. Download the app and sign in with "
+"%(login)s."
+msgstr ""
+
+msgid "Your company"
+msgstr ""
+
+msgid "Join StaffSync"
+msgstr ""
+
+msgid "No contact to invite"
+msgstr ""
+
+msgid "The employee was changed by someone else"
+msgstr ""
+
+msgid "Employee number, email or phone already used"
+msgstr ""
+
+msgid "Deactivate the employee first"
+msgstr ""
+
+msgid "Employee number has been reused; change it before restoring"
+msgstr ""
+
+msgid "Another phone is already registered. Ask your admin to reset it."
+msgstr ""
+
+msgid "No registered device"
+msgstr ""
+
+msgid "Device reset"
+msgstr ""
+
+msgid "Your admin reset your registered phone. Sign in again on your new phone."
+msgstr ""
+
+msgid "Balances still use this type"
+msgstr ""
+
+msgid "Calendar not found"
+msgstr ""
+
+msgid "A holiday already exists on this date"
+msgstr ""
+
+msgid "Two-level approval: the site manager must recommend first"
+msgstr ""
+
+msgid "This company uses one-level approval"
+msgstr ""
+
+msgid "Leave type not found"
+msgstr ""
+
+msgid "Half days are not allowed for this leave type"
+msgstr ""
+
+msgid "Split requests that cross a year end"
+msgstr ""
+
+msgid "The selected dates contain no working days"
+msgstr ""
+
+msgid "Start date is in the past"
+msgstr ""
+
+msgid "Request cannot be submitted"
+msgstr ""
+
+msgid "A comment is required"
+msgstr ""
+
+msgid "Leave approved"
+msgstr ""
+
+msgid "Leave rejected"
+msgstr ""
+
+msgid "Changes requested"
+msgstr ""
+
+msgid "Leave cancelled"
+msgstr ""
+
+msgid "A reason is required to cancel approved leave"
+msgstr ""
+
+msgid "Unknown report type or grouping"
+msgstr ""
+
+msgid "Range too large"
+msgstr ""
+
+msgid "PDF export is not available on this server"
+msgstr ""
+
+msgid "Export expired or not found"
+msgstr ""
+
+msgid "Unknown or deactivated employee"
+msgstr ""
+
+msgid "valid_to is before valid_from"
+msgstr ""
+
+msgid "Your schedule changed"
+msgstr ""
+
+msgid "Resolve or confirm the conflicts before publishing"
+msgstr ""
+
+msgid "Shift is cancelled"
+msgstr ""
+
+msgid "End must be after start"
+msgstr ""
+
+msgid "Your shift was updated"
+msgstr ""
+
+msgid "PDF rendering is unavailable on this server"
+msgstr ""
+
+msgid "Branch is archived"
+msgstr ""
+
+msgid "Unknown manager"
+msgstr ""
+
+msgid "Unknown employee in list"
+msgstr ""
+
+msgid "A site with this code already exists"
+msgstr ""
+
+msgid "The site was changed by someone else"
+msgstr ""
+
+msgid "bbox must be west,south,east,north"
+msgstr ""
+
+msgid "Deactivate the site first"
+msgstr ""
+
+msgid "Site code has been reused; change it before restoring"
+msgstr ""
+
+msgid "Only images are accepted here"
+msgstr ""
+
+msgid "You cannot grant permissions you do not hold"
+msgstr ""
+
+msgid "A role with this name already exists"
+msgstr ""
+
+msgid "System roles are locked"
+msgstr ""
+
+msgid "System roles cannot be deleted"
+msgstr ""
+
+msgid "Select at least one branch or site"
+msgstr ""
+
+msgid "Unknown branch or site in scope"
+msgstr ""
+
+msgid "You cannot grant company-wide scope"
+msgstr ""
+
+msgid "Branch outside your scope"
+msgstr ""
+
+msgid "Site outside your scope"
+msgstr ""
+
+msgid "This person already has dashboard access"
+msgstr ""
+
+#, python-format
+msgid "%(name)s invited you to StaffSync: %(link)s"
+msgstr ""
+
+msgid "You're invited"
+msgstr ""
+
+msgid "The company needs at least one owner"
+msgstr ""
+
+msgid "You cannot revoke your own access"
+msgstr ""
+
+msgid "Webhook URL must be https"
+msgstr ""
+
+msgid "Webhook host cannot be resolved"
+msgstr ""
+
+msgid "Webhook URL points to a private address"
+msgstr ""
+
+msgid "Check-in flagged"
+msgstr ""
+
+msgid "New leave request"
+msgstr ""
+
+msgid "Correction requested"
+msgstr ""
+
+msgid "No-show"
+msgstr ""
+
+msgid "An employee did not check in"
+msgstr ""
+
+msgid "Don't forget to check out"
+msgstr ""
+

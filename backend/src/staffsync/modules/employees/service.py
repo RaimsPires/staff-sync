@@ -13,6 +13,8 @@ from staffsync.core.adapters import notify
 from staffsync.core.audit import audit
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, Conflict, NotFound, ValidationFailed
+from staffsync.core.i18n import gettext_, recipient_locale
+from staffsync.core.messages import N_
 from staffsync.core.outbox import emit
 from staffsync.core.security import hash_device_id, hash_password
 from staffsync.modules.auth.models import CompanyMember, User
@@ -159,11 +161,17 @@ async def send_invite(ctx: RequestContext, emp: Employee, user: User | None = No
     user = user or await ctx.session.get(User, emp.user_id)
     assert user is not None
     company = await ctx.session.get(Company, ctx.company_id)
-    text = f"{company.name if company else 'Your company'} invites you to StaffSync. Download the app and sign in with {user.phone or user.email}."
+    lang = recipient_locale(user.locale, company.locale if company else None)
+    text = gettext_(
+        "%(company)s invites you to StaffSync. Download the app and sign in with %(login)s.",
+        lang,
+        company=company.name if company else gettext_("Your company", lang),
+        login=user.phone or user.email,
+    )
     if user.phone:
         await notify("sms", user.phone, text, subject=None)
     elif user.email:
-        await notify("email", user.email, text, subject="Join StaffSync")
+        await notify("email", user.email, text, subject=gettext_("Join StaffSync", lang))
     else:
         raise ValidationFailed("No contact to invite")
 
@@ -280,4 +288,4 @@ async def reset_device(ctx: RequestContext, emp: Employee) -> None:
     audit(ctx, "device.reset", "device", device.id, employee_id=emp.id)
     from staffsync.modules.notifications.service import push_in_app
 
-    push_in_app(ctx.session, ctx.company_id, emp.user_id, "announcement", "Device reset", "Your admin reset your registered phone. Sign in again on your new phone.")
+    push_in_app(ctx.session, ctx.company_id, emp.user_id, "announcement", N_("Device reset"), N_("Your admin reset your registered phone. Sign in again on your new phone."))

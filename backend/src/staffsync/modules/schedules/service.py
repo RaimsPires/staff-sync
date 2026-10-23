@@ -10,6 +10,7 @@ from staffsync.common.softdelete import restore, soft_delete
 from staffsync.core.audit import audit
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, Conflict, NotFound, ValidationFailed
+from staffsync.core.messages import N_
 from staffsync.core.outbox import emit
 from staffsync.modules.branches.models import Branch
 from staffsync.modules.employees.models import Employee, EmployeeSite
@@ -184,7 +185,7 @@ async def regenerate(ctx: RequestContext, s: Schedule, *, notify: bool = False) 
     if notify and changed:
         users = dict((await ctx.session.exec(select(Employee.id, Employee.user_id).where(Employee.id.in_(changed)))).all())  # type: ignore[attr-defined]
         for emp, uid in users.items():
-            push_in_app(ctx.session, ctx.company_id, uid, "schedule_change", "Your schedule changed", s.title, href="/schedule")
+            push_in_app(ctx.session, ctx.company_id, uid, "schedule_change", N_("Your schedule changed"), s.title, href="/schedule")
     return len(wanted)
 
 
@@ -246,7 +247,7 @@ async def move_shift(ctx: RequestContext, sh: Shift, starts_at: datetime | None,
     if notify:
         emp = await ctx.session.get(Employee, sh.employee_id)
         if emp:
-            push_in_app(ctx.session, ctx.company_id, emp.user_id, "schedule_change", "Your shift was updated", "", href=f"/schedule/{sh.id}")
+            push_in_app(ctx.session, ctx.company_id, emp.user_id, "schedule_change", N_("Your shift was updated"), "", href=f"/schedule/{sh.id}")
     return sh
 
 

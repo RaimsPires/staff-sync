@@ -56,7 +56,7 @@ async def test_invalid_polygon_rejected(client, mailbox):
     br = (await a.post("/branches", {"name": "HQ", "code": "HQ"})).json()
     bowtie = {"type": "Polygon", "coordinates": [[[9.0, 4.0], [9.001, 4.001], [9.001, 4.0], [9.0, 4.001], [9.0, 4.0]]]}
     r = await a.post("/sites", {"name": "Bowtie", "code": "X", "branch_id": br["id"], "geofence": {"type": "polygon", "geojson": bowtie}})
-    assert r.status_code == 400 and "polygon" in r.json()["detail"].lower(), r.text
+    assert r.status_code == 400 and r.json()["code"] == "INVALID_POLYGON", r.text
 
 
 async def test_site_code_reuse_after_soft_delete(client, mailbox):

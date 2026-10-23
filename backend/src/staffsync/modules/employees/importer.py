@@ -8,7 +8,9 @@ from uuid import UUID, uuid4
 from sqlmodel import select
 
 from staffsync.core.context import RequestContext
-from staffsync.core.errors import NotFound, ValidationFailed
+from staffsync.core.errors import AppError, NotFound, ValidationFailed
+from staffsync.core.i18n import code_message, error_message
+from staffsync.core.logging import get_logger
 from staffsync.core.redis import get_redis
 from staffsync.modules.branches.models import Branch
 from staffsync.modules.employees import service
@@ -19,6 +21,14 @@ FIELDS = ["full_name", "employee_no", "email", "phone", "branch_code", "job_titl
 TEMPLATE = ",".join(FIELDS) + "\nJane Doe,E-1001,jane@example.com,+237670000000,HQ,Cashier,2026-01-05,true,SITE-A;SITE-B\n"
 MAX_ROWS = 2000
 TTL = 3600
+
+
+def _row_message(row: int, exc: Exception) -> str:
+    """Localized per-row reason; raw exception text (pydantic, SQL) is logged, never returned."""
+    if isinstance(exc, AppError):
+        return error_message(exc.code, exc.status, exc.detail, exc.extra)
+    get_logger().info("import_row_failed", row=row, error=str(exc)[:200])
+    return code_message("ROW_INVALID") or ""
 
 
 def _key(ctx: RequestContext, job_id: UUID) -> str:
@@ -35,7 +45,7 @@ async def start(ctx: RequestContext, content: bytes) -> dict:
         raise ValidationFailed("The file has no header row")
     rows = [dict(r) for _, r in zip(range(MAX_ROWS + 1), reader)]
     if len(rows) > MAX_ROWS:
-        raise ValidationFailed(f"At most {MAX_ROWS} rows per import")
+        raise ValidationFailed(f"At most {MAX_ROWS} rows per import", code="TOO_MANY_ROWS", max_rows=MAX_ROWS)
     headers = list(reader.fieldnames)
     mapping = {f: (f if f in headers else None) for f in FIELDS}
     job_id = uuid4()
@@ -94,12 +104,12 @@ async def preview(ctx: RequestContext, job_id: UUID, mapping: dict | None = None
         try:
             c = await _to_create(ctx, row, job["mapping"], branches, sites)
             if not c.email and not c.phone:
-                raise ValueError("Email or phone required")
+                raise ValidationFailed("Email or phone required", code="CONTACT_REQUIRED")
             if c.employee_no in seen:
-                raise ValueError("Duplicate employee number in file")
+                raise ValidationFailed("Duplicate employee number in file", code="DUPLICATE_EMPLOYEE_NO")
             seen.add(c.employee_no)
-        except Exception as exc:  # pydantic ValidationError or ValueError: report the row
-            errors.append({"row": i, "error": str(exc).splitlines()[0][:200]})
+        except Exception as exc:  # pydantic ValidationError or AppError: report the row
+            errors.append({"row": i, "error": _row_message(i, exc)})
     return {"job_id": job_id, "headers": job["headers"], "mapping": job["mapping"], "total": len(job["rows"]), "sample": job["rows"][:5], "errors": errors, "status": job["status"]}
 
 
@@ -115,11 +125,10 @@ async def commit(ctx: RequestContext, job_id: UUID) -> dict:
                 await service.create(ctx, body)
             created += 1
         except Exception as exc:
-            msg = str(exc).splitlines()[0][:200]
-            if "already" in msg.lower():
+            if isinstance(exc, AppError) and "already" in (exc.detail or "").lower():
                 skipped += 1
-            else:
-                failed.append({"row": i, "error": msg})
+                continue
+            failed.append({"row": i, "error": _row_message(i, exc)})
     job["status"] = "done"
     await get_redis().set(_key(ctx, job_id), json.dumps(job), ex=TTL)
     return {"job_id": job_id, "created": created, "skipped": skipped, "failed": failed}

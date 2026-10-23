@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from staffsync.core.i18n import error_message, title_for
+
 
 class AppError(Exception):
     status = 400
@@ -10,7 +12,7 @@ class AppError(Exception):
 
     def __init__(self, detail: str | None = None, *, code: str | None = None, **extra: Any):
         super().__init__(detail or self.title)
-        self.detail = detail or self.title
+        self.detail = detail
         if code:
             self.code = code
         self.extra = extra
@@ -19,10 +21,10 @@ class AppError(Exception):
         slug = self.code.lower().replace("_", "-")
         body: dict[str, Any] = {
             "type": f"https://api.staffsync.app/errors/{slug}",
-            "title": self.title,
+            "title": title_for(self.status) or self.title,
             "status": self.status,
             "code": self.code,
-            "detail": self.detail,
+            "detail": error_message(self.code, self.status, self.detail, self.extra),
             "request_id": request_id,
         }
         body.update(self.extra)

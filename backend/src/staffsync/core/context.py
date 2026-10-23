@@ -37,7 +37,7 @@ class RequestContext:
 
     def require(self, perm: Perm) -> None:
         if not self.has(perm):
-            raise Forbidden(f"Missing permission {perm.value}")
+            raise Forbidden(f"Missing permission {perm.value}", code="MISSING_PERMISSION", permission=perm.value)
 
     def require_employee(self) -> UUID:
         if self.employee_id is None:

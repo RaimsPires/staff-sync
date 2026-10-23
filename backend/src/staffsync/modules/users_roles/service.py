@@ -10,6 +10,7 @@ from staffsync.core.audit import audit
 from staffsync.core.config import get_settings
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, Conflict, Forbidden, NotFound, ValidationFailed
+from staffsync.core.i18n import gettext_, recipient_locale
 from staffsync.core.security import new_opaque_token, sha256
 from staffsync.modules.auth.models import CompanyMember, Invitation, User
 from staffsync.modules.auth.tokens import revoke_user_sessions
@@ -116,7 +117,7 @@ async def delete_role(ctx: RequestContext, role: Role, reason: str) -> None:
         raise Conflict("System roles cannot be deleted", code="SYSTEM_ROLE")
     n = (await ctx.session.exec(select(func.count()).select_from(UserRole).where(UserRole.role_id == role.id))).one()
     if n:
-        raise Conflict(f"{n} user(s) hold this role", code="ROLE_IN_USE")
+        raise Conflict(f"{n} user(s) hold this role", code="ROLE_IN_USE", count=n)
     soft_delete(ctx, role, reason, entity="role")
 
 
@@ -175,7 +176,8 @@ async def invite_user(ctx: RequestContext, body: InviteIn) -> dict:
     ctx.session.add(Invitation(company_id=ctx.company_id, user_id=user.id, token_hash=sha256(token), role_id=role.id, scope_type=body.scope_type.value,
                                invited_by=ctx.user.id, message=body.message, expires_at=datetime.now(UTC) + timedelta(days=7)))
     link = f"{get_settings().dashboard_url}/invite/{token}"
-    await notify("email", email, f"{ctx.user.full_name} invited you to StaffSync: {link}", subject="You're invited", token=token, link=link)
+    lang = recipient_locale(user.locale)
+    await notify("email", email, gettext_("%(name)s invited you to StaffSync: %(link)s", lang, name=ctx.user.full_name, link=link), subject=gettext_("You're invited", lang), token=token, link=link)
     audit(ctx, "user.invited", "user", user.id, after={"email": email, "role": role.name})
     return {"user_id": user.id, "status": "invited"}
 

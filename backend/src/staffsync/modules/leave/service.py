@@ -8,6 +8,7 @@ from staffsync.common.repository import TenantRepository
 from staffsync.core.audit import audit
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, NotFound, ValidationFailed
+from staffsync.core.messages import N_
 from staffsync.core.outbox import emit
 from staffsync.modules.alerts.models import Alert
 from staffsync.modules.auth.models import User
@@ -241,7 +242,7 @@ async def act(ctx: RequestContext, req: LeaveRequest, action: str, comment: str 
     if action in ("approve", "reject", "request_changes", "cancel_approved"):
         emp = await ctx.session.get(Employee, req.employee_id)
         if emp:
-            push_in_app(ctx.session, ctx.company_id, emp.user_id, "leave_decision", {"approve": "Leave approved", "reject": "Leave rejected", "request_changes": "Changes requested", "cancel_approved": "Leave cancelled"}[action], comment or "", href=f"/leave/{req.id}")
+            push_in_app(ctx.session, ctx.company_id, emp.user_id, "leave_decision", {"approve": N_("Leave approved"), "reject": N_("Leave rejected"), "request_changes": N_("Changes requested"), "cancel_approved": N_("Leave cancelled")}[action], comment or "", href=f"/leave/{req.id}")
         emit(ctx.session, ctx.company_id, "LeaveApproved" if action == "approve" else "LeaveDecided", {"request_id": str(req.id), "employee_id": str(req.employee_id), "decision": log_action})
     return req
 

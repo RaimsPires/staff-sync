@@ -8,6 +8,7 @@ from staffsync.common.enums import Perm
 from staffsync.core.audit import audit
 from staffsync.core.deps import require
 from staffsync.core.errors import Conflict, NotFound
+from staffsync.core.messages import N_
 from staffsync.core.outbox import emit
 from staffsync.modules.alerts.models import Alert
 from staffsync.modules.alerts.service_resolve import resolve_alert
@@ -30,7 +31,7 @@ def _to(c: CorrectionRequest) -> CorrectionRead:
 
 def _move(c: CorrectionRequest, to: str) -> None:
     if to not in ALLOWED.get(c.status, set()):
-        raise Conflict(f"Cannot go from {c.status} to {to}", code="INVALID_TRANSITION")
+        raise Conflict(f"Cannot go from {c.status} to {to}", code="INVALID_TRANSITION", from_status=c.status, to_status=to)
     c.status = to
 
 
@@ -105,7 +106,7 @@ async def accept(correction_id: UUID, body: AcceptIn, ctx=require(Perm.ATTENDANC
         await admin.patch(ctx, rec, RecordPatch(reason=f"Correction accepted: {c.comment}"[:500], **patch), None)
     c.decided_by, c.decided_at, c.admin_response = ctx.user.id, datetime.now(UTC), body.note
     audit(ctx, "correction.accepted", "correction", c.id, reason=body.note, employee_id=c.employee_id)
-    await _notify(ctx, c, "Correction accepted", body.note or "")
+    await _notify(ctx, c, N_("Correction accepted"), body.note or "")
     return _to(c)
 
 
@@ -115,5 +116,5 @@ async def decline(correction_id: UUID, body: DeclineIn, ctx=require(Perm.ATTENDA
     _move(c, "declined")
     c.decided_by, c.decided_at, c.admin_response = ctx.user.id, datetime.now(UTC), body.reason
     audit(ctx, "correction.declined", "correction", c.id, reason=body.reason, employee_id=c.employee_id)
-    await _notify(ctx, c, "Correction declined", body.reason)
+    await _notify(ctx, c, N_("Correction declined"), body.reason)
     return _to(c)

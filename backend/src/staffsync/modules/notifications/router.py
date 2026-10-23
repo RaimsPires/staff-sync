@@ -6,6 +6,7 @@ from sqlmodel import select
 
 from staffsync.core.deps import Ctx
 from staffsync.core.errors import NotFound
+from staffsync.core.i18n import flag_reasons, gettext_
 from staffsync.modules.notifications import service
 from staffsync.modules.notifications.models import Notification
 
@@ -16,8 +17,15 @@ class ReadIn(BaseModel):
     ids: list[UUID] | None = None  # None = all
 
 
+def _body(n: Notification) -> str:
+    if n.type == "fraud_flag":  # stored as reason codes
+        return flag_reasons([r for r in n.body.split(", ") if r])
+    return gettext_(n.body) if n.body else ""
+
+
 def _out(n: Notification) -> dict:
-    return {"id": n.id, "type": n.type, "title": n.title, "body": n.body, "href": n.href, "created_at": n.created_at, "read": n.read_at is not None}
+    # title/body are stored as English source text; fixed ones translate, user-written notes pass through unchanged
+    return {"id": n.id, "type": n.type, "title": gettext_(n.title), "body": _body(n), "href": n.href, "created_at": n.created_at, "read": n.read_at is not None}
 
 
 @router.get("")

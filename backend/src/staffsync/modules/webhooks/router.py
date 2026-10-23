@@ -33,7 +33,8 @@ def _out(h: Webhook, secret: bool = False) -> dict:
 def _check_events(events: list[str]) -> None:
     bad = set(events) - service.EVENTS
     if bad:
-        raise ValidationFailed(f"Unknown event(s): {', '.join(sorted(bad))}")
+        names = ", ".join(sorted(bad))
+        raise ValidationFailed(f"Unknown event(s): {names}", code="UNKNOWN_EVENTS", names=names)
 
 
 async def _get(ctx, wid: UUID) -> Webhook:

@@ -12,6 +12,7 @@ from staffsync.core.config import get_settings
 from staffsync.core.context import RequestContext, Scope
 from staffsync.core.db import SessionLocal, set_tenant
 from staffsync.core.errors import Forbidden, Unauthenticated, UpgradeRequired
+from staffsync.core.i18n import apply_user_locale
 from staffsync.core.redis import get_redis
 from staffsync.core.security import decode_access_token, hash_device_id
 from staffsync.modules.auth.models import CompanyMember, User
@@ -58,6 +59,7 @@ async def build_ctx(request: Request, claims: dict, x_device_id: str | None, *, 
         user = await session.get(User, user_id)
         if user is None or user.status != "active":
             raise Unauthenticated("Account disabled", code="ACCOUNT_DISABLED")
+        apply_user_locale(user.locale)
         perms: frozenset[str] = frozenset()
         scope = Scope(site_ids=frozenset(), branch_ids=frozenset(), self_only=True)
         roles: list[str] = []

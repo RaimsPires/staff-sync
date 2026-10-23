@@ -119,12 +119,12 @@ async def select_company(request: Request, body: SelectCompanyIn, ctx: CtxNoComp
 
 @router.get("/auth/sso/{provider}/authorize")
 async def sso_authorize(provider: str):
-    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED")
+    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED", provider=provider)
 
 
 @router.get("/auth/sso/{provider}/callback")
 async def sso_callback(provider: str):
-    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED")
+    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED", provider=provider)
 
 
 @router.post("/auth/refresh", response_model=TokenPair)

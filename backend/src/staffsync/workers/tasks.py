@@ -10,6 +10,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from staffsync.core.logging import get_logger
+from staffsync.core.messages import N_
 from staffsync.core.outbox import OutboxEvent
 from staffsync.core.redis import get_redis
 from staffsync.modules.alerts.models import Alert
@@ -55,13 +56,13 @@ async def handle_event(session: AsyncSession, ev: OutboxEvent) -> None:
         await r.publish(f"company:{cid}:all", json.dumps({"type": "leave", **p}))
     if ev.event_type == "CheckInFlagged":
         for uid in await recipients(session, cid, site_id, "alerts.view"):
-            push_in_app(session, cid, uid, "fraud_flag", "Check-in flagged", ", ".join(p.get("reasons", [])), href=f"/alerts/{p['alert_id']}")
+            push_in_app(session, cid, uid, "fraud_flag", N_("Check-in flagged"), ", ".join(p.get("reasons", [])), href=f"/alerts/{p['alert_id']}")
     if ev.event_type == "LeaveRequested":
         for uid in await recipients(session, cid, None, "leave.approve"):
-            push_in_app(session, cid, uid, "leave_request", "New leave request", "", href=f"/leave/{p['request_id']}")
+            push_in_app(session, cid, uid, "leave_request", N_("New leave request"), "", href=f"/leave/{p['request_id']}")
     if ev.event_type == "CorrectionRequested":
         for uid in await recipients(session, cid, site_id, "attendance.edit"):
-            push_in_app(session, cid, uid, "correction", "Correction requested", "", href="/attendance")
+            push_in_app(session, cid, uid, "correction", N_("Correction requested"), "", href="/attendance")
     if ev.event_type in ("EmployeeCreated", "EmployeeDeactivated"):
         from staffsync.modules.billing.service import sync_seats
 
@@ -110,7 +111,7 @@ async def detect_absences(session: AsyncSession, now: datetime | None = None) ->
             continue
         session.add(AttendanceRecord(company_id=sh.company_id, employee_id=sh.employee_id, site_id=sh.site_id, shift_id=sh.id, occurred_at=sh.starts_at, status="absent", method="system"))
         for uid in await recipients(session, sh.company_id, sh.site_id, "alerts.view"):
-            push_in_app(session, sh.company_id, uid, "no_show", "No-show", "An employee did not check in", href="/attendance")
+            push_in_app(session, sh.company_id, uid, "no_show", N_("No-show"), N_("An employee did not check in"), href="/attendance")
         n += 1
     return n
 
@@ -127,7 +128,7 @@ async def missing_checkouts(session: AsyncSession, now: datetime | None = None) 
             continue
         emp = await session.get(Employee, rec.employee_id)
         if emp and (await get_redis().set(f"reminder:co:{rec.id}", "1", nx=True, ex=86400)):
-            push_in_app(session, rec.company_id, emp.user_id, "checkout_reminder", "Don't forget to check out", "", href=f"/attendance/{rec.id}")
+            push_in_app(session, rec.company_id, emp.user_id, "checkout_reminder", N_("Don't forget to check out"), "", href=f"/attendance/{rec.id}")
             continue
         rec.status = "missing_checkout"
         session.add(Alert(company_id=rec.company_id, type="missing_checkout", record_id=rec.id, site_id=rec.site_id, employee_id=rec.employee_id, shift_id=sh.id, reasons=["MISSING_CHECKOUT"], severity="low"))

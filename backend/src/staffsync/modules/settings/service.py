@@ -19,11 +19,12 @@ async def company_settings(session, company_id: UUID, section: str) -> dict:
 async def update_section(ctx: RequestContext, section: str, patch: dict) -> dict:
     unknown = set(patch) - set(DEFAULTS[section])
     if unknown:
-        raise ValidationFailed(f"Unknown setting(s): {', '.join(sorted(unknown))}")
+        names = ", ".join(sorted(unknown))
+        raise ValidationFailed(f"Unknown setting(s): {names}", code="UNKNOWN_SETTINGS", names=names)
     for k, v in patch.items():  # type-check against the default's type (None defaults accept any)
         d = DEFAULTS[section][k]
         if d is not None and not isinstance(v, type(d)) and not (isinstance(d, (int, float)) and isinstance(v, (int, float)) and not isinstance(v, bool)):
-            raise ValidationFailed(f"Setting '{k}' has the wrong type")
+            raise ValidationFailed(f"Setting '{k}' has the wrong type", code="SETTING_WRONG_TYPE", key=k)
     company = await ctx.session.get(Company, ctx.company_id)
     assert company is not None
     before = merged(company.settings, section)

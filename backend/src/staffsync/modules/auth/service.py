@@ -13,6 +13,7 @@ from staffsync.core.adapters import notify
 from staffsync.core.config import get_settings
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import AppError, Conflict, Forbidden, NotFound, RateLimited, Unauthenticated, ValidationFailed
+from staffsync.core.i18n import gettext_, recipient_locale
 from staffsync.core.redis import get_redis
 from staffsync.core.security import (
     decrypt_field,
@@ -164,7 +165,8 @@ async def signup(session: AsyncSession, body: SignupIn) -> None:
         await assign_role(session, company.id, user.id, roles["owner"], "company")
     code = f"{secrets.randbelow(10**6):06d}"
     await get_redis().set(f"emailcode:{email}", sha256(code + str(user.id)), ex=900)
-    await notify("email", email, f"Your StaffSync verification code is {code}", subject="Verify your email", code=code)
+    lang = recipient_locale(user.locale)
+    await notify("email", email, gettext_("Your StaffSync verification code is %(code)s", lang, code=code), subject=gettext_("Verify your email", lang), code=code)
 
 
 async def verify_email(session: AsyncSession, email: str, code: str, *, ip: str | None, ua: str | None) -> TokenPair:
@@ -287,7 +289,8 @@ async def otp_request(session: AsyncSession, identifier: str) -> int:
     await r.hset(f"otp:{value}", mapping={"h": sha256(code + str(user.id)), "attempts": 0})
     await r.expire(f"otp:{value}", s.otp_ttl_s)
     await r.set(f"otp:cool:{value}", "1", ex=s.otp_resend_s)
-    await notify("sms" if kind == "phone" else "email", value, f"Your StaffSync code is {code}", subject="Your login code", code=code)
+    lang = recipient_locale(user.locale)
+    await notify("sms" if kind == "phone" else "email", value, gettext_("Your StaffSync code is %(code)s", lang, code=code), subject=gettext_("Your login code", lang), code=code)
     return s.otp_resend_s
 
 
@@ -346,7 +349,8 @@ async def forgot_password(session: AsyncSession, email: str) -> None:
     token = new_opaque_token()
     await get_redis().set(f"pwreset:{sha256(token)}", str(user.id), ex=3600)
     link = f"{get_settings().dashboard_url}/reset-password?token={token}"
-    await notify("email", user.email or "", f"Reset your StaffSync password: {link}", subject="Reset your password", token=token, link=link)
+    lang = recipient_locale(user.locale)
+    await notify("email", user.email or "", gettext_("Reset your StaffSync password: %(link)s", lang, link=link), subject=gettext_("Reset your password", lang), token=token, link=link)
 
 
 async def reset_password(session: AsyncSession, token: str, password: str) -> None:

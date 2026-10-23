@@ -1,0 +1,776 @@
+# French translations for StaffSync API messages.
+msgid ""
+msgstr ""
+"Project-Id-Version: staffsync 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 11:57+0100\n"
+"PO-Revision-Date: 2026-10-23 11:52+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Invalid GeoJSON polygon"
+msgstr "Polygone GeoJSON invalide."
+
+msgid "Geofence must be a Polygon"
+msgstr "La zone doit être un polygone."
+
+msgid "A polygon needs at least 3 points"
+msgstr "Une zone doit comporter au moins 3 points."
+
+msgid "The drawn area is not valid. Make sure its edges do not cross."
+msgstr "La zone dessinée n'est pas valide. Vérifiez que ses côtés ne se croisent pas."
+
+msgid "Coordinates out of range (expected [lng, lat])"
+msgstr "Coordonnées hors limites (attendu : [longitude, latitude])."
+
+msgid "Radius must be between 1 and 2000 m"
+msgstr "Le rayon doit être compris entre 1 et 2000 m."
+
+msgid "Coordinates out of range"
+msgstr "Coordonnées hors limites."
+
+msgid "Invalid cursor"
+msgstr "Position de pagination invalide."
+
+msgid "A reason is required"
+msgstr "Un motif est requis."
+
+msgid "Already deleted"
+msgstr "Déjà supprimé."
+
+msgid "Not deleted"
+msgstr "Cet élément n'est pas supprimé."
+
+msgid "This action is for employees"
+msgstr "Cette action est réservée aux employés."
+
+msgid "Session revoked"
+msgstr "Votre session a été fermée. Veuillez vous reconnecter."
+
+msgid "Select a company first"
+msgstr "Sélectionnez d'abord une entreprise."
+
+msgid "Account disabled"
+msgstr "Ce compte est désactivé."
+
+msgid "No access to this company"
+msgstr "Vous n'avez pas accès à cette entreprise."
+
+msgid "Please update the app"
+msgstr "Veuillez mettre à jour l'application."
+
+msgid "We couldn't process this request. Please check your input and try again."
+msgstr "Nous n'avons pas pu traiter cette demande. Vérifiez vos informations et réessayez."
+
+msgid "Please sign in to continue."
+msgstr "Veuillez vous connecter pour continuer."
+
+msgid "You don't have permission to do this."
+msgstr "Vous n'avez pas l'autorisation d'effectuer cette action."
+
+msgid "We couldn't find what you were looking for."
+msgstr "Nous n'avons pas trouvé ce que vous cherchez."
+
+msgid "This action isn't available."
+msgstr "Cette action n'est pas disponible."
+
+msgid "This conflicts with existing data. Please refresh and try again."
+msgstr "Cela entre en conflit avec des données existantes. Actualisez et réessayez."
+
+msgid "This action isn't allowed in the current situation."
+msgstr "Cette action n'est pas autorisée dans la situation actuelle."
+
+msgid "Please update the app to continue."
+msgstr "Veuillez mettre à jour l'application pour continuer."
+
+msgid "You're doing that too often. Please wait a moment and try again."
+msgstr "Vous effectuez cette action trop souvent. Patientez un instant et réessayez."
+
+msgid "Something went wrong on our side. Please try again in a moment."
+msgstr "Un problème est survenu de notre côté. Veuillez réessayer dans un instant."
+
+msgid "The service is temporarily unavailable. Please try again shortly."
+msgstr "Le service est momentanément indisponible. Veuillez réessayer sous peu."
+
+msgid "Some of the information you entered isn't valid. Please review it and try again."
+msgstr "Certaines informations saisies ne sont pas valides. Vérifiez-les et réessayez."
+
+msgid "This row is not valid."
+msgstr "Cette ligne n'est pas valide."
+
+#, python-format
+msgid "The area must be between %(min_m2)s m² and %(max_km2)s km²."
+msgstr "La zone doit mesurer entre %(min_m2)s m² et %(max_km2)s km²."
+
+#, python-format
+msgid "Some settings are not recognised: %(names)s."
+msgstr "Certains paramètres ne sont pas reconnus : %(names)s."
+
+#, python-format
+msgid "The value for \"%(key)s\" is not valid."
+msgstr "La valeur de « %(key)s » n'est pas valide."
+
+#, python-format
+msgid "Sign-in with %(provider)s isn't set up."
+msgstr "La connexion avec %(provider)s n'est pas configurée."
+
+#, python-format
+msgid "%(count)d user still has this role."
+msgid_plural "%(count)d users still have this role."
+msgstr[0] "%(count)d utilisateur a encore ce rôle."
+msgstr[1] "%(count)d utilisateurs ont encore ce rôle."
+
+msgid "This action isn't possible from the current status."
+msgstr "Cette action n'est pas possible depuis le statut actuel."
+
+#, python-format
+msgid "Unknown events: %(names)s."
+msgstr "Événements inconnus : %(names)s."
+
+#, python-format
+msgid "An import can contain at most %(max_rows)s rows."
+msgstr "Un import peut contenir au maximum %(max_rows)s lignes."
+
+msgid "Reassign the sites and employees of this branch first."
+msgstr "Réaffectez d'abord les sites et les employés de cette agence."
+
+msgid "Duplicate employee number in the file."
+msgstr "Numéro d'employé en double dans le fichier."
+
+msgid "This account is disabled. Contact your administrator."
+msgstr "Ce compte est désactivé. Contactez votre administrateur."
+
+msgid "The file or request is too large."
+msgstr "Le fichier ou la demande est trop volumineux."
+
+msgid "Check your input"
+msgstr "Vérifiez vos informations"
+
+msgid "Sign-in required"
+msgstr "Connexion requise"
+
+msgid "Not allowed"
+msgstr "Action non autorisée"
+
+msgid "Not found"
+msgstr "Introuvable"
+
+msgid "Not available"
+msgstr "Non disponible"
+
+msgid "Conflict"
+msgstr "Conflit"
+
+msgid "Update required"
+msgstr "Mise à jour requise"
+
+msgid "Too many requests"
+msgstr "Trop de requêtes"
+
+msgid "Something went wrong"
+msgstr "Un problème est survenu"
+
+msgid "Fake location detected"
+msgstr "Fausse position détectée"
+
+msgid "Device clock was changed"
+msgstr "L'horloge de l'appareil a été modifiée"
+
+msgid "Impossible travel between check-ins"
+msgstr "Déplacement impossible entre deux pointages"
+
+msgid "Unregistered device"
+msgstr "Appareil non enregistré"
+
+msgid "Check-in synced late"
+msgstr "Pointage synchronisé en retard"
+
+msgid "Location accuracy too low"
+msgstr "Précision de la position insuffisante"
+
+msgid "Outside the site area"
+msgstr "En dehors de la zone du site"
+
+msgid "Invalid QR code"
+msgstr "Code QR invalide"
+
+msgid "Selfie missing"
+msgstr "Selfie manquant"
+
+msgid "No shift scheduled"
+msgstr "Aucun créneau planifié"
+
+msgid "Missing check-out"
+msgstr "Départ non pointé"
+
+msgid "This field is required."
+msgstr "Ce champ est requis."
+
+msgid "This is too short."
+msgstr "Trop court."
+
+msgid "This is too long."
+msgstr "Trop long."
+
+msgid "This doesn't have the expected format."
+msgstr "Le format attendu n'est pas respecté."
+
+msgid "This value isn't valid."
+msgstr "Cette valeur n'est pas valide."
+
+msgid "This value is too small."
+msgstr "Cette valeur est trop petite."
+
+msgid "This value is too large."
+msgstr "Cette valeur est trop grande."
+
+msgid "Enter a whole number."
+msgstr "Saisissez un nombre entier."
+
+msgid "Enter a number."
+msgstr "Saisissez un nombre."
+
+msgid "Choose yes or no."
+msgstr "Choisissez oui ou non."
+
+msgid "This identifier isn't valid."
+msgstr "Cet identifiant n'est pas valide."
+
+msgid "Enter a valid date."
+msgstr "Saisissez une date valide."
+
+msgid "Enter a valid date and time."
+msgstr "Saisissez une date et une heure valides."
+
+msgid "Enter a valid time."
+msgstr "Saisissez une heure valide."
+
+msgid "The request body isn't valid."
+msgstr "Le contenu de la requête n'est pas valide."
+
+msgid "This isn't one of the allowed values."
+msgstr "Cette valeur n'est pas autorisée."
+
+msgid "Add more items."
+msgstr "Ajoutez des éléments."
+
+msgid "Too many items."
+msgstr "Trop d'éléments."
+
+msgid "This field isn't allowed."
+msgstr "Ce champ n'est pas autorisé."
+
+msgid "Invalid or expired token"
+msgstr "Votre session est invalide ou a expiré. Veuillez vous reconnecter."
+
+msgid "Invalid or expired ticket"
+msgstr "Cette demande est invalide ou a expiré. Veuillez recommencer."
+
+msgid "Check-in approved"
+msgstr "Pointage approuvé"
+
+msgid "Check-in rejected"
+msgstr "Pointage rejeté"
+
+msgid "Site not found"
+msgstr "Site introuvable."
+
+msgid "Check-out must be after check-in"
+msgstr "Le départ doit être postérieur à l'arrivée."
+
+msgid "Unknown status"
+msgstr "Statut inconnu."
+
+msgid "Overlaps an existing record"
+msgstr "Chevauche un enregistrement existant."
+
+msgid "The record was changed by someone else"
+msgstr "Cet enregistrement a été modifié par quelqu'un d'autre. Actualisez et réessayez."
+
+msgid "Overlaps another record"
+msgstr "Chevauche un autre enregistrement."
+
+msgid "month must be YYYY-MM"
+msgstr "Le mois doit être au format AAAA-MM."
+
+msgid "Invalid If-Match header"
+msgstr "Version de l'élément invalide."
+
+msgid "Shift not found"
+msgstr "Créneau introuvable."
+
+msgid "This site does not accept check-ins"
+msgstr "Ce site n'accepte pas les pointages."
+
+msgid "site_id or shift_id is required"
+msgstr "Un site ou un créneau est requis."
+
+msgid "You are already checked in"
+msgstr "Vous êtes déjà pointé."
+
+msgid "This shift already has a check-in"
+msgstr "Ce créneau a déjà un pointage."
+
+msgid "You are not checked in"
+msgstr "Vous n'êtes pas pointé."
+
+msgid "Too many wrong PINs. Try again in 15 minutes."
+msgstr "Trop de codes PIN erronés. Réessayez dans 15 minutes."
+
+msgid "Wrong PIN"
+msgstr "Code PIN incorrect."
+
+msgid "Badge not recognised"
+msgstr "Badge non reconnu."
+
+msgid "employee_id or badge_token is required"
+msgstr "Un employé ou un badge est requis."
+
+msgid "Employee is deactivated"
+msgstr "Cet employé est désactivé."
+
+msgid "You must be on site to check an employee in"
+msgstr "Vous devez être sur site pour pointer un employé."
+
+msgid "The employee's PIN or a photo is required"
+msgstr "Le code PIN de l'employé ou une photo est requis."
+
+msgid "Already checked in"
+msgstr "Déjà pointé."
+
+msgid "Not checked in"
+msgstr "Pas pointé."
+
+msgid "Missing refresh token"
+msgstr "Votre session a expiré. Veuillez vous reconnecter."
+
+msgid "CSRF token mismatch"
+msgstr "Votre session de sécurité a expiré. Actualisez la page."
+
+msgid "Invalid email address"
+msgstr "Adresse e-mail invalide."
+
+msgid "Invalid phone number"
+msgstr "Numéro de téléphone invalide."
+
+msgid "Too many failed attempts. Try again later."
+msgstr "Trop de tentatives échouées. Réessayez plus tard."
+
+msgid "Terms must be accepted"
+msgstr "Vous devez accepter les conditions."
+
+msgid "An account with this email already exists"
+msgstr "Un compte existe déjà avec cet e-mail."
+
+#, python-format
+msgid "Your StaffSync verification code is %(code)s"
+msgstr "Votre code de vérification StaffSync est %(code)s"
+
+msgid "Verify your email"
+msgstr "Vérifiez votre adresse e-mail"
+
+msgid "Invalid code"
+msgstr "Code incorrect."
+
+msgid "Too many attempts"
+msgstr "Trop de tentatives. Réessayez plus tard."
+
+msgid "Code expired"
+msgstr "Ce code a expiré."
+
+msgid "Invalid email or password"
+msgstr "E-mail ou mot de passe incorrect."
+
+msgid "Verify your email first"
+msgstr "Vérifiez d'abord votre adresse e-mail."
+
+msgid "Invalid ticket"
+msgstr "Cette demande est invalide. Veuillez recommencer."
+
+msgid "Account not found, contact your admin"
+msgstr "Compte introuvable. Contactez votre administrateur."
+
+msgid "Please wait before requesting another code"
+msgstr "Patientez un instant avant de demander un nouveau code."
+
+msgid "Daily code limit reached"
+msgstr "Limite quotidienne de codes atteinte."
+
+#, python-format
+msgid "Your StaffSync code is %(code)s"
+msgstr "Votre code StaffSync est %(code)s"
+
+msgid "Your login code"
+msgstr "Votre code de connexion"
+
+msgid "Company not found"
+msgstr "Entreprise introuvable."
+
+#, python-format
+msgid "Reset your StaffSync password: %(link)s"
+msgstr "Réinitialisez votre mot de passe StaffSync : %(link)s"
+
+msgid "Reset your password"
+msgstr "Réinitialisez votre mot de passe"
+
+msgid "Invalid or expired reset link"
+msgstr "Ce lien de réinitialisation est invalide ou a expiré."
+
+msgid "Invitation not found"
+msgstr "Invitation introuvable."
+
+msgid "This invitation has expired. Ask for a new one."
+msgstr "Cette invitation a expiré. Demandez-en une nouvelle."
+
+msgid "Current password is incorrect"
+msgstr "Le mot de passe actuel est incorrect."
+
+msgid "Start the setup again"
+msgstr "Recommencez la configuration."
+
+msgid "Password is incorrect"
+msgstr "Le mot de passe est incorrect."
+
+msgid "Invalid refresh token"
+msgstr "Votre session a expiré. Veuillez vous reconnecter."
+
+msgid "Refresh token reuse detected"
+msgstr "Votre session a expiré. Veuillez vous reconnecter."
+
+msgid "Refresh token expired"
+msgstr "Votre session a expiré. Veuillez vous reconnecter."
+
+msgid "Unknown plan or interval"
+msgstr "Offre ou périodicité inconnue."
+
+msgid "This plan is not available yet"
+msgstr "Cette offre n'est pas encore disponible."
+
+msgid "No billing account yet"
+msgstr "Aucun compte de facturation pour le moment."
+
+msgid "Invalid signature"
+msgstr "Signature invalide."
+
+msgid "Your last payment failed. Update your payment method to keep editing in StaffSync."
+msgstr ""
+"Votre dernier paiement a échoué. Mettez à jour votre moyen de paiement pour continuer à modifier vos données dans "
+"StaffSync."
+
+msgid "Payment failed"
+msgstr "Échec du paiement"
+
+msgid "Your StaffSync trial ends in 3 days."
+msgstr "Votre essai StaffSync se termine dans 3 jours."
+
+msgid "Trial ending soon"
+msgstr "Votre essai se termine bientôt"
+
+msgid "Unknown timezone"
+msgstr "Fuseau horaire inconnu."
+
+msgid "A branch with this code already exists"
+msgstr "Une agence avec ce code existe déjà."
+
+msgid "Archive the branch first"
+msgstr "Archivez d'abord l'agence."
+
+msgid "Branch code has been reused; change it before restoring"
+msgstr "Ce code d'agence a été réutilisé ; modifiez-le avant la restauration."
+
+msgid "Typed company name does not match"
+msgstr "Le nom saisi ne correspond pas à celui de l'entreprise."
+
+msgid "Only the owner can delete the company"
+msgstr "Seul le propriétaire peut supprimer l'entreprise."
+
+msgid "A correction is already pending for this record"
+msgstr "Une correction est déjà en attente pour cet enregistrement."
+
+msgid "Correction accepted"
+msgstr "Correction acceptée"
+
+msgid "Correction declined"
+msgstr "Correction refusée"
+
+msgid "File must be UTF-8 encoded CSV"
+msgstr "Le fichier doit être un CSV encodé en UTF-8."
+
+msgid "The file has no header row"
+msgstr "Le fichier n'a pas de ligne d'en-tête."
+
+msgid "Import job not found or expired"
+msgstr "Import introuvable ou expiré."
+
+msgid "Email or phone required"
+msgstr "E-mail ou téléphone requis."
+
+msgid "Duplicate employee number in file"
+msgstr "Numéro d'employé en double dans le fichier."
+
+msgid "File too large (5 MB max)"
+msgstr "Fichier trop volumineux (5 Mo maximum)."
+
+msgid "This employee has no smartphone"
+msgstr "Cet employé n'a pas de smartphone."
+
+msgid "This phone is not the registered device"
+msgstr "Ce téléphone n'est pas l'appareil enregistré."
+
+msgid "The workspace is read-only until payment succeeds"
+msgstr "L'espace de travail est en lecture seule tant que le paiement n'a pas abouti."
+
+msgid "Employee limit of your plan reached"
+msgstr "Le nombre maximal d'employés de votre offre est atteint."
+
+msgid "Unknown site in list"
+msgstr "Site inconnu dans la liste."
+
+msgid "Default site must be one of the assigned sites"
+msgstr "Le site par défaut doit faire partie des sites affectés."
+
+msgid "Branch not found"
+msgstr "Agence introuvable."
+
+msgid "An email or phone number is required so the employee can sign in"
+msgstr "Un e-mail ou un numéro de téléphone est requis pour que l'employé puisse se connecter."
+
+msgid "Email or phone already used"
+msgstr "E-mail ou téléphone déjà utilisé."
+
+msgid "This person is already an employee"
+msgstr "Cette personne est déjà employée."
+
+msgid "This employee number is already used"
+msgstr "Ce numéro d'employé est déjà utilisé."
+
+#, python-format
+msgid "%(company)s invites you to StaffSync. Download the app and sign in with %(login)s."
+msgstr "%(company)s vous invite à rejoindre StaffSync. Téléchargez l'application et connectez-vous avec %(login)s."
+
+msgid "Your company"
+msgstr "Votre entreprise"
+
+msgid "Join StaffSync"
+msgstr "Rejoignez StaffSync"
+
+msgid "No contact to invite"
+msgstr "Aucun contact à inviter."
+
+msgid "The employee was changed by someone else"
+msgstr "Cet employé a été modifié par quelqu'un d'autre. Actualisez et réessayez."
+
+msgid "Employee number, email or phone already used"
+msgstr "Numéro d'employé, e-mail ou téléphone déjà utilisé."
+
+msgid "Deactivate the employee first"
+msgstr "Désactivez d'abord l'employé."
+
+msgid "Employee number has been reused; change it before restoring"
+msgstr "Ce numéro d'employé a été réutilisé ; modifiez-le avant la restauration."
+
+msgid "Another phone is already registered. Ask your admin to reset it."
+msgstr "Un autre téléphone est déjà enregistré. Demandez à votre administrateur de le réinitialiser."
+
+msgid "No registered device"
+msgstr "Aucun appareil enregistré."
+
+msgid "Device reset"
+msgstr "Appareil réinitialisé"
+
+msgid "Your admin reset your registered phone. Sign in again on your new phone."
+msgstr "Votre administrateur a réinitialisé votre téléphone enregistré. Reconnectez-vous depuis votre nouveau téléphone."
+
+msgid "Balances still use this type"
+msgstr "Des soldes utilisent encore ce type."
+
+msgid "Calendar not found"
+msgstr "Calendrier introuvable."
+
+msgid "A holiday already exists on this date"
+msgstr "Un jour férié existe déjà à cette date."
+
+msgid "Two-level approval: the site manager must recommend first"
+msgstr "Approbation à deux niveaux : le responsable du site doit d'abord donner son avis."
+
+msgid "This company uses one-level approval"
+msgstr "Cette entreprise utilise une approbation à un seul niveau."
+
+msgid "Leave type not found"
+msgstr "Type de congé introuvable."
+
+msgid "Half days are not allowed for this leave type"
+msgstr "Les demi-journées ne sont pas autorisées pour ce type de congé."
+
+msgid "Split requests that cross a year end"
+msgstr "Scindez les demandes qui chevauchent deux années."
+
+msgid "The selected dates contain no working days"
+msgstr "Les dates choisies ne contiennent aucun jour travaillé."
+
+msgid "Start date is in the past"
+msgstr "La date de début est dans le passé."
+
+msgid "Request cannot be submitted"
+msgstr "Cette demande ne peut pas être soumise."
+
+msgid "A comment is required"
+msgstr "Un commentaire est requis."
+
+msgid "Leave approved"
+msgstr "Congé approuvé"
+
+msgid "Leave rejected"
+msgstr "Congé refusé"
+
+msgid "Changes requested"
+msgstr "Modifications demandées"
+
+msgid "Leave cancelled"
+msgstr "Congé annulé"
+
+msgid "A reason is required to cancel approved leave"
+msgstr "Un motif est requis pour annuler un congé approuvé."
+
+msgid "Unknown report type or grouping"
+msgstr "Type de rapport ou regroupement inconnu."
+
+msgid "Range too large"
+msgstr "Période trop étendue."
+
+msgid "PDF export is not available on this server"
+msgstr "L'export PDF n'est pas disponible pour le moment."
+
+msgid "Export expired or not found"
+msgstr "Export expiré ou introuvable."
+
+msgid "Unknown or deactivated employee"
+msgstr "Employé inconnu ou désactivé."
+
+msgid "valid_to is before valid_from"
+msgstr "La date de fin précède la date de début."
+
+msgid "Your schedule changed"
+msgstr "Votre planning a changé"
+
+msgid "Resolve or confirm the conflicts before publishing"
+msgstr "Résolvez ou confirmez les conflits avant de publier."
+
+msgid "Shift is cancelled"
+msgstr "Ce créneau est annulé."
+
+msgid "End must be after start"
+msgstr "La fin doit être postérieure au début."
+
+msgid "Your shift was updated"
+msgstr "Votre créneau a été modifié"
+
+msgid "PDF rendering is unavailable on this server"
+msgstr "Le rendu PDF n'est pas disponible pour le moment."
+
+msgid "Branch is archived"
+msgstr "Cette agence est archivée."
+
+msgid "Unknown manager"
+msgstr "Responsable inconnu."
+
+msgid "Unknown employee in list"
+msgstr "Employé inconnu dans la liste."
+
+msgid "A site with this code already exists"
+msgstr "Un site avec ce code existe déjà."
+
+msgid "The site was changed by someone else"
+msgstr "Ce site a été modifié par quelqu'un d'autre. Actualisez et réessayez."
+
+msgid "bbox must be west,south,east,north"
+msgstr "La zone doit être au format ouest,sud,est,nord."
+
+msgid "Deactivate the site first"
+msgstr "Désactivez d'abord le site."
+
+msgid "Site code has been reused; change it before restoring"
+msgstr "Ce code de site a été réutilisé ; modifiez-le avant la restauration."
+
+msgid "Only images are accepted here"
+msgstr "Seules les images sont acceptées ici."
+
+msgid "You cannot grant permissions you do not hold"
+msgstr "Vous ne pouvez pas accorder des droits que vous ne possédez pas."
+
+msgid "A role with this name already exists"
+msgstr "Un rôle portant ce nom existe déjà."
+
+msgid "System roles are locked"
+msgstr "Les rôles système sont verrouillés."
+
+msgid "System roles cannot be deleted"
+msgstr "Les rôles système ne peuvent pas être supprimés."
+
+msgid "Select at least one branch or site"
+msgstr "Sélectionnez au moins une agence ou un site."
+
+msgid "Unknown branch or site in scope"
+msgstr "Agence ou site inconnu dans le périmètre."
+
+msgid "You cannot grant company-wide scope"
+msgstr "Vous ne pouvez pas accorder un accès à toute l'entreprise."
+
+msgid "Branch outside your scope"
+msgstr "Cette agence est en dehors de votre périmètre."
+
+msgid "Site outside your scope"
+msgstr "Ce site est en dehors de votre périmètre."
+
+msgid "This person already has dashboard access"
+msgstr "Cette personne a déjà accès au tableau de bord."
+
+#, python-format
+msgid "%(name)s invited you to StaffSync: %(link)s"
+msgstr "%(name)s vous a invité à rejoindre StaffSync : %(link)s"
+
+msgid "You're invited"
+msgstr "Vous êtes invité"
+
+msgid "The company needs at least one owner"
+msgstr "L'entreprise doit conserver au moins un propriétaire."
+
+msgid "You cannot revoke your own access"
+msgstr "Vous ne pouvez pas révoquer votre propre accès."
+
+msgid "Webhook URL must be https"
+msgstr "L'adresse du webhook doit utiliser https."
+
+msgid "Webhook host cannot be resolved"
+msgstr "L'hôte du webhook est introuvable."
+
+msgid "Webhook URL points to a private address"
+msgstr "L'adresse du webhook pointe vers une adresse privée."
+
+msgid "Check-in flagged"
+msgstr "Pointage signalé"
+
+msgid "New leave request"
+msgstr "Nouvelle demande de congé"
+
+msgid "Correction requested"
+msgstr "Correction demandée"
+
+msgid "No-show"
+msgstr "Absence"
+
+msgid "An employee did not check in"
+msgstr "Un employé n'a pas pointé"
+
+msgid "Don't forget to check out"
+msgstr "N'oubliez pas de pointer votre départ"
+
+#~ msgid "default"
+#~ msgstr ""
+
