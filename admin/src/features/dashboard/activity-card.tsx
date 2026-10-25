@@ -5,12 +5,10 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { StatusChip, type ChipStatus } from "@/components/ui/status-chip";
 import { avatarColors, initials } from "@/components/ui/misc";
-import { DEMO_TODAY, QR_RECORD_IDS } from "@/data/live";
+import { DEMO_TODAY } from "@/data/live";
 import { useOrg } from "@/lib/org";
-import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
-import type { LiveEvent } from "@/types/domain";
 import { useRuledRecords } from "@/lib/attendance-rules";
 
 type Method = "self" | "proxy" | "qr";
@@ -29,34 +27,29 @@ interface Row {
   fresh: boolean;
 }
 
-/** Past days show shifted times so the stream does not look identical every day. */
-const shiftTime = (time: string, day: number) => (day === DEMO_TODAY ? time : formatTime(parseTime(time) + ((day * 7) % 11) - 5));
-
 export function ActivityCard({
   day,
   siteIds,
-  live,
-  tick,
   paused,
   onTogglePause,
 }: {
   day: number;
   siteIds: string[];
-  live: LiveEvent[];
-  tick: number;
   paused: boolean;
   onTogglePause: () => void;
 }) {
   const org = useOrg();
   const t = useTranslations("Dashboard.activity");
   const tm = useTranslations("Dashboard.methods");
-  const today = useRuledRecords(useData((s) => s.today));
+  const todayAll = useRuledRecords(useData((s) => s.today));
+  const historyAll = useRuledRecords(useData((s) => s.history));
   const isToday = day === DEMO_TODAY;
+  const dayRows = useMemo(() => (isToday ? todayAll : historyAll.filter((r) => r.date === day)), [isToday, todayAll, historyAll, day]);
 
   const rows = useMemo<Row[]>(() => {
     const base: Row[] = [];
-    for (const r of today.filter((x) => siteIds.includes(x.site))) {
-      const method: Method = r.method === "behalf" ? "proxy" : QR_RECORD_IDS.includes(r.id) ? "qr" : "self";
+    for (const r of dayRows.filter((x) => siteIds.includes(x.site))) {
+      const method: Method = r.method === "behalf" || r.method === "admin" ? "proxy" : r.method === "qr" ? "qr" : "self";
       const previousDay = r.kind === "recurringN" && r.in > r.sched.split("–")[1];
       if (r.in) {
         base.push({
@@ -71,14 +64,9 @@ export function ActivityCard({
         });
       }
     }
-    const fromFeed: Row[] = isToday
-      ? live
-          .filter((e) => siteIds.includes(e.site))
-          .map((e) => ({ id: e.id, name: e.name, site: e.site, act: e.act, time: e.time, method: e.method, status: e.status, fresh: tick - e.born < 4 }))
-      : [];
     const key = (r: Row) => `${r.previousDay ? "0" : "1"}${r.time}`;
-    return [...fromFeed, ...base].sort((a, b) => (key(a) < key(b) ? 1 : key(a) > key(b) ? -1 : 0)).slice(0, 30);
-  }, [today, siteIds, live, tick, isToday]);
+    return base.sort((a, b) => (key(a) < key(b) ? 1 : key(a) > key(b) ? -1 : 0)).slice(0, 30);
+  }, [dayRows, siteIds]);
 
   return (
     <section className="flex max-h-[470px] min-w-0 flex-[1.3_1_440px] flex-col rounded-xl border border-border bg-surface shadow-card">
@@ -121,7 +109,7 @@ export function ActivityCard({
               <StatusChip status={r.status} className="flex-none whitespace-nowrap" />
               <span className="w-10 flex-none text-right font-mono text-[12px] font-medium text-text-3">
                 {r.previousDay ? `${t("yesterdayShort")} ` : ""}
-                {shiftTime(r.time, day)}
+                {r.time}
               </span>
             </li>
           );

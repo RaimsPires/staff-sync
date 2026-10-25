@@ -18,7 +18,7 @@ from staffsync.modules.leave import rules
 from staffsync.modules.leave.models import Holiday, LeaveApproval, LeaveBalance, LeaveRequest, LeaveType
 from staffsync.modules.leave.schemas import LeaveDraft, LeaveRead, PreviewOut, TimelineEntry, Warning_
 from staffsync.modules.notifications.service import push_in_app
-from staffsync.modules.schedules.models import Shift
+from staffsync.modules.schedules.models import LIVE_SHIFT, Shift
 from staffsync.modules.settings.service import company_settings
 from staffsync.modules.sites.models import Site, SiteManager
 
@@ -157,6 +157,8 @@ async def edit(ctx: RequestContext, emp: Employee, req: LeaveRequest, draft: Lea
         raise NotFound()
     if req.status not in ("pending", "changes_requested"):
         rules.next_status(req.status, "edit")  # raises the standard 409
+    if "attachment_keys" not in draft.model_fields_set:
+        draft.attachment_keys = list(req.attachment_keys)  # omitted means keep the existing files
     pv = await preview(ctx, emp, draft, exclude=req.id)
     if any(w.code in ("OVERLAPS_LEAVE", "DOCUMENT_REQUIRED") for w in pv.warnings):
         raise BusinessRule("Request cannot be submitted", code=next(w.code for w in pv.warnings if w.code in ("OVERLAPS_LEAVE", "DOCUMENT_REQUIRED")))
@@ -188,7 +190,7 @@ async def _release(ctx: RequestContext, req: LeaveRequest, *, used: bool) -> Non
 async def _set_shifts(ctx: RequestContext, req: LeaveRequest, on_leave: bool) -> None:
     emp = await ctx.session.get(Employee, req.employee_id)
     lo, hi = datetime.combine(req.start_date - timedelta(days=1), datetime.min.time(), UTC), datetime.combine(req.end_date + timedelta(days=2), datetime.min.time(), UTC)
-    shifts = (await ctx.session.exec(select(Shift).where(Shift.employee_id == req.employee_id, Shift.starts_at >= lo, Shift.starts_at < hi, Shift.status != "cancelled"))).all()
+    shifts = (await ctx.session.exec(select(Shift).where(Shift.employee_id == req.employee_id, Shift.starts_at >= lo, Shift.starts_at < hi, Shift.status.in_(LIVE_SHIFT)))).all()
     from zoneinfo import ZoneInfo
 
     for sh in shifts:
@@ -232,7 +234,7 @@ async def act(ctx: RequestContext, req: LeaveRequest, action: str, comment: str 
     elif action == "recommend":
         req.recommendation, req.recommendation_comment = "approve", comment
     req.status = new
-    if action == "recommend":
+    if action == "recommend" and new == "recommended":
         req.current_step = 2
     ctx.session.add(req)
     log_action = {"approve": "approved", "reject": "rejected", "request_changes": "changes_requested", "cancel_approved": "cancelled", "recommend": "recommended", "cancel": "cancelled",
@@ -269,13 +271,13 @@ async def coverage(ctx: RequestContext, req: LeaveRequest) -> dict:
     emp = await ctx.session.get(Employee, req.employee_id)
     assert emp is not None
     site_ids = select(Shift.site_id).where(Shift.employee_id == emp.id, Shift.starts_at >= datetime.combine(req.start_date, datetime.min.time(), UTC),
-                                           Shift.starts_at < datetime.combine(req.end_date + timedelta(days=1), datetime.min.time(), UTC), Shift.status != "cancelled")
+                                           Shift.starts_at < datetime.combine(req.end_date + timedelta(days=1), datetime.min.time(), UTC), Shift.status.in_(LIVE_SHIFT))
     others = (await ctx.session.exec(select(LeaveRequest, Employee, User).join(Employee, Employee.id == LeaveRequest.employee_id).join(User, User.id == Employee.user_id)
               .where(LeaveRequest.status.in_(["approved", "pending", "recommended"]), LeaveRequest.id != req.id, LeaveRequest.company_id == ctx.company_id, LeaveRequest.start_date <= req.end_date,  # type: ignore[attr-defined]
                      LeaveRequest.end_date >= req.start_date, or_(Employee.branch_id == emp.branch_id,
                      Employee.id.in_(select(Shift.employee_id).where(Shift.site_id.in_(site_ids))))))).all()
     affected = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp.id, Shift.starts_at >= datetime.combine(req.start_date, datetime.min.time(), UTC),
-                                                           Shift.starts_at < datetime.combine(req.end_date + timedelta(days=1), datetime.min.time(), UTC), Shift.status != "cancelled"))).all()
+                                                           Shift.starts_at < datetime.combine(req.end_date + timedelta(days=1), datetime.min.time(), UTC), Shift.status.in_(LIVE_SHIFT)))).all()
     return {"colleagues_off": [{"employee_id": e.id, "name": u.full_name, "start": l.start_date, "end": l.end_date, "status": l.status, "leave_type_id": l.leave_type_id} for l, e, u in others],
             "affected_shifts": [{"id": s.id, "starts_at": s.starts_at, "ends_at": s.ends_at, "intervention": s.is_intervention, "site_id": s.site_id} for s in affected]}
 

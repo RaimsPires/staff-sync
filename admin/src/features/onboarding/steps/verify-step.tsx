@@ -89,8 +89,7 @@ export function VerifyStep() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  resend();
-                  toast(t("newCode", { email: shownEmail }));
+                  void resend().then((ok) => toast(ok ? t("newCode", { email: shownEmail }) : t("resendFailed"), ok ? "ok" : "bad"));
                 }}
               >
                 {t("resend")}

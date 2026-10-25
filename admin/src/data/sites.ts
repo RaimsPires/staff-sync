@@ -39,13 +39,5 @@ export const MANAGED_BRANCHES: ManagedBranch[] = [
   { id: "bdx", name: "Bordeaux", code: "BDX", address: "5 Cours du Médoc, 33300 Bordeaux", timezone: "Europe/Paris", admins: [], holidays: "fr", workflow: "default", rate: 0, archived: true },
 ];
 
-export const MANAGER_POOL = [
-  { name: "Nadia Koné", role: "branchManager", phone: "06 21 18 44 70" },
-  { name: "Julien Roche", role: "siteManager", phone: "06 33 70 12 08" },
-  { name: "Marc Olivier", role: "siteManager", phone: "06 20 81 37 52" },
-  { name: "Sarah Benoît", role: "siteManager", phone: "06 48 02 91 15" },
-  { name: "Hugo Martel", role: "teamLead", phone: "06 72 55 31 64" },
-] as const;
-
 export const ADMIN_POOL = ["Nadia Koné", "Julien Roche", "Marc Olivier", "Sarah Benoît", "Claire Vasseur", "Hugo Martel"];
 export const TIMEZONES_EU = ["Europe/Paris", "Europe/London", "Europe/Brussels", "Europe/Madrid", "Indian/Reunion", "America/Martinique"];

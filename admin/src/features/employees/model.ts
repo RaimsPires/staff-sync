@@ -1,6 +1,6 @@
 import type { Org } from "@/lib/org";
 import { JOB_TITLES } from "@/data/employees";
-import type { AppStatus, Employee, EmployeeStatus, JobTitle, LeavePolicy } from "@/types/employee";
+import type { AppStatus, Employee, EmployeeDraft, EmployeeStatus, JobTitle, LeavePolicy } from "@/types/employee";
 
 export interface EmployeeFilters {
   query: string;
@@ -104,10 +104,19 @@ export function validateRows(rows: string[][], map: ColumnMap, existingIds: stri
 
 export function rowToEmployee(p: PreviewRow, org: Org): Employee {
   const site = org.sites.find((s) => s.name === p.site);
-  const branchId = org.branches.find((b) => b.name === p.branch)?.id ?? site?.branchId ?? "lyon";
+  const branchId = org.branches.find((b) => b.name === p.branch)?.id ?? site?.branchId ?? org.branches[0]?.id ?? "";
   return {
     id: p.id, name: p.name, branchId, siteIds: site ? [site.id] : [], title: (p.title as JobTitle) || "cleaner", phone: p.phone || "—",
-    app: p.phone ? "invited" : "none", attendance: 0, status: "invited", access: "employee", contract: "cdi", startDate: "2026-10-15", selfie: "inherit",
+    app: p.phone ? "invited" : "none", attendance: 0, status: "invited", access: "employee", contract: "cdi", startDate: new Date().toISOString().slice(0, 10), selfie: "inherit",
+  };
+}
+
+/** The fields the server needs to create an employee from an imported row. */
+export function draftFromEmployee(e: Employee): EmployeeDraft {
+  const smartphone = e.app !== "none";
+  return {
+    id: e.id, name: e.name, branchId: e.branchId, siteIds: e.siteIds, title: e.title, phone: e.phone === "—" ? "" : e.phone, email: e.email, smartphone, invite: smartphone,
+    access: e.access, contract: e.contract, startDate: e.startDate, selfie: e.selfie,
   };
 }
 

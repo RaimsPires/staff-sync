@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Crypto from 'expo-crypto';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -19,7 +19,7 @@ import { distanceToGeofenceM, isInsideGeofence } from '@/domain';
 import { QrStep } from '@/features/attendance/check-flow/camera-steps';
 import { Avatar, Button, Icon, ResultView, RoundButton, Screen, Stepper, Text, useToast } from '@/ui';
 
-import { useRoster } from './queries';
+import { useManagerSites, useRoster } from './queries';
 
 type Params = { type?: 'check_in' | 'check_out'; employeeId?: string; scan?: string; siteId?: string };
 type Result = 'ok' | 'flagged' | 'unscheduled' | 'offline';
@@ -37,7 +37,8 @@ export function ProxyScreen() {
   const params = useLocalSearchParams<Params>();
   const type = params.type ?? 'check_in';
   const out = type === 'check_out';
-  const siteId = params.siteId ?? 'site-a';
+  const { siteId: defaultSiteId } = useManagerSites();
+  const siteId = params.siteId ?? defaultSiteId;
 
   const { data: roster = [] } = useRoster(siteId);
   const { data: today = [] } = useQuery({ queryKey: qk.assignmentsToday, queryFn: () => repos.schedule.getToday() });
@@ -53,6 +54,8 @@ export function ProxyScreen() {
   const [pinError, setPinError] = useState<string>();
   const [locked, setLocked] = useState(false);
   const [photo, setPhoto] = useState<string>();
+  // One key per attempt, so a retry after a dropped response cannot record the check twice.
+  const eventId = useRef(Crypto.randomUUID());
   const [note, setNote] = useState('');
   const [fix, setFix] = useState<Fix>();
   const [checking, setChecking] = useState(false);
@@ -105,7 +108,7 @@ export function ProxyScreen() {
   const scanned = async (payload: string) => {
     setScanning(false);
     try {
-      const entry = await repos.manager.findByBadge(payload);
+      const entry = await repos.manager.findByBadge(payload, siteId);
       setBadgeToken(payload);
       pick(entry.employeeId);
     } catch {
@@ -151,6 +154,8 @@ export function ProxyScreen() {
     mutationFn: async (acceptUnscheduled: boolean) => {
       const f = fix ?? (await captureFix());
       return repos.manager.proxyCheck({
+        clientEventId: eventId.current,
+        siteId,
         employeeId,
         badgeToken,
         pin: pinOk ? pin : undefined,
@@ -184,6 +189,7 @@ export function ProxyScreen() {
       id: Crypto.randomUUID(),
       employeeName: target.name,
       input: {
+        siteId,
         employeeId,
         badgeToken,
         photoUri: photo,
@@ -306,7 +312,7 @@ export function ProxyScreen() {
                   {p.name}
                 </Text>
                 <Text variant="small" tone="muted" style={styles.regular}>
-                  {out ? t('manager.inSince', { time: p.checkInAt ?? '' }) : t('manager.scheduledAt', { time: p.scheduled.start })}
+                  {out ? t('manager.inSince', { time: p.checkInAt ?? '' }) : p.scheduled.start ? t('manager.scheduledAt', { time: p.scheduled.start }) : t('manager.notScheduledHere')}
                 </Text>
               </View>
               <Icon name="chevron-forward" size={20} tone="primary" />

@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/overlay";
 import { StatusChip } from "@/components/ui/status-chip";
 import { useToast } from "@/components/ui/toast";
-import { RECORDS } from "@/data/records";
+import { createRecord } from "@/services/attendance";
 import { useOrg } from "@/lib/org";
 import { DEMO_TODAY } from "@/data/live";
-import { formatDuration, parseTime, wrapDelta } from "@/lib/time";
+import { parseTime, wrapDelta } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useData } from "@/store/data";
 import type { AttendanceRecord, RecordStatus } from "@/types/domain";
-import { employeeCode, newManualId, withDate } from "./model";
+import { employeeCode, withDate } from "./model";
 
 const STATUSES: RecordStatus[] = ["ontime", "late", "early", "absent", "missing", "overtime", "leave", "holiday"];
 const NO_TIMES: RecordStatus[] = ["absent", "leave", "holiday"];
@@ -54,13 +54,12 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
   const toast = useToast();
   const today = useData((s) => s.today);
   const history = useData((s) => s.history);
-  const addRecord = useData((s) => s.addRecord);
 
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [empId, setEmpId] = useState<number | null>(null);
   const [site, setSite] = useState("");
-  const [date, setDate] = useState("2026-10-15");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [timeIn, setTimeIn] = useState("08:00");
   const [timeOut, setTimeOut] = useState("17:00");
   const [status, setStatus] = useState<"auto" | RecordStatus>("auto");
@@ -68,11 +67,11 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [tried, setTried] = useState(false);
 
-  const base = empId ? (RECORDS.find((r) => r.id === empId) ?? null) : null;
+  const base = empId ? (today.find((r) => r.id === empId) ?? null) : null;
   const q = query.trim().toLowerCase();
   const results = useMemo(
-    () => RECORDS.filter((r) => siteIds.includes(r.site)).filter((r) => !q || r.name.toLowerCase().includes(q) || employeeCode(r).toLowerCase().includes(q)).slice(0, 6),
-    [q, siteIds],
+    () => today.filter((r) => siteIds.includes(r.site)).filter((r) => !q || r.name.toLowerCase().includes(q) || employeeCode(r).toLowerCase().includes(q)).slice(0, 6),
+    [q, siteIds, today],
   );
 
   const noTimes = status !== "auto" && NO_TIMES.includes(status);
@@ -110,31 +109,17 @@ function Form({ siteIds, actor, onClose, onOpenRecord }: { siteIds: string[]; ac
 
   const errors = [!base, timeError, inError, !!overlap, !reason.trim()].filter(Boolean).length;
 
-  const save = () => {
+  const save = async () => {
     if (errors > 0 || !base) return setTried(true);
     const finalStatus: RecordStatus = status === "auto" ? (auto ?? "ontime") : status;
-    const record: AttendanceRecord = {
-      ...base,
-      id: newManualId(history),
-      emp: base.id,
-      date: day,
-      site: site || base.site,
-      in: noTimes ? "" : timeIn,
-      out: noTimes ? "" : timeOut,
-      worked: !noTimes && timeIn && timeOut ? formatDuration(timeIn, timeOut) : "",
-      status: finalStatus,
-      method: "admin",
-      edit: { by: actor, at: "15 Oct 10:42" },
-      manualReason: reason.trim(),
-      evidence: files,
-      offline: false,
-      flag: undefined,
-      dist: undefined,
-      lateBy: undefined,
-      cleared: false,
-      fraud: false,
-    };
-    addRecord(record);
+    try {
+      await createRecord({
+        empRowId: base.id, siteId: site || undefined, date, in: noTimes ? "" : timeIn, out: noTimes ? undefined : timeOut || undefined,
+        status: status === "auto" ? undefined : finalStatus, reason: reason.trim(),
+      });
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("failed"), "bad");
+    }
     toast(`${t("added", { name: base.name })}${files.length ? ` · ${t("filesAttached", { count: files.length })}` : ""}`);
     onClose();
   };

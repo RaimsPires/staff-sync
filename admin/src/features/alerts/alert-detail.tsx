@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { RecordMap } from "@/components/map/record-map";
 import { Avatar } from "@/components/ui/misc";
-import { ESCALATION_ADMINS, FENCE_RADIUS, type AlertItem, type RejectOutcome } from "@/data/alerts";
+import { FENCE_RADIUS, type AlertItem, type RejectOutcome } from "@/data/alerts";
+import type { Assignee } from "@/services/alerts";
 import { useOrg } from "@/lib/org";
 import { offsetMeters } from "@/lib/geo";
 import { cn } from "@/lib/utils";
@@ -22,12 +23,12 @@ export interface DetailHandlers {
 
 const smallButton = "h-[34px] whitespace-nowrap rounded-[9px] border border-solid border-border-strong bg-surface px-3 text-[13px] font-medium text-text";
 
-export function AlertDetail({ item, ...handlers }: { item: AlertItem } & DetailHandlers) {
+export function AlertDetail({ item, assignees, ...handlers }: { item: AlertItem; assignees: Assignee[] } & DetailHandlers) {
   // The form state belongs to one alert; remount when another is opened.
-  return <DetailBody key={item.id} item={item} {...handlers} />;
+  return <DetailBody key={item.id} item={item} assignees={assignees} {...handlers} />;
 }
 
-function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: AlertItem } & DetailHandlers) {
+function DetailBody({ item, assignees, onResolve, onNote, onEscalate, onContact }: { item: AlertItem; assignees: Assignee[] } & DetailHandlers) {
   const org = useOrg();
   const t = useTranslations("Alerts.detail");
   const ta = useTranslations("Alerts");
@@ -36,14 +37,14 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
   const [action, setAction] = useState<Action | null>(null);
   const [text, setText] = useState("");
   const [outcome, setOutcome] = useState<RejectOutcome>("absent");
-  const [escTo, setEscTo] = useState(ESCALATION_ADMINS[0]);
+  const [escTo, setEscTo] = useState(assignees[0]?.id ?? "");
 
   const site = org.siteById(item.site);
-  const fence = FENCE_RADIUS[item.site];
+  const fence = site.geofence.kind === "circle" ? site.geofence.radius : (FENCE_RADIUS[item.site] ?? 0);
   const hasPosition = item.tab !== "unc";
   const isIntervention = item.tab === "unc";
-  const title = isIntervention ? tItems(`${item.id}.title`) : item.name;
-  const roleLabel = isIntervention ? tItems(`${item.id}.slot`) : ta(`roles.${item.role}`);
+  const title = item.title ?? (isIntervention ? tItems(`${item.id}.title`) : item.name);
+  const roleLabel = item.slot ?? (isIntervention ? tItems(`${item.id}.slot`) : ta(`roles.${item.role}`));
   const tone = REASON_TONE[item.reason];
   const outside = item.distance > fence;
   const badAccuracy = item.accuracy > 50;
@@ -110,7 +111,7 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
             <span className="size-1.5 rounded-full" style={{ background: `var(--${tone.name}-dot)` }} />
             {reasonText}
           </span>
-          <div className="text-[13px] text-text-2">{tItems(`${item.id}.description`)}</div>
+          <div className="text-[13px] text-text-2">{item.description ?? tItems(`${item.id}.description`)}</div>
           <div className="text-[12px] text-text-3">{t("meta", { when: when(item), severity: ta(`severity.${item.severity}`) })}</div>
         </div>
 
@@ -195,7 +196,7 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
             <div className="font-semibold">
               {item.status === "approved" ? t("resolved.approved", { name: item.resolution.by }) : t(item.resolution.outcome === "invalid" ? "resolved.rejectedInvalid" : "resolved.rejectedAbsent", { name: item.resolution.by })}
             </div>
-            <div>{tItems(`${item.id}.resolution`)}</div>
+            <div>{item.real ? item.resolutionNote : tItems(`${item.id}.resolution`)}</div>
           </div>
         )}
       </div>
@@ -207,7 +208,7 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
             <button onClick={() => toggle("reject")} className={cn(smallButton, "text-bad", action === "reject" && "outline outline-2 outline-accent")}>{t("actions.reject")}</button>
             <button onClick={() => toggle("contact")} className={cn(smallButton, action === "contact" && "bg-hover")}>{t("actions.contact")}</button>
             <button onClick={() => toggle("note")} className={cn(smallButton, action === "note" && "bg-hover")}>{t("actions.note")}</button>
-            <button onClick={() => toggle("esc")} className={cn(smallButton, action === "esc" && "bg-hover")}>{t("actions.escalate")}</button>
+            {assignees.length > 0 && <button onClick={() => toggle("esc")} className={cn(smallButton, action === "esc" && "bg-hover")}>{t("actions.escalate")}</button>}
           </div>
 
           {action === "contact" && (
@@ -242,8 +243,8 @@ function DetailBody({ item, onResolve, onNote, onEscalate, onContact }: { item: 
               )}
               {action === "esc" && (
                 <select value={escTo} onChange={(e) => setEscTo(e.target.value)} aria-label={t("form.escalateTo")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
-                  {ESCALATION_ADMINS.map((n) => (
-                    <option key={n}>{n}</option>
+                  {assignees.map((a) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>
               )}

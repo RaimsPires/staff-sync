@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import MapView, { Circle, Marker, Polygon } from 'react-native-maps';
 
@@ -11,10 +12,13 @@ type Props = {
   interactive?: boolean;
   /** Static preview: no user dot, no gestures, no border (used inside sheets and cards). */
   snapshot?: boolean;
-  /** Bump to re-fit the camera to the site and user (the "Recenter" button). */
+  /** Bump to fly the camera to the user's position, zoomed in close (the "Recenter" button). */
   recenterKey?: number;
   style?: StyleProp<ViewStyle>;
 };
+
+/** About 200 m across: close enough to see where you stand against the boundary. */
+const CLOSE_DELTA = 0.0018;
 
 const toCoord = (p: LatLng) => ({ latitude: p.lat, longitude: p.lng });
 
@@ -36,11 +40,21 @@ function regionFor(site: Site, user?: LatLng) {
 export function SiteMap({ site, user, interactive = false, snapshot = false, recenterKey = 0, style }: Props) {
   const { colors, isDark } = useTheme();
   const fill = `${colors.primary}33`;
-  const key = `${site.id}-${user ? 'u' : 'n'}-${recenterKey}`;
+  const key = `${site.id}-${user ? 'u' : 'n'}`;
+  const mapRef = useRef<MapView>(null);
+
+  // Recenter: go to the user and zoom in; with no position yet, show the site instead.
+  useEffect(() => {
+    if (recenterKey === 0) return;
+    const target = user ?? site.center;
+    mapRef.current?.animateToRegion({ ...toCoord(target), latitudeDelta: CLOSE_DELTA, longitudeDelta: CLOSE_DELTA }, 450);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recenterKey]);
 
   return (
     <View style={[styles.wrap, { borderColor: snapshot ? 'transparent' : colors.line }, style]} pointerEvents={snapshot ? 'none' : 'auto'}>
       <MapView
+        ref={mapRef}
         key={key}
         style={StyleSheet.absoluteFill}
         initialRegion={regionFor(site, user)}

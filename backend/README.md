@@ -18,6 +18,20 @@ uv run arq staffsync.workers.settings.WorkerSettings   # outbox relay, absences,
 
 In dev, e-mail/SMS codes are written to the server log (`notify` lines) instead of being sent.
 
+Demo data: `make seed` loads "Demo Logistics" (owner `owner@staffsync.app` / `staffsync-demo-1`, two sites, five employees; the phone numbers are printed). It stops if the demo owner already exists; `make reset` wipes the database first. `make worker` runs the background worker, which the live board needs (events reach the browser through the outbox relay).
+
+Whole stack in one command: `../scripts/dev.sh` (add `--seed` once, `--lan` for a phone).
+
+## Configuration and providers
+
+Everything that needs a credential is a setting in `.env` (see `.env.example`, which documents each one): SMTP for e-mail, Twilio or Africa's Talking for SMS, Expo for push, S3 for files, Google and Microsoft for dashboard sign-in, Play Integrity, Stripe. Leave a group empty and that feature keeps its development behaviour (codes and links in the server log, files on local disk, sign-in buttons say "not set up").
+
+## Production notes
+
+- `CORS_ORIGINS` (JSON list) must contain the dashboard's origin.
+- The refresh cookie is `SameSite=Strict`, so the dashboard and the API must be on the same site (for example `app.example.com` and `api.example.com`); different registrable domains would need `SameSite=None`.
+- Set `APP_ENV=prod`, real `JWT_SECRET`, `SERVER_PEPPER`, `FIELD_ENCRYPTION_KEY`, an S3 bucket, and the e-mail, SMS and push providers; the dev adapters only print to the console and do not store uploads.
+
 ## Tests
 
 ```bash
@@ -38,6 +52,5 @@ Real and tested: auth (password+TOTP, mobile OTP, refresh rotation with reuse de
 geofences, employees/devices/CSV import, roles & scopes, schedules and shift expansion, the check-in pipeline (offline sync,
 proxy, PIN lockout), alerts/corrections, leave, audit, dashboard, reports (CSV/XLSX), webhooks, Stripe webhook handling, soft delete/trash.
 
-Stubs / need credentials: SMS/e-mail/push providers (console adapter), S3 (local fake unless `S3_BUCKET`), Play Integrity /
-App Attest verification, SSO (Authlib endpoints return `SSO_NOT_CONFIGURED`), PDF exports, scheduled report e-mails, Stripe
-checkout/portal (need `STRIPE_SECRET_KEY` and `STRIPE_PRICES`).
+Built but needs credentials to act for real: e-mail, SMS, push, S3, Google/Microsoft sign-in, Play Integrity, Stripe checkout and
+portal. Not built: iOS App Attest verification.

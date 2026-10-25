@@ -1,5 +1,6 @@
 "use client";
 
+import { useHeadcounts } from "./use-headcounts";
 import { MoreHorizontal, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -12,7 +13,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Popover } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
 import { EmptyState } from "@/components/ui/misc";
-import { MANAGER_POOL } from "@/data/sites";
+import { useUsers } from "@/store/users";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { siteRate, useSites } from "@/store/sites";
@@ -26,6 +27,8 @@ const TONE = { ok: "var(--ok-dot)", warn: "var(--warn-dot)", bad: "var(--bad-dot
 const tone = (s: ManagedSite): SitePin["tone"] => (!s.active ? "neutral" : s.expected && s.present / s.expected < 0.85 ? "warn" : "ok");
 
 export function SitesBrowser({ initialSelected }: { initialSelected?: string }) {
+  useHeadcounts();
+  const managerUsers = useUsers((s) => s.users).filter((u) => u.status === "active");
   const t = useTranslations("Sites");
   const router = useRouter();
   const toast = useToast();
@@ -85,7 +88,7 @@ export function SitesBrowser({ initialSelected }: { initialSelected?: string }) 
         </select>
         <select value={manager} onChange={(e) => setManager(e.target.value)} aria-label={t("filters.manager")} className={select}>
           <option value="all">{t("filters.allManagers")}</option>
-          {MANAGER_POOL.map((m) => <option key={m.name}>{m.name}</option>)}
+          {managerUsers.map((m) => <option key={m.id}>{m.name}</option>)}
         </select>
         <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} aria-label={t("filters.status")} className={select}>
           <option value="all">{t("filters.anyStatus")}</option>

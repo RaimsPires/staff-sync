@@ -3,6 +3,7 @@ from uuid import UUID
 
 import segno
 from fastapi import APIRouter, Depends, File, Header, Query, Response, UploadFile
+from pydantic import BaseModel, Field
 from sqlmodel import select
 
 from staffsync.common.enums import Perm
@@ -217,3 +218,16 @@ async def employee_device(employee_id: UUID, ctx=require(Perm.EMPLOYEES_VIEW)):
 @router.post("/employees/{employee_id}/device/reset", status_code=204)
 async def reset_device(employee_id: UUID, ctx=require(Perm.DEVICES_RESET)):
     await service.reset_device(ctx, await service.EmployeeRepository(ctx).get(employee_id))
+
+
+class EraseIn(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
+@router.post("/employees/{employee_id}/erase", status_code=204)
+async def erase_employee(employee_id: UUID, body: EraseIn, ctx=require(Perm.EMPLOYEES_MANAGE, Perm.ROLES_MANAGE)):
+    """Permanently remove a person's personal data. Owner-level, and asks for the administrator's password again."""
+    from staffsync.modules.employees import erasure
+
+    emp = await service.EmployeeRepository(ctx).get(employee_id, include_deleted=True)
+    await erasure.erase_employee(ctx, emp, body.password)

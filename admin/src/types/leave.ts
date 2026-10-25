@@ -47,5 +47,7 @@ export interface LeaveRequest {
   /** Waiting for the current user's decision. */
   waitingOnMe: boolean;
   rejection?: string;
+  /** The site manager's opinion, when one was given. */
+  recommendation?: { decision: "approve" | "reject"; comment: string };
   log: LeaveLogEntry[];
 }

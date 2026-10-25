@@ -5,22 +5,12 @@ import { useState } from "react";
 import { Tabs } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { useReports } from "@/store/reports";
-import type { ReportConfig, ReportSchedule, ReportType, SavedReport } from "@/types/reports";
+import type { ReportConfig, ReportType, SavedReport } from "@/types/reports";
 import { SaveDialog, ScheduleDialog, type ScheduleResult } from "./dialogs";
-import { DAY_MS, defaultConfig, REPORTS, WEEKDAYS } from "./model";
+import { defaultConfig, nextDelivery, REPORTS } from "./model";
 import { ReportLibrary } from "./report-library";
 import { ReportView } from "./report-view";
 import { SavedReports } from "./saved-reports";
-
-const TODAY = Date.UTC(2026, 9, 15);
-
-/** The next planned delivery for a schedule, relative to the demo "today". */
-function nextDelivery(s: ReportSchedule): SavedReport["delivery"] {
-  const next = s.freq === "daily" ? TODAY + DAY_MS
-    : s.freq === "weekly" ? TODAY + (((WEEKDAYS.indexOf(s.day as (typeof WEEKDAYS)[number]) + 1 - new Date(TODAY).getUTCDay() + 7) % 7) || 7) * DAY_MS
-    : Date.UTC(2026, 10, 1);
-  return { kind: "next", iso: new Date(next).toISOString().slice(0, 10) };
-}
 
 export function ReportsScreen() {
   const t = useTranslations("Reports");
@@ -58,9 +48,13 @@ export function ReportsScreen() {
             initialName={loaded?.name ?? ""}
             updating={!!loaded}
             onClose={() => setSaving(false)}
-            onSave={(name) => {
-              if (loaded) update(loaded.id, config, name);
-              else setLoadedId(create(name, config));
+            onSave={async (name) => {
+              try {
+                if (loaded) update(loaded.id, config, name);
+                else setLoadedId(await create(name, config));
+              } catch (e) {
+                return toast(e instanceof Error ? e.message : t("save.failed"), "bad");
+              }
               setSaving(false);
               toast(t("save.saved"));
             }}
@@ -72,9 +66,13 @@ export function ReportsScreen() {
             existing={target?.schedule ?? null}
             onClose={() => setScheduling(null)}
             onRemove={() => { if (target) setSchedule(target.id, null, { kind: "never" }); setScheduling(null); toast(t("schedule.removed")); }}
-            onSave={({ name, schedule }: ScheduleResult) => {
-              if (target) setSchedule(target.id, schedule, nextDelivery(schedule));
-              else setLoadedId(create(name, config, schedule, nextDelivery(schedule)));
+            onSave={async ({ name, schedule }: ScheduleResult) => {
+              try {
+                if (target) setSchedule(target.id, schedule, nextDelivery(schedule));
+                else setLoadedId(await create(name, config, schedule, nextDelivery(schedule)));
+              } catch (e) {
+                return toast(e instanceof Error ? e.message : t("save.failed"), "bad");
+              }
               setScheduling(null);
               toast(t("schedule.saved", { count: schedule.recipients.length }));
             }}

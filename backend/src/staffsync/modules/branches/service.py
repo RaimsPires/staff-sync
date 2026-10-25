@@ -106,6 +106,12 @@ async def delete(ctx: RequestContext, branch: Branch, reason: str) -> None:
 
 
 async def restore_branch(ctx: RequestContext, branch: Branch) -> Branch:
+    """Bring back a deleted branch, or reactivate an archived one."""
+    if branch.deleted_at is None and branch.status == "archived":
+        branch.status = "active"
+        ctx.session.add(branch)
+        audit(ctx, "branch.unarchived", "branch", branch.id)
+        return branch
     clash = (await ctx.session.exec(select(Branch).where(Branch.company_id == ctx.company_id, Branch.code == branch.code, Branch.id != branch.id))).first()
     if clash:
         raise Conflict("Branch code has been reused; change it before restoring", code="CODE_TAKEN")

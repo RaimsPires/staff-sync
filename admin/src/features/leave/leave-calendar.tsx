@@ -7,7 +7,7 @@ import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useLeave } from "@/store/leave";
 import { useAccess } from "@/store/use-access";
-import { DAY_MS, HOLIDAY_ISO, parseIso, toIso, TODAY_ISO, weekdayOf } from "./model";
+import { DAY_MS, parseIso, toIso, TODAY_ISO, weekdayOf } from "./model";
 import { useLeaveTypes } from "./use-leave-types";
 
 const select = "h-[34px] max-w-[190px] rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text";
@@ -18,10 +18,10 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
   const t = useTranslations("Leave.calendar");
   const leaveTypes = useLeaveTypes();
   const tRoles = useTranslations("Alerts.roles");
-  const tHol = useTranslations("Leave.calendar.holidays");
   const format = useFormatter();
   const { siteIds } = useAccess();
   const requests = useLeave((s) => s.requests);
+  const holidays = useLeave((s) => s.holidays);
 
   const [scale, setScale] = useState<"month" | "quarter">("month");
   const [anchor, setAnchor] = useState(TODAY);
@@ -72,7 +72,7 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
     const d = period.a + i * DAY_MS;
     const w = weekdayOf(d);
     const iso = toIso(d);
-    return { d, w, iso, holiday: HOLIDAY_ISO[iso], today: d === TODAY, weekend: w >= 5, dom: new Date(d).getUTCDate() };
+    return { d, w, iso, holiday: holidays[iso], today: d === TODAY, weekend: w >= 5, dom: new Date(d).getUTCDate() };
   });
   const months: { label: string; width: number }[] = [];
   for (let d = period.a; d <= period.b; ) {
@@ -120,7 +120,7 @@ export function LeaveCalendar({ onOpen }: { onOpen: (id: string) => void }) {
             <div className="sticky left-0 z-[3] w-[190px] flex-none border-r border-border bg-surface px-3 py-1.5 text-[11.5px] font-semibold uppercase tracking-wide text-text-3">{t("employee")}</div>
             <div className="flex">
               {days.map((x) => (
-                <div key={x.iso} title={x.holiday ? t("holidayTitle", { name: tHol(x.holiday) }) : undefined} className={cn("flex-none py-1 text-center text-[10.5px]", cellBg(x), x.holiday ? "text-warn" : x.today ? "font-semibold text-accent" : "text-text-3")} style={{ width: cw }}>
+                <div key={x.iso} title={x.holiday ? t("holidayTitle", { name: x.holiday }) : undefined} className={cn("flex-none py-1 text-center text-[10.5px]", cellBg(x), x.holiday ? "text-warn" : x.today ? "font-semibold text-accent" : "text-text-3")} style={{ width: cw }}>
                   <div>{scale === "month" || x.w === 0 || x.dom === 1 ? x.dom : ""}</div>
                   {scale === "month" && <div>{weekdayLetters[x.w]}</div>}
                 </div>

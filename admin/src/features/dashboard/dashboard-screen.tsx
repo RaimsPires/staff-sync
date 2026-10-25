@@ -2,9 +2,11 @@
 
 import { Building2, GitBranch, MapPin, RefreshCw, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { loadOverview, loadToday, type Overview } from "@/services/attendance";
+import { useLiveFeed } from "@/store/live-feed";
 import { DEMO_TODAY } from "@/data/live";
-import { lateShiftBySite, useAttendanceRules } from "@/lib/attendance-rules";
+import { useRuledRecords } from "@/lib/attendance-rules";
 import { useOrg } from "@/lib/org";
 import { sitesIn } from "@/lib/scope";
 import { cn } from "@/lib/utils";
@@ -18,10 +20,9 @@ import { KpiCards, type Kpi } from "./kpi-cards";
 import { LiveMapCard } from "./live-map-card";
 import { MethodsCard } from "./methods-card";
 import { NewCompanyView } from "./new-company-view";
-import { kpiDelta, methodCounts, punctuality, siteDay, sumBy, trendSeries } from "./metrics";
+import { kpiDelta, methodCounts, punctuality, siteDay, sumBy, type TrendPoint } from "./metrics";
 import { PunctualityCard, type PunctualityGroup } from "./punctuality-card";
 import { TrendCard, type TrendRange } from "./trend-card";
-import { useLiveFeed } from "./use-live-feed";
 import { useSettings } from "@/store/settings";
 
 const SCOPE_ICON: Record<string, { icon: LucideIcon; chip: string }> = {
@@ -44,21 +45,47 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
   const [pinOpen, setPinOpen] = useState<string | null>(initialSite);
   const [range, setRange] = useState<TrendRange>(7);
   const [by, setBy] = useState<PunctualityGroup>("branch");
-  const spinTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(spinTimer.current), []);
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   const isToday = day === DEMO_TODAY;
-  const feed = useLiveFeed(!isNew, isToday && !paused, siteIds);
+  const loadedAt = useLiveFeed((st) => st.loadedAt);
+  const setFeedPaused = useLiveFeed((st) => st.setPaused);
 
-  const rules = useAttendanceRules();
-  const todayRecords = useData((s) => s.today);
-  const lateShift = useMemo(() => lateShiftBySite(todayRecords, rules), [todayRecords, rules]);
-  const rows = useMemo(() => sitesIn(siteIds, org).map((s) => siteDay(s, day, lateShift[s.id] ?? 0)), [siteIds, day, org, lateShift]);
+  // Seconds-since-update clock, and the pause switch shared with the live feed.
+  useEffect(() => {
+    if (isNew) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [isNew]);
+  useEffect(() => {
+    setFeedPaused(paused);
+    return () => setFeedPaused(false);
+  }, [paused, setFeedPaused]);
+
+  const todayRecords = useRuledRecords(useData((s) => s.today));
+  const historyRecords = useRuledRecords(useData((s) => s.history));
+  const dayRecords = useMemo(() => (isToday ? todayRecords : historyRecords.filter((r) => r.date === day)), [isToday, todayRecords, historyRecords, day]);
+  const rows = useMemo(() => sitesIn(siteIds, org).map((s) => siteDay(s, dayRecords)), [siteIds, org, dayRecords]);
   const expected = sumBy(rows, "expected");
   const present = sumBy(rows, "present");
   const pending = pendingIn(leaveRequests, siteIds).length;
-  const trend = useMemo(() => trendSeries(rows, day, range), [rows, day, range]);
-  const methods = useMemo(() => methodCounts(rows), [rows]);
+
+  // Trend and the comparison with yesterday come from the server; refreshed when the day's numbers change.
+  const signature = `${todayRecords.length}:${todayRecords.filter((r) => r.in).length}`;
+  useEffect(() => {
+    if (isNew) return;
+    let live = true;
+    loadOverview(range).then((o) => live && setOverview(o), () => undefined);
+    return () => {
+      live = false;
+    };
+  }, [range, signature, isNew]);
+  const trend = useMemo(() => {
+    const points: TrendPoint[] = (overview?.trend ?? []).map((p, i) => ({ index: i, day: Number(p.date.slice(8, 10)), iso: p.date, rate: p.rate }));
+    return { points, average: overview?.average ?? 0, delta: overview?.delta ?? 0 };
+  }, [overview]);
+  const methods = useMemo(() => methodCounts(dayRecords.filter((r) => siteIds.includes(r.site))), [dayRecords, siteIds]);
   const canGroup = scope.kind === "company";
   const punct = useMemo(() => punctuality(rows, canGroup ? by : "site", org), [rows, by, canGroup, org]);
 
@@ -66,11 +93,11 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
 
   const kpi = (key: Kpi["key"], value: number, polarity: "up" | "down" | "neutral", dot: string, href: string, suffix?: string): Kpi => ({
     key, value, dot, href, suffix, label: key === "expected" ? tk(isToday ? "expected" : "expectedPast") : key === "present" ? tk(isToday ? "present" : "presentPast") : tk(key),
-    delta: kpiDelta(key as "expected", value, expected, day, polarity),
+    delta: kpiDelta(value, isToday && overview ? (key === "expected" ? overview.yesterday.expected : key === "present" ? overview.yesterday.present : undefined) : undefined, polarity),
   });
   const kpis: Kpi[] = [
     kpi("expected", expected, "neutral", "var(--neutral-dot)", "/attendance?status=all"),
-    kpi("present", present, "up", "var(--ok-dot)", "/attendance?status=ontime", `${Math.round((present / expected) * 100)}%`),
+    kpi("present", present, "up", "var(--ok-dot)", "/attendance?status=ontime", `${expected ? Math.round((present / expected) * 100) : 0}%`),
     kpi("late", sumBy(rows, "late"), "down", "var(--warn-dot)", "/attendance?status=late"),
     kpi("absent", sumBy(rows, "absent"), "down", "var(--bad-dot)", "/attendance?status=absent"),
     kpi("leave", sumBy(rows, "leave"), "neutral", "var(--info-dot)", "/attendance?status=leave"),
@@ -88,18 +115,14 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
         : t("scope.site", { site: scopedSite?.name ?? "", branch: org.branchById(scopedSite?.branchId ?? "")?.name ?? "" });
   const { icon: ScopeIcon, chip } = SCOPE_ICON[scope.kind];
 
-  const ago = feed.tick - feed.refreshedAt;
+  const ago = loadedAt ? Math.max(0, Math.round((now - loadedAt) / 1000)) : 0;
   const liveOn = isToday && !paused;
   const agoText = spinning ? t("live.refreshing") : paused ? t("live.paused") : ago < 5 ? t("live.justNow") : t("live.ago", { seconds: ago });
 
   const refresh = () => {
     if (!isToday) return;
     setSpinning(true);
-    clearTimeout(spinTimer.current);
-    spinTimer.current = setTimeout(() => {
-      setSpinning(false);
-      feed.refresh();
-    }, 600);
+    loadToday().catch(() => undefined).finally(() => setSpinning(false));
   };
 
   return (
@@ -148,7 +171,7 @@ export function DashboardScreen({ isNew = false, initialSite = null }: { isNew?:
 
       <div className="flex flex-wrap items-stretch gap-4">
         <PunctualityCard rows={punct} by={canGroup ? by : "site"} canGroup={canGroup} day={day} onBy={setBy} />
-        <ActivityCard day={day} siteIds={siteIds} live={feed.events} tick={feed.tick} paused={paused} onTogglePause={() => setPaused((p) => !p)} />
+        <ActivityCard day={day} siteIds={siteIds} paused={paused} onTogglePause={() => setPaused((p) => !p)} />
       </div>
     </div>
   );

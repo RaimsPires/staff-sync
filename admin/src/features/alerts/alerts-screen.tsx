@@ -2,10 +2,11 @@
 
 import { Check, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { avatarColors, initials } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
-import { ALERTS, FENCE_RADIUS, type AlertItem, type AlertReason, type AlertTab, type RejectOutcome } from "@/data/alerts";
+import type { AlertItem, AlertReason, AlertTab, RejectOutcome } from "@/data/alerts";
+import { addAlertNote, bulkResolveAlerts, escalateAlert, loadAlertDetail, loadAlerts, loadAssignees, onNewFlag, resolveAlert, type Assignee } from "@/services/alerts";
 import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
@@ -47,10 +48,11 @@ export function AlertsScreen() {
   const when = useAlertWhen();
   const { siteIds, me } = useAccess();
 
-  const [items, setItems] = useState<AlertItem[]>(ALERTS);
+  const [items, setItems] = useState<AlertItem[]>([]);
+  const [assignees, setAssignees] = useState<Assignee[]>([]);
   const [tab, setTab] = useState<TabKey>("flagged");
   const [selected, setSelected] = useState<string[]>([]);
-  const [openId, setOpenId] = useState<string | null>("a1");
+  const [openId, setOpenId] = useState<string | null>(null);
   const [branch, setBranch] = useState("all");
   const [site, setSite] = useState("all");
   const [reason, setReason] = useState<"all" | AlertReason>("all");
@@ -58,6 +60,42 @@ export function AlertsScreen() {
   const [query, setQuery] = useState("");
   const [bulk, setBulk] = useState<"approve" | "reject" | null>(null);
   const [bulkText, setBulkText] = useState("");
+
+  // The list comes from the API; new flags pushed over the WebSocket and a minute timer keep it current.
+  useEffect(() => {
+    let live = true;
+    const reload = () =>
+      loadAlerts().then(
+        (list) => {
+          if (!live) return;
+          // keep evidence already fetched for an alert the list does not carry
+          setItems((prev) => list.map((n) => { const old = prev.find((p) => p.id === n.id); return old?.real && old.device !== "—" ? { ...n, distance: old.distance, accuracy: old.accuracy, device: old.device, selfie: old.selfie, flagCount: old.flagCount, notes: old.notes } : n; }));
+        },
+        () => undefined,
+      );
+    void reload();
+    void loadAssignees().then((a) => live && setAssignees(a));
+    const stop = onNewFlag(() => void reload());
+    const timer = setInterval(() => void reload(), 60_000);
+    return () => {
+      live = false;
+      stop();
+      clearInterval(timer);
+    };
+  }, []);
+
+  // Evidence, device and notes load when an alert is opened.
+  useEffect(() => {
+    if (!openId) return;
+    let live = true;
+    loadAlertDetail(openId).then(
+      (detail) => live && setItems((all) => all.map((it) => (it.id === openId ? { ...it, ...detail } : it))),
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [openId]);
 
   const scoped = useMemo(() => items.filter((i) => siteIds.includes(i.site)), [items, siteIds]);
   const open = scoped.filter((i) => i.status === "open");
@@ -69,7 +107,7 @@ export function AlertsScreen() {
     if (site !== "all" && it.site !== site) return false;
     if (reason !== "all" && it.reason !== reason) return false;
     if (date !== "all" && it.days > Number(date)) return false;
-    const label = it.tab === "unc" ? tItems(`${it.id}.title`) : it.name;
+    const label = it.title ?? (it.tab === "unc" ? tItems(`${it.id}.title`) : it.name);
     return !q || label.toLowerCase().includes(q);
   });
 
@@ -80,34 +118,56 @@ export function AlertsScreen() {
   const hasFilter = branch !== "all" || site !== "all" || reason !== "all" || date !== "all" || !!query;
   const needBulkText = bulkText.trim().length < 3;
 
-  const resolve = (ids: string[], status: "approved" | "rejected", text: string, outcome?: RejectOutcome) => {
-    setItems((all) => all.map((it) => (ids.includes(it.id) ? { ...it, status, resolution: { by: me.name, outcome } } : it)));
+  const markResolved = (ids: string[], status: "approved" | "rejected", text: string, outcome?: RejectOutcome) => {
+    setItems((all) => all.map((it) => (ids.includes(it.id) ? { ...it, status, resolutionNote: text, resolution: { by: me.name, outcome } } : it)));
     setSelected((s) => s.filter((x) => !ids.includes(x)));
     setBulk(null);
     setBulkText("");
-    void text;
   };
+  const fail = (e: unknown) => toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
 
   const handlers = {
-    onResolve: (id: string, status: "approved" | "rejected", text: string, outcome?: RejectOutcome) => {
-      resolve([id], status, text, outcome);
+    onResolve: async (id: string, status: "approved" | "rejected", text: string, outcome?: RejectOutcome) => {
+      try {
+        await resolveAlert(id, status, text);
+      } catch (e) {
+        return fail(e);
+      }
+      markResolved([id], status, text, outcome);
       toast(status === "approved" ? t("toasts.approved") : t(outcome === "invalid" ? "toasts.rejectedInvalid" : "toasts.rejectedAbsent"));
     },
-    onNote: (id: string, text: string) => {
+    onNote: async (id: string, text: string) => {
+      try {
+        await addAlertNote(id, text);
+      } catch (e) {
+        return fail(e);
+      }
       setItems((all) => all.map((it) => (it.id === id ? { ...it, notes: [...it.notes, { who: me.name, when: t("justNow"), text }] } : it)));
       toast(t("toasts.noteSaved"));
     },
-    onEscalate: (id: string, to: string, text: string) => {
+    onEscalate: async (id: string, toId: string, text: string) => {
+      const to = assignees.find((a) => a.id === toId)?.name ?? "";
+      try {
+        await escalateAlert(id, toId, text);
+      } catch (e) {
+        return fail(e);
+      }
       setItems((all) => all.map((it) => (it.id === id ? { ...it, notes: [...it.notes, { who: me.name, when: t("justNow"), text: t("escalatedNote", { to, text }) }] } : it)));
       toast(t("toasts.escalated", { to }));
     },
     onContact: (item: AlertItem, how: "call" | "message") => toast(t(how === "call" ? "toasts.calling" : "toasts.messageSent", { name: item.name })),
   };
 
-  const confirmBulk = () => {
+  const confirmBulk = async () => {
     if (!bulk || needBulkText) return;
     const count = selected.length;
-    resolve(selected, bulk === "approve" ? "approved" : "rejected", bulkText.trim(), bulk === "reject" ? "absent" : undefined);
+    const status = bulk === "approve" ? "approved" : "rejected";
+    try {
+      await bulkResolveAlerts(selected, status, bulkText.trim());
+    } catch (e) {
+      return fail(e);
+    }
+    markResolved(selected, status, bulkText.trim(), bulk === "reject" ? "absent" : undefined);
     toast(t(bulk === "approve" ? "toasts.bulkApproved" : "toasts.bulkRejected", { count }));
   };
 
@@ -210,10 +270,11 @@ export function AlertsScreen() {
               <div>{t("columns.status")}</div>
             </div>
             {visible.map((it) => {
-              const title = it.tab === "unc" ? tItems(`${it.id}.title`) : it.name;
+              const title = it.title ?? (it.tab === "unc" ? tItems(`${it.id}.title`) : it.name);
               const tone = REASON_TONE[it.reason];
               const isSelected = selected.includes(it.id);
-              const reasonText = it.reason === "geo" ? t("reasons.geoBy", { meters: Math.max(0, it.distance - FENCE_RADIUS[it.site]) }) : t(`reasons.${it.reason}`);
+              const geo = org.siteById(it.site).geofence;
+              const reasonText = it.reason === "geo" && it.distance > 0 ? t("reasons.geoBy", { meters: Math.max(0, it.distance - (geo.kind === "circle" ? geo.radius : 0)) }) : t(`reasons.${it.reason}`);
               return (
                 <div
                   key={it.id}
@@ -233,7 +294,7 @@ export function AlertsScreen() {
                     <span className="grid size-8 flex-none place-items-center rounded-full text-[12px] font-semibold" style={avatarColors(title)}>{initials(title)}</span>
                     <div className="min-w-0">
                       <div className="truncate font-medium">{title}</div>
-                      <div className="truncate text-[12px] text-text-3">{it.tab === "unc" ? tItems(`${it.id}.slot`) : t(`roles.${it.role}`)}</div>
+                      <div className="truncate text-[12px] text-text-3">{it.slot ?? (it.tab === "unc" ? tItems(`${it.id}.slot`) : t(`roles.${it.role}`))}</div>
                     </div>
                   </div>
                   <div className="min-w-0">
@@ -266,7 +327,7 @@ export function AlertsScreen() {
           </div>
         </div>
 
-        {current && <AlertDetail item={current} {...handlers} />}
+        {current && <AlertDetail item={current} assignees={assignees} {...handlers} />}
       </div>
     </div>
   );

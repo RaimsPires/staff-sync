@@ -2,7 +2,7 @@ import { ALL_PERMISSIONS, grant } from "@/lib/access-catalog";
 import type { AccessRole, DashboardUser } from "@/types/users";
 
 export const SEED_ROLES: AccessRole[] = [
-  { id: "admin", builtIn: true, name: "Company admin", desc: "Full access to every branch, site and setting, including users and billing.", scope: "company", scopeKey: "company", scopeIds: [], perms: ALL_PERMISSIONS },
+  { id: "admin", key: "owner", builtIn: true, name: "Company admin", desc: "Full access to every branch, site and setting, including users and billing.", scope: "company", scopeKey: "company", scopeIds: [], perms: ALL_PERMISSIONS },
   {
     id: "hr", builtIn: true, name: "HR manager", desc: "Manages people, leave and attendance across the company. No user administration.", scope: "company", scopeKey: "company", scopeIds: [],
     perms: grant({ att: ["view", "create", "edit"], fraud: ["view", "approve"], emp: ["view", "create", "edit"], site: ["view"], branch: ["view"], sch: ["view", "create", "edit"], lva: ["view", "approve"], lvs: ["view"], rep: ["view"], exp: ["create"], audit: ["view"] }),

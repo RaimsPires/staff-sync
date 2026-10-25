@@ -230,7 +230,10 @@ async def request_detail(request_id: UUID, ctx=require(Perm.LEAVE_VIEW)):
     req = await service.LeaveRepository(ctx).get(request_id)
     lt = await service.get_type(ctx, req.leave_type_id)
     b = await service.balance_row(ctx, req.employee_id, lt, req.start_date.year)
-    return {"request": (await service.to_read(ctx, [req], with_timeline=True))[0],
+    from staffsync.core.adapters import get_storage
+
+    attachments = [{"key": k, "url": await get_storage().presign_get(k, 300)} for k in req.attachment_keys]
+    return {"request": (await service.to_read(ctx, [req], with_timeline=True))[0], "attachments": attachments,
             "balance": {"entitled": b.entitled, "adjusted": b.adjusted, "used": b.used, "pending": b.pending, "remaining_after_approval": b.remaining + req.days * (1 if req.status in ('pending', 'recommended') else 0) - (req.days if req.status in ('pending', 'recommended') else 0)}}
 
 
@@ -260,8 +263,9 @@ async def recommend(request_id: UUID, body: RecommendIn, ctx=require(Perm.LEAVE_
         req.recommendation, req.recommendation_comment = "reject", body.comment
         from staffsync.modules.leave import rules
 
-        rules.next_status(req.status, "recommend", levels=req.levels)
-        req.status, req.current_step = "recommended", 2
+        req.status = rules.next_status(req.status, "recommend", levels=req.levels)
+        if req.status == "recommended":
+            req.current_step = 2
         ctx.session.add(req)
         await service._log(ctx, req, "recommended", f"[reject] {body.comment}")
     else:

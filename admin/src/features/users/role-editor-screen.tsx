@@ -28,7 +28,15 @@ export function RoleEditorScreen({ id, duplicate }: { id: string | null; duplica
       mode={mode}
       onCancel={() => router.push(BACK)}
       onDuplicate={() => router.push(`/users/roles/${role?.id}?mode=duplicate`)}
-      onSave={(draft) => { saveRole(draft); toast(t(draft.id ? "toasts.roleUpdated" : "toasts.roleCreated")); router.push(BACK); }}
+      onSave={async (draft) => {
+        try {
+          await saveRole(draft);
+        } catch (e) {
+          return toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
+        }
+        toast(t(draft.id ? "toasts.roleUpdated" : "toasts.roleCreated"));
+        router.push(BACK);
+      }}
     />
   );
 }

@@ -25,7 +25,20 @@ async def test_refresh_rotation_and_reuse_detection(client, mailbox):
     assert r.status_code == 200
     second = r.json()["refresh_token"]
     assert second != first
-    # replaying the old token revokes the whole family
+    # right after rotation the old token still works once more: a browser may have dropped the first response
+    r = await client.post("/auth/refresh", json={"refresh_token": first})
+    assert r.status_code == 200
+    second = r.json()["refresh_token"]
+    # later, replaying the old token is treated as theft and revokes the whole family
+    from datetime import UTC, datetime, timedelta
+
+    from sqlalchemy import update
+
+    from staffsync.core.db import session_scope
+    from staffsync.modules.auth.models import RefreshToken
+
+    async with session_scope(bypass=True) as s:
+        await s.exec(update(RefreshToken).values(rotated_at=datetime.now(UTC) - timedelta(minutes=5)).where(RefreshToken.rotated_at.is_not(None)))  # type: ignore[union-attr,attr-defined]
     r = await client.post("/auth/refresh", json={"refresh_token": first})
     assert r.status_code == 401 and r.json()["code"] == "REFRESH_REUSE"
     r = await client.post("/auth/refresh", json={"refresh_token": second})
@@ -71,3 +84,46 @@ async def test_site_code_reuse_after_soft_delete(client, mailbox):
     again = await a.post("/sites", {"name": "New A", "code": "A", "branch_id": ids["branch_id"], "geofence": {"type": "circle", "center": [9.77, 4.05], "radius_m": 100}})
     assert again.status_code == 201  # code freed by the partial unique index
     assert (await a.post(f"/sites/{ids['site_id']}/restore")).status_code == 409
+
+
+async def test_signup_with_a_phone_number_already_used_by_another_account_is_a_clear_conflict(client, mailbox):
+    body = {"full_name": "First Founder", "email": "first@example.com", "password": "correct-horse-battery", "phone": "+237670000123", "company_name": "First Co", "accept_terms": True}
+    assert (await client.post("/auth/signup", json=body)).status_code == 201
+    second = await client.post("/auth/signup", json={**body, "full_name": "Second Founder", "email": "second@example.com", "company_name": "Second Co"})
+    assert second.status_code == 409, second.text
+    assert second.json()["code"] == "PHONE_TAKEN"
+
+
+async def test_mobile_login_needs_password_then_a_code_sent_by_email(client, mailbox):
+    from tests.helpers import last_code, seed_org
+
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    r = await admin.post("/employees", {"full_name": "Eva Employee", "employee_no": "E-9", "phone": "+237670000055", "email": "eva@example.com", "branch_id": ids["branch_id"], "site_ids": [ids["site_id"]], "has_smartphone": True, "send_invite": False})
+    assert r.status_code == 201, r.text
+    # an account without a password signs in with the code alone, once, and is told to create a password
+    mailbox.clear()
+    first = await client.post("/auth/otp/request", json={"identifier": "eva@example.com"})
+    assert first.status_code == 200 and first.json()["password_setup_required"] is True
+    assert mailbox[-1].channel == "email" and mailbox[-1].to == "eva@example.com"
+    v = await client.post("/auth/otp/verify", json={"identifier": "eva@example.com", "code": last_code(mailbox)})
+    assert v.status_code == 200 and v.json()["needs_password"] is True
+    h = {"authorization": f"Bearer {v.json()['tokens']['access_token']}"}
+    assert (await client.post("/me/password/initial", headers=h, json={"new_password": "Eva-long-password-1"})).status_code == 204
+    assert (await client.post("/me/password/initial", headers=h, json={"new_password": "Another-long-pass-2"})).status_code == 409
+    # from now on the password comes first, whether the person types the e-mail address or the phone number
+    from staffsync.core.redis import get_redis
+
+    await get_redis().flushdb()
+    for who in ("eva@example.com", "+237670000055"):
+        missing = await client.post("/auth/otp/request", json={"identifier": who})
+        assert missing.status_code == 401 and missing.json()["code"] == "PASSWORD_REQUIRED"
+        wrong = await client.post("/auth/otp/request", json={"identifier": who, "password": "not-the-password-1"})
+        assert wrong.status_code == 401 and wrong.json()["code"] == "INVALID_CREDENTIALS"
+    mailbox.clear()
+    ok = await client.post("/auth/otp/request", json={"identifier": "+237670000055", "password": "Eva-long-password-1"})
+    assert ok.status_code == 200 and ok.json()["password_setup_required"] is False
+    # the code goes to the e-mail address even though the phone number was typed
+    assert mailbox[-1].channel == "email" and mailbox[-1].to == "eva@example.com"
+    v2 = await client.post("/auth/otp/verify", json={"identifier": "+237670000055", "code": last_code(mailbox)})
+    assert v2.status_code == 200 and v2.json()["needs_password"] is False

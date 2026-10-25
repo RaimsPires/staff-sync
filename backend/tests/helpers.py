@@ -22,11 +22,11 @@ class Admin:
     company_id: str
     extra: dict = field(default_factory=dict)
 
-    async def get(self, path, **kw):
-        return await self.client.get(path, headers=self.headers, **kw)
+    async def get(self, path, headers=None, **kw):
+        return await self.client.get(path, headers={**self.headers, **(headers or {})}, **kw)
 
-    async def post(self, path, json=None, **kw):
-        return await self.client.post(path, headers=self.headers, json=json, **kw)
+    async def post(self, path, json=None, headers=None, **kw):
+        return await self.client.post(path, headers={**self.headers, **(headers or {})}, json=json, **kw)
 
     async def patch(self, path, json=None, **kw):
         return await self.client.patch(path, headers={**self.headers, **kw.pop("headers", {})}, json=json, **kw)
@@ -78,6 +78,9 @@ class Employee:
     async def get(self, path, **kw):
         return await self.client.get(path, headers={**self.headers, "X-Device-Id": self.device}, **kw)
 
+    async def patch(self, path, json=None):
+        return await self.client.patch(path, headers={**self.headers, "X-Device-Id": self.device}, json=json)
+
 
 async def make_employee(admin: Admin, mailbox, ids: dict, *, phone="+237670000001", name="Emma Employee", no="E-1", smartphone=True, register=True) -> Employee:
     r = await admin.post("/employees", {"full_name": name, "employee_no": no, "phone": phone, "branch_id": ids["branch_id"], "site_ids": [ids["site_id"]], "has_smartphone": smartphone, "send_invite": False})
@@ -98,7 +101,10 @@ async def make_employee(admin: Admin, mailbox, ids: dict, *, phone="+23767000000
 
 async def publish_daily_schedule(admin: Admin, ids: dict, emp_ids: list[str], *, grace=10, started_min_ago=30) -> str:
     """A 24h-long daily shift that began `started_min_ago` minutes ago, so 'now' is always inside it."""
-    start = (datetime.now(TZ) - timedelta(minutes=started_min_ago))
+    now = datetime.now(TZ)
+    start = now - timedelta(minutes=started_min_ago)
+    if start.date() < now.date():  # just after midnight: begin the shift at the start of today instead of yesterday
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     hhmm = start.strftime("%H:%M")
     r = await admin.post("/schedules", {"type": "recurring", "site_id": ids["site_id"], "title": "Daily", "days_of_week": [0, 1, 2, 3, 4, 5, 6], "start_time": hhmm, "end_time": hhmm,
                                         "crosses_midnight": True, "grace_min": grace, "valid_from": (start.date() - timedelta(days=1)).isoformat(), "employee_ids": emp_ids})

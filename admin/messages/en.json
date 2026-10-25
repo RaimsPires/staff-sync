@@ -31,7 +31,8 @@
     "last": {
       "today": "Today, {time}",
       "yesterday": "Yesterday, {time}"
-    }
+    },
+    "openFailed": "Couldn’t open this workspace."
   },
   "Invite": {
     "companyMeta": "Construction · 198 employees · 5 sites",
@@ -85,8 +86,13 @@
     "toasts": {
       "declined": "Invitation declined",
       "reported": "Reported to StaffSync security",
-      "requested": "Request sent to Marc Olivier"
-    }
+      "requested": "Request sent to Marc Olivier",
+      "expiredLink": "This invitation has expired. Ask for a new one.",
+      "invalidLink": "This invitation is no longer valid.",
+      "failed": "Couldn’t accept the invitation. Try again.",
+      "ssoUnavailable": "Single sign-on isn’t available yet."
+    },
+    "allowedScope": "Access set by your administrator"
   },
   "Onboarding": {
     "metaTitle": "Set up your workspace",
@@ -169,7 +175,7 @@
       "fullName": "Full name",
       "workEmail": "Work email",
       "password": "Password",
-      "passwordPlaceholder": "At least 8 characters",
+      "passwordPlaceholder": "At least 10 characters",
       "show": "Show",
       "hide": "Hide",
       "strength": {
@@ -180,7 +186,7 @@
         "4": "Good"
       },
       "rules": {
-        "length": "8+ characters",
+        "length": "10+ characters",
         "case": "Upper & lowercase",
         "number": "A number",
         "symbol": "A symbol"
@@ -195,7 +201,8 @@
       "agreeTail": ", including processing of employee location data.",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
-      "ssoSignedIn": "Signed in with SSO — email already verified"
+      "ssoSignedIn": "Signed in with SSO — email already verified",
+      "ssoUnavailable": "Single sign-on isn’t available yet."
     },
     "verify": {
       "sentTo": "We sent a 6-digit code to",
@@ -206,7 +213,8 @@
       "resend": "Resend code",
       "changeEmail": "Change email",
       "newCode": "New code sent to {email}",
-      "hint": "Prototype: any 6 digits work (000000 is rejected)."
+      "hint": "Prototype: any 6 digits work (000000 is rejected).",
+      "resendFailed": "Couldn’t send a new code."
     },
     "company": {
       "logoLabel": "Company logo",
@@ -360,7 +368,7 @@
       "emailInvalid": "Enter a valid email address, like name@company.com.",
       "emailPersonal": "Use your work email. Personal addresses (Gmail, Outlook…) can’t create a company workspace.",
       "passwordRequired": "Create a password.",
-      "passwordWeak": "Password is too weak. Use at least 8 characters with a mix of letters and numbers.",
+      "passwordWeak": "Password is too weak. Use at least 10 characters with a mix of letters and numbers.",
       "phoneInvalid": "Enter a valid phone number.",
       "termsRequired": "You need to accept the terms to continue.",
       "codeIncomplete": "Enter all 6 digits.",
@@ -379,7 +387,13 @@
       "personName": "Add a name for this person.",
       "personContact": "Add a phone number or email so we can send the invite.",
       "personInvalid": "That doesn’t look like a valid phone number or email.",
-      "planRequired": "Select a plan to continue."
+      "planRequired": "Select a plan to continue.",
+      "emailTaken": "An account with this email already exists",
+      "tooMany": "Too many attempts. Try again later.",
+      "serverFailed": "Something went wrong on our side. Try again.",
+      "offline": "Can’t reach the server. Check your connection.",
+      "personFailed": "Couldn’t add this person",
+      "phoneTaken": "That phone number is already used by another account"
     },
     "plan": {
       "billing": "Billing period",
@@ -411,7 +425,8 @@
       "users": "Users & Roles",
       "audit": "Audit log",
       "settings": "Settings",
-      "profile": "My profile"
+      "profile": "My profile",
+      "chat": "Chat"
     }
   },
   "Common": {
@@ -480,10 +495,22 @@
     },
     "toasts": {
       "signedIn": "Signed in — redirecting…",
+      "ssoUnavailable": "Single sign-on isn’t available yet.",
       "redirecting": "Redirecting to {provider}…",
       "resetSent": "Reset link sent to {email}",
       "yourEmail": "your email",
-      "adminNotified": "Request sent to your admin"
+      "adminNotified": "Request sent to your admin",
+      "failed": "Couldn’t send the email. Try again.",
+      "offline": "Can’t reach the server. Check your connection.",
+      "unverified": "Verify your email first — check your inbox.",
+      "mfa": "Two-factor sign-in isn’t available here yet.",
+      "sso": {
+        "cancelled": "Sign-in was cancelled.",
+        "failed": "Single sign-on didn’t work. Try again or use your password.",
+        "unverified": "Your provider hasn’t verified this e-mail address.",
+        "not_invited": "No StaffSync account uses this address. Ask an administrator to invite you.",
+        "not_configured": "Single sign-on isn’t set up for this company yet."
+      }
     },
     "brandPanel": {
       "title": "Know who’s on site, right now.",
@@ -501,6 +528,34 @@
       "flagged": "Flagged",
       "person": "Camille Durand",
       "checkin": "Checked in · Part-Dieu Tower"
+    },
+    "mfa": {
+      "title": "Two-step verification",
+      "subtitle": "Enter the 6-digit code from your authenticator app, or one of your backup codes.",
+      "code": "Verification code",
+      "short": "Enter the 6-digit code",
+      "wrong": "That code isn’t right",
+      "expired": "This sign-in expired. Please start again.",
+      "failed": "Couldn’t verify the code. Try again.",
+      "trust": "Trust this device for 30 days",
+      "verify": "Verify",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "subtitle": "Pick a strong password you don’t use anywhere else.",
+      "password": "New password",
+      "confirm": "Confirm password",
+      "weak": "Use at least 10 characters with a mix of letters and numbers",
+      "mismatch": "The two passwords don’t match",
+      "submit": "Set new password",
+      "done": "Password updated. Sign in with your new password.",
+      "failed": "Couldn’t reset the password. Try again.",
+      "invalidTitle": "This link no longer works",
+      "invalidBody": "The reset link is invalid or has expired. Ask for a new one from the sign-in page.",
+      "backToSignIn": "Back to sign in",
+      "show": "Show password",
+      "hide": "Hide password"
     }
   },
   "Status": {
@@ -654,13 +709,7 @@
         "unpaid": "Personal matter, unpaid leave requested."
       },
       "download": "Download",
-      "downloadStarted": "Download started",
-      "image": "Attachment image",
-      "pdfPage": "Page {page}",
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
+      "attachmentFile": "Attachment {n}",
       "balanceOf": "{type} balance",
       "balance": {
         "before": "Before",
@@ -748,7 +797,27 @@
       "finalState": "This request is {status}.",
       "cancel": "Cancel",
       "approvedShort": "approved",
-      "pendingShort": "pending"
+      "pendingShort": "pending",
+      "recommend": {
+        "title": {
+          "approve": "Recommend approval",
+          "reject": "Advise against"
+        },
+        "placeholder": "Tell the approver why (visible to HR, not sent to {name})",
+        "send": "Send recommendation",
+        "for": "Recommend approval",
+        "against": "Advise against",
+        "note": "Your opinion goes to the approver, who makes the decision.",
+        "given": {
+          "approve": "Site manager recommends approval",
+          "reject": "Site manager advises against"
+        },
+        "sent": {
+          "approve": "Recommendation sent",
+          "reject": "Advice sent"
+        },
+        "failed": "Couldn’t send your recommendation"
+      }
     },
     "calendar": {
       "scale": "Time scale",
@@ -843,7 +912,8 @@
         "reasonError": "Give a reason (at least 3 characters).",
         "cancel": "Cancel",
         "apply": "Apply adjustment"
-      }
+      },
+      "adjustFailed": "Couldn’t adjust the balance."
     }
   },
   "Data": {
@@ -966,7 +1036,8 @@
         "assign": "Assign",
         "notify": "Notify team",
         "notified": "Team notified"
-      }
+      },
+      "failed": "Couldn’t complete the action. Try again."
     },
     "trend": {
       "title": "Attendance rate",
@@ -1173,7 +1244,8 @@
       "audit": "Recorded as “{method}” by {actor} and visible in the audit log.",
       "methodAdmin": "Admin correction",
       "methodProxy": "Proxy"
-    }
+    },
+    "failed": "Couldn’t complete the action. Try again."
   },
   "Attendance": {
     "title": "Attendance records",
@@ -1278,7 +1350,8 @@
       "clear": "Clear selection",
       "approved": "{count, plural, one {# record approved} other {# records approved}}",
       "absent": "{count} marked absent",
-      "leaveSkipped": "leave days skipped"
+      "leaveSkipped": "leave days skipped",
+      "failed": "Couldn’t complete the action. Try again."
     },
     "emptyCompany": {
       "title": "No attendance yet",
@@ -1331,7 +1404,8 @@
       "remove": "Remove file",
       "audit": "Saved as an admin entry by {actor} — visible in the audit log and the record’s edit history.",
       "added": "Manual record added for {name}",
-      "filesAttached": "{count, plural, one {# file attached} other {# files attached}}"
+      "filesAttached": "{count, plural, one {# file attached} other {# files attached}}",
+      "failed": "Couldn’t complete the action. Try again."
     }
   },
   "Drawer": {
@@ -1469,7 +1543,8 @@
       "approved": "Record approved",
       "checkedIn": "{name} checked in at {time}",
       "deleted": "Record deleted",
-      "updated": "Record updated — change saved to history"
+      "updated": "Record updated — change saved to history",
+      "failed": "Couldn’t complete the action. Try again."
     },
     "fields": {
       "checkIn": "Check-in",
@@ -1587,7 +1662,8 @@
       "calling": "Calling {name}…",
       "messageSent": "Message sent to {name}",
       "bulkApproved": "{count} alerts approved",
-      "bulkRejected": "{count} alerts rejected"
+      "bulkRejected": "{count} alerts rejected",
+      "failed": "Couldn’t complete the action. Try again."
     },
     "items": {
       "a1": {
@@ -1767,6 +1843,7 @@
     "searchPlaceholder": "Search name, ID or phone",
     "exported": "Exported {count} employees",
     "reactivated": "{name} reactivated",
+    "actionFailed": "Couldn’t complete that. Try again.",
     "inviteResent": "Invite resent to {name}",
     "deviceReset": "{name}’s device was reset",
     "deactivated": "{name} deactivated",
@@ -1892,7 +1969,8 @@
         "2": "Preview",
         "4": "Done"
       },
-      "importCount": "{count, plural, one {Import # employee} other {Import # employees}}"
+      "importCount": "{count, plural, one {Import # employee} other {Import # employees}}",
+      "someFailed": "{count, plural, one {# row could not be imported (check the phone number includes the country code).} other {# rows could not be imported (check the phone numbers include the country code).}}"
     },
     "form": {
       "addTitle": "Add employee",
@@ -1963,6 +2041,7 @@
       "smartphoneOn": "Checks in with the StaffSync app.",
       "smartphoneOff": "Checks in by badge QR with a site manager’s proxy check-in.",
       "badge": "Badge and PIN",
+      "badgeAfterSave": "The badge QR and PIN are issued from the employee’s profile after saving, and shown once.",
       "badgeHint": "Print the badge. The site manager scans it or enters the PIN.",
       "newPin": "Generate a new PIN",
       "print": "Print",
@@ -2013,7 +2092,8 @@
         "scopeRequired": "Choose a scope",
         "startRequired": "Start date is required",
         "sitesRequired": "Assign at least one site"
-      }
+      },
+      "saveFailed": "Couldn’t save. Try again."
     },
     "profile": {
       "back": "Back to employees",
@@ -2035,14 +2115,17 @@
         "noPhone": "No phone number on file",
         "calling": "Calling {name}…",
         "messaging": "Message to {name} opened",
-        "badge": "New badge and PIN generated"
+        "badge": "New badge and PIN generated",
+        "failed": "Couldn’t complete the request.",
+        "invited": "Invitation sent to {name}"
       },
       "menu": {
         "edit": "Edit employee",
         "resetDevice": "Reset device",
         "badge": "Regenerate badge & PIN",
         "reactivate": "Reactivate",
-        "deactivate": "Deactivate"
+        "deactivate": "Deactivate",
+        "resendInvite": "Resend invitation"
       },
       "tabs": {
         "overview": "Overview",
@@ -2118,7 +2201,11 @@
         "errors": {
           "days": "Select at least one day",
           "time": "End time must be after start time"
-        }
+        },
+        "failed": "Couldn’t save the schedule.",
+        "shared": "This schedule is shared with {count} other people. Change it in Schedules.",
+        "noInterventions": "No interventions planned.",
+        "intervention": "Intervention"
       },
       "leave": {
         "balances": "Balances",
@@ -2137,7 +2224,8 @@
           "approved": "Approved",
           "pending": "Pending",
           "rejected": "Rejected"
-        }
+        },
+        "adjustFailed": "Couldn’t adjust the balance."
       },
       "device": {
         "registered": "Registered device",
@@ -2170,7 +2258,8 @@
         "logins": "Login history",
         "noLogins": "No logins yet.",
         "success": "Success",
-        "failed": "Failed — wrong code"
+        "failed": "Failed — wrong code",
+        "resetFailed": "Couldn’t reset the device."
       },
       "docs": {
         "documents": "Documents",
@@ -2183,7 +2272,10 @@
         "notes": "Admin notes",
         "notePlaceholder": "Add a note…",
         "addNote": "Add note",
-        "seedNote": "Prefers early shifts. Has asked to be considered for team lead."
+        "seedNote": "Prefers early shifts. Has asked to be considered for team lead.",
+        "failed": "Couldn’t save the note.",
+        "documentsSoon": "Document storage isn’t available yet.",
+        "noNotes": "No notes yet."
       },
       "activity": {
         "title": "Audit trail",
@@ -2209,7 +2301,14 @@
           "badgeRegenerated": "Badge and PIN regenerated",
           "reactivated": "Employee reactivated",
           "deactivated": "Employee deactivated"
-        }
+        },
+        "empty": "No activity recorded yet."
+      },
+      "badge": {
+        "title": "New badge",
+        "done": "Done",
+        "hint": "Give {name} this PIN and badge. The PIN is only shown now.",
+        "pin": "PIN"
       }
     }
   },
@@ -2283,7 +2382,8 @@
       "created": "{name} created",
       "updated": "Site updated",
       "reactivated": "{name} reactivated",
-      "deactivated": "{name} deactivated"
+      "deactivated": "{name} deactivated",
+      "failed": "Couldn’t save. Try again."
     },
     "qr": {
       "title": "QR code · {name}",
@@ -2449,7 +2549,8 @@
         "confirm": "Confirm",
         "cancel": "Cancel",
         "doneIn": "Proxy check-in recorded",
-        "doneOut": "Proxy check-out recorded"
+        "doneOut": "Proxy check-out recorded",
+        "failed": "Couldn’t record the check-in."
       },
       "team": {
         "assigned": "{count} assigned employees",
@@ -2460,7 +2561,8 @@
         "remove": "Remove {name}",
         "confirmRemove": "Remove",
         "cancel": "Cancel",
-        "removed": "{name} removed"
+        "removed": "{name} removed",
+        "failed": "Couldn’t update the team."
       },
       "schedule": {
         "employee": "Employee",
@@ -2494,7 +2596,9 @@
         "call": "Call",
         "calling": "Calling {name}…",
         "remove": "Remove {name}",
-        "removed": "{name} removed as manager"
+        "removed": "{name} removed as manager",
+        "notAUser": "This manager has no dashboard account to change.",
+        "failed": "Couldn’t update the managers."
       },
       "settings": {
         "requireSelfie": {
@@ -2616,7 +2720,8 @@
           "codeShort": "2–4 letters",
           "codeExists": "Code already in use",
           "addressRequired": "Address is required"
-        }
+        },
+        "failed": "Couldn’t save. Try again."
       },
       "retire": {
         "title": "Archive or delete {name}",
@@ -2842,7 +2947,8 @@
       "shifts": "{count, plural, one {# shift} other {# shifts}}",
       "notified": "employees notified",
       "schedulePublished": "Schedule published",
-      "employeesNotified": "{count} employees notified"
+      "employeesNotified": "{count} employees notified",
+      "failed": "Couldn’t save the schedule. Try again."
     },
     "shift": {
       "newTitle": "New shift",
@@ -2974,7 +3080,8 @@
         "holiday": "{date} is a public holiday ({name}).",
         "unassigned": "No employee assigned. It will appear in the unassigned list.",
         "more": "and {count} more"
-      }
+      },
+      "failed": "Couldn’t save the schedule. Try again."
     }
   },
   "Users": {
@@ -3044,7 +3151,8 @@
       "keepAdmin": "Keep at least one Company admin",
       "revoked": "Access revoked for {name}",
       "roleUpdated": "Role updated",
-      "roleCreated": "Role created"
+      "roleCreated": "Role created",
+      "failed": "Couldn’t save. Try again."
     },
     "defaultRoles": {
       "admin": {
@@ -3093,7 +3201,8 @@
       "toasts": {
         "sent": "Invite sent to {email}",
         "changed": "{name} is now {role}",
-        "keepAdmin": "Keep at least one Company admin"
+        "keepAdmin": "Keep at least one Company admin",
+        "failed": "Couldn’t save. Try again."
       }
     },
     "roles": {
@@ -3200,6 +3309,10 @@
       "bill": {
         "name": "Billing",
         "sub": "Plan, invoices and seats"
+      },
+      "chat": {
+        "name": "Chat",
+        "sub": "Write in every site group"
       }
     },
     "editor": {
@@ -3320,7 +3433,13 @@
           },
           "bill": {
             "view": "See billing"
+          },
+          "chat": {
+            "edit": "Write in every site chat group"
           }
+        },
+        "chat": {
+          "edit": "Write in every site chat group"
         }
       },
       "errors": {
@@ -3691,7 +3810,8 @@
       "revokeTitle": "Revoke “{name}”?",
       "revokeMessage": "Anything using this key will stop working immediately.",
       "revokeConfirm": "Revoke key",
-      "revoked": "Key revoked"
+      "revoked": "Key revoked",
+      "failed": "Couldn’t save. Try again."
     },
     "hooks": {
       "title": "Webhooks",
@@ -3720,7 +3840,8 @@
         "leaveApproved": "Leave approved",
         "employeeDeactivated": "Employee deactivated",
         "schedulePublished": "Schedule published"
-      }
+      },
+      "failed": "Couldn’t save. Try again."
     },
     "sso": {
       "title": "Single sign-on",
@@ -3755,16 +3876,21 @@
       "yearly": "yearly",
       "comparePlans": "Compare & change plan",
       "customPrice": "Custom pricing",
-      "usageUnlimited": "{used} employees · no limit"
+      "usageUnlimited": "{used} employees · no limit",
+      "managePayment": "Manage payment & billing",
+      "portalHint": "Update your card, download invoices or cancel in the billing portal.",
+      "unavailable": "Billing isn’t set up on this server yet.",
+      "portalFailed": "Couldn’t open the billing portal.",
+      "noInvoices": "No invoices yet."
     },
     "danger": {
       "title": "Danger zone",
       "sub": "These actions can’t be undone.",
       "export": {
         "title": "Export all data",
-        "desc": "Employees, attendance, leave and the audit log as a ZIP. We’ll email you a download link.",
-        "button": "Request export",
-        "requested": "Export requested · link will be emailed to you"
+        "desc": "Employees, attendance, leave and the audit log as a ZIP. The download starts here and a link is e-mailed to you.",
+        "button": "Export data",
+        "requested": "Export ready · downloading. The link was also e-mailed to you."
       },
       "delete": {
         "title": "Delete company",
@@ -3776,7 +3902,8 @@
         "typeSuffix": "to confirm",
         "cancel": "Cancel",
         "scheduled": "Deletion scheduled · check your email to confirm"
-      }
+      },
+      "failed": "Couldn’t complete the request."
     }
   },
   "Profile": {
@@ -3832,7 +3959,9 @@
       "updated": "Password updated · other sessions signed out",
       "currentError": "Enter your current password",
       "lengthError": "At least 10 characters",
-      "matchError": "Passwords don’t match"
+      "matchError": "Passwords don’t match",
+      "currentWrong": "That password isn’t right",
+      "failed": "Couldn’t change the password."
     },
     "twofa": {
       "title": "Two-factor authentication",
@@ -3856,7 +3985,11 @@
       "turnOff": "Turn off",
       "offTitle": "Turn off two-factor?",
       "offMessage": "Your account will only be protected by your password.",
-      "offToast": "Two-factor turned off"
+      "offToast": "Two-factor turned off",
+      "failed": "Couldn’t complete that step.",
+      "codeWrong": "That code isn’t right. Try the next one.",
+      "passwordLabel": "Your password",
+      "passwordWrong": "That password isn’t right"
     },
     "sessions": {
       "title": "Active sessions",
@@ -3866,13 +3999,16 @@
       "thisDevice": "This device",
       "meta": "{when, select, now {{place}, France · active now} hours {{place}, France · 2 hours ago} other {{place}, France · 3 days ago}}",
       "signOut": "Sign out",
-      "signedOut": "Signed out {device}"
+      "signedOut": "Signed out {device}",
+      "failed": "Couldn’t sign that device out."
     },
     "notifications": {
       "title": "My notifications",
       "sub": "Only affects you. Company-wide rules are set in Settings.",
-      "event": "Event"
-    }
+      "event": "Event",
+      "failed": "Couldn’t save your choices."
+    },
+    "saveFailed": "Couldn’t save your details."
   },
   "Audit": {
     "title": "Audit log",
@@ -3980,7 +4116,9 @@
       "device": "Device",
       "reason": "Reason",
       "changes": "Changes"
-    }
+    },
+    "loading": "Loading…",
+    "loadFailed": "Couldn’t load the audit log."
   },
   "Reports": {
     "title": "Reports",
@@ -4040,31 +4178,39 @@
         "wrk": "Worked",
         "brk": "Breaks",
         "ot": "Overtime",
-        "days": "Days worked"
+        "days": "Days worked",
+        "records": "Records",
+        "hours": "Hours worked",
+        "overtime_hours": "Overtime"
       },
       "hours": {
         "wrk": "Worked",
         "sch": "Scheduled",
         "var": "Variance",
-        "avg": "Avg per day"
+        "avg": "Avg per day",
+        "hours": "Hours worked"
       },
       "lateness": {
         "n": "Late arrivals",
         "min": "Minutes late",
         "avg": "Avg minutes",
-        "ot": "On-time rate"
+        "ot": "On-time rate",
+        "late_count": "Late arrivals",
+        "late_minutes": "Minutes late"
       },
       "absences": {
         "n": "Absences",
         "exc": "Excused",
         "unx": "Unexcused",
-        "rate": "Absence rate"
+        "rate": "Absence rate",
+        "absent": "Absences"
       },
       "overtime": {
         "ot": "Overtime",
         "apr": "Approved",
         "pen": "Pending",
-        "sh": "Shifts over 8 h"
+        "sh": "Shifts over 8 h",
+        "overtime_hours": "Overtime"
       },
       "leave": {
         "an": "Annual",
@@ -4077,20 +4223,27 @@
         "n": "Flags",
         "apr": "Approved",
         "rej": "Rejected",
-        "open": "Still open"
+        "open": "Still open",
+        "flagged": "Flags"
       },
       "site": {
         "exp": "Expected",
         "pres": "Present",
         "rate": "Attendance",
         "late": "Lates",
-        "fl": "Flags"
+        "fl": "Flags",
+        "records": "Records",
+        "hours": "Hours worked",
+        "late_count": "Late arrivals",
+        "absent": "Absences",
+        "flagged": "Flags"
       },
       "proxy": {
         "n": "Proxy check-ins",
         "qr": "Via badge QR",
         "man": "Manual by manager",
-        "dl": "Avg delay"
+        "dl": "Avg delay",
+        "proxy": "Proxy check-ins"
       }
     },
     "units": {
@@ -4201,7 +4354,9 @@
       "total": "Total · {count} {noun}",
       "noColumns": "Select at least one column to see the report.",
       "fixRange": "Fix the date range to see the report.",
-      "noMatch": "Nothing matches this scope. Widen the scope or reset it."
+      "noMatch": "Nothing matches this scope. Widen the scope or reset it.",
+      "loading": "Loading…",
+      "loadFailed": "Couldn’t run the report."
     },
     "scope": {
       "title": "Report scope",
@@ -4224,7 +4379,8 @@
       "cancel": "Cancel",
       "save": "Save",
       "update": "Update",
-      "saved": "Report saved"
+      "saved": "Report saved",
+      "failed": "Couldn’t save the report."
     },
     "schedule": {
       "title": "Schedule email delivery",
@@ -4327,6 +4483,29 @@
       "monthly": "monthly",
       "yearly": "yearly"
     },
-    "trialEnds": "Free trial ends on {date}"
+    "trialEnds": "Free trial ends on {date}",
+    "billingUnavailable": "Billing isn’t set up on this server yet.",
+    "checkoutFailed": "Couldn’t start the checkout."
+  },
+  "Chat": {
+    "title": "Chat",
+    "search": "Search conversations",
+    "newChat": "New conversation",
+    "searchPeople": "Search people",
+    "noPeople": "Nobody found",
+    "noConversations": "No conversations yet. Start one with the button above.",
+    "pickOne": "Pick a conversation, or start a new one.",
+    "emptyThread": "No messages yet. Say hello.",
+    "write": "Write a message",
+    "send": "Send",
+    "attach": "Attach photos, videos, voice notes or PDFs",
+    "removeFile": "Remove file",
+    "older": "Show older messages",
+    "siteGroup": "Site group · {count, plural, one {# person} other {# people}}",
+    "direct": "Direct message",
+    "offline": "reconnecting…",
+    "back": "Back",
+    "loadFailed": "Couldn’t load the conversation.",
+    "sendFailed": "Couldn’t send your message. Try again."
   }
 }

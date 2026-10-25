@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/toast";
 import { useOrg } from "@/lib/org";
 import { FENCE_HEALTH } from "@/data/live";
 import { sitesIn } from "@/lib/scope";
-import { parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useData } from "@/store/data";
@@ -19,6 +18,8 @@ import { GridCard, ListRow } from "./board-row";
 import { countFor, isFlagged, matchesFilter, presenceOf, PRESENCE_ORDER, type CounterKey, type StatusFilter } from "./board-model";
 import { ProxyCheckDialog, type ProxyCheckResult } from "./proxy-check-dialog";
 import { useBoardFeed } from "./use-board-feed";
+import { markAbsent, proxyCheck } from "@/services/attendance";
+import { useSites } from "@/store/sites";
 import { useRuledRecords } from "@/lib/attendance-rules";
 
 const COUNTERS: { key: CounterKey; filter: StatusFilter; dot: string }[] = [
@@ -49,7 +50,7 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
   const toast = useToast();
   const { role, siteIds, perms, me } = useAccess();
   const today = useRuledRecords(useData((s) => s.today));
-  const updateRecord = useData((s) => s.updateRecord);
+  const siteZone = useSites((st) => st.sites[0]?.timezone ?? "UTC");
 
   const [site, setSite] = useState(initialSite);
   const [filter, setFilter] = useState<StatusFilter>("all");
@@ -60,7 +61,7 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [dialog, setDialog] = useState<{ id: number; kind: "in" | "out" } | null>(null);
 
-  const feed = useBoardFeed(siteIds, paused, (f) => toast(t("flagToast", { name: f.name, distance: f.distance, site: f.siteName }), "bad"));
+  const feed = useBoardFeed(siteIds, paused, (f) => toast(t("flagToast", { name: f.name, distance: f.distance, site: f.siteName }), "bad"), siteZone);
 
   const records = useMemo(() => today.filter((r) => siteIds.includes(r.site)), [today, siteIds]);
   const inSite = site === "all" ? records : records.filter((r) => r.site === site);
@@ -108,21 +109,16 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
     };
   };
 
-  const confirmProxy = (result: ProxyCheckResult) => {
+  const confirmProxy = async (result: ProxyCheckResult) => {
     const r = dialogRecord;
     if (!r) return;
-    const method = role === "admin" ? "admin" : "behalf";
-    if (result.kind === "in") {
-      const late = parseTime(result.time) > parseTime(r.sched.split("–")[0]) + 10;
-      updateRecord(r.id, { in: result.time, method, status: late ? "late" : "ontime", proxyBy: me.name, worked: "0m" });
-      toast(t("checkedInToast", { name: r.name, time: result.time }));
-    } else {
-      const early = parseTime(result.time) < parseTime(r.sched.split("–")[1]) - 15;
-      const status = r.status === "flagged" ? "flagged" : r.status === "missing" ? "ontime" : early ? "early" : r.status;
-      updateRecord(r.id, { out: result.time, status, proxyBy: me.name });
-      toast(t("checkedOutToast", { name: r.name, time: result.time }));
+    try {
+      await proxyCheck(r.id, result.kind, result);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("failed"), "bad");
+      return;
     }
-    feed.markFresh(r.id);
+    toast(result.kind === "in" ? t("checkedInToast", { name: r.name, time: result.time }) : t("checkedOutToast", { name: r.name, time: result.time }));
     setDialog(null);
   };
 
@@ -131,11 +127,16 @@ export function LiveBoardScreen({ initialSite = "all" }: { initialSite?: string 
     setSelected(new Set());
     toast(t("bulk.reminded", { count }));
   };
-  const bulkAbsent = () => {
+  const bulkAbsent = async () => {
     const targets = selectedRecords.filter((r) => presenceOf(r) === "not");
-    targets.forEach((r) => updateRecord(r.id, { status: "absent" }));
     const skipped = selectedRecords.length - targets.length;
     setSelected(new Set());
+    try {
+      if (targets.length) await markAbsent(targets.map((r) => r.id));
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("failed"), "bad");
+      return;
+    }
     toast(`${t("bulk.markedAbsent", { count: targets.length })}${skipped ? ` · ${t("bulk.skipped", { count: skipped })}` : ""}`, targets.length ? "bad" : "info");
   };
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 11:57+0100\n"
+"POT-Creation-Date: 2026-10-25 00:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -358,6 +358,9 @@ msgstr ""
 msgid "CSRF token mismatch"
 msgstr ""
 
+msgid "Unknown photo"
+msgstr ""
+
 msgid "Invalid email address"
 msgstr ""
 
@@ -371,6 +374,9 @@ msgid "Terms must be accepted"
 msgstr ""
 
 msgid "An account with this email already exists"
+msgstr ""
+
+msgid "This phone number is already used by another account"
 msgstr ""
 
 #, python-format
@@ -399,6 +405,9 @@ msgid "Invalid ticket"
 msgstr ""
 
 msgid "Account not found, contact your admin"
+msgstr ""
+
+msgid "Enter your password"
 msgstr ""
 
 msgid "Please wait before requesting another code"
@@ -436,10 +445,25 @@ msgstr ""
 msgid "Current password is incorrect"
 msgstr ""
 
+msgid "A password is already set"
+msgstr ""
+
 msgid "Start the setup again"
 msgstr ""
 
 msgid "Password is incorrect"
+msgstr ""
+
+msgid "Sign-in was not started in this browser"
+msgstr ""
+
+msgid "The provider refused the sign-in"
+msgstr ""
+
+msgid "Could not read your profile"
+msgstr ""
+
+msgid "Your e-mail address is not verified by the provider"
 msgstr ""
 
 msgid "Invalid refresh token"
@@ -487,6 +511,27 @@ msgid "Archive the branch first"
 msgstr ""
 
 msgid "Branch code has been reused; change it before restoring"
+msgstr ""
+
+msgid "You cannot message yourself"
+msgstr ""
+
+msgid "Write a message or attach a file"
+msgstr ""
+
+msgid "Unknown attachment"
+msgstr ""
+
+msgid "An export was already made in the last hour"
+msgstr ""
+
+#, python-format
+msgid ""
+"Your StaffSync data export is ready (the link works for one hour): "
+"%(link)s"
+msgstr ""
+
+msgid "Your data export"
 msgstr ""
 
 msgid "Typed company name does not match"
@@ -594,6 +639,15 @@ msgstr ""
 msgid "Your admin reset your registered phone. Sign in again on your new phone."
 msgstr ""
 
+msgid "Wrong file type for this upload"
+msgstr ""
+
+msgid "File too large"
+msgstr ""
+
+msgid "Empty file"
+msgstr ""
+
 msgid "Balances still use this type"
 msgstr ""
 
@@ -604,9 +658,6 @@ msgid "A holiday already exists on this date"
 msgstr ""
 
 msgid "Two-level approval: the site manager must recommend first"
-msgstr ""
-
-msgid "This company uses one-level approval"
 msgstr ""
 
 msgid "Leave type not found"
@@ -645,13 +696,20 @@ msgstr ""
 msgid "A reason is required to cancel approved leave"
 msgstr ""
 
+#, python-format
+msgid ""
+"Your scheduled report %(name)s for %(start)s to %(end)s is ready (the "
+"link works for 7 days): %(link)s"
+msgstr ""
+
+#, python-format
+msgid "Scheduled report: %(name)s"
+msgstr ""
+
 msgid "Unknown report type or grouping"
 msgstr ""
 
 msgid "Range too large"
-msgstr ""
-
-msgid "PDF export is not available on this server"
 msgstr ""
 
 msgid "Export expired or not found"
@@ -675,7 +733,19 @@ msgstr ""
 msgid "End must be after start"
 msgstr ""
 
+msgid "This shift already has a check-in; it can't be reassigned"
+msgstr ""
+
+msgid "That employee already has this shift"
+msgstr ""
+
 msgid "Your shift was updated"
+msgstr ""
+
+msgid "This shift already has a check-in; it can't be cancelled"
+msgstr ""
+
+msgid "Your shift was cancelled"
 msgstr ""
 
 msgid "PDF rendering is unavailable on this server"
@@ -706,6 +776,9 @@ msgid "Site code has been reused; change it before restoring"
 msgstr ""
 
 msgid "Only images are accepted here"
+msgstr ""
+
+msgid "This file type is not supported in chat"
 msgstr ""
 
 msgid "You cannot grant permissions you do not hold"

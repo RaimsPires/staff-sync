@@ -16,6 +16,7 @@ import { exportCsv } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useEmployees } from "@/store/employees";
+import { inviteEmployee, resetDevice } from "@/services/employee-profile";
 import type { Employee } from "@/types/employee";
 import { EmployeeFormDrawer } from "./employee-form-drawer";
 import { ImportWizard } from "./import-wizard";
@@ -187,8 +188,8 @@ export function EmployeesScreen() {
                             <>
                               <Link href={`/employees/${e.id}`} className={cn(item, "text-text no-underline hover:no-underline")}>{t("actions.view")}</Link>
                               {canManage && <button onClick={() => { close(); setForm({ employee: e }); }} className={cn(item, "text-text")}>{t("actions.edit")}</button>}
-                              {canManage && (e.app === "invited" || e.status === "invited") && <button onClick={() => { close(); toast(t("inviteResent", { name: e.name })); }} className={cn(item, "text-text")}>{t("actions.resend")}</button>}
-                              {canManage && e.app === "installed" && <button onClick={() => { close(); toast(t("deviceReset", { name: e.name })); }} className={cn(item, "text-text")}>{t("actions.resetDevice")}</button>}
+                              {canManage && (e.app === "invited" || e.status === "invited") && <button onClick={() => { close(); inviteEmployee(e.id).then(() => toast(t("inviteResent", { name: e.name })), (err) => toast(err instanceof Error ? err.message : t("actionFailed"), "bad")); }} className={cn(item, "text-text")}>{t("actions.resend")}</button>}
+                              {canManage && e.app === "installed" && <button onClick={() => { close(); resetDevice(e.id).then(() => toast(t("deviceReset", { name: e.name })), (err) => toast(err instanceof Error ? err.message : t("actionFailed"), "bad")); }} className={cn(item, "text-text")}>{t("actions.resetDevice")}</button>}
                               {canManage && (e.status === "deactivated"
                                 ? <button onClick={() => { close(); reactivate(e); }} className={cn(item, "text-ok")}>{t("actions.reactivate")}</button>
                                 : <button onClick={() => { close(); setDeactivating(e); }} className={cn(item, "text-bad")}>{t("actions.deactivate")}</button>)}

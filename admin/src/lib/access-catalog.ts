@@ -3,23 +3,27 @@ import type { RoleScopeKey, RoleScopeKind } from "@/types/users";
 export const PERM_ACTIONS = ["view", "create", "edit", "delete", "approve"] as const;
 export type PermAction = (typeof PERM_ACTIONS)[number];
 
-/** Every permissioned module and the actions that make sense for it. */
+/**
+ * Every permissioned module and the actions the server can grant for it. "edit" covers creating, changing and deleting
+ * (the server has one "manage" permission per area); "approve" is the decision permission.
+ */
 export const MODULES = [
-  { key: "att", actions: ["view", "create", "edit", "delete"] },
-  { key: "proxy", actions: ["view", "create"] },
+  { key: "att", actions: ["view", "edit"] },
+  { key: "proxy", actions: ["create"] },
   { key: "fraud", actions: ["view", "approve"] },
-  { key: "emp", actions: ["view", "create", "edit", "delete"] },
-  { key: "site", actions: ["view", "create", "edit", "delete"] },
-  { key: "branch", actions: ["view", "create", "edit", "delete"] },
-  { key: "sch", actions: ["view", "create", "edit", "delete"] },
+  { key: "emp", actions: ["view", "edit"] },
+  { key: "site", actions: ["view", "edit"] },
+  { key: "branch", actions: ["view", "edit"] },
+  { key: "sch", actions: ["view", "edit"] },
   { key: "lva", actions: ["view", "approve"] },
-  { key: "lvs", actions: ["view", "edit"] },
+  { key: "lvs", actions: ["edit"] },
   { key: "rep", actions: ["view"] },
   { key: "exp", actions: ["create"] },
-  { key: "usr", actions: ["view", "create", "edit", "delete"] },
+  { key: "usr", actions: ["edit"] },
   { key: "audit", actions: ["view"] },
-  { key: "set", actions: ["view", "edit"] },
-  { key: "bill", actions: ["view", "edit"] },
+  { key: "set", actions: ["edit"] },
+  { key: "bill", actions: ["edit"] },
+  { key: "chat", actions: ["edit"] },
 ] as const satisfies readonly { key: string; actions: readonly PermAction[] }[];
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
@@ -37,6 +41,24 @@ export const SCOPE_KIND: Record<RoleScopeKey, RoleScopeKind> = {
   company: "company", branches: "branch", ownBranch: "branch", sites: "site", ownSite: "site", self: "company",
 };
 
+/** The server permissions behind each permission id here (a role has the id when it has all of them). */
+export const BACKEND_PERMS: Record<string, string[]> = {
+  "att.view": ["attendance.view"], "att.edit": ["attendance.edit"], "proxy.create": ["attendance.proxy_checkin"],
+  "fraud.view": ["alerts.view"], "fraud.approve": ["alerts.resolve"],
+  "emp.view": ["employees.view"], "emp.edit": ["employees.manage", "devices.reset"],
+  "site.view": ["sites.view"], "site.edit": ["sites.manage"], "branch.view": ["branches.view"], "branch.edit": ["branches.manage"],
+  "sch.view": ["schedules.view"], "sch.edit": ["schedules.manage"],
+  "lva.view": ["leave.view"], "lva.approve": ["leave.approve", "leave.recommend"], "lvs.edit": ["leave.settings"],
+  "rep.view": ["reports.view"], "exp.create": ["reports.export"],
+  "usr.edit": ["users.manage", "roles.manage"], "audit.view": ["audit.view"], "set.edit": ["settings.manage"], "bill.edit": ["billing.manage"], "chat.edit": ["chat.sites"],
+};
+
+/** Permission ids -> the server permissions to store. */
+export const toBackendPerms = (ids: string[]): string[] => [...new Set(ids.flatMap((id) => BACKEND_PERMS[id] ?? []))];
+
+/** Server permissions -> the permission ids a role has (server permissions with no counterpart here are ignored). */
+export const fromBackendPerms = (perms: string[]): string[] => ALL_PERMISSIONS.filter((id) => (BACKEND_PERMS[id] ?? []).length > 0 && BACKEND_PERMS[id].every((p) => perms.includes(p)));
+
 /** Sidebar entries a permission set unlocks, in sidebar order. */
 export const NAV_RULES: { key: string; allowed: (has: (p: string) => boolean) => boolean }[] = [
   { key: "overview", allowed: () => true },
@@ -48,11 +70,12 @@ export const NAV_RULES: { key: string; allowed: (has: (p: string) => boolean) =>
   { key: "schedules", allowed: (h) => h("sch.view") },
   { key: "leave", allowed: (h) => h("lva.view") },
   { key: "reports", allowed: (h) => h("rep.view") },
-  { key: "users", allowed: (h) => h("usr.view") },
+  { key: "users", allowed: (h) => h("usr.edit") },
+  { key: "chat", allowed: () => true },
   { key: "audit", allowed: (h) => h("audit.view") },
-  { key: "settings", allowed: (h) => h("set.view") || h("bill.view") },
+  { key: "settings", allowed: (h) => h("set.edit") || h("bill.edit") },
 ];
 
 /** Plain-language abilities shown in the role preview. */
-export const CAN_KEYS = ["att.edit", "proxy.create", "fraud.approve", "emp.create", "sch.edit", "lva.approve", "exp.create", "usr.edit", "set.edit", "bill.view"] as const;
-export const CANT_KEYS = ["usr.edit", "set.edit", "bill.view"] as const;
+export const CAN_KEYS = ["att.edit", "proxy.create", "fraud.approve", "emp.edit", "sch.edit", "lva.approve", "exp.create", "usr.edit", "set.edit", "bill.edit"] as const;
+export const CANT_KEYS = ["usr.edit", "set.edit", "bill.edit"] as const;

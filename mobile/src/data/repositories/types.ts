@@ -25,6 +25,9 @@ export class AppError extends Error {
       | 'OTP_INVALID'
       | 'OTP_EXPIRED'
       | 'OTP_LOCKED'
+      | 'INVALID_CREDENTIALS'
+      | 'PASSWORD_REQUIRED'
+      | 'ACCOUNT_LOCKED'
       | 'DEVICE_BOUND'
       | 'PIN_INVALID'
       | 'PIN_LOCKED'
@@ -41,9 +44,12 @@ export class AppError extends Error {
 export type Session = { accessToken: string; refreshToken: string; user: UserProfile };
 
 export interface AuthRepository {
-  requestOtp(identifier: string): Promise<void>;
-  /** Returns companies to choose from when the account belongs to several. */
-  verifyOtp(identifier: string, code: string): Promise<{ companies: Company[]; session: Session }>;
+  /** Checks the password (once the account has one) and sends a one-time code, by e-mail when the account has an address. */
+  requestOtp(identifier: string, password?: string): Promise<{ passwordSetupRequired: boolean }>;
+  /** Returns companies to choose from when the account belongs to several; `needsPassword` when the account has no password yet. */
+  verifyOtp(identifier: string, code: string): Promise<{ companies: Company[]; session: Session; needsPassword: boolean }>;
+  /** First password of an account created without one. */
+  setInitialPassword(newPassword: string): Promise<void>;
   selectCompany(companyId: string): Promise<Session>;
   registerDevice(deviceId: string): Promise<void>;
   logout(): Promise<void>;
@@ -83,6 +89,8 @@ export type CorrectionInput = {
   proposedTime?: string;
   comment: string;
   attachmentName?: string;
+  attachmentUri?: string;
+  attachmentType?: string;
 };
 
 export interface AttendanceRepository {
@@ -118,6 +126,9 @@ export type LeaveDraft = {
   endHalf?: HalfDay;
   reason: string;
   attachmentName?: string;
+  /** Local file picked for the request; uploaded when it is sent. */
+  attachmentUri?: string;
+  attachmentType?: string;
 };
 
 export type LeavePreview = { days: number; remainingAfter: number; warnings: LeaveWarning[]; reviewer: string };
@@ -146,6 +157,12 @@ export interface ProfileRepository {
   getDevice(): Promise<{ model: string; registeredAt: string; lastActiveAt: string }>;
   /** `false` when another phone is bound to the account. */
   isDeviceRegistered(): Promise<boolean>;
+  /** Hand this phone's push token to the API so it can notify the employee. */
+  registerPushToken(): Promise<void>;
+  /** A fresh link to the profile photo, or null when there is none (links expire, so ask each time). */
+  getPhotoUrl(): Promise<string | null>;
+  /** Upload a new profile photo from a local file, or remove it with null. */
+  setPhoto(uri: string | null): Promise<void>;
 }
 
 export type RosterEntry = {
@@ -200,6 +217,10 @@ export type ManagerLeaveItem = LeaveRequest & {
 };
 
 export type ProxyInput = {
+  /** Idempotency key; reuse it when the same action is retried or replayed. */
+  clientEventId?: string;
+  /** Site the check is made at (the manager's current site). */
+  siteId?: string;
   employeeId?: string;
   badgeToken?: string;
   pin?: string;
@@ -215,7 +236,7 @@ export interface ManagerRepository {
   getSites(): Promise<ManagerSite[]>;
   getSummary(siteId: string): Promise<ManagerSummary>;
   getRoster(siteId: string): Promise<RosterEntry[]>;
-  findByBadge(token: string): Promise<RosterEntry>;
+  findByBadge(token: string, siteId?: string): Promise<RosterEntry>;
   /** Checks the employee's PIN ahead of the check; counts failed attempts. */
   verifyPin(employeeId: string, pin: string): Promise<void>;
   proxyCheck(input: ProxyInput): Promise<{ entry: RosterEntry; flags: Flag[] }>;

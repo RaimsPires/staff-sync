@@ -11,6 +11,8 @@ interface SessionState {
   sidebarCollapsed: boolean;
   setRole: (role: Role) => void;
   setScope: (scope: Scope) => void;
+  /** Apply the role and scope the backend granted (no validation against the demo org). */
+  hydrate: (role: Role, scope: Scope) => void;
   toggleSidebar: () => void;
 }
 
@@ -27,6 +29,7 @@ export const useSession = create<SessionState>()(
       sidebarCollapsed: false,
       setRole: (role) => set({ role, scope: DEFAULT_SCOPE[role] }),
       setScope: (scope) => set(isValidScope(get().role, scope, getOrg()) ? { scope } : {}),
+      hydrate: (role, scope) => set({ role, scope }),
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
     }),
     {

@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
@@ -18,6 +19,13 @@ export function MapCard({ assignment, fix }: Props) {
   const distance = fix ? Math.round(distanceToGeofenceM(fix, site.geofence)) : undefined;
   const usable = !!fix && fix.accuracyM <= site.minAccuracyM;
   const level: GpsLevel = !fix ? 'none' : fix.accuracyM <= 15 ? 'good' : fix.accuracyM <= site.minAccuracyM ? 'fair' : 'poor';
+  // After a while without a position, say why instead of spinning forever.
+  const [waited, setWaited] = useState(false);
+  useEffect(() => {
+    if (fix) return setWaited(false);
+    const id = setTimeout(() => setWaited(true), 12000);
+    return () => clearTimeout(id);
+  }, [fix]);
   const radiusM = site.geofence.kind === 'circle' ? site.geofence.radiusM : undefined;
 
   const title = !usable
@@ -45,9 +53,9 @@ export function MapCard({ assignment, fix }: Props) {
         <SiteMap site={site} user={fix} snapshot style={styles.map} />
         {!fix ? (
           <View style={[StyleSheet.absoluteFill, styles.searching, { backgroundColor: `${colors.card}B3` }]}>
-            <ActivityIndicator color={colors.primary} />
+            {waited ? null : <ActivityIndicator color={colors.primary} />}
             <Text variant="caption" style={styles.searchLabel}>
-              {t('home.findingPosition')}
+              {waited ? t('home.noSignalHint') : t('home.findingPosition')}
             </Text>
           </View>
         ) : null}

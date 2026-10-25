@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 
 import { useOnline } from '@/core/network/use-online';
+import { startChat } from '@/data/chat';
 import { useOfflineQueue } from '@/data/offline-queue';
 
 export default function AppLayout() {
@@ -12,6 +13,9 @@ export default function AppLayout() {
   useEffect(() => {
     if (online) void sync();
   }, [online, sync]);
+
+  // Chat stays connected while the app is open so messages and the unread badge are live.
+  useEffect(() => startChat(), []);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { capitalize, formatDate, formatTime } from '@/core/format';
 import { useLivePosition, useLocationPermission } from '@/core/location/use-site-proximity';
@@ -47,7 +47,16 @@ export function HomeScreen() {
   const [index, setIndex] = useState(0);
   const current = assignments[Math.min(index, Math.max(assignments.length - 1, 0))];
   const { data: record } = useAssignmentRecord(current?.id);
-  const fix = useLivePosition(permission.state === 'granted' && !!current);
+  const fix = useLivePosition(permission.ready && !!current);
+  // Ask for the right permission as soon as the app needs it; once refused, or only approximate, the system settings are the way back.
+  const askedOnce = useRef(false);
+  useEffect(() => {
+    if (permission.state === 'undetermined' && !askedOnce.current) {
+      askedOnce.current = true;
+      void permission.request();
+    }
+  }, [permission]);
+  const fixLocation = () => (permission.state === 'undetermined' ? void permission.request() : void Linking.openSettings());
   const buttonState = useCheckInState(current, fix);
   const week = useWeekSummary();
   const unread = (useNotifications().data ?? []).filter((n) => !n.read).length;
@@ -161,7 +170,8 @@ export function HomeScreen() {
             <CheckInButton
               state={buttonState}
               assignment={current}
-              locationGranted={permission.state === 'granted'}
+              locationGranted={permission.ready}
+              onFixLocation={fixLocation}
               onCheckIn={() => flow('/check-in')}
               onCheckOut={() => flow('/check-out')}
             />

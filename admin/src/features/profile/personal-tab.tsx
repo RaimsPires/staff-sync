@@ -12,6 +12,7 @@ import { TIMEZONES } from "@/data/settings";
 import { setLocale } from "@/i18n/actions";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
+import { saveDetails } from "@/services/profile";
 import { useProfile } from "@/store/profile";
 import { useAccess } from "@/store/use-access";
 import { useScopeText } from "@/features/users/model";
@@ -39,8 +40,13 @@ function EditDetails({ onClose }: { onClose: () => void }) {
   const errors = { name: d.name.trim() ? "" : t("required"), email: EMAIL.test(d.email) ? "" : t("emailInvalid") };
   const set = (p: Partial<typeof d>) => setD((x) => ({ ...x, ...p }));
 
-  const save = () => {
+  const save = async () => {
     if (errors.name || errors.email) return setTried(true);
+    try {
+      await saveDetails({ name: d.name.trim(), lang: d.lang as "en" | "fr" });
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : tc("saveFailed"), "bad");
+    }
     setDetails({ ...d, name: d.name.trim() });
     toast(tc("saved"));
     onClose();

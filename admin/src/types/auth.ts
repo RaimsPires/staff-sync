@@ -20,6 +20,8 @@ export interface Permissions {
   review: boolean;
   /** Approve or reject leave requests. */
   approve: boolean;
+  /** Can give an opinion on leave requests (site managers) without deciding them. */
+  recommend: boolean;
   /** Manage branches and sites. */
   org: boolean;
   reports: boolean;
@@ -40,6 +42,7 @@ export type AdminPage =
   | "reports"
   | "users"
   | "audit"
+  | "chat"
   | "settings"
   | "profile";
 

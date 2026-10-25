@@ -2,17 +2,19 @@
 
 import { CircleAlert, Eye, EyeOff, Lock, UserX, WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useRef, useState, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { authenticate } from "@/services/auth";
+import { authenticate, requestPasswordReset } from "@/services/auth";
+import { MfaStep } from "./mfa-step";
 import { useOnline } from "@/lib/use-online";
 import { cn } from "@/lib/utils";
 import { MicrosoftMark } from "./provider-marks";
 import { LOCK_MS, MAX_ATTEMPTS, useLockout } from "./use-lockout";
 import { markSignedIn } from "@/lib/auth-cookie";
+import { api } from "@/lib/api";
 
 export type PreviewState = "default" | "loading" | "wrong" | "locked" | "deactivated" | "offline";
 type Outcome = "wrong" | "deactivated" | "locked" | null;
@@ -30,6 +32,7 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
   const t = useTranslations("Auth");
   const router = useRouter();
   const toast = useToast();
+  const params = useSearchParams();
   const online = useOnline() && previewState !== "offline";
   const lockout = useLockout(
     previewState === "locked"
@@ -47,10 +50,18 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(previewState === "loading");
   const [tried, setTried] = useState(false);
+  const [mfa, setMfa] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>(
     previewState === "wrong" || previewState === "deactivated" || previewState === "locked" ? previewState : null,
   );
   const redirectTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // The API sends people back here with the reason when single sign-on did not work out.
+  const ssoError = params.get("sso_error");
+  useEffect(() => {
+    if (ssoError) toast(t(`toasts.sso.${["cancelled", "unverified", "not_invited", "not_configured"].includes(ssoError) ? ssoError : "failed"}`), "bad");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ssoError]);
 
   const locked = lockout.locked;
   const blocked = loading || locked || !online;
@@ -76,7 +87,14 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
     setTried(false);
     setLoading(true);
     setOutcome(null);
-    const result = await authenticate(address, password);
+    let result: Awaited<ReturnType<typeof authenticate>>;
+    try {
+      result = await authenticate(address, password);
+    } catch {
+      setLoading(false);
+      toast(t("toasts.failed"), "info");
+      return;
+    }
     setLoading(false);
     if (result === "ok") {
       lockout.reset();
@@ -85,7 +103,19 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
       redirectTimer.current = setTimeout(() => router.push("/workspaces"), 900);
       return;
     }
+    if (result === "mfa") {
+      setMfa(true);
+      return;
+    }
+    if (result === "offline" || result === "unverified") {
+      toast(t(`toasts.${result}`), "info");
+      return;
+    }
     setPassword("");
+    if (result === "locked") {
+      setOutcome("locked");
+      return;
+    }
     if (result === "deactivated") {
       setOutcome("deactivated");
       return;
@@ -97,16 +127,32 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
     if (blocked) return;
     setLoading(true);
     setOutcome(null);
-    setTimeout(() => {
-      setLoading(false);
-      toast(t("toasts.redirecting", { provider }), "info");
-    }, 900);
+    // The server answers with the provider's sign-in address once SSO is configured for the company; until then it says no.
+    api.get<{ url?: string }>(`/auth/sso/${provider.toLowerCase()}/authorize`).then(
+      (r) => {
+        if (r.url) {
+          toast(t("toasts.redirecting", { provider }), "info");
+          window.location.assign(r.url);
+        } else setLoading(false);
+      },
+      () => {
+        setLoading(false);
+        toast(t("toasts.ssoUnavailable"), "info");
+      },
+    );
   };
 
   const forgot = (e: React.MouseEvent) => {
     e.preventDefault();
-    toast(t("toasts.resetSent", { email: email || t("toasts.yourEmail") }));
+    const address = email.trim();
+    if (!EMAIL_RE.test(address)) return toast(t("errors.emailRequired"), "info");
+    requestPasswordReset(address).then(
+      () => toast(t("toasts.resetSent", { email: address })),
+      () => toast(t("toasts.failed"), "info"),
+    );
   };
+
+  if (mfa) return <MfaStep onBack={() => { setMfa(false); setPassword(""); }} />;
 
   const buttonLabel = loading ? t("signingIn") : locked ? t("locked.button") : !online ? t("offline.button") : t("signIn");
 

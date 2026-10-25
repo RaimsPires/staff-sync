@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useOrg } from "@/lib/org";
 import { effectiveSiteIds } from "@/lib/scope";
-import { DEFAULT_SCOPE, IDENTITY, permissionsFor, permissionsFromList } from "@/lib/permissions";
+import { DEFAULT_SCOPE, IDENTITY, permissionsFor, permissionsFromBackend, permissionsFromList } from "@/lib/permissions";
 import { useHydrated } from "@/lib/use-hydrated";
+import { useAuth } from "@/store/auth";
 import { usePreview } from "@/store/preview";
 import { useSession } from "@/store/session";
 import { useUsers } from "@/store/users";
@@ -18,11 +19,12 @@ export function useAccess() {
   const storedScope = useSession((s) => s.scope);
   const role = hydrated ? storedRole : "admin";
   const scope = hydrated ? storedScope : DEFAULT_SCOPE.admin;
+  const authMe = useAuth((s) => s.me);
   const org = useOrg();
   const siteIds = useMemo(() => effectiveSiteIds(role, scope, org), [role, scope, org]);
   const previewId = usePreview((s) => s.roleId);
   const previewRole = useUsers((s) => s.roles.find((r) => r.id === previewId));
   // Previewing a role swaps the permissions only; the data scope stays the signed-in user's.
-  const perms = previewRole ? permissionsFromList(previewRole.perms, previewRole.id === "admin") : permissionsFor(role);
-  return { hydrated, role, scope, siteIds, perms, me: IDENTITY[role], previewRole: previewRole ?? null };
+  const perms = previewRole ? permissionsFromList(previewRole.perms, previewRole.key === "owner" || previewRole.id === "admin") : authMe ? permissionsFromBackend(authMe.permissions) : permissionsFor(role);
+  return { hydrated, role, scope, siteIds, perms, me: authMe ? { name: authMe.full_name, email: authMe.email ?? authMe.phone ?? "" } : IDENTITY[role], previewRole: previewRole ?? null };
 }

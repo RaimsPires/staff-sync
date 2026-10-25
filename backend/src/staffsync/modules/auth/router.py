@@ -4,8 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Cookie, Header, Request, Response
 from sqlmodel import select
 
+from staffsync.core.adapters import get_storage
 from staffsync.core.deps import Ctx, CtxNoCompany, PublicSession
-from staffsync.core.errors import Forbidden, NotFound, Unauthenticated
+from staffsync.core.errors import Forbidden, NotFound, Unauthenticated, ValidationFailed
 from staffsync.core.limits import limiter
 from staffsync.core.security import jwks, sha256
 from staffsync.modules.auth import service
@@ -27,6 +28,7 @@ from staffsync.modules.auth.schemas import (
     OtpVerifyIn,
     OtpVerifyOut,
     PasswordChangeIn,
+    PasswordSetIn,
     RefreshIn,
     ResetIn,
     SelectCompanyIn,
@@ -100,7 +102,8 @@ async def mfa_verify(request: Request, body: MfaVerifyIn, response: Response, se
 @router.post("/auth/otp/request", response_model=OtpRequestOut)
 @limiter.limit("10/minute")
 async def otp_request(request: Request, body: OtpRequestIn, session: PublicSession):
-    return OtpRequestOut(resend_after_s=await service.otp_request(session, body.identifier))
+    resend, setup = await service.otp_request(session, body.identifier, body.password)
+    return OtpRequestOut(resend_after_s=resend, password_setup_required=setup)
 
 
 @router.post("/auth/otp/verify", response_model=OtpVerifyOut)
@@ -118,13 +121,51 @@ async def select_company(request: Request, body: SelectCompanyIn, ctx: CtxNoComp
 
 
 @router.get("/auth/sso/{provider}/authorize")
-async def sso_authorize(provider: str):
-    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED", provider=provider)
+@limiter.limit("30/minute")
+async def sso_authorize(request: Request, provider: str, response: Response):
+    """The address to send the browser to. A short-lived cookie ties the sign-in to this browser."""
+    from staffsync.core.config import get_settings
+    from staffsync.modules.auth import sso
+
+    url, nonce = sso.start(provider)
+    response.set_cookie(sso.COOKIE, nonce, httponly=True, secure=get_settings().app_env != "dev", samesite="lax", max_age=sso.STATE_TTL_S, path=f"{get_settings().api_prefix}/auth/sso")
+    return {"url": url}
 
 
-@router.get("/auth/sso/{provider}/callback")
-async def sso_callback(provider: str):
-    raise Forbidden(f"SSO provider '{provider}' is not configured", code="SSO_NOT_CONFIGURED", provider=provider)
+@router.get("/auth/sso/{provider}/callback", include_in_schema=False)
+@limiter.limit("30/minute")
+async def sso_callback(
+    request: Request, provider: str, session: PublicSession, code: str | None = None, state: str | None = None, error: str | None = None, ss_sso: Annotated[str | None, Cookie()] = None
+):
+    """Where the provider sends the browser back. Always ends in a redirect to the dashboard, with the reason when it failed."""
+    from fastapi.responses import RedirectResponse
+
+    from staffsync.core.config import get_settings
+    from staffsync.modules.auth import sso
+
+    dash = get_settings().dashboard_url.rstrip("/")
+    back = lambda reason: RedirectResponse(f"{dash}/sign-in?sso_error={reason}", status_code=303)  # noqa: E731
+    if error or not code or not state:
+        return back("cancelled")
+    try:
+        email = await sso.identify(provider, code, state, ss_sso)
+    except Forbidden:
+        return back("not_configured")
+    except Unauthenticated as exc:
+        return back("unverified" if exc.code == "SSO_UNVERIFIED" else "failed")
+    user = await service.find_user(session, "email", email)
+    if user is None or user.status != "active":
+        return back("not_invited")
+    companies = await service.user_companies(session, user.id)
+    if not companies:
+        return back("not_invited")
+    ip, ua = _meta(request)
+    out = await service.finish_login(session, user, companies, ip=ip, ua=ua)
+    redirect = RedirectResponse(f"{dash}/sso", status_code=303)
+    if out.tokens:
+        _set_web_cookies(redirect, out.tokens)
+    redirect.delete_cookie(sso.COOKIE, path=f"{get_settings().api_prefix}/auth/sso")
+    return redirect
 
 
 @router.post("/auth/refresh", response_model=TokenPair)
@@ -203,6 +244,8 @@ async def me(ctx: CtxNoCompany):
         locale=u.locale,
         theme=u.theme,
         totp_enabled=u.totp_enabled,
+        notification_prefs=u.notification_prefs,
+        avatar_url=await get_storage().presign_get(u.avatar_key, 3600) if u.avatar_key else None,
         company_id=ctx.company_id,
         companies=await service.user_companies(ctx.session, u.id),
         roles=ctx.role_names,
@@ -219,7 +262,11 @@ async def me(ctx: CtxNoCompany):
 
 @router.patch("/me")
 async def update_me(body: MeUpdateIn, ctx: CtxNoCompany):
-    for k, v in body.model_dump(exclude_unset=True).items():
+    changes = body.model_dump(exclude_unset=True)
+    key = changes.get("avatar_key")
+    if key and not key.startswith(f"avatars/{ctx.user.id}/"):
+        raise ValidationFailed("Unknown photo")  # only a file this person uploaded through /uploads/avatar
+    for k, v in changes.items():
         setattr(ctx.user, k, v)
     return {"status": "ok"}
 
@@ -227,6 +274,11 @@ async def update_me(body: MeUpdateIn, ctx: CtxNoCompany):
 @router.get("/me/profile")
 async def my_profile(ctx: Ctx):
     return await service.build_profile(ctx.session, ctx.user, ctx.company_id)
+
+
+@router.post("/me/password/initial", status_code=204)
+async def set_initial_password(body: PasswordSetIn, ctx: CtxNoCompany):
+    await service.set_initial_password(ctx.session, ctx, body.new_password)
 
 
 @router.post("/me/password", status_code=204)

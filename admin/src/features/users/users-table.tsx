@@ -32,7 +32,7 @@ export function UsersTable({ roleFilter, onRoleFilter, onChangeRole, onRevoke }:
   const toast = useToast();
   const roleText = useRoleText();
   const scopeText = useScopeText();
-  const { users, roles, setStatus } = useUsers();
+  const { users, roles, setStatus, resend } = useUsers();
   const [query, setQuery] = useState("");
   const [status, setStatusFilter] = useState<"all" | UserStatus>("all");
 
@@ -51,7 +51,7 @@ export function UsersTable({ roleFilter, onRoleFilter, onChangeRole, onRevoke }:
     return format.dateTime(d, { month: "short", day: "numeric" });
   };
 
-  const onlyAdmin = activeAdmins(users).length <= 1;
+  const onlyAdmin = activeAdmins(users, roles).length <= 1;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -77,10 +77,10 @@ export function UsersTable({ roleFilter, onRoleFilter, onChangeRole, onRevoke }:
           </div>
           {list.map((u, i) => {
             const role = roles.find((r) => r.id === u.roleId);
-            const lastAdmin = u.roleId === "admin" && u.status !== "revoked" && onlyAdmin;
+            const lastAdmin = role?.key === "owner" && u.status !== "revoked" && onlyAdmin;
             const actions: { label: string; tone?: string; run: () => void }[] = [];
             if (u.status !== "revoked") actions.push({ label: t("actions.changeRole"), run: () => onChangeRole(u) });
-            if (u.status === "invited") actions.push({ label: t("actions.resend"), run: () => toast(t("toasts.resent", { email: u.email })) });
+            if (u.status === "invited") actions.push({ label: t("actions.resend"), run: () => { resend(u.id).then(() => toast(t("toasts.resent", { email: u.email }))).catch((e: unknown) => toast(e instanceof Error ? e.message : String(e))); } });
             if (u.status === "revoked") actions.push({ label: t("actions.restore"), tone: "text-ok", run: () => { setStatus(u.id, "active"); toast(t("toasts.restored", { name: u.name })); } });
             else if (u.me) actions.push({ label: t("actions.cantRevokeSelf"), tone: "text-text-3", run: () => {} });
             else actions.push({ label: t("actions.revoke"), tone: "text-bad", run: () => (lastAdmin ? toast(t("toasts.keepAdmin"), "bad") : onRevoke(u)) });

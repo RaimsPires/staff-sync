@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { direction, localized, planPrice, tooSmall } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { isBillingUnavailable, startCheckout } from "@/services/billing";
 import { usePlans, useCurrentPlan } from "@/store/plans";
 import type { BillingCycle, FeatureGroup, FeatureValue, Plan, PlanFeature } from "@/types/plans";
 
@@ -20,7 +21,14 @@ export function PlansScreen() {
   const locale = useLocale();
   const format = useFormatter();
   const toast = useToast();
-  const { plans, features, subscription, changePlan } = usePlans();
+  const choose = async (p: Plan) => {
+    try {
+      await startCheckout(p.id, billing);
+    } catch (e) {
+      toast(isBillingUnavailable(e) ? t("billingUnavailable") : e instanceof Error ? e.message : t("checkoutFailed"), "bad");
+    }
+  };
+  const { plans, features, subscription } = usePlans();
   const current = useCurrentPlan();
   const [billing, setBilling] = useState<BillingCycle>(subscription.billing);
   const [target, setTarget] = useState<Plan | null>(null);
@@ -144,7 +152,7 @@ export function PlansScreen() {
         cancelLabel={t("confirm.cancel")}
         okLabel={t("confirm.ok")}
         onCancel={() => setTarget(null)}
-        onOk={() => { if (target) { changePlan(target.id, billing); toast(t("confirm.done", { plan: name(target) })); } setTarget(null); }}
+        onOk={() => { const chosen = target; setTarget(null); if (chosen) void choose(chosen); }}
       />
     </div>
   );

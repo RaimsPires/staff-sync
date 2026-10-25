@@ -26,6 +26,16 @@ async def change_roles(user_id: UUID, body: UserRolesIn, ctx=require(Perm.USERS_
     await service.change_roles(ctx, user_id, body.role_id, body)
 
 
+@router.post("/users/{user_id}/resend-invite", status_code=204)
+async def resend_invite(user_id: UUID, ctx=require(Perm.USERS_MANAGE)):
+    await service.resend_invite(ctx, user_id)
+
+
+@router.post("/users/{user_id}/restore", status_code=204)
+async def restore(user_id: UUID, body: UserRolesIn, ctx=require(Perm.USERS_MANAGE)):
+    await service.restore_user(ctx, user_id, body.role_id, body)
+
+
 @router.post("/users/{user_id}/revoke", status_code=204)
 async def revoke(user_id: UUID, ctx=require(Perm.USERS_MANAGE)):
     await service.revoke_user(ctx, user_id)

@@ -11,7 +11,7 @@ from staffsync.core.errors import ValidationFailed
 from staffsync.modules.auth.models import User
 from staffsync.modules.employees.models import Employee
 from staffsync.modules.schedules import mobile, service
-from staffsync.modules.schedules.models import Shift
+from staffsync.modules.schedules.models import Schedule, Shift
 from staffsync.modules.schedules.schemas import (
     AssignmentRead,
     CopyWeekIn,
@@ -95,7 +95,7 @@ async def planner(
 ):
     if to - from_ > timedelta(days=100):
         raise ValidationFailed("Range too large")
-    stmt = service.ShiftRepository(ctx).query().where(Shift.starts_at >= from_, Shift.starts_at < to).order_by(Shift.starts_at)
+    stmt = service.ShiftRepository(ctx).query().where(Shift.starts_at >= from_, Shift.starts_at < to, Shift.status != "cancelled").order_by(Shift.starts_at)
     if site_id:
         stmt = stmt.where(Shift.site_id == site_id)
     if employee_id:
@@ -105,16 +105,22 @@ async def planner(
     if rows:
         names = dict((await ctx.session.exec(select(Employee.id, User.full_name).join(User, User.id == Employee.user_id).where(Employee.id.in_({r.employee_id for r in rows})))).all())  # type: ignore[attr-defined]
         snames = dict((await ctx.session.exec(select(Site.id, Site.name).where(Site.id.in_({r.site_id for r in rows})).execution_options(include_deleted=True))).all())  # type: ignore[attr-defined]
+        titles = dict((await ctx.session.exec(select(Schedule.id, Schedule.title).where(Schedule.id.in_({r.schedule_id for r in rows})).execution_options(include_deleted=True))).all())  # type: ignore[attr-defined]
     else:
-        snames = {}
+        snames, titles = {}, {}
     return [ShiftRead(id=r.id, employee_id=r.employee_id, employee_name=names.get(r.employee_id), site_id=r.site_id, site_name=snames.get(r.site_id), schedule_id=r.schedule_id,
-                      is_intervention=r.is_intervention, starts_at=r.starts_at, ends_at=r.ends_at, status=r.status, exception=r.exception) for r in rows]
+                      title=titles.get(r.schedule_id), is_intervention=r.is_intervention, starts_at=r.starts_at, ends_at=r.ends_at, status=r.status, exception=r.exception) for r in rows]
 
 
 @router.patch("/shifts/{shift_id}", response_model=ShiftRead)
 async def move_shift(shift_id: UUID, body: ShiftMove, ctx=require(Perm.SCHEDULES_MANAGE)):
-    sh = await service.move_shift(ctx, await service.ShiftRepository(ctx).get(shift_id), body.starts_at, body.ends_at, body.notify)
+    sh = await service.move_shift(ctx, await service.ShiftRepository(ctx).get(shift_id), body.starts_at, body.ends_at, body.notify, employee_id=body.employee_id, site_id=body.site_id)
     return ShiftRead(id=sh.id, employee_id=sh.employee_id, site_id=sh.site_id, schedule_id=sh.schedule_id, is_intervention=sh.is_intervention, starts_at=sh.starts_at, ends_at=sh.ends_at, status=sh.status, exception=sh.exception)
+
+
+@router.delete("/shifts/{shift_id}", status_code=204)
+async def cancel_shift(shift_id: UUID, body: DeleteScheduleIn, ctx=require(Perm.SCHEDULES_MANAGE)):
+    await service.cancel_shift(ctx, await service.ShiftRepository(ctx).get(shift_id), body.reason, notify=True)
 
 
 @router.get("/me/shifts", response_model=list[AssignmentRead])

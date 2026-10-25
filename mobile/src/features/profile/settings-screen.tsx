@@ -13,7 +13,7 @@ import { repos } from '@/data';
 import { useOfflineQueue } from '@/data/offline-queue';
 import type { CheckEvent } from '@/data/repositories/types';
 import { qk } from '@/data/query-keys';
-import { BackHeader, BottomSheet, Button, Icon, Screen, Segmented, Text, Toggle, useToast, type IconName } from '@/ui';
+import { BackHeader, BottomSheet, Button, Icon, RadioRow, Screen, Text, Toggle, useToast, type IconName } from '@/ui';
 
 const SUPPORT_EMAIL = 'support@staffsync.co';
 const LEADS = [15, 30, 60] as const;
@@ -43,6 +43,21 @@ function Line({ label, value }: { label: string; value: string }) {
   );
 }
 
+const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', fr: 'Français' };
+
+/** A settings line showing the current value; tapping it opens a bottom sheet to change it. */
+function ValueRow({ label, value, onPress, plain }: { label: string; value: string; onPress: () => void; plain?: boolean }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${label}, ${value}`} onPress={onPress} style={plain ? styles.valueRowPlain : styles.listRow}>
+      <Text style={styles.listLabel}>{label}</Text>
+      <Text variant="caption" tone="muted" style={styles.listValue}>
+        {value}
+      </Text>
+      <Icon name="chevron-forward" size={18} tone="faint" />
+    </Pressable>
+  );
+}
+
 function Setting({ label, sub, value, onChange }: { label: string; sub: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <View style={styles.setting}>
@@ -69,6 +84,9 @@ function QueueItem({ event }: { event: CheckEvent }) {
   );
 }
 
+/** The API leaves dates out for a device that has not been active yet; an empty value must not reach date-fns. */
+const dateOrDash = (value: string, pattern: string, lang: string) => (value && !Number.isNaN(new Date(value).getTime()) ? formatDate(value, pattern, lang) : '—');
+
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
@@ -83,7 +101,9 @@ export function SettingsScreen() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
   const [confirmOut, setConfirmOut] = useState(false);
+  const [sheet, setSheet] = useState<'language' | 'theme' | 'lead' | null>(null);
   const lang = i18n.language;
+  const themeLabels: Record<ThemePreference, string> = { light: t('profile.themeLight'), dark: t('profile.themeDark'), system: t('profile.themeSystem') };
   const proxies = useOfflineQueue((s) => s.proxies);
   const pending = events.length + notes.length + proxies.length;
 
@@ -106,28 +126,11 @@ export function SettingsScreen() {
     <Screen contentStyle={styles.content}>
       <BackHeader title={t('profile.settings')} variant="heading" />
 
-      <Card title={t('profile.language')}>
-        <Segmented<Language>
-          options={[
-            { value: 'en', label: 'English' },
-            { value: 'fr', label: 'Français' },
-          ]}
-          value={language ?? (lang === 'fr' ? 'fr' : 'en')}
-          onChange={setLanguage}
-        />
-        <Text variant="small" tone="muted" style={[styles.cardTitle, styles.subTitle]}>
-          {t('profile.theme')}
-        </Text>
-        <Segmented<ThemePreference>
-          options={[
-            { value: 'light', label: t('profile.themeLight') },
-            { value: 'dark', label: t('profile.themeDark') },
-            { value: 'system', label: t('profile.themeSystem') },
-          ]}
-          value={theme}
-          onChange={setTheme}
-        />
-      </Card>
+      <View style={[styles.card, styles.list, { backgroundColor: colors.card, borderColor: colors.line }]}>
+        <ValueRow label={t('profile.language')} value={LANGUAGE_NAMES[language ?? (lang === 'fr' ? 'fr' : 'en')]} onPress={() => setSheet('language')} />
+        <View style={[styles.sep, { backgroundColor: colors.soft }]} />
+        <ValueRow label={t('profile.theme')} value={themeLabels[theme]} onPress={() => setSheet('theme')} />
+      </View>
 
       <Card title={t('profile.notificationsSection')} gap={6}>
         <Setting
@@ -138,26 +141,7 @@ export function SettingsScreen() {
         />
         {notifications.shiftReminders ? (
           <>
-            <Text variant="small" tone="muted" style={styles.remind}>
-              {t('profile.remindBefore')}
-            </Text>
-            <View style={styles.leads}>
-              {LEADS.map((m) => {
-                const on = notifications.reminderLeadMinutes === m;
-                return (
-                  <Pressable
-                    key={m}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: on }}
-                    onPress={() => setNotificationPrefs({ reminderLeadMinutes: m })}
-                    style={[styles.lead, { backgroundColor: on ? colors.infoBg : colors.card, borderColor: on ? colors.primary : colors.line }]}>
-                    <Text variant="caption" tone={on ? 'infoFg' : 'ink'} style={styles.leadLabel}>
-                      {t('profile.leadMinutes', { m })}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <ValueRow label={t('profile.remindBefore')} value={t('profile.leadMinutes', { m: notifications.reminderLeadMinutes })} onPress={() => setSheet('lead')} plain />
           </>
         ) : null}
         <Setting
@@ -213,8 +197,8 @@ export function SettingsScreen() {
 
       <Card title={t('profile.device')} gap={8}>
         <Line label={t('profile.deviceLabel')} value={device?.model ?? '…'} />
-        <Line label={t('profile.registered')} value={device ? formatDate(device.registeredAt, 'd MMM yyyy', lang) : '…'} />
-        <Line label={t('profile.lastActive')} value={device ? formatDate(device.lastActiveAt, 'd MMM, HH:mm', lang) : '…'} />
+        <Line label={t('profile.registered')} value={device ? dateOrDash(device.registeredAt, 'd MMM yyyy', lang) : '…'} />
+        <Line label={t('profile.lastActive')} value={device ? dateOrDash(device.lastActiveAt, 'd MMM, HH:mm', lang) : '…'} />
       </Card>
 
       <View style={[styles.card, styles.list, { backgroundColor: colors.card, borderColor: colors.line }]}>
@@ -265,6 +249,30 @@ export function SettingsScreen() {
 
       <Button variant="outlineDanger" label={t('profile.logout')} onPress={() => setConfirmOut(true)} />
 
+      <BottomSheet visible={sheet === 'language'} onClose={() => setSheet(null)} title={t('profile.language')} closable>
+        <View style={styles.options}>
+          {(['en', 'fr'] as const).map((l) => (
+            <RadioRow key={l} label={LANGUAGE_NAMES[l]} selected={(language ?? (lang === 'fr' ? 'fr' : 'en')) === l} onPress={() => { setLanguage(l); setSheet(null); }} />
+          ))}
+        </View>
+      </BottomSheet>
+
+      <BottomSheet visible={sheet === 'theme'} onClose={() => setSheet(null)} title={t('profile.theme')} closable>
+        <View style={styles.options}>
+          {(['light', 'dark', 'system'] as const).map((m) => (
+            <RadioRow key={m} label={themeLabels[m]} selected={theme === m} onPress={() => { setTheme(m); setSheet(null); }} />
+          ))}
+        </View>
+      </BottomSheet>
+
+      <BottomSheet visible={sheet === 'lead'} onClose={() => setSheet(null)} title={t('profile.remindBefore')} closable>
+        <View style={styles.options}>
+          {LEADS.map((m) => (
+            <RadioRow key={m} label={t('profile.leadMinutes', { m })} selected={notifications.reminderLeadMinutes === m} onPress={() => { setNotificationPrefs({ reminderLeadMinutes: m }); setSheet(null); }} />
+          ))}
+        </View>
+      </BottomSheet>
+
       <BottomSheet visible={confirmOut} onClose={() => setConfirmOut(false)} title={t('profile.logoutConfirm')}>
         <Text tone="muted" style={styles.sheetBody}>
           {pending > 0 ? t('profile.logoutPending', { count: pending }) : t('profile.logoutBody')}
@@ -289,9 +297,8 @@ const styles = StyleSheet.create({
   settingLabel: { fontSize: 15, fontWeight: '700' },
   settingSub: { fontWeight: '400', lineHeight: 17 },
   remind: { fontWeight: '700', marginTop: 2 },
-  leads: { flexDirection: 'row', gap: spacing.sm },
-  lead: { flex: 1, minHeight: 44, borderRadius: radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  leadLabel: { fontWeight: '700' },
+  options: { gap: spacing.sm, marginTop: spacing.sm },
+  valueRowPlain: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   syncRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   syncIcon: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   queue: { gap: 6 },

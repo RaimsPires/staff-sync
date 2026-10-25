@@ -208,6 +208,9 @@ function WizardFooter() {
   const goStep = useOnboarding((s) => s.goStep);
   const next = useOnboarding((s) => s.next);
   const skipTeam = useOnboarding((s) => s.skipTeam);
+  const busy = useOnboarding((s) => s.busy);
+  const failure = useOnboarding((s) => s.failure);
+  const tErr = useTranslations("Onboarding.errors");
 
   const invited = form.mode === "manual" ? form.people.filter((p) => p.name.trim() && p.contact.trim()).length : form.csvCount;
   const locale = useLocale();
@@ -229,7 +232,8 @@ function WizardFooter() {
             : t("nav.continue");
 
   return (
-    <div className="flex items-center gap-2.5 pt-1">
+    <div className="flex flex-wrap items-center gap-2.5 pt-1">
+      {failure && <div role="alert" className="w-full rounded-[10px] bg-bad-bg px-3.5 py-2.5 text-[13px] text-bad">{tErr(failure)}</div>}
       {step > 1 && step !== 3 && (
         <button
           onClick={() => goStep(step - 1)}
@@ -245,9 +249,11 @@ function WizardFooter() {
         </button>
       )}
       <button
-        onClick={() => next()}
-        className="flex h-[42px] items-center gap-2 rounded-[10px] border-0 bg-accent px-5 text-[14px] font-medium text-white hover:bg-accent-hover"
+        onClick={() => void next()}
+        disabled={busy}
+        className="flex h-[42px] items-center gap-2 rounded-[10px] border-0 bg-accent px-5 text-[14px] font-medium text-white hover:bg-accent-hover disabled:opacity-70"
       >
+        {busy ? <span className="box-border size-4 animate-spin-fast rounded-full border-2 border-solid border-white/35 border-t-white" /> : null}
         {label} <ArrowRight size={16} />
       </button>
     </div>

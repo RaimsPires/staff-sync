@@ -26,6 +26,7 @@ class User(IdMixin, TimestampMixin, SoftDeleteMixin, SQLModel, table=True):
     totp_enabled: bool = False
     backup_codes: list[str] | None = Field(default=None, sa_column=Column("backup_codes", JSONB))
     locale: str = "en"
+    avatar_key: str | None = None  # profile photo in object storage
     theme: str = "system"
     notification_prefs: dict | None = Field(default=None, sa_column=Column("notification_prefs", JSONB))
     status: str = "active"  # active | disabled

@@ -79,7 +79,7 @@ export function LeaveDetailScreen() {
   const statusLabel = pendingCancel ? t('leave.statusCancelPending') : t(`leave.status.${r.status}`);
 
   // Steps come from the real timeline; waiting steps are appended so the chain always reads Submitted → Manager → Admin.
-  const steps: Step[] = r.timeline.map((e) => {
+  const stepFor = (e: (typeof r.timeline)[number]): Step | undefined => {
     switch (e.action) {
       case 'submitted':
         return { kind: 'done', title: t('leave.stepSubmitted'), who: actorOf(e), date: at(e), comment: e.comment };
@@ -100,7 +100,8 @@ export function LeaveDetailScreen() {
           comment: e.comment,
         };
     }
-  });
+  };
+  const steps: Step[] = r.timeline.flatMap((e) => stepFor(e) ?? []);
   if (r.status === 'pending') {
     if (!recommended) {
       steps.push({ kind: 'current', title: t('leave.stepRecommended'), who: '', date: t('leave.awaiting') });

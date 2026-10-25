@@ -28,10 +28,12 @@ async def onboarding(ctx: Ctx):
     return await service.onboarding(ctx)
 
 
-@router.post("/export", status_code=202)
+@router.post("/export")
 async def export_company(ctx=require(Perm.SETTINGS_MANAGE)):
-    # TODO(worker): build a full data export and return a download URL when ready.
-    return {"status": "queued"}
+    """A ZIP of the company's data as CSV files, returned as a link valid for one hour (also e-mailed to the requester)."""
+    from staffsync.modules.companies import export
+
+    return await export.export_company(ctx)
 
 
 @router.post("/delete", status_code=202)

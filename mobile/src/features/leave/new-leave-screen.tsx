@@ -21,7 +21,7 @@ import { leaveTint } from './tint';
 const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 type Step = 'form' | 'review' | 'done';
 type Half = 'full' | HalfDay;
-type Attachment = { name: string; size: string };
+type Attachment = { name: string; size: string; uri?: string; type?: string };
 
 const sizeLabel = (bytes?: number) => (!bytes ? '' : bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
@@ -69,7 +69,7 @@ export function NewLeaveScreen() {
   const today = toIsoDate(new Date());
   const single = !end || end === start;
 
-  const base = typeId && start ? { typeId, start, end: end ?? start, startHalf: type?.allowsHalfDay ? startHalf : undefined, endHalf: type?.allowsHalfDay && !single ? endHalf : undefined, attachmentName: attachment?.name } : undefined;
+  const base = typeId && start ? { typeId, start, end: end ?? start, startHalf: type?.allowsHalfDay ? startHalf : undefined, endHalf: type?.allowsHalfDay && !single ? endHalf : undefined, attachmentName: attachment?.name, attachmentUri: attachment?.uri, attachmentType: attachment?.type } : undefined;
   const draft: LeaveDraft | undefined = base && { ...base, reason: reason.trim() };
 
   // The preview ignores the reason so typing does not refetch it.
@@ -105,17 +105,17 @@ export function NewLeaveScreen() {
   const fromCamera = async () => {
     const res = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 });
     const a = res.canceled ? undefined : res.assets[0];
-    if (a && (a.fileSize ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: a.fileName ?? 'photo.jpg', size: sizeLabel(a.fileSize) });
+    if (a && (a.fileSize ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: a.fileName ?? 'photo.jpg', size: sizeLabel(a.fileSize), uri: a.uri, type: a.mimeType });
   };
   const fromGallery = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
     const a = res.canceled ? undefined : res.assets[0];
-    if (a && (a.fileSize ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: a.fileName ?? 'image.jpg', size: sizeLabel(a.fileSize) });
+    if (a && (a.fileSize ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: a.fileName ?? 'image.jpg', size: sizeLabel(a.fileSize), uri: a.uri, type: a.mimeType });
   };
   const fromFile = async () => {
     const res = await DocumentPicker.getDocumentAsync({ type: ['image/*', 'application/pdf'], copyToCacheDirectory: true });
     const f = res.assets?.[0];
-    if (f && (f.size ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: f.name, size: sizeLabel(f.size) });
+    if (f && (f.size ?? 0) <= MAX_ATTACHMENT_BYTES) take({ name: f.name, size: sizeLabel(f.size), uri: f.uri, type: f.mimeType });
   };
 
   const holidaySet = new Set(holidays);

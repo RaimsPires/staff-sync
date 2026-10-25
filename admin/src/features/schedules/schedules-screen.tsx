@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/toast";
 import { useOrg } from "@/lib/org";
 import { formatTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { useLeave } from "@/store/leave";
 import { useSchedule } from "@/store/schedule";
 import { useAccess } from "@/store/use-access";
 import { dragState } from "./drag-state";
@@ -15,9 +16,11 @@ import { PublishDialog } from "./publish-dialog";
 import { ScheduleModal } from "./schedule-modal";
 import { ShiftDialog, draftOf, newDraft, type ShiftDraft } from "./shift-dialog";
 import { ShiftBlock, type DragHandlers, type ViewMode } from "./shift-block";
+import { usePlanned } from "./use-planned";
+import { copyWeek } from "@/services/schedule";
 import { useSettings } from "@/store/settings";
 import {
-  dateOf, DAY_END, DAY_START, DEFAULT_FILTERS, findConflicts, HOLIDAYS, LEAVE_DAYS, weekStartOf, WEEK_START_OFFSET, PLANNED, plannedBy, PX_PER_HOUR, TODAY_INDEX, TRACK_WIDTH,
+  dateOf, DAY_END, DAY_START, DEFAULT_FILTERS, findConflicts, HOLIDAYS, LEAVE_DAYS, syncPlannerCalendar, weekStartOf, WEEK_START_OFFSET, PX_PER_HOUR, TODAY_INDEX, TRACK_WIDTH,
   type Filters, type Shift,
 } from "./model";
 
@@ -29,7 +32,6 @@ export function SchedulesScreen() {
   const org = useOrg();
   const t = useTranslations("Schedules");
   const tj = useTranslations("Employees.titles");
-  const th = useTranslations("Schedules.holidays");
   const format = useFormatter();
   const toast = useToast();
   const { perms, siteIds } = useAccess();
@@ -38,7 +40,6 @@ export function SchedulesScreen() {
   const dirty = useSchedule((s) => s.dirty);
   const deleted = useSchedule((s) => s.deleted);
   const addShift = useSchedule((s) => s.addShift);
-  const addMany = useSchedule((s) => s.addMany);
   const updateShift = useSchedule((s) => s.updateShift);
   const scheduleIntervention = useSchedule((s) => s.scheduleIntervention);
   const publish = useSchedule((s) => s.publish);
@@ -57,13 +58,22 @@ export function SchedulesScreen() {
 
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
   const sitesAvailable = org.sites.filter((s) => siteIds.includes(s.id) && (filters.branch === "all" || s.branchId === filters.branch));
-  const people = PLANNED.filter((p) => siteIds.includes(p.site) && (filters.branch === "all" || org.siteById(p.site).branchId === filters.branch));
+  const planned = usePlanned();
+  const people = planned.filter((p) => siteIds.includes(p.site) && (filters.branch === "all" || org.siteById(p.site).branchId === filters.branch));
   const visible = useCallback(
     (x: Shift) => siteIds.includes(x.site) && (filters.site === "all" || x.site === filters.site) && (filters.type === "all" || x.type === filters.type) && (filters.emp === "all" || x.emp === filters.emp) && (filters.branch === "all" || org.siteById(x.site).branchId === filters.branch),
     [filters, siteIds, org],
   );
 
-  const conflicts = useMemo(() => findConflicts(shifts), [shifts]);
+  // Approved leave and public holidays come from the leave module; refresh the planner's calendar before reading it.
+  const leaveRequests = useLeave((s) => s.requests);
+  const leaveHolidays = useLeave((s) => s.holidays);
+  const calendarVersion = useMemo(() => {
+    syncPlannerCalendar(leaveRequests, leaveHolidays);
+    return {};
+  }, [leaveRequests, leaveHolidays]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- calendarVersion changes when leave or holidays change; findConflicts reads them from module state
+  const conflicts = useMemo(() => findConflicts(shifts), [shifts, calendarVersion]);
   const conflictCount = Object.keys(conflicts).filter((id) => { const x = shifts.find((y) => y.id === id); return x && visible(x); }).length;
   const dirtyCount = Object.keys(dirty).filter((id) => shifts.some((x) => x.id === id)).length + deleted;
   const weekOffset = WEEK_START_OFFSET[useSettings((s) => s.values.wk)];
@@ -109,7 +119,7 @@ export function SchedulesScreen() {
   };
 
   const openShift = (x: Shift) => { if (!justResized.current && canEdit) setDraft(draftOf(x)); };
-  const openNew = (d: number, emp: string | null, site: string | null, start?: number) => canEdit && setDraft(newDraft(d, emp, site, org, start));
+  const openNew = (d: number, emp: string | null, site: string | null, start?: number) => canEdit && setDraft(newDraft(d, emp, site, org, planned, start));
 
   /** Drop a dragged shift, intervention or employee onto a row/day (and minute in the day view). */
   const dropOn = (e: React.DragEvent, rowKey: string | null, d: number, minute: number | null) => {
@@ -133,7 +143,7 @@ export function SchedulesScreen() {
       scheduleIntervention(it.id, { d, emp, site: rowKey !== null && group === "site" ? rowKey : it.site, s: s0, e: Math.min(1439, s0 + (it.e - it.s)), type: "int", title: it.title });
       toast(emp ? t("toasts.assignedTo", { title: it.title, name: emp.split(" ")[0] }) : t("toasts.scheduledOpen", { title: it.title }));
     } else {
-      const site = rowKey !== null && group === "site" ? rowKey : filters.site !== "all" ? filters.site : (plannedBy(p.name)?.site ?? org.sites[0].id);
+      const site = rowKey !== null && group === "site" ? rowKey : filters.site !== "all" ? filters.site : (planned.find((x) => x.name === p.name)?.site ?? org.sites[0].id);
       const s0 = minute !== null ? Math.round(minute / 15) * 15 : 480;
       addShift({ d, emp: p.name, site, s: s0, e: Math.min(1439, s0 + 480), type: "rec", title: "" });
       toast(t("toasts.added", { name: p.name.split(" ")[0] }));
@@ -163,13 +173,14 @@ export function SchedulesScreen() {
   const step = view === "week" ? 7 : view === "day" ? 1 : 30;
   const hasFilter = JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS);
 
-  const copyPreviousWeek = () => {
-    const prev = shifts.filter((x) => x.d >= monday - 7 && x.d <= monday - 1 && visible(x));
-    const have = new Set(shifts.filter((x) => x.d >= monday && x.d <= monday + 6).map((x) => [x.d, x.emp, x.site, x.s, x.e].join()));
-    const add = prev.filter((x) => !HOLIDAYS[x.d + 7] && !have.has([x.d + 7, x.emp, x.site, x.s, x.e].join())).map((x) => ({ d: x.d + 7, emp: x.emp, site: x.site, s: x.s, e: x.e, type: x.type, title: x.title }));
-    if (!add.length) return toast(t("toasts.nothingToCopy"), "info");
-    addMany(add, true);
-    toast(t("toasts.copied", { count: add.length }));
+  const copyPreviousWeek = async () => {
+    try {
+      const copied = await copyWeek(monday - 7, monday, filters.site !== "all" ? filters.site : undefined);
+      if (!copied) return toast(t("toasts.nothingToCopy"), "info");
+      toast(t("toasts.copied", { count: copied }));
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
+    }
   };
 
   const publishSummary = publishing
@@ -177,7 +188,7 @@ export function SchedulesScreen() {
     : null;
 
   const weekdayNames = Array.from({ length: 7 }, (_, i) => format.dateTime(dateOf(weekOffset + i), { weekday: "short", timeZone: "UTC" }));
-  const holidayName = (d: number) => (HOLIDAYS[d] ? th(HOLIDAYS[d]) : "");
+  const holidayName = (d: number) => HOLIDAYS[d] ?? "";
 
   // ------------------------------------------------------------------ grids
   const weekGrid = () => {

@@ -9,7 +9,8 @@ import { useOrg, type Org } from "@/lib/org";
 import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useSchedule } from "@/store/schedule";
-import { findConflicts, indexOfIso, isoOf, PLANNED, plannedBy, type Shift, type ShiftType } from "./model";
+import { findConflicts, indexOfIso, isoOf, type Planned, type Shift, type ShiftType } from "./model";
+import { usePlanned } from "./use-planned";
 
 export interface ShiftDraft {
   id: string | null;
@@ -22,8 +23,8 @@ export interface ShiftDraft {
   end: string;
 }
 
-export const newDraft = (d: number, emp: string | null, site: string | null, org: Org, start = 480): ShiftDraft => ({
-  id: null, type: "rec", title: "", emp: emp ?? "", site: site ?? (emp ? (plannedBy(emp)?.site ?? org.sites[0].id) : org.sites[0].id), date: isoOf(d),
+export const newDraft = (d: number, emp: string | null, site: string | null, org: Org, planned: Planned[], start = 480): ShiftDraft => ({
+  id: null, type: "rec", title: "", emp: emp ?? "", site: site ?? (emp ? (planned.find((p) => p.name === emp)?.site ?? org.sites[0].id) : org.sites[0].id), date: isoOf(d),
   start: formatTime(start), end: formatTime(Math.min(1439, start + 480)),
 });
 
@@ -36,6 +37,7 @@ export function ShiftDialog({ draft, onClose, onSaved, onDeleted }: { draft: Shi
 
 function Form({ initial, onClose, onSaved, onDeleted }: { initial: ShiftDraft; onClose: () => void; onSaved: (editing: boolean) => void; onDeleted: () => void }) {
   const org = useOrg();
+  const planned = usePlanned();
   const t = useTranslations("Schedules.shift");
   const tj = useTranslations("Employees.titles");
   const tc = useTranslations("Schedules.conflicts");
@@ -90,11 +92,11 @@ function Form({ initial, onClose, onSaved, onDeleted }: { initial: ShiftDraft; o
         <SelectField
           label={t("employee")}
           value={f.emp}
-          onChange={(e) => { const v = e.target.value; setF((x) => ({ ...x, emp: v, site: v && !x.id ? (plannedBy(v)?.site ?? x.site) : x.site })); }}
+          onChange={(e) => { const v = e.target.value; setF((x) => ({ ...x, emp: v, site: v && !x.id ? (planned.find((p) => p.name === v)?.site ?? x.site) : x.site })); }}
           error={shown.emp}
         >
           <option value="">{t("unassigned")}</option>
-          {PLANNED.map((p) => <option key={p.name} value={p.name}>{p.name} · {tj(p.title)}</option>)}
+          {planned.map((p) => <option key={p.name} value={p.name}>{p.name} · {tj(p.title)}</option>)}
         </SelectField>
         <SelectField label={t("site")} value={f.site} onChange={(e) => set("site", e.target.value)}>
           {org.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}

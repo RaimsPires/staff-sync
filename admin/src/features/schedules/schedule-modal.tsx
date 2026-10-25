@@ -11,10 +11,14 @@ import { useOrg } from "@/lib/org";
 import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useSchedule } from "@/store/schedule";
-import { BASE_UTC, GROUPS, HOLIDAYS, LEAVE_DAYS, PLANNED, type Shift } from "./model";
+import { useToast } from "@/components/ui/toast";
+import { useLeave } from "@/store/leave";
+import { createSchedule, type ScheduleForm } from "@/services/schedule";
+import { BASE_UTC, GROUPS, HOLIDAYS, LEAVE_DAYS, TODAY_ISO } from "./model";
+import { usePlanned } from "./use-planned";
 
 const DAY = 86_400_000;
-const TODAY_ISO = "2026-10-15";
+const plusDays = (days: number) => new Date(Date.parse(TODAY_ISO) + days * DAY).toISOString().slice(0, 10);
 const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 const PRIORITIES = ["low", "normal", "high", "urgent"] as const;
 const parseDate = (s: string) => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
@@ -51,8 +55,8 @@ interface Form {
 }
 
 const INITIAL: Form = {
-  tab: "rec", name: "", mode: "emp", group: "Saint-Denis day crew", emps: [], empQuery: "", site: "sd", days: [0, 1, 2, 3, 4], start: "08:00", end: "16:00", cross: false,
-  breakMin: "30", grace: "10", early: "5", startDate: TODAY_ISO, endDate: "2026-12-31", noEnd: true, rotation: false, phaseA: "2", phaseB: "2", bStart: "20:00", bEnd: "04:00",
+  tab: "rec", name: "", mode: "emp", group: "", emps: [], empQuery: "", site: "", days: [0, 1, 2, 3, 4], start: "08:00", end: "16:00", cross: false,
+  breakMin: "30", grace: "10", early: "5", startDate: TODAY_ISO, endDate: plusDays(90), noEnd: true, rotation: false, phaseA: "2", phaseB: "2", bStart: "20:00", bEnd: "04:00",
   title: "", date: TODAY_ISO, description: "", files: [], priority: "normal", notify: true,
 };
 
@@ -93,11 +97,13 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
   const t = useTranslations("Schedules.modal");
   const td = useTranslations("Schedules.days");
   const tj = useTranslations("Employees.titles");
-  const th = useTranslations("Schedules.holidays");
   const format = useFormatter();
   const shifts = useSchedule((s) => s.shifts);
-  const addMany = useSchedule((s) => s.addMany);
-  const [f, setF] = useState<Form>(INITIAL);
+  const planned = usePlanned();
+  const leaveRequests = useLeave((s) => s.requests);
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+  const [f, setF] = useState<Form>(() => ({ ...INITIAL, site: org.sites[0]?.id ?? "" }));
   const [tried, setTried] = useState(false);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((x) => ({ ...x, [k]: v }));
   const rec = f.tab === "rec";
@@ -115,13 +121,13 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
       if ((LEAVE_DAYS[o.emp] ?? []).includes(o.d)) { conflicts++; items.push({ text: t("check.leave", { name, date: dateLabel(o.iso) }), tone: "bad" }); }
       const clash = shifts.find((x) => x.emp === o.emp && x.d === o.d && o.s < x.e && x.s < end);
       if (clash) { conflicts++; items.push({ text: t("check.booked", { name, from: formatTime(clash.s), to: formatTime(clash.e), date: dateLabel(o.iso) }), tone: "bad" }); }
-      else if (HOLIDAYS[o.d]) items.push({ text: t("check.holiday", { date: dateLabel(o.iso), name: th(HOLIDAYS[o.d]) }), tone: "warn" });
+      else if (HOLIDAYS[o.d]) items.push({ text: t("check.holiday", { date: dateLabel(o.iso), name: HOLIDAYS[o.d] }), tone: "warn" });
     });
     if (f.tab === "int" && occ.length && !occ[0].emp) items.push({ text: t("check.unassigned"), tone: "warn" });
     return { conflicts, items };
     // dateLabel/t/th are stable per render of the same locale.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [occ, shifts, f.tab]);
+  }, [occ, shifts, f.tab, leaveRequests]);
 
   const errors: Record<string, string> = {};
   if (rec) {
@@ -140,13 +146,25 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
   }
   const err = (k: string) => (tried ? errors[k] : undefined);
 
-  const submit = (mode: "draft" | "publish") => {
+  const submit = async (mode: "draft" | "publish") => {
     setTried(true);
-    if (Object.keys(errors).length > 0) return;
-    const list: Omit<Shift, "id">[] = occ.map((o) => ({ d: o.d, emp: o.emp, site: f.site, s: o.s, e: o.cross ? 1439 : o.e, type: f.tab === "int" ? "int" : "rec", title: f.tab === "int" ? f.title.trim() : "" }));
-    addMany(list, mode === "draft");
-    onSaved({ mode, count: list.length, notify: f.tab === "int" && f.notify && mode === "publish", firstDay: list[0]?.d ?? null });
-    onClose();
+    if (Object.keys(errors).length > 0 || saving) return;
+    const form: ScheduleForm = {
+      kind: f.tab, title: rec ? f.name.trim() : f.title.trim(), site: f.site, employees: rec && f.mode === "group" ? (GROUPS[f.group] ?? []) : f.emps,
+      days: f.days, start: f.start, end: f.end, crossesMidnight: f.cross, breakMin: Number(f.breakMin) || 0, graceMin: Number(f.grace) || 0, earlyMin: Number(f.early) || 0,
+      startDate: f.startDate, endDate: f.noEnd ? null : f.endDate,
+      rotation: rec && f.rotation ? { weeksA: Math.max(1, Number(f.phaseA) || 1), weeksB: Math.max(1, Number(f.phaseB) || 1), bStart: f.bStart, bEnd: f.bEnd } : null,
+      date: f.date, instructions: f.description.trim(), priority: f.priority === "urgent" ? "high" : f.priority,
+    };
+    setSaving(true);
+    try {
+      const count = await createSchedule(form, mode === "publish", f.notify);
+      onSaved({ mode, count, notify: f.tab === "int" && f.notify && mode === "publish", firstDay: occ[0]?.d ?? null });
+      onClose();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("failed"), "bad");
+      setSaving(false);
+    }
   };
 
   const bad = check.conflicts > 0;
@@ -154,7 +172,7 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
   const summary = occ.length
     ? `${rec ? t("check.shifts", { count: occ.length, span: f.noEnd ? t("check.fourWeeks") : t("check.period") }) : t("check.assignments", { count: occ.length })} · ${bad ? t("check.conflicts", { count: check.conflicts }) : warn ? t("check.notes", { count: check.items.length }) : t("check.none")}`
     : t(rec ? "check.promptRec" : "check.promptInt");
-  const people = PLANNED.filter((p) => p.name.toLowerCase().includes(f.empQuery.toLowerCase()));
+  const people = planned.filter((p) => p.name.toLowerCase().includes(f.empQuery.toLowerCase()));
   const groupSize = (GROUPS[f.group] ?? []).length;
   const phases = Array.from({ length: Math.min(10, Math.max(1, Number(f.phaseA) || 1) + Math.max(1, Number(f.phaseB) || 1)) }, (_, i) => ({ b: i >= Math.max(1, Number(f.phaseA) || 1), i }));
 
@@ -178,8 +196,8 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
         <>
           <span className="mr-auto self-center text-[12.5px] text-text-3">{rec ? t("appliesTo", { who: f.mode === "group" ? t("employees", { count: groupSize }) : t("employees", { count: f.emps.length }) }) : t("priorityLabel", { priority: t(`priorities.${f.priority}`) })}</span>
           <Button onClick={onClose}>{t("cancel")}</Button>
-          <Button onClick={() => submit("draft")}>{t("saveDraft")}</Button>
-          <Button variant="primary" onClick={() => submit("publish")}>{bad ? t("publishAnyway") : t("publish")}</Button>
+          <Button disabled={saving} onClick={() => submit("draft")}>{t("saveDraft")}</Button>
+          <Button variant="primary" disabled={saving} onClick={() => submit("publish")}>{bad ? t("publishAnyway") : t("publish")}</Button>
         </>
       }
     >
@@ -267,7 +285,7 @@ function Body({ onClose, onSaved }: { onClose: () => void; onSaved: (info: { mod
             <div className="flex flex-col gap-1.5">
               <span className="text-[12.5px] font-medium text-text-2">{t("assignees")} <span className="font-normal text-text-3">({t("optional")})</span></span>
               <div className="flex flex-wrap gap-1.5">
-                {PLANNED.map((p) => { const on = f.emps.includes(p.name); return <button key={p.name} type="button" aria-pressed={on} onClick={() => set("emps", on ? f.emps.filter((x) => x !== p.name) : [...f.emps, p.name])} className={cn("h-8 rounded-full border border-solid px-3 text-[12.5px] font-medium", on ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>{p.name}</button>; })}
+                {planned.map((p) => { const on = f.emps.includes(p.name); return <button key={p.name} type="button" aria-pressed={on} onClick={() => set("emps", on ? f.emps.filter((x) => x !== p.name) : [...f.emps, p.name])} className={cn("h-8 rounded-full border border-solid px-3 text-[12.5px] font-medium", on ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>{p.name}</button>; })}
               </div>
             </div>
             <div className="flex flex-col gap-1.5">

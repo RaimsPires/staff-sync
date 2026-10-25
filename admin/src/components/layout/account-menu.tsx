@@ -12,7 +12,7 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { usePresence } from "@/lib/use-presence";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
-import { markSignedOut } from "@/lib/auth-cookie";
+import { signOut } from "@/services/auth";
 import { useSettings } from "@/store/settings";
 
 const THEMES = [
@@ -74,7 +74,7 @@ export function AccountMenu({ open, onToggle, onClose }: { open: boolean; onTogg
           </div>
           <div className="border-t border-border p-1.5">
             <button role="menuitem" onClick={() => go("/workspaces")} className="flex h-[38px] w-full items-center gap-2.5 rounded-lg border-0 bg-transparent px-2.5 text-left text-[13.5px] text-text hover:bg-hover"><Repeat size={17} strokeWidth={1.8} className="text-text-2" /><span className="flex-1">{t("switch")}</span><span className="text-[12px] text-text-3">5</span></button>
-            <button role="menuitem" onClick={() => { markSignedOut(); go("/sign-in"); }} className="flex h-[38px] w-full items-center gap-2.5 rounded-lg border-0 bg-transparent px-2.5 text-left text-[13.5px] text-bad hover:bg-bad-bg"><LogOut size={17} strokeWidth={1.8} /><span>{t("signOut")}</span></button>
+            <button role="menuitem" onClick={() => { void signOut().then(() => go("/sign-in")); }} className="flex h-[38px] w-full items-center gap-2.5 rounded-lg border-0 bg-transparent px-2.5 text-left text-[13.5px] text-bad hover:bg-bad-bg"><LogOut size={17} strokeWidth={1.8} /><span>{t("signOut")}</span></button>
           </div>
         </div>
       )}

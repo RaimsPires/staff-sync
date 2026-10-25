@@ -13,12 +13,14 @@ import { MethodIcon, type MethodKey } from "@/components/ui/method-icon";
 import { useToast } from "@/components/ui/toast";
 import { DEMO_TODAY } from "@/data/live";
 import { useOrg } from "@/lib/org";
-import { formatDuration, parseTime, wrapDelta } from "@/lib/time";
+import { parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useData } from "@/store/data";
+import { useSites } from "@/store/sites";
+import { addRecordNote, approveRecords, clockIn, deleteRecord, editRecord, proxyCheck, reviewFlag } from "@/services/attendance";
 import type { AttendanceRecord, FieldChange, HistoryEntry, RecordNote, RecordStatus } from "@/types/domain";
-import { employeeCode, scheduleMinutes } from "./model";
+import { employeeCode } from "./model";
 import { useRecordView } from "./use-record-view";
 import { useRuledRecords } from "@/lib/attendance-rules";
 
@@ -57,8 +59,6 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
   const router = useRouter();
   const toast = useToast();
   const { perms, me } = useAccess();
-  const updateRecord = useData((s) => s.updateRecord);
-  const removeRecord = useData((s) => s.removeRecord);
   const addHistory = useData((s) => s.addHistory);
   const addNote = useData((s) => s.addNote);
   const sessionHistory = useData((s) => s.recordHistory[record.id]);
@@ -113,33 +113,37 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
   }
 
   // --- actions ---
-  const approveFlag = () => {
-    updateRecord(record.id, { cleared: true, status: record.lateBy ? "late" : "ontime" });
-    toast(t("toasts.flagApproved"));
+  /** Run a server change; on failure show why and leave the screen as it was. */
+  const run = async (action: () => Promise<void>, done: () => void) => {
+    try {
+      await action();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
+      return;
+    }
+    done();
   };
-  const rejectFlag = () => {
-    updateRecord(record.id, { fraud: true });
-    toast(t("toasts.fraudConfirmed"), "bad");
-  };
-  const approveRecord = () => {
-    updateRecord(record.id, { approved: me.name, approvedAt: NOW_AT });
-    toast(t("toasts.approved"));
-  };
+  const approveFlag = () => run(() => reviewFlag(record.id, "approved", "Flag approved from the record"), () => toast(t("toasts.flagApproved")));
+  const rejectFlag = () => run(() => reviewFlag(record.id, "rejected", "Fraud confirmed from the record"), () => toast(t("toasts.fraudConfirmed"), "bad"));
+  const approveRecord = () => run(() => approveRecords([record.id]), () => toast(t("toasts.approved")));
   const checkInBehalf = () => {
-    updateRecord(record.id, { in: "10:42", method: "behalf", status: "late", worked: "0m", proxyBy: me.name });
-    toast(t("toasts.checkedIn", { name: record.name, time: "10:42" }));
+    const time = clockIn(new Date().toISOString(), (useSites.getState().sites.find((x) => x.id === record.site)?.timezone ?? "UTC"));
+    return run(() => proxyCheck(record.id, "in", { time, reason: "Checked in from the record", note: "" }), () => toast(t("toasts.checkedIn", { name: record.name, time })));
   };
   const postNote = () => {
     const text = noteText.trim();
     if (!text) return;
-    addNote(record.id, { by: me.name, at: NOW_AT, text });
-    setNoteText("");
+    return run(() => addRecordNote(record.id, text), () => {
+      addNote(record.id, { by: me.name, at: NOW_AT, text });
+      setNoteText("");
+    });
   };
   const confirmDelete = () => {
     if (!deleteReason.trim()) return;
-    removeRecord(record.id);
-    toast(t("toasts.deleted"), "bad");
-    onClose();
+    return run(() => deleteRecord(record.id, deleteReason.trim()), () => {
+      toast(t("toasts.deleted"), "bad");
+      onClose();
+    });
   };
 
   const saveEdit = () => {
@@ -158,23 +162,13 @@ function DrawerBody({ record, onClose }: { record: AttendanceRecord; onClose: ()
         : edit.status !== record.status ? [{ field: "status", from: record.status, to: edit.status }] : [];
     if (changes.length === 0) return setEdit(null);
 
-    let patch: Partial<AttendanceRecord>;
-    if (edit.mode === "times") {
-      const [s0, e0] = scheduleMinutes(record.sched);
-      let status = record.status;
-      if (!["leave", "holiday"].includes(status) && edit.in) {
-        const dIn = wrapDelta(parseTime(edit.in), s0);
-        const dOut = edit.out ? wrapDelta(parseTime(edit.out), e0) : 0;
-        status = dIn > 10 ? "late" : edit.out && dOut < -5 ? "early" : edit.out && dOut > 20 ? "overtime" : !edit.out && day < DEMO_TODAY ? "missing" : "ontime";
-      }
-      patch = { in: edit.in, out: edit.out, worked: edit.in && edit.out ? formatDuration(edit.in, edit.out) : "", status, edit: { by: me.name, at: NOW_AT } };
-    } else {
-      patch = { status: edit.status, edit: { by: me.name, at: NOW_AT }, ...(["absent", "leave", "holiday"].includes(edit.status) ? { in: "", out: "", worked: "" } : {}) };
-    }
-    updateRecord(record.id, patch);
-    addHistory(record.id, { by: me.name, at: NOW_AT, changes, reason: edit.reason.trim() });
-    setEdit(null);
-    toast(t("toasts.updated"));
+    // The server works out the new status from the times (grace period, early leave, overtime).
+    const request = edit.mode === "times" ? { in: edit.in, out: edit.out, reason: edit.reason.trim() } : { status: edit.status, reason: edit.reason.trim() };
+    return run(() => editRecord(record.id, request), () => {
+      addHistory(record.id, { by: me.name, at: NOW_AT, changes, reason: edit.reason.trim() });
+      setEdit(null);
+      toast(t("toasts.updated"));
+    });
   };
 
   const editTimeError = edit?.mode === "times" && !!edit.in && !!edit.out && parseTime(edit.out) <= parseTime(edit.in) && record.kind !== "recurringN";

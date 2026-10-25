@@ -128,3 +128,19 @@ async def test_proxy_checkin_with_pin_attempt_lockout(client, mailbox):
     assert r.status_code == 429 and r.json()["code"] == "PIN_LOCKED"
     r = await client.post("/attendance/proxy/check-in", headers=h, json={**base, "pin": pin, "client_event_id": "proxy-good-01"})
     assert r.status_code == 429  # still locked even with the right PIN
+
+
+async def test_a_plain_record_can_be_approved_once(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    await publish_daily_schedule(admin, ids, [emp.id])
+    record = (await emp.post("/attendance/check-in", event("evt-approve-0001"))).json()["record"]
+    assert record["approved_by"] is None
+
+    first = await admin.post("/attendance/bulk", {"action": "approve", "record_ids": [record["id"]], "shift_ids": [], "reason": "Reviewed"})
+    assert first.json() == {"processed": 1}
+    detail = (await admin.get(f"/attendance/{record['id']}")).json()["record"]
+    assert detail["approved_by"] == "Olive Owner" and detail["approved_at"]
+    again = await admin.post("/attendance/bulk", {"action": "approve", "record_ids": [record["id"]], "shift_ids": [], "reason": "Reviewed"})
+    assert again.json() == {"processed": 0}

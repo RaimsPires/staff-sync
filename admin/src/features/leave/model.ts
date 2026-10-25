@@ -1,7 +1,8 @@
 import type { LeaveRequest } from "@/types/leave";
 
 export const DAY_MS = 86_400_000;
-export const TODAY_ISO = "2026-10-15";
+/** Today as `YYYY-MM-DD` (local date). */
+export const TODAY_ISO = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())).toISOString().slice(0, 10);
 
 export const parseIso = (s: string): number => {
   const [y, m, d] = s.split("-").map(Number);
@@ -19,7 +20,6 @@ export const STATUS_STYLE = {
   cancelled: "bg-neutral-bg text-neutral",
 } as const;
 
-export const HOLIDAY_ISO: Record<string, "allSaints" | "armistice" | "christmas"> = { "2026-11-01": "allSaints", "2026-11-11": "armistice", "2026-12-25": "christmas" };
 
 /** Other pending or approved requests at the same site that overlap this one. */
 export function overlapping(r: LeaveRequest, all: LeaveRequest[]): LeaveRequest[] {

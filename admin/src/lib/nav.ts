@@ -1,5 +1,5 @@
 import {
-  BarChart3, CalendarCheck, CalendarDays, Clock, LayoutDashboard, MapPin, Radio, ScrollText, ShieldAlert, ShieldCheck, SlidersHorizontal, Users,
+  BarChart3, CalendarCheck, CalendarDays, Clock, LayoutDashboard, MapPin, MessageSquare, Radio, ScrollText, ShieldAlert, ShieldCheck, SlidersHorizontal, Users,
   type LucideIcon,
 } from "lucide-react";
 import type { AdminPage } from "@/types/auth";
@@ -8,7 +8,7 @@ export interface NavItem {
   page: AdminPage;
   icon: LucideIcon;
   /** Which live counter (if any) shows as a badge on the item. */
-  badge?: "alerts" | "leave";
+  badge?: "alerts" | "leave" | "chat";
 }
 export interface NavGroup {
   /** Key under `Shell.groups`. */
@@ -24,6 +24,7 @@ export const NAV: NavGroup[] = [
       { page: "live", icon: Radio },
       { page: "attendance", icon: Clock },
       { page: "alerts", icon: ShieldAlert, badge: "alerts" },
+      { page: "chat", icon: MessageSquare, badge: "chat" },
     ],
   },
   {

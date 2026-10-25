@@ -28,7 +28,7 @@ export function MapScreen() {
   const { data: assignment } = useQuery({ queryKey: qk.assignment(assignmentId), queryFn: () => repos.schedule.getAssignment(assignmentId) });
   const { data: record } = useAssignmentRecord(assignmentId);
   const permission = useLocationPermission();
-  const fix = useLivePosition(permission.state === 'granted');
+  const fix = useLivePosition(permission.ready);
   const directions = useDirectionsSheet();
   const [recenterKey, setRecenterKey] = useState(0);
   const [toastDismissed, setToastDismissed] = useState(false);

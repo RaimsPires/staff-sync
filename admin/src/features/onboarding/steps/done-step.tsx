@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/toast";
 import { localized } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { usePlans } from "@/store/plans";
-import { useSession } from "@/store/session";
 import { DAY_KEYS } from "../constants";
 import { useOnboarding } from "../store";
 import { markSignedIn } from "@/lib/auth-cookie";
@@ -23,7 +22,6 @@ export function DoneStep() {
   const form = useOnboarding((s) => s.form);
   const checks = useOnboarding((s) => s.checks);
   const toggleCheck = useOnboarding((s) => s.toggleCheck);
-  const setRole = useSession((s) => s.setRole);
 
   const first = form.name.trim().split(/\s+/)[0] || t("fallbackName");
   const workDays = DAY_KEYS.filter((_, i) => form.days[i]);
@@ -101,7 +99,7 @@ export function DoneStep() {
 
       <Link
         href="/dashboard"
-        onClick={() => { markSignedIn(); setRole("admin"); }}
+        onClick={() => { markSignedIn(); }}
         className="mt-1 flex h-[42px] items-center gap-2 rounded-[10px] bg-accent px-5 font-medium text-white no-underline hover:bg-accent-hover hover:text-white"
       >
         {t("goDashboard")} <ArrowRight size={16} />

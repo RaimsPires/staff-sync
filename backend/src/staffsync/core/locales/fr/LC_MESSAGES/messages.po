@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: staffsync 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 11:57+0100\n"
+"POT-Creation-Date: 2026-10-25 00:09+0100\n"
 "PO-Revision-Date: 2026-10-23 11:52+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -353,6 +353,9 @@ msgstr "Votre session a expiré. Veuillez vous reconnecter."
 msgid "CSRF token mismatch"
 msgstr "Votre session de sécurité a expiré. Actualisez la page."
 
+msgid "Unknown photo"
+msgstr "Photo inconnue."
+
 msgid "Invalid email address"
 msgstr "Adresse e-mail invalide."
 
@@ -367,6 +370,9 @@ msgstr "Vous devez accepter les conditions."
 
 msgid "An account with this email already exists"
 msgstr "Un compte existe déjà avec cet e-mail."
+
+msgid "This phone number is already used by another account"
+msgstr "Ce numéro de téléphone est déjà utilisé par un autre compte"
 
 #, python-format
 msgid "Your StaffSync verification code is %(code)s"
@@ -395,6 +401,9 @@ msgstr "Cette demande est invalide. Veuillez recommencer."
 
 msgid "Account not found, contact your admin"
 msgstr "Compte introuvable. Contactez votre administrateur."
+
+msgid "Enter your password"
+msgstr "Saisissez votre mot de passe."
 
 msgid "Please wait before requesting another code"
 msgstr "Patientez un instant avant de demander un nouveau code."
@@ -431,11 +440,26 @@ msgstr "Cette invitation a expiré. Demandez-en une nouvelle."
 msgid "Current password is incorrect"
 msgstr "Le mot de passe actuel est incorrect."
 
+msgid "A password is already set"
+msgstr "Un mot de passe est déjà défini."
+
 msgid "Start the setup again"
 msgstr "Recommencez la configuration."
 
 msgid "Password is incorrect"
 msgstr "Le mot de passe est incorrect."
+
+msgid "Sign-in was not started in this browser"
+msgstr "La connexion n'a pas été démarrée dans ce navigateur."
+
+msgid "The provider refused the sign-in"
+msgstr "Le fournisseur a refusé la connexion."
+
+msgid "Could not read your profile"
+msgstr "Impossible de lire votre profil."
+
+msgid "Your e-mail address is not verified by the provider"
+msgstr "Votre adresse e-mail n'est pas vérifiée par le fournisseur."
 
 msgid "Invalid refresh token"
 msgstr "Votre session a expiré. Veuillez vous reconnecter."
@@ -483,6 +507,25 @@ msgstr "Archivez d'abord l'agence."
 
 msgid "Branch code has been reused; change it before restoring"
 msgstr "Ce code d'agence a été réutilisé ; modifiez-le avant la restauration."
+
+msgid "You cannot message yourself"
+msgstr "Vous ne pouvez pas vous écrire à vous-même."
+
+msgid "Write a message or attach a file"
+msgstr "Écrivez un message ou joignez un fichier."
+
+msgid "Unknown attachment"
+msgstr "Pièce jointe inconnue."
+
+msgid "An export was already made in the last hour"
+msgstr "Un export a déjà été réalisé durant la dernière heure."
+
+#, python-format
+msgid "Your StaffSync data export is ready (the link works for one hour): %(link)s"
+msgstr "Votre export de données StaffSync est prêt (le lien est valable une heure) : %(link)s"
+
+msgid "Your data export"
+msgstr "Votre export de données"
 
 msgid "Typed company name does not match"
 msgstr "Le nom saisi ne correspond pas à celui de l'entreprise."
@@ -587,6 +630,15 @@ msgstr "Appareil réinitialisé"
 msgid "Your admin reset your registered phone. Sign in again on your new phone."
 msgstr "Votre administrateur a réinitialisé votre téléphone enregistré. Reconnectez-vous depuis votre nouveau téléphone."
 
+msgid "Wrong file type for this upload"
+msgstr "Ce type de fichier ne convient pas pour cet envoi."
+
+msgid "File too large"
+msgstr "Fichier trop volumineux."
+
+msgid "Empty file"
+msgstr "Fichier vide."
+
 msgid "Balances still use this type"
 msgstr "Des soldes utilisent encore ce type."
 
@@ -598,9 +650,6 @@ msgstr "Un jour férié existe déjà à cette date."
 
 msgid "Two-level approval: the site manager must recommend first"
 msgstr "Approbation à deux niveaux : le responsable du site doit d'abord donner son avis."
-
-msgid "This company uses one-level approval"
-msgstr "Cette entreprise utilise une approbation à un seul niveau."
 
 msgid "Leave type not found"
 msgstr "Type de congé introuvable."
@@ -638,14 +687,19 @@ msgstr "Congé annulé"
 msgid "A reason is required to cancel approved leave"
 msgstr "Un motif est requis pour annuler un congé approuvé."
 
+#, python-format
+msgid "Your scheduled report %(name)s for %(start)s to %(end)s is ready (the link works for 7 days): %(link)s"
+msgstr "Votre rapport programmé %(name)s du %(start)s au %(end)s est prêt (le lien est valable 7 jours) : %(link)s"
+
+#, python-format
+msgid "Scheduled report: %(name)s"
+msgstr "Rapport programmé : %(name)s"
+
 msgid "Unknown report type or grouping"
 msgstr "Type de rapport ou regroupement inconnu."
 
 msgid "Range too large"
 msgstr "Période trop étendue."
-
-msgid "PDF export is not available on this server"
-msgstr "L'export PDF n'est pas disponible pour le moment."
 
 msgid "Export expired or not found"
 msgstr "Export expiré ou introuvable."
@@ -668,8 +722,20 @@ msgstr "Ce créneau est annulé."
 msgid "End must be after start"
 msgstr "La fin doit être postérieure au début."
 
+msgid "This shift already has a check-in; it can't be reassigned"
+msgstr "Ce créneau a déjà un pointage ; il ne peut pas être réaffecté"
+
+msgid "That employee already has this shift"
+msgstr "Cet employé a déjà ce créneau"
+
 msgid "Your shift was updated"
 msgstr "Votre créneau a été modifié"
+
+msgid "This shift already has a check-in; it can't be cancelled"
+msgstr "Ce créneau a déjà un pointage ; il ne peut pas être annulé"
+
+msgid "Your shift was cancelled"
+msgstr "Votre créneau a été annulé"
 
 msgid "PDF rendering is unavailable on this server"
 msgstr "Le rendu PDF n'est pas disponible pour le moment."
@@ -700,6 +766,9 @@ msgstr "Ce code de site a été réutilisé ; modifiez-le avant la restauration.
 
 msgid "Only images are accepted here"
 msgstr "Seules les images sont acceptées ici."
+
+msgid "This file type is not supported in chat"
+msgstr "Ce type de fichier n'est pas pris en charge dans la messagerie."
 
 msgid "You cannot grant permissions you do not hold"
 msgstr "Vous ne pouvez pas accorder des droits que vous ne possédez pas."
@@ -773,4 +842,10 @@ msgstr "N'oubliez pas de pointer votre départ"
 
 #~ msgid "default"
 #~ msgstr ""
+
+#~ msgid "This company uses one-level approval"
+#~ msgstr "Cette entreprise utilise une approbation à un seul niveau."
+
+#~ msgid "PDF export is not available on this server"
+#~ msgstr "L'export PDF n'est pas disponible pour le moment."
 

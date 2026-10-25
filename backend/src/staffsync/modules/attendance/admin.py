@@ -21,9 +21,9 @@ from staffsync.modules.attendance.models import AttendanceNote, AttendanceRecord
 from staffsync.modules.attendance.schemas import BulkIn, Counters, FlagOut, LiveSite, ManualRecordIn, RecordPatch, RosterRow
 from staffsync.modules.attendance.service import AttendanceRepository, effective_status, to_read
 from staffsync.modules.auth.models import User
-from staffsync.modules.employees.models import Employee
+from staffsync.modules.employees.models import Employee, EmployeeNote
 from staffsync.modules.leave.models import LeaveRequest
-from staffsync.modules.schedules.models import Shift
+from staffsync.modules.schedules.models import LIVE_SHIFT, Shift
 from staffsync.modules.settings.service import company_settings
 from staffsync.modules.sites.models import Site
 
@@ -74,7 +74,7 @@ async def detail(ctx: RequestContext, rec: AttendanceRecord) -> dict:
     timeline = [{"at": rec.check_in_at, "event": "check_in"}] if rec.check_in_at else []
     if rec.check_out_at:
         timeline.append({"at": rec.check_out_at, "event": "check_out"})
-    timeline += [{"at": h["at"], "event": "edited", "by": h.get("by_name"), "reason": h.get("reason")} for h in rec.edit_history]
+    timeline += [{"at": h["at"], "event": "approved" if h.get("approval") else "edited", "by": h.get("by_name"), "reason": h.get("reason")} for h in rec.edit_history]
     return {"record": read, "in_point": {"lat": pts.ilat, "lng": pts.ilng} if pts.ilat is not None else None, "out_point": {"lat": pts.olat, "lng": pts.olng} if pts.olat is not None else None,
             "selfie_urls": selfies, "device_hash_present": bool(rec.device_hash), "timeline": timeline, "history": rec.edit_history,
             "notes": [{"id": n.id, "author": u.full_name, "body": n.body, "created_at": n.created_at} for n, u in notes]}
@@ -103,7 +103,7 @@ async def manual_create(ctx: RequestContext, body: ManualRecordIn) -> Attendance
         raise ValidationFailed("Unknown status")
     if await _overlap(ctx, emp.id, body.check_in_at, body.check_out_at):
         raise Conflict("Overlaps an existing record", code="OVERLAP")
-    shift = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp.id, Shift.site_id == site.id, Shift.status != "cancelled",
+    shift = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp.id, Shift.site_id == site.id, Shift.status.in_(LIVE_SHIFT),
                                                         Shift.starts_at <= body.check_in_at + timedelta(hours=2), Shift.ends_at >= body.check_in_at))).first()
     cfg = await company_settings(ctx.session, ctx.company_id, "attendance")
     res = rules.check_in_result(shift.starts_at if shift else None, shift.grace_min if shift else cfg["grace_min"], body.check_in_at)
@@ -179,6 +179,11 @@ async def bulk(ctx: RequestContext, body: BulkIn) -> dict:
             if alert:
                 await resolve_alert(ctx, alert, "approved", body.reason)
                 done += 1
+            elif not any(h.get("approval") for h in rec.edit_history):  # a plain record: sign it off once
+                rec.edit_history = [*rec.edit_history, {"at": datetime.now(UTC).isoformat(), "by": str(ctx.user.id), "by_name": ctx.user.full_name, "approval": True, "reason": body.reason}]
+                ctx.session.add(rec)
+                audit(ctx, "attendance.approved", "attendance", rec.id, reason=body.reason, employee_id=rec.employee_id)
+                done += 1
         else:
             rec.status, rec.version = "absent", rec.version + 1
             rec.edit_history = [*rec.edit_history, {"at": datetime.now(UTC).isoformat(), "by": str(ctx.user.id), "by_name": ctx.user.full_name, "after": {"status": "absent"}, "reason": body.reason}]
@@ -214,16 +219,22 @@ async def site_roster(ctx: RequestContext, site: Site, now: datetime | None = No
     tz = ZoneInfo(site.timezone)
     local_midnight = datetime.combine(now.astimezone(tz).date(), datetime.min.time(), tz)
     lo, hi = local_midnight.astimezone(UTC), (local_midnight + timedelta(days=1)).astimezone(UTC)
-    shifts = list((await ctx.session.exec(select(Shift).where(Shift.site_id == site.id, Shift.starts_at >= lo, Shift.starts_at < hi, Shift.status != "cancelled").order_by(Shift.starts_at))).all())
+    shifts = list((await ctx.session.exec(select(Shift).where(Shift.site_id == site.id, Shift.starts_at >= lo, Shift.starts_at < hi, Shift.status.in_(LIVE_SHIFT)).order_by(Shift.starts_at))).all())
     recs = {r.shift_id: r for r in (await ctx.session.exec(select(AttendanceRecord).where(AttendanceRecord.shift_id.in_([s.id for s in shifts])))).all()} if shifts else {}  # type: ignore[attr-defined]
     emps = {e.id: e for e in (await ctx.session.exec(select(Employee).where(Employee.id.in_({s.employee_id for s in shifts})))).all()} if shifts else {}  # type: ignore[attr-defined]
     users = {u.id: u for u in (await ctx.session.exec(select(User).where(User.id.in_({e.user_id for e in emps.values()})))).all()} if emps else {}  # type: ignore[attr-defined]
+    # A note a manager left on the person today stands in when the attendance record has none.
+    todays_notes: dict[UUID, str] = {}
+    if emps:
+        for n in (await ctx.session.exec(select(EmployeeNote).where(EmployeeNote.employee_id.in_(list(emps)), EmployeeNote.created_at >= lo, EmployeeNote.created_at < hi).order_by(EmployeeNote.created_at))).all():  # type: ignore[attr-defined]
+            todays_notes[n.employee_id] = n.body
     c, rows = Counters(), []
     for sh in shifts:
         emp = emps.get(sh.employee_id)
         if emp is None:
             continue
         u, rec = users[emp.user_id], recs.get(sh.id)
+        approval = next((h for h in reversed(rec.edit_history) if h.get("approval")), None) if rec else None
         c.expected += 1
         if sh.status == "on_leave":
             st, c.on_leave = "on_leave", c.on_leave + 1
@@ -243,7 +254,8 @@ async def site_roster(ctx: RequestContext, site: Site, now: datetime | None = No
         rows.append(RosterRow(employee_id=emp.id, name=u.full_name, phone=u.phone, has_smartphone=emp.has_smartphone, shift_id=sh.id, scheduled_start=sh.starts_at.astimezone(tz).strftime("%H:%M"),
                               scheduled_end=sh.ends_at.astimezone(tz).strftime("%H:%M"), check_in_at=rec.check_in_at if rec else None, check_out_at=rec.check_out_at if rec else None, status=st,
                               method=rec.method if rec else None, distance_m=rec.distance_m if rec else None, flags=[FlagOut(**f) for f in (rec.flags if rec else [])], record_id=rec.id if rec else None,
-                              note=rec.notes if rec else None, role=emp.job_title))
+                              note=(rec.notes if rec else None) or todays_notes.get(emp.id), role=emp.job_title,
+                              approved_by=(approval or {}).get("by_name"), approved_at=datetime.fromisoformat(approval["at"]) if approval else None))
     return LiveSite(site_id=site.id, site_name=site.name, counters=c, rows=rows)
 
 
@@ -318,5 +330,5 @@ async def week_summary(ctx: RequestContext, employee_id: UUID) -> dict:
     now = datetime.now(UTC)
     start = datetime.combine((now - timedelta(days=now.weekday())).date(), datetime.min.time(), UTC)
     recs = (await ctx.session.exec(select(AttendanceRecord).where(AttendanceRecord.employee_id == employee_id, AttendanceRecord.occurred_at >= start, AttendanceRecord.check_in_at.is_not(None)))).all()  # type: ignore[union-attr]
-    scheduled = (await ctx.session.exec(select(func.count()).select_from(Shift).where(Shift.employee_id == employee_id, Shift.starts_at >= start, Shift.starts_at < start + timedelta(days=7), Shift.status != "cancelled"))).one()
+    scheduled = (await ctx.session.exec(select(func.count()).select_from(Shift).where(Shift.employee_id == employee_id, Shift.starts_at >= start, Shift.starts_at < start + timedelta(days=7), Shift.status.in_(LIVE_SHIFT)))).one()
     return {"present": len(recs), "late": sum(1 for r in recs if r.status == "late"), "hours_worked": round(sum(r.worked_min or 0 for r in recs) / 60, 1), "scheduled_days": scheduled}

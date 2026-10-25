@@ -23,7 +23,7 @@ from staffsync.modules.attendance.schemas import CheckEventIn, CheckResult, Flag
 from staffsync.modules.attendance.verifiers import Evidence, Flag, run_pipeline
 from staffsync.modules.auth.models import User
 from staffsync.modules.employees.models import Device, Employee
-from staffsync.modules.schedules.models import Shift
+from staffsync.modules.schedules.models import LIVE_SHIFT, Shift
 from staffsync.modules.settings.service import company_settings
 from staffsync.modules.sites import geo_queries
 from staffsync.modules.sites.models import Site
@@ -81,12 +81,14 @@ async def to_read(ctx: RequestContext, recs: list[AttendanceRecord]) -> list[Rec
         site, shift = sites[r.site_id], shifts.get(r.shift_id) if r.shift_id else None
         tz = ZoneInfo(site.timezone)
         emp = emps.get(r.employee_id)
+        approval = next((h for h in reversed(r.edit_history) if h.get("approval")), None)
         out.append(RecordRead(
             id=r.id, date=r.occurred_at.astimezone(tz).date(), employee_id=r.employee_id, employee_name=users[emp.user_id].full_name if emp else None,
             site={"id": site.id, "name": site.name}, shift_id=r.shift_id, scheduled_start=_hm(shift.starts_at, tz) if shift else None, scheduled_end=_hm(shift.ends_at, tz) if shift else None,
             check_in_at=r.check_in_at, check_out_at=r.check_out_at, status=effective_status(r), base_status=r.status, late_by_minutes=r.late_min, early_by_minutes=r.early_min,
             overtime_minutes=r.overtime_min, worked_minutes=r.worked_min, method=r.method, proxy_by=users[r.actor_user_id].full_name if r.method == "proxy" and r.actor_user_id in users else None,
             flags=[FlagOut(**f) for f in r.flags], flag_outcome=r.flag_outcome, employee_comment=r.employee_comment, admin_note=r.notes, offline_synced=r.offline_synced,
+            approved_by=(approval or {}).get("by_name"), approved_at=datetime.fromisoformat(approval["at"]) if approval else None,
             distance_m=r.distance_m, in_accuracy_m=r.in_accuracy_m, version=r.version, deleted_at=r.deleted_at.isoformat() if r.deleted_at else None))
     return out
 
@@ -106,7 +108,7 @@ async def _last_point(ctx: RequestContext, employee_id: UUID, before: datetime) 
 
 async def find_shift(ctx: RequestContext, employee_id: UUID, shift_id: UUID | None, site_id: UUID | None, at: datetime, window_before_min: int) -> Shift | None:
     if shift_id:
-        sh = (await ctx.session.exec(select(Shift).where(Shift.id == shift_id, Shift.employee_id == employee_id, Shift.status != "cancelled"))).first()
+        sh = (await ctx.session.exec(select(Shift).where(Shift.id == shift_id, Shift.employee_id == employee_id, Shift.status.in_(LIVE_SHIFT)))).first()
         if sh is None:
             raise NotFound("Shift not found")
         return sh

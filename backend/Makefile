@@ -1,10 +1,16 @@
-.PHONY: dev test stop reset i18n
+.PHONY: dev test worker seed stop reset i18n
 
 dev:    ## start DB + Redis, migrate, run the API on :8000
 	./scripts/dev.sh
 
 test:   ## run the test suite (needs the containers up)
 	docker compose up -d --wait && uv run pytest
+
+worker: ## run the background worker (outbox relay for live pushes, absences, webhooks)
+	uv run arq staffsync.workers.settings.WorkerSettings
+
+seed:   ## load the demo company (run once after `make reset`)
+	uv run python scripts/seed_dev.py
 
 stop:   ## stop the containers (data is kept)
 	docker compose down

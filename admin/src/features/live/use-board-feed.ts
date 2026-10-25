@@ -1,52 +1,44 @@
 import { useEffect, useRef, useState } from "react";
-import { BOARD_EVENTS, type BoardEvent } from "@/data/live";
-import { formatTime } from "@/lib/time";
-import { useData } from "@/store/data";
+import { clockIn, onFlagged } from "@/services/attendance";
+import { useLiveFeed } from "@/store/live-feed";
+import { formatTime, parseTime } from "@/lib/time";
 
-/** The board clock starts at 10:42 and advances one minute every 7 seconds. */
-const START_MINUTES = 642;
-const SECONDS_PER_MINUTE = 7;
+const minutesNow = (tz: string) => parseTime(clockIn(new Date().toISOString(), tz));
 
 /**
- * Simulated live feed for the board: the clock advances and scripted arrivals are written to the
- * shared store. Replace with a websocket subscription that calls `updateRecord`.
+ * Clock and "just changed" highlights for the board. The rows themselves arrive through the shared store
+ * (`LiveFeed`: WebSocket pushes, polling as a fallback); pausing stops those updates.
  */
-export function useBoardFeed(siteIds: string[], paused: boolean, onFlag: (flag: NonNullable<BoardEvent["flag"]>) => void) {
-  const [tick, setTick] = useState(0);
-  const [fresh, setFresh] = useState<Record<number, number>>({});
-  const live = useRef({ tick: 0, next: 0, paused, siteIds, onFlag });
+export function useBoardFeed(_siteIds: string[], paused: boolean, onFlag: (flag: { name: string; distance: string; siteName: string }) => void, timeZone = "UTC") {
+  const [now, setNow] = useState(() => minutesNow(timeZone));
+  const [, setTick] = useState(0);
+  const freshAt = useLiveFeed((s) => s.freshAt);
+  const markFresh = useLiveFeed((s) => s.markFresh);
+
+  const flagHandler = useRef(onFlag);
+  useEffect(() => {
+    flagHandler.current = onFlag;
+  });
+  useEffect(() => onFlagged((n) => flagHandler.current(n)), []);
 
   useEffect(() => {
-    live.current.paused = paused;
-    live.current.siteIds = siteIds;
-    live.current.onFlag = onFlag;
-  });
+    useLiveFeed.getState().setPaused(paused);
+  }, [paused]);
 
   useEffect(() => {
     const id = setInterval(() => {
-      const s = live.current;
-      s.tick += 1;
-      setTick(s.tick);
-      if (s.paused || s.tick % SECONDS_PER_MINUTE !== 0) return;
-      const event = BOARD_EVENTS[s.next];
-      if (!event) return;
-      s.next += 1;
-      const record = useData.getState().today.find((r) => r.id === event.id);
-      if (!record || record.in || !s.siteIds.includes(event.site)) return;
-      useData.getState().updateRecord(event.id, event.patch);
-      setFresh((f) => ({ ...f, [event.id]: s.tick }));
-      if (event.flag) s.onFlag(event.flag);
+      setNow(minutesNow(timeZone));
+      setTick((t) => t + 1);
     }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [timeZone]);
 
-  const nowMinutes = START_MINUTES + Math.floor(tick / SECONDS_PER_MINUTE);
   return {
-    tick,
-    nowMinutes,
-    nowLabel: formatTime(nowMinutes),
-    /** True for five seconds after a record was updated by the feed. */
-    isFresh: (id: number) => fresh[id] != null && tick - fresh[id] < 5,
-    markFresh: (id: number) => setFresh((f) => ({ ...f, [id]: live.current.tick })),
+    tick: 0,
+    nowMinutes: now,
+    nowLabel: formatTime(now),
+    /** True for five seconds after a row changed. */
+    isFresh: (id: number) => freshAt[id] != null && Date.now() - freshAt[id] < 5000,
+    markFresh: (id: number) => markFresh([id]),
   };
 }

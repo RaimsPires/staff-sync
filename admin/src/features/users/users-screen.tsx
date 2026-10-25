@@ -23,7 +23,7 @@ export function UsersScreen({ initialTab = "users" }: { initialTab?: "users" | "
   const [invite, setInvite] = useState<InviteTarget>(null);
   const [revoking, setRevoking] = useState<DashboardUser | null>(null);
 
-  const admins = activeAdmins(users).length;
+  const admins = activeAdmins(users, roles).length;
   const sub = tab === "users"
     ? t("summary.users", { active: users.filter((u) => u.status === "active").length, invited: users.filter((u) => u.status === "invited").length, admins })
     : t("summary.roles", { count: roles.length, custom: roles.filter((r) => !r.builtIn).length });

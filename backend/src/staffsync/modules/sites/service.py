@@ -21,6 +21,7 @@ from staffsync.modules.employees.models import Employee, EmployeeSite
 from staffsync.modules.sites import geo_queries as geo
 from staffsync.modules.sites.models import Site, SiteManager
 from staffsync.modules.sites.schemas import CircleIn, SiteCreate, SiteNearby, SiteRead, SiteUpdate
+from staffsync.modules.users_roles.models import Role, UserRole
 
 
 class SiteRepository(TenantRepository[Site]):
@@ -60,14 +61,41 @@ async def _check_branch(ctx: RequestContext, branch_id: UUID) -> Branch:
 
 async def set_managers(ctx: RequestContext, site: Site, user_ids: list[UUID]) -> None:
     existing = (await ctx.session.exec(select(SiteManager).where(SiteManager.site_id == site.id))).all()
+    previous = {m.user_id for m in existing}
     for m in existing:
         await ctx.session.delete(m)
     await ctx.session.flush()
-    for uid in dict.fromkeys(user_ids):
+    wanted = list(dict.fromkeys(user_ids))
+    for uid in wanted:
         user = await ctx.session.get(User, uid)
         if user is None:
             raise ValidationFailed("Unknown manager")
         ctx.session.add(SiteManager(company_id=ctx.company_id, site_id=site.id, user_id=uid))
+    await _sync_manager_role(ctx, site, added=wanted, removed=[u for u in previous if u not in wanted])
+
+
+async def _sync_manager_role(ctx: RequestContext, site: Site, *, added: list[UUID], removed: list[UUID]) -> None:
+    """Managing a site grants the site-manager role scoped to it (what the phone's manager tabs need); unassigning takes it back."""
+    role = (await ctx.session.exec(select(Role).where(Role.company_id == ctx.company_id, Role.key == "site_manager"))).first()
+    if role is None:
+        return
+    for uid in added:
+        rows = (await ctx.session.exec(select(UserRole).where(UserRole.company_id == ctx.company_id, UserRole.user_id == uid))).all()
+        mine = next((r for r in rows if r.role_id == role.id), None)
+        if mine is not None:
+            if site.id not in mine.scope_ids:
+                mine.scope_ids = [*mine.scope_ids, site.id]
+                ctx.session.add(mine)
+        elif not rows:  # never downgrade someone who already has another role
+            ctx.session.add(UserRole(company_id=ctx.company_id, user_id=uid, role_id=role.id, scope_type="sites", scope_ids=[site.id]))
+    for uid in removed:
+        for r in (await ctx.session.exec(select(UserRole).where(UserRole.company_id == ctx.company_id, UserRole.user_id == uid, UserRole.role_id == role.id))).all():
+            left = [i for i in r.scope_ids if i != site.id]
+            if left:
+                r.scope_ids = left
+                ctx.session.add(r)
+            else:
+                await ctx.session.delete(r)
 
 
 async def set_employees(ctx: RequestContext, site: Site, employee_ids: list[UUID]) -> None:

@@ -9,7 +9,8 @@ export function useStepErrors(step: number) {
   const form = useOnboarding((s) => s.form);
   const code = useOnboarding((s) => s.code);
   const tried = useOnboarding((s) => !!s.tried[step]);
-  const raw: FieldErrors = tried ? validateStep(step, form, code) : {};
+  const server = useOnboarding((s) => s.server[step]);
+  const raw: FieldErrors = tried ? { ...validateStep(step, form, code), ...(server ?? {}) } : {};
   return {
     raw,
     count: errorCount(raw),

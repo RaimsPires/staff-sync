@@ -19,7 +19,8 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2,
 export function OtpScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { identifier, display, mode } = useAuthFlow();
+  const { identifier, password, display, mode } = useAuthFlow();
+  const setPending = useAuthFlow((s) => s.setPending);
   const clearFlow = useAuthFlow((s) => s.clear);
   const begin = useSession((s) => s.begin);
   const [code, setCode] = useState('');
@@ -44,9 +45,15 @@ export function OtpScreen() {
     setBusy(true);
     setError(undefined);
     try {
-      const { session, companies } = await repos.auth.verifyOtp(identifier, code);
-      clearFlow();
-      await begin(session, companies);
+      const { session, companies, needsPassword } = await repos.auth.verifyOtp(identifier, code);
+      if (needsPassword) {
+        // Code accepted, but the account still needs its first password before the app opens.
+        setPending({ session, companies });
+        router.replace('/create-password');
+      } else {
+        clearFlow();
+        await begin(session, companies);
+      }
     } catch (e) {
       setCode('');
       if (e instanceof AppError && e.code === 'OTP_LOCKED') {
@@ -66,7 +73,7 @@ export function OtpScreen() {
     setError(undefined);
     setCode('');
     try {
-      await repos.auth.requestOtp(identifier);
+      await repos.auth.requestOtp(identifier, password || undefined);
       setSeconds(RESEND_SECONDS);
     } catch {
       setError(t('common.genericError'));

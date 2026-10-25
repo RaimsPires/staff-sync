@@ -3,13 +3,14 @@
 import { ChevronRight, Plus, Search, TriangleAlert, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useSession } from "@/store/session";
+import { useToast } from "@/components/ui/toast";
+import { bootstrap, selectCompany } from "@/services/auth";
+import { toWorkspaces } from "@/services/workspaces";
+import { useAuth } from "@/store/auth";
 import type { Role } from "@/types/auth";
-import { SIGNED_IN_USER } from "./workspace-user";
 import type { LastAccess, Workspace } from "@/types/workspace";
-import { markSignedIn } from "@/lib/auth-cookie";
 
 const ROLE_STYLE: Record<Role, string> = {
   admin: "bg-accent-soft text-accent",
@@ -17,14 +18,23 @@ const ROLE_STYLE: Record<Role, string> = {
   site: "bg-ok-bg text-ok",
 };
 
-export function WorkspacesScreen({ workspaces }: { workspaces: Workspace[] }) {
+export function WorkspacesScreen() {
   const t = useTranslations("Workspaces");
   const format = useFormatter();
   const router = useRouter();
-  const setRole = useSession((s) => s.setRole);
+  const toast = useToast();
+  const me = useAuth((s) => s.me);
+  const workspaces = useMemo(() => toWorkspaces(me?.companies ?? []), [me]);
   const [query, setQuery] = useState("");
   const [entering, setEntering] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Landing here after a reload: recover the session, otherwise go back to sign-in.
+  useEffect(() => {
+    if (me) return;
+    void bootstrap().then((ok) => {
+      if (!ok) router.replace("/sign-in");
+    });
+  }, [me, router]);
 
   const q = query.trim().toLowerCase();
   const list = workspaces.filter((w) => !q || w.name.toLowerCase().includes(q) || t(`roles.${w.role}`).toLowerCase().includes(q));
@@ -39,11 +49,13 @@ export function WorkspacesScreen({ workspaces }: { workspaces: Workspace[] }) {
   const open = (w: Workspace) => {
     if (w.suspended || entering) return;
     setEntering(w.id);
-    timer.current = setTimeout(() => {
-      markSignedIn();
-      setRole(w.role);
-      router.push("/dashboard");
-    }, 800);
+    selectCompany(w.id).then(
+      () => router.push("/dashboard"),
+      () => {
+        setEntering(null);
+        toast(t("openFailed"), "info");
+      },
+    );
   };
 
   return (
@@ -105,14 +117,20 @@ export function WorkspacesScreen({ workspaces }: { workspaces: Workspace[] }) {
                       <div className="flex flex-wrap items-center gap-2 text-[12.5px] text-text-2">
                         <span className={cn("inline-flex h-[22px] items-center rounded-full px-2 text-[12px] font-semibold", ROLE_STYLE[w.role])}>{t(`roles.${w.role}`)}</span>
                         <span>{w.scopeName ? t(`scope.${w.role}`, { name: w.scopeName }) : t("scope.company")}</span>
-                        <span className="text-text-3">·</span>
-                        <span className="text-text-3">{t("meta", { employees: w.employees, sites: w.sites })}</span>
+                        {w.employees !== undefined && w.sites !== undefined && (
+                          <>
+                            <span className="text-text-3">·</span>
+                            <span className="text-text-3">{t("meta", { employees: w.employees, sites: w.sites })}</span>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="flex min-w-[120px] flex-none flex-col items-end gap-1">
-                      <span className="text-[12px] text-text-3">{t("lastAccessed")}</span>
-                      <span className="text-[13px] font-medium">{formatLast(w.lastAccess)}</span>
-                    </div>
+                    {w.lastAccess && (
+                      <div className="flex min-w-[120px] flex-none flex-col items-end gap-1">
+                        <span className="text-[12px] text-text-3">{t("lastAccessed")}</span>
+                        <span className="text-[13px] font-medium">{formatLast(w.lastAccess)}</span>
+                      </div>
+                    )}
                     <div className="grid size-8 flex-none place-items-center rounded-[9px] text-text-3">
                       {busy && <span className="box-border size-4 animate-spin-fast rounded-full border-2 border-solid border-border-strong border-t-accent" />}
                       {!busy && !w.suspended && <ChevronRight size={16} />}
@@ -155,7 +173,7 @@ export function WorkspacesScreen({ workspaces }: { workspaces: Workspace[] }) {
             </button>
           </div>
 
-          <p className="m-0 text-center text-[12.5px] text-text-3">{t("missing", { email: SIGNED_IN_USER.email })}</p>
+          <p className="m-0 text-center text-[12.5px] text-text-3">{t("missing", { email: me?.email ?? me?.phone ?? "" })}</p>
         </div>
     </main>
   );

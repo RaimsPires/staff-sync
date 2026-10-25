@@ -153,6 +153,12 @@ async def list_users(ctx: RequestContext) -> list[UserRead]:
             continue  # employees without dashboard access are listed under /employees
         out.append(UserRead(id=u.id, full_name=u.full_name, email=u.email, status=m.status, roles=[{"role_id": r.id, "role": r.name, "scope_type": ur.scope_type, "scope_ids": ur.scope_ids} for ur, r in rs],
                             last_active_at=m.last_active_at.isoformat() if m.last_active_at else None))
+    # People whose dashboard access was revoked stay listed (with no role) so it can be given back.
+    gone = (await ctx.session.exec(select(CompanyMember, User).join(User, User.id == CompanyMember.user_id).where(CompanyMember.company_id == ctx.company_id, CompanyMember.status == "revoked").execution_options(include_deleted=True))).all()  # type: ignore[attr-defined]
+    listed = {o.id for o in out}
+    for m, u in gone:
+        if u.id not in listed:
+            out.append(UserRead(id=u.id, full_name=u.full_name, email=u.email, status="revoked", roles=[], last_active_at=m.last_active_at.isoformat() if m.last_active_at else None))
     return out
 
 
@@ -182,6 +188,28 @@ async def invite_user(ctx: RequestContext, body: InviteIn) -> dict:
     return {"user_id": user.id, "status": "invited"}
 
 
+async def resend_invite(ctx: RequestContext, user_id: UUID) -> None:
+    """Send a fresh link to someone who has not accepted yet; earlier links stop working."""
+    member = (await ctx.session.exec(select(CompanyMember).where(CompanyMember.company_id == ctx.company_id, CompanyMember.user_id == user_id, CompanyMember.status == "invited"))).first()
+    user = await ctx.session.get(User, user_id)
+    if member is None or user is None:
+        raise NotFound()
+    pending = (await ctx.session.exec(select(Invitation).where(Invitation.company_id == ctx.company_id, Invitation.user_id == user_id, Invitation.accepted_at.is_(None)).order_by(Invitation.created_at.desc()))).all()  # type: ignore[union-attr]
+    if not pending:
+        raise NotFound()
+    last = pending[0]
+    for old in pending:
+        old.expires_at = datetime.now(UTC)
+        ctx.session.add(old)
+    token = new_opaque_token()
+    ctx.session.add(Invitation(company_id=ctx.company_id, user_id=user_id, token_hash=sha256(token), role_id=last.role_id, scope_type=last.scope_type, scope_ids=last.scope_ids,
+                               invited_by=ctx.user.id, message=last.message, expires_at=datetime.now(UTC) + timedelta(days=7)))
+    link = f"{get_settings().dashboard_url}/invite/{token}"
+    lang = recipient_locale(user.locale)
+    await notify("email", user.email, gettext_("%(name)s invited you to StaffSync: %(link)s", lang, name=ctx.user.full_name, link=link), subject=gettext_("You're invited", lang), token=token, link=link)
+    audit(ctx, "user.invite_resent", "user", user_id, after={"email": user.email})
+
+
 async def change_roles(ctx: RequestContext, user_id: UUID, role_id: UUID, scope: ScopeIn) -> None:
     role = await get_role(ctx, role_id)
     _cannot_exceed(ctx, await _role_perms(ctx, role))
@@ -200,6 +228,20 @@ async def change_roles(ctx: RequestContext, user_id: UUID, role_id: UUID, scope:
     await ctx.session.flush()
     ctx.session.add(UserRole(company_id=ctx.company_id, user_id=user_id, role_id=role.id, scope_type=scope.scope_type.value, scope_ids=scope.scope_ids))
     audit(ctx, "user.roles_changed", "user", user_id, before=before, after={"role": role.name, "scope_type": scope.scope_type.value})
+
+
+async def restore_user(ctx: RequestContext, user_id: UUID, role_id: UUID, scope: ScopeIn) -> None:
+    """Give a revoked person dashboard access again, with a role and scope chosen now."""
+    member = (await ctx.session.exec(select(CompanyMember).where(CompanyMember.user_id == user_id, CompanyMember.company_id == ctx.company_id, CompanyMember.status == "revoked").execution_options(include_deleted=True))).first()  # type: ignore[attr-defined]
+    if member is None:
+        raise NotFound()
+    role = await get_role(ctx, role_id)
+    _cannot_exceed(ctx, await _role_perms(ctx, role))
+    await _validate_scope(ctx, scope)
+    member.status, member.deleted_at, member.deleted_by = "active", None, None
+    ctx.session.add(member)
+    ctx.session.add(UserRole(company_id=ctx.company_id, user_id=user_id, role_id=role.id, scope_type=scope.scope_type.value, scope_ids=scope.scope_ids))
+    audit(ctx, "user.access_restored", "user", user_id, after={"role": role.name, "scope_type": scope.scope_type.value})
 
 
 async def revoke_user(ctx: RequestContext, user_id: UUID) -> None:

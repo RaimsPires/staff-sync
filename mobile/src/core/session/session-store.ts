@@ -1,9 +1,9 @@
-import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 
 import { repos, type Session } from '@/data';
 import type { Company, UserProfile } from '@/domain';
 import { SecureKeys, secureStorage } from '@/core/security/secure-storage';
+import { setOnSignedOut, storeTokens } from '@/data/http/client';
 
 type Status = 'restoring' | 'signed_out' | 'needs_company' | 'needs_setup' | 'signed_in';
 
@@ -23,17 +23,10 @@ const SETUP_FLAG = 'staffsync.setup-done';
 
 async function persist(session: Session) {
   // Only tokens go to the Keychain/Keystore; the profile is re-fetched on restore.
-  await secureStorage.set(SecureKeys.session, JSON.stringify({ a: session.accessToken, r: session.refreshToken }));
+  await storeTokens(session);
 }
 
-/** Stable, random per-install id used to bind the account to this phone. */
-export async function getOrCreateDeviceId(): Promise<string> {
-  const existing = await secureStorage.get(SecureKeys.deviceId);
-  if (existing) return existing;
-  const id = Crypto.randomUUID();
-  await secureStorage.set(SecureKeys.deviceId, id);
-  return id;
-}
+export { getOrCreateDeviceId } from '@/core/security/device-id';
 
 export const useSession = create<SessionState>()((set) => ({
   status: 'restoring',
@@ -48,7 +41,7 @@ export const useSession = create<SessionState>()((set) => ({
       const setupDone = (await secureStorage.get(SETUP_FLAG)) === '1';
       set({ user, status: setupDone ? 'signed_in' : 'needs_setup' });
     } catch {
-      await secureStorage.remove(SecureKeys.session);
+      await storeTokens(null);
       set({ status: 'signed_out', user: null });
     }
   },
@@ -74,8 +67,11 @@ export const useSession = create<SessionState>()((set) => ({
   async signOut() {
     await repos.auth.logout().catch(() => undefined);
     // Keep the device id: the account stays bound to this phone.
-    await secureStorage.remove(SecureKeys.session);
+    await storeTokens(null);
     await secureStorage.remove(SETUP_FLAG);
     set({ status: 'signed_out', user: null, companies: [] });
   },
 }));
+
+// A refresh token the server no longer accepts ends the session.
+setOnSignedOut(() => useSession.setState({ status: 'signed_out', user: null, companies: [] }));

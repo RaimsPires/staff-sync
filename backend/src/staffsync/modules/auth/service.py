@@ -100,7 +100,10 @@ async def user_companies(session: AsyncSession, user_id: UUID, *, mobile_only: b
 
 
 async def build_profile(session: AsyncSession, user: User, company_id: UUID | None) -> UserProfileOut:
-    base = UserProfileOut(id=user.id, name=user.full_name, email=user.email, phone=user.phone, locale=user.locale)
+    from staffsync.core.adapters import get_storage
+
+    photo = await get_storage().presign_get(user.avatar_key, 3600) if user.avatar_key else None
+    base = UserProfileOut(id=user.id, name=user.full_name, email=user.email, phone=user.phone, locale=user.locale, photo_url=photo)
     if company_id is None:
         return base
     emp = (await session.exec(select(Employee).where(Employee.company_id == company_id, Employee.user_id == user.id))).first()
@@ -127,6 +130,7 @@ async def build_profile(session: AsyncSession, user: User, company_id: UUID | No
         site_names=[s.name for s in sites],
         manager_name=manager.full_name if manager else None,
         manager_phone=manager.phone if manager else None,
+        photo_url=photo,
         locale=user.locale,
     )
 
@@ -149,6 +153,10 @@ async def signup(session: AsyncSession, body: SignupIn) -> None:
     phone = None
     if body.phone:
         _, phone = normalize_identifier(body.phone)
+    if phone:
+        owner = await find_user(session, "phone", phone)
+        if owner is not None and (existing is None or owner.id != existing.id):
+            raise Conflict("This phone number is already used by another account", code="PHONE_TAKEN")
     if existing:  # unverified earlier attempt: let them retry
         user = existing
         user.password_hash = hash_password(body.password)
@@ -268,7 +276,8 @@ async def mfa_verify(session: AsyncSession, ticket: str, code: str, trust: bool,
 # --- mobile OTP --------------------------------------------------------------------------------------
 
 
-async def otp_request(session: AsyncSession, identifier: str) -> int:
+async def otp_request(session: AsyncSession, identifier: str, password: str | None = None) -> tuple[int, bool]:
+    """First factor (password, once the account has one) and delivery of the one-time code: by e-mail when the account has an address, else by SMS."""
     s = get_settings()
     kind, value = normalize_identifier(identifier)
     user = await find_user(session, kind, value)
@@ -278,6 +287,14 @@ async def otp_request(session: AsyncSession, identifier: str) -> int:
         raise AccountError("This account has been deactivated")
     if not await user_companies(session, user.id, mobile_only=True):
         raise NotFound("Account not found, contact your admin", code="ACCOUNT_NOT_FOUND")
+    if user.password_hash:
+        _check_not_locked(user)
+        if not password:
+            raise Unauthenticated("Enter your password", code="PASSWORD_REQUIRED")
+        if not verify_password(password, user.password_hash):
+            await _register_failure(user.id)
+            raise Unauthenticated("Invalid email or password", code="INVALID_CREDENTIALS")
+        user.failed_logins = 0
     r = get_redis()
     if await r.exists(f"otp:cool:{value}"):
         raise RateLimited("Please wait before requesting another code", code="OTP_RESEND_WAIT", retry_after=await r.ttl(f"otp:cool:{value}"))
@@ -290,8 +307,9 @@ async def otp_request(session: AsyncSession, identifier: str) -> int:
     await r.expire(f"otp:{value}", s.otp_ttl_s)
     await r.set(f"otp:cool:{value}", "1", ex=s.otp_resend_s)
     lang = recipient_locale(user.locale)
-    await notify("sms" if kind == "phone" else "email", value, gettext_("Your StaffSync code is %(code)s", lang, code=code), subject=gettext_("Your login code", lang), code=code)
-    return s.otp_resend_s
+    channel, to = ("email", user.email) if user.email else ("sms", user.phone or value)
+    await notify(channel, to or value, gettext_("Your StaffSync code is %(code)s", lang, code=code), subject=gettext_("Your login code", lang), code=code)
+    return s.otp_resend_s, user.password_hash is None
 
 
 async def otp_verify(session: AsyncSession, identifier: str, code: str, device_id: str | None, *, ip: str | None, ua: str | None) -> OtpVerifyOut:
@@ -324,7 +342,7 @@ async def otp_verify(session: AsyncSession, identifier: str, code: str, device_i
     emp_ids = (await session.exec(select(Employee).where(Employee.user_id == user.id, Employee.status == "invited"))).all()
     for e in emp_ids:  # first successful login activates an invited employee
         e.status = "active"
-    return OtpVerifyOut(companies=companies, tokens=tokens, user=await build_profile(session, user, cid))
+    return OtpVerifyOut(companies=companies, tokens=tokens, user=await build_profile(session, user, cid), needs_password=user.password_hash is None)
 
 
 async def select_company(session: AsyncSession, ctx: RequestContext, company_id: UUID, *, ip: str | None, ua: str | None) -> tuple[TokenPair, UserProfileOut]:
@@ -412,6 +430,14 @@ async def change_password(session: AsyncSession, ctx: RequestContext, current: s
         raise Forbidden("Current password is incorrect", code="INVALID_CREDENTIALS")
     ctx.user.password_hash = hash_password(new)
     await revoke_user_sessions(session, ctx.user.id, except_family=ctx.session_id)
+
+
+async def set_initial_password(session: AsyncSession, ctx: RequestContext, new: str) -> None:
+    """For accounts created without a password (invited employees): the first password needs no current one."""
+    if ctx.user.password_hash:
+        raise Conflict("A password is already set", code="PASSWORD_ALREADY_SET")
+    ctx.user.password_hash = hash_password(new)
+    session.add(ctx.user)
 
 
 async def mfa_setup(ctx: RequestContext) -> tuple[str, str]:

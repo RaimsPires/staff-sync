@@ -1,14 +1,14 @@
 import type { AdminPage, Identity, Permissions, Role, Scope } from "@/types/auth";
 
 const NONE: Permissions = {
-  admin: false, edit: false, behalf: false, review: false, approve: false,
+  admin: false, edit: false, behalf: false, review: false, approve: false, recommend: false,
   org: false, reports: false, users: false, settings: false, audit: false,
 };
 
 const BY_ROLE: Record<Role, Permissions> = {
-  admin: { admin: true, edit: true, behalf: true, review: true, approve: true, org: true, reports: true, users: true, settings: true, audit: true },
+  admin: { admin: true, edit: true, behalf: true, review: true, approve: true, recommend: true, org: true, reports: true, users: true, settings: true, audit: true },
   branch: { ...NONE, edit: true, behalf: true, review: true, approve: true, org: true, reports: true, users: true },
-  site: { ...NONE, behalf: true },
+  site: { ...NONE, behalf: true, recommend: true },
 };
 
 export const DEFAULT_SCOPE: Record<Role, Scope> = {
@@ -57,10 +57,29 @@ export function permissionsFromList(perms: string[], isAdmin: boolean): Permissi
     behalf: has("proxy.create"),
     review: has("fraud.approve"),
     approve: has("lva.approve"),
+    recommend: has("lva.recommend"),
     org: has("site.view") || has("branch.view"),
     reports: has("rep.view"),
-    users: has("usr.view"),
-    settings: has("set.view") || has("bill.view"),
+    users: has("usr.edit"),
+    settings: has("set.edit") || has("bill.edit"),
+    audit: has("audit.view"),
+  };
+}
+
+/** What the signed-in user may do, from the permission list the server reports in `/me`. */
+export function permissionsFromBackend(perms: string[]): Permissions {
+  const has = (k: string) => perms.includes(k);
+  return {
+    admin: has("roles.manage") && has("billing.manage"),
+    edit: has("attendance.edit"),
+    behalf: has("attendance.proxy_checkin"),
+    review: has("alerts.resolve"),
+    approve: has("leave.approve"),
+    recommend: has("leave.recommend"),
+    org: has("sites.view") || has("branches.view"),
+    reports: has("reports.view"),
+    users: has("users.manage"),
+    settings: has("settings.manage") || has("billing.manage"),
     audit: has("audit.view"),
   };
 }

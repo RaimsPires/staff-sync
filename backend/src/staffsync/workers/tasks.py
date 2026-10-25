@@ -180,3 +180,21 @@ async def anonymise_deleted_employees(session: AsyncSession, now: datetime) -> i
             emp.pin_hash, emp.badge_token, emp.photo_key = None, None, None
             n += 1
     return n
+
+
+async def push_notifications(session: AsyncSession, batch: int = 200) -> int:
+    """Send a phone notification for each new in-app notification, once. The in-app row is the source of truth."""
+    from staffsync.modules.notifications.service import PUSH_PREF, push_later, push_tokens
+
+    rows = (await session.exec(select(Notification).where(Notification.pushed_at.is_(None), Notification.created_at > datetime.now(UTC) - timedelta(hours=1)).order_by(Notification.created_at).limit(batch).with_for_update(skip_locked=True))).all()  # type: ignore[union-attr]
+    for n in rows:
+        push_later(await push_tokens(session, n.company_id, {n.user_id}, PUSH_PREF.get(n.type)), n.title, n.body, type=n.type, href=n.href or "")
+        n.pushed_at = datetime.now(UTC)
+        session.add(n)
+    return len(rows)
+
+
+async def scheduled_reports(session: AsyncSession) -> int:
+    from staffsync.modules.reports.scheduled import run_due
+
+    return await run_due(session)

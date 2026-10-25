@@ -31,7 +31,8 @@
     "last": {
       "today": "Aujourd’hui, {time}",
       "yesterday": "Hier, {time}"
-    }
+    },
+    "openFailed": "Impossible d’ouvrir cet espace."
   },
   "Invite": {
     "companyMeta": "Construction · 198 employés · 5 sites",
@@ -85,8 +86,13 @@
     "toasts": {
       "declined": "Invitation refusée",
       "reported": "Signalé à la sécurité StaffSync",
-      "requested": "Demande envoyée à Marc Olivier"
-    }
+      "requested": "Demande envoyée à Marc Olivier",
+      "expiredLink": "Cette invitation a expiré. Demandez-en une nouvelle.",
+      "invalidLink": "Cette invitation n’est plus valide.",
+      "failed": "Impossible d’accepter l’invitation. Réessayez.",
+      "ssoUnavailable": "La connexion unique n’est pas encore disponible."
+    },
+    "allowedScope": "Accès défini par votre administrateur"
   },
   "Onboarding": {
     "metaTitle": "Configurez votre espace",
@@ -169,7 +175,7 @@
       "fullName": "Nom complet",
       "workEmail": "E-mail professionnel",
       "password": "Mot de passe",
-      "passwordPlaceholder": "8 caractères minimum",
+      "passwordPlaceholder": "10 caractères minimum",
       "show": "Afficher",
       "hide": "Masquer",
       "strength": {
@@ -180,7 +186,7 @@
         "4": "Bon"
       },
       "rules": {
-        "length": "8 caractères ou plus",
+        "length": "10 caractères ou plus",
         "case": "Majuscules et minuscules",
         "number": "Un chiffre",
         "symbol": "Un symbole"
@@ -195,7 +201,8 @@
       "agreeTail": ", y compris le traitement des données de localisation des employés.",
       "haveAccount": "Vous avez déjà un compte ?",
       "signIn": "Se connecter",
-      "ssoSignedIn": "Connecté via SSO — e-mail déjà vérifié"
+      "ssoSignedIn": "Connecté via SSO — e-mail déjà vérifié",
+      "ssoUnavailable": "La connexion unique n’est pas encore disponible."
     },
     "verify": {
       "sentTo": "Nous avons envoyé un code à 6 chiffres à",
@@ -206,7 +213,8 @@
       "resend": "Renvoyer le code",
       "changeEmail": "Changer d’e-mail",
       "newCode": "Nouveau code envoyé à {email}",
-      "hint": "Prototype : tout code à 6 chiffres fonctionne (000000 est refusé)."
+      "hint": "Prototype : tout code à 6 chiffres fonctionne (000000 est refusé).",
+      "resendFailed": "Impossible d’envoyer un nouveau code."
     },
     "company": {
       "logoLabel": "Logo de l’entreprise",
@@ -360,7 +368,7 @@
       "emailInvalid": "Saisissez une adresse e-mail valide, ex. nom@entreprise.fr.",
       "emailPersonal": "Utilisez votre e-mail professionnel. Les adresses personnelles (Gmail, Outlook…) ne peuvent pas créer d’espace entreprise.",
       "passwordRequired": "Créez un mot de passe.",
-      "passwordWeak": "Mot de passe trop faible. Utilisez au moins 8 caractères avec lettres et chiffres.",
+      "passwordWeak": "Mot de passe trop faible. Utilisez au moins 10 caractères avec lettres et chiffres.",
       "phoneInvalid": "Saisissez un numéro de téléphone valide.",
       "termsRequired": "Vous devez accepter les conditions pour continuer.",
       "codeIncomplete": "Saisissez les 6 chiffres.",
@@ -379,7 +387,13 @@
       "personName": "Ajoutez un nom pour cette personne.",
       "personContact": "Ajoutez un téléphone ou un e-mail pour envoyer l’invitation.",
       "personInvalid": "Ce n’est pas un numéro de téléphone ou un e-mail valide.",
-      "planRequired": "Choisissez une offre pour continuer."
+      "planRequired": "Choisissez une offre pour continuer.",
+      "emailTaken": "Un compte existe déjà avec cet e-mail",
+      "tooMany": "Trop de tentatives. Réessayez plus tard.",
+      "serverFailed": "Une erreur est survenue de notre côté. Réessayez.",
+      "offline": "Serveur injoignable. Vérifiez votre connexion.",
+      "personFailed": "Impossible d’ajouter cette personne",
+      "phoneTaken": "Ce numéro est déjà utilisé par un autre compte"
     },
     "plan": {
       "billing": "Période de facturation",
@@ -411,7 +425,8 @@
       "users": "Utilisateurs et rôles",
       "audit": "Journal d’audit",
       "settings": "Paramètres",
-      "profile": "Mon profil"
+      "profile": "Mon profil",
+      "chat": "Messagerie"
     }
   },
   "Common": {
@@ -480,10 +495,22 @@
     },
     "toasts": {
       "signedIn": "Connexion réussie — redirection…",
+      "ssoUnavailable": "La connexion unique n’est pas encore disponible.",
       "redirecting": "Redirection vers {provider}…",
       "resetSent": "Lien de réinitialisation envoyé à {email}",
       "yourEmail": "votre e-mail",
-      "adminNotified": "Demande envoyée à l’administrateur"
+      "adminNotified": "Demande envoyée à l’administrateur",
+      "failed": "Impossible d’envoyer l’e-mail. Réessayez.",
+      "offline": "Serveur injoignable. Vérifiez votre connexion.",
+      "unverified": "Vérifiez d’abord votre e-mail — consultez votre boîte de réception.",
+      "mfa": "La double authentification n’est pas encore disponible ici.",
+      "sso": {
+        "cancelled": "Connexion annulée.",
+        "failed": "La connexion unique n’a pas fonctionné. Réessayez ou utilisez votre mot de passe.",
+        "unverified": "Votre fournisseur n’a pas vérifié cette adresse e-mail.",
+        "not_invited": "Aucun compte StaffSync n’utilise cette adresse. Demandez une invitation à un administrateur.",
+        "not_configured": "La connexion unique n’est pas encore configurée pour cette entreprise."
+      }
     },
     "brandPanel": {
       "title": "Sachez qui est sur site, en temps réel.",
@@ -501,6 +528,34 @@
       "flagged": "Signalés",
       "person": "Camille Durand",
       "checkin": "Arrivée · Part-Dieu Tower"
+    },
+    "mfa": {
+      "title": "Vérification en deux étapes",
+      "subtitle": "Saisissez le code à 6 chiffres de votre application d’authentification, ou un code de secours.",
+      "code": "Code de vérification",
+      "short": "Saisissez le code à 6 chiffres",
+      "wrong": "Ce code est incorrect",
+      "expired": "Cette connexion a expiré. Recommencez.",
+      "failed": "Impossible de vérifier le code. Réessayez.",
+      "trust": "Faire confiance à cet appareil pendant 30 jours",
+      "verify": "Vérifier",
+      "back": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Choisissez un nouveau mot de passe",
+      "subtitle": "Choisissez un mot de passe solide que vous n’utilisez nulle part ailleurs.",
+      "password": "Nouveau mot de passe",
+      "confirm": "Confirmer le mot de passe",
+      "weak": "Utilisez au moins 10 caractères avec des lettres et des chiffres",
+      "mismatch": "Les deux mots de passe ne correspondent pas",
+      "submit": "Définir le mot de passe",
+      "done": "Mot de passe mis à jour. Connectez-vous avec le nouveau.",
+      "failed": "Impossible de réinitialiser le mot de passe. Réessayez.",
+      "invalidTitle": "Ce lien ne fonctionne plus",
+      "invalidBody": "Le lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau depuis la page de connexion.",
+      "backToSignIn": "Retour à la connexion",
+      "show": "Afficher le mot de passe",
+      "hide": "Masquer le mot de passe"
     }
   },
   "Status": {
@@ -654,13 +709,7 @@
         "unpaid": "Raison personnelle, congé sans solde demandé."
       },
       "download": "Télécharger",
-      "downloadStarted": "Téléchargement lancé",
-      "image": "Image de la pièce jointe",
-      "pdfPage": "Page {page}",
-      "previousPage": "Page précédente",
-      "nextPage": "Page suivante",
-      "zoomIn": "Agrandir",
-      "zoomOut": "Réduire",
+      "attachmentFile": "Pièce jointe {n}",
       "balanceOf": "Solde {type}",
       "balance": {
         "before": "Avant",
@@ -748,7 +797,27 @@
       "finalState": "Cette demande est {status}.",
       "cancel": "Annuler",
       "approvedShort": "approuvé",
-      "pendingShort": "en attente"
+      "pendingShort": "en attente",
+      "recommend": {
+        "title": {
+          "approve": "Recommander l’approbation",
+          "reject": "Déconseiller"
+        },
+        "placeholder": "Expliquez pourquoi à l’approbateur (visible par les RH, pas envoyé à {name})",
+        "send": "Envoyer la recommandation",
+        "for": "Recommander l’approbation",
+        "against": "Déconseiller",
+        "note": "Votre avis est transmis à l’approbateur, qui décide.",
+        "given": {
+          "approve": "Le responsable de site recommande l’approbation",
+          "reject": "Le responsable de site déconseille"
+        },
+        "sent": {
+          "approve": "Recommandation envoyée",
+          "reject": "Avis envoyé"
+        },
+        "failed": "Impossible d’envoyer votre recommandation"
+      }
     },
     "calendar": {
       "scale": "Échelle de temps",
@@ -843,7 +912,8 @@
         "reasonError": "Indiquez un motif (3 caractères minimum).",
         "cancel": "Annuler",
         "apply": "Appliquer l’ajustement"
-      }
+      },
+      "adjustFailed": "Impossible d’ajuster le solde."
     }
   },
   "Data": {
@@ -966,7 +1036,8 @@
         "assign": "Affecter",
         "notify": "Prévenir l’équipe",
         "notified": "Équipe prévenue"
-      }
+      },
+      "failed": "Action impossible. Réessayez."
     },
     "trend": {
       "title": "Taux de présence",
@@ -1173,7 +1244,8 @@
       "audit": "Enregistré comme « {method} » par {actor}, visible dans le journal d’audit.",
       "methodAdmin": "Correction administrateur",
       "methodProxy": "Pour un tiers"
-    }
+    },
+    "failed": "Action impossible. Réessayez."
   },
   "Attendance": {
     "title": "Registre des présences",
@@ -1278,7 +1350,8 @@
       "clear": "Désélectionner",
       "approved": "{count, plural, one {# pointage approuvé} other {# pointages approuvés}}",
       "absent": "{count, plural, one {# marqué absent} other {# marqués absents}}",
-      "leaveSkipped": "congés ignorés"
+      "leaveSkipped": "congés ignorés",
+      "failed": "Action impossible. Réessayez."
     },
     "emptyCompany": {
       "title": "Aucune présence pour l’instant",
@@ -1331,7 +1404,8 @@
       "remove": "Retirer le fichier",
       "audit": "Enregistré comme saisie admin par {actor}, visible dans le journal d’audit et l’historique du pointage.",
       "added": "Pointage ajouté pour {name}",
-      "filesAttached": "{count, plural, one {# justificatif joint} other {# justificatifs joints}}"
+      "filesAttached": "{count, plural, one {# justificatif joint} other {# justificatifs joints}}",
+      "failed": "Action impossible. Réessayez."
     }
   },
   "Drawer": {
@@ -1469,7 +1543,8 @@
       "approved": "Pointage approuvé",
       "checkedIn": "{name} pointé(e) à {time}",
       "deleted": "Pointage supprimé",
-      "updated": "Pointage mis à jour — modification enregistrée"
+      "updated": "Pointage mis à jour — modification enregistrée",
+      "failed": "Action impossible. Réessayez."
     },
     "fields": {
       "checkIn": "Arrivée",
@@ -1587,7 +1662,8 @@
       "calling": "Appel de {name}…",
       "messageSent": "Message envoyé à {name}",
       "bulkApproved": "{count} alertes validées",
-      "bulkRejected": "{count} alertes refusées"
+      "bulkRejected": "{count} alertes refusées",
+      "failed": "Action impossible. Réessayez."
     },
     "items": {
       "a1": {
@@ -1767,6 +1843,7 @@
     "searchPlaceholder": "Rechercher nom, matricule ou téléphone",
     "exported": "{count} employés exportés",
     "reactivated": "{name} réactivé(e)",
+    "actionFailed": "Impossible de terminer cette action. Réessayez.",
     "inviteResent": "Invitation renvoyée à {name}",
     "deviceReset": "Appareil de {name} réinitialisé",
     "deactivated": "{name} désactivé(e)",
@@ -1892,7 +1969,8 @@
         "2": "Aperçu",
         "4": "Terminé"
       },
-      "importCount": "{count, plural, one {Importer # employé} other {Importer # employés}}"
+      "importCount": "{count, plural, one {Importer # employé} other {Importer # employés}}",
+      "someFailed": "{count, plural, one {# ligne n’a pas pu être importée (vérifiez que le numéro contient l’indicatif du pays).} other {# lignes n’ont pas pu être importées (vérifiez que les numéros contiennent l’indicatif du pays).}}"
     },
     "form": {
       "addTitle": "Ajouter un employé",
@@ -1963,6 +2041,7 @@
       "smartphoneOn": "Pointe avec l’appli StaffSync.",
       "smartphoneOff": "Pointe avec un badge QR, via le pointage d’un responsable de site.",
       "badge": "Badge et code PIN",
+      "badgeAfterSave": "Le QR du badge et le code PIN sont émis depuis le profil de l’employé après l’enregistrement, et affichés une seule fois.",
       "badgeHint": "Imprimez le badge. Le responsable le scanne ou saisit le PIN.",
       "newPin": "Générer un nouveau PIN",
       "print": "Imprimer",
@@ -2013,7 +2092,8 @@
         "scopeRequired": "Choisissez un périmètre",
         "startRequired": "La date de début est obligatoire",
         "sitesRequired": "Affectez au moins un site"
-      }
+      },
+      "saveFailed": "Enregistrement impossible. Réessayez."
     },
     "profile": {
       "back": "Retour aux employés",
@@ -2035,14 +2115,17 @@
         "noPhone": "Aucun numéro enregistré",
         "calling": "Appel de {name}…",
         "messaging": "Message à {name} ouvert",
-        "badge": "Nouveau badge et PIN générés"
+        "badge": "Nouveau badge et PIN générés",
+        "failed": "La demande a échoué.",
+        "invited": "Invitation envoyée à {name}"
       },
       "menu": {
         "edit": "Modifier l’employé",
         "resetDevice": "Réinitialiser l’appareil",
         "badge": "Régénérer badge et PIN",
         "reactivate": "Réactiver",
-        "deactivate": "Désactiver"
+        "deactivate": "Désactiver",
+        "resendInvite": "Renvoyer l’invitation"
       },
       "tabs": {
         "overview": "Vue d’ensemble",
@@ -2118,7 +2201,11 @@
         "errors": {
           "days": "Choisissez au moins un jour",
           "time": "L’heure de fin doit être après l’heure de début"
-        }
+        },
+        "failed": "Impossible d’enregistrer le planning.",
+        "shared": "Ce planning est partagé avec {count} autre(s) personne(s). Modifiez-le dans Plannings.",
+        "noInterventions": "Aucune intervention prévue.",
+        "intervention": "Intervention"
       },
       "leave": {
         "balances": "Soldes",
@@ -2137,7 +2224,8 @@
           "approved": "Approuvé",
           "pending": "En attente",
           "rejected": "Refusé"
-        }
+        },
+        "adjustFailed": "Impossible d’ajuster le solde."
       },
       "device": {
         "registered": "Appareil enregistré",
@@ -2170,7 +2258,8 @@
         "logins": "Historique de connexion",
         "noLogins": "Aucune connexion pour l’instant.",
         "success": "Réussie",
-        "failed": "Échec — code incorrect"
+        "failed": "Échec — code incorrect",
+        "resetFailed": "Impossible de réinitialiser l’appareil."
       },
       "docs": {
         "documents": "Documents",
@@ -2183,7 +2272,10 @@
         "notes": "Notes admin",
         "notePlaceholder": "Ajouter une note…",
         "addNote": "Ajouter la note",
-        "seedNote": "Préfère les postes du matin. A demandé à être considéré pour chef d’équipe."
+        "seedNote": "Préfère les postes du matin. A demandé à être considéré pour chef d’équipe.",
+        "failed": "Impossible d’enregistrer la note.",
+        "documentsSoon": "Le stockage de documents n’est pas encore disponible.",
+        "noNotes": "Aucune note pour le moment."
       },
       "activity": {
         "title": "Journal d’activité",
@@ -2209,7 +2301,14 @@
           "badgeRegenerated": "Badge et PIN régénérés",
           "reactivated": "Employé réactivé",
           "deactivated": "Employé désactivé"
-        }
+        },
+        "empty": "Aucune activité enregistrée."
+      },
+      "badge": {
+        "title": "Nouveau badge",
+        "done": "Terminé",
+        "hint": "Donnez ce code PIN et ce badge à {name}. Le code n’est affiché qu’une fois.",
+        "pin": "Code PIN"
       }
     }
   },
@@ -2283,7 +2382,8 @@
       "created": "{name} créé",
       "updated": "Site mis à jour",
       "reactivated": "{name} réactivé",
-      "deactivated": "{name} désactivé"
+      "deactivated": "{name} désactivé",
+      "failed": "Enregistrement impossible. Réessayez."
     },
     "qr": {
       "title": "QR code · {name}",
@@ -2449,7 +2549,8 @@
         "confirm": "Confirmer",
         "cancel": "Annuler",
         "doneIn": "Arrivée pointée pour l’employé",
-        "doneOut": "Départ pointé pour l’employé"
+        "doneOut": "Départ pointé pour l’employé",
+        "failed": "Impossible d’enregistrer le pointage."
       },
       "team": {
         "assigned": "{count} employés affectés",
@@ -2460,7 +2561,8 @@
         "remove": "Retirer {name}",
         "confirmRemove": "Retirer",
         "cancel": "Annuler",
-        "removed": "{name} retiré(e)"
+        "removed": "{name} retiré(e)",
+        "failed": "Impossible de mettre à jour l’équipe."
       },
       "schedule": {
         "employee": "Employé",
@@ -2494,7 +2596,9 @@
         "call": "Appeler",
         "calling": "Appel de {name}…",
         "remove": "Retirer {name}",
-        "removed": "{name} retiré(e) des responsables"
+        "removed": "{name} retiré(e) des responsables",
+        "notAUser": "Ce responsable n’a pas de compte sur le tableau de bord.",
+        "failed": "Impossible de mettre à jour les responsables."
       },
       "settings": {
         "requireSelfie": {
@@ -2616,7 +2720,8 @@
           "codeShort": "2 à 4 lettres",
           "codeExists": "Code déjà utilisé",
           "addressRequired": "L’adresse est obligatoire"
-        }
+        },
+        "failed": "Enregistrement impossible. Réessayez."
       },
       "retire": {
         "title": "Archiver ou supprimer {name}",
@@ -2842,7 +2947,8 @@
       "shifts": "{count, plural, one {# poste} other {# postes}}",
       "notified": "employés prévenus",
       "schedulePublished": "Planning publié",
-      "employeesNotified": "{count} employés prévenus"
+      "employeesNotified": "{count} employés prévenus",
+      "failed": "Impossible d’enregistrer le planning. Réessayez."
     },
     "shift": {
       "newTitle": "Nouveau poste",
@@ -2974,7 +3080,8 @@
         "holiday": "Le {date} est un jour férié ({name}).",
         "unassigned": "Aucun employé affecté. Elle apparaîtra dans la liste des interventions non affectées.",
         "more": "et {count} de plus"
-      }
+      },
+      "failed": "Impossible d’enregistrer le planning. Réessayez."
     }
   },
   "Users": {
@@ -3044,7 +3151,8 @@
       "keepAdmin": "Gardez au moins un administrateur",
       "revoked": "Accès révoqué pour {name}",
       "roleUpdated": "Rôle mis à jour",
-      "roleCreated": "Rôle créé"
+      "roleCreated": "Rôle créé",
+      "failed": "Enregistrement impossible. Réessayez."
     },
     "defaultRoles": {
       "admin": {
@@ -3093,7 +3201,8 @@
       "toasts": {
         "sent": "Invitation envoyée à {email}",
         "changed": "{name} est maintenant {role}",
-        "keepAdmin": "Gardez au moins un administrateur"
+        "keepAdmin": "Gardez au moins un administrateur",
+        "failed": "Enregistrement impossible. Réessayez."
       }
     },
     "roles": {
@@ -3200,6 +3309,10 @@
       "bill": {
         "name": "Facturation",
         "sub": "Offre, factures et licences"
+      },
+      "chat": {
+        "name": "Messagerie",
+        "sub": "Écrire dans tous les groupes de site"
       }
     },
     "editor": {
@@ -3320,7 +3433,13 @@
           },
           "bill": {
             "view": "Voir la facturation"
+          },
+          "chat": {
+            "edit": "Écrire dans tous les groupes de discussion des sites"
           }
+        },
+        "chat": {
+          "edit": "Écrire dans tous les groupes de discussion des sites"
         }
       },
       "errors": {
@@ -3691,7 +3810,8 @@
       "revokeTitle": "Révoquer « {name} » ?",
       "revokeMessage": "Tout ce qui utilise cette clé cessera de fonctionner immédiatement.",
       "revokeConfirm": "Révoquer la clé",
-      "revoked": "Clé révoquée"
+      "revoked": "Clé révoquée",
+      "failed": "Enregistrement impossible. Réessayez."
     },
     "hooks": {
       "title": "Webhooks",
@@ -3720,7 +3840,8 @@
         "leaveApproved": "Congé approuvé",
         "employeeDeactivated": "Employé désactivé",
         "schedulePublished": "Planning publié"
-      }
+      },
+      "failed": "Enregistrement impossible. Réessayez."
     },
     "sso": {
       "title": "Authentification unique",
@@ -3755,16 +3876,21 @@
       "yearly": "annuelle",
       "comparePlans": "Comparer et changer d’offre",
       "customPrice": "Tarif sur mesure",
-      "usageUnlimited": "{used} employés · sans limite"
+      "usageUnlimited": "{used} employés · sans limite",
+      "managePayment": "Gérer le paiement et la facturation",
+      "portalHint": "Mettez à jour votre carte, téléchargez vos factures ou résiliez dans le portail de facturation.",
+      "unavailable": "La facturation n’est pas encore configurée sur ce serveur.",
+      "portalFailed": "Impossible d’ouvrir le portail de facturation.",
+      "noInvoices": "Aucune facture pour le moment."
     },
     "danger": {
       "title": "Zone de danger",
       "sub": "Ces actions sont irréversibles.",
       "export": {
         "title": "Exporter toutes les données",
-        "desc": "Employés, présence, congés et journal d’audit dans un ZIP. Nous vous enverrons un lien par e-mail.",
-        "button": "Demander l’export",
-        "requested": "Export demandé · le lien vous sera envoyé par e-mail"
+        "desc": "Employés, présence, congés et journal d’audit dans un ZIP. Le téléchargement démarre ici et un lien vous est envoyé par e-mail.",
+        "button": "Exporter les données",
+        "requested": "Export prêt · téléchargement en cours. Le lien vous a aussi été envoyé par e-mail."
       },
       "delete": {
         "title": "Supprimer l’entreprise",
@@ -3776,7 +3902,8 @@
         "typeSuffix": "pour confirmer",
         "cancel": "Annuler",
         "scheduled": "Suppression programmée · vérifiez votre e-mail pour confirmer"
-      }
+      },
+      "failed": "La demande a échoué."
     }
   },
   "Profile": {
@@ -3832,7 +3959,9 @@
       "updated": "Mot de passe mis à jour · autres sessions déconnectées",
       "currentError": "Saisissez votre mot de passe actuel",
       "lengthError": "10 caractères minimum",
-      "matchError": "Les mots de passe ne correspondent pas"
+      "matchError": "Les mots de passe ne correspondent pas",
+      "currentWrong": "Ce mot de passe est incorrect",
+      "failed": "Impossible de changer le mot de passe."
     },
     "twofa": {
       "title": "Authentification à deux facteurs",
@@ -3856,7 +3985,11 @@
       "turnOff": "Désactiver",
       "offTitle": "Désactiver la double authentification ?",
       "offMessage": "Votre compte ne sera plus protégé que par votre mot de passe.",
-      "offToast": "Double authentification désactivée"
+      "offToast": "Double authentification désactivée",
+      "failed": "Impossible de terminer cette étape.",
+      "codeWrong": "Ce code est incorrect. Essayez le suivant.",
+      "passwordLabel": "Votre mot de passe",
+      "passwordWrong": "Ce mot de passe est incorrect"
     },
     "sessions": {
       "title": "Sessions actives",
@@ -3866,13 +3999,16 @@
       "thisDevice": "Cet appareil",
       "meta": "{when, select, now {{place}, France · actif maintenant} hours {{place}, France · il y a 2 heures} other {{place}, France · il y a 3 jours}}",
       "signOut": "Déconnecter",
-      "signedOut": "{device} déconnecté"
+      "signedOut": "{device} déconnecté",
+      "failed": "Impossible de déconnecter cet appareil."
     },
     "notifications": {
       "title": "Mes notifications",
       "sub": "Ne concerne que vous. Les règles de l’entreprise se définissent dans les Réglages.",
-      "event": "Événement"
-    }
+      "event": "Événement",
+      "failed": "Impossible d’enregistrer vos choix."
+    },
+    "saveFailed": "Impossible d’enregistrer vos informations."
   },
   "Audit": {
     "title": "Journal d’audit",
@@ -3980,7 +4116,9 @@
       "device": "Appareil",
       "reason": "Motif",
       "changes": "Modifications"
-    }
+    },
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de charger le journal d’audit."
   },
   "Reports": {
     "title": "Rapports",
@@ -4040,31 +4178,39 @@
         "wrk": "Travaillées",
         "brk": "Pauses",
         "ot": "Heures sup.",
-        "days": "Jours travaillés"
+        "days": "Jours travaillés",
+        "records": "Pointages",
+        "hours": "Heures travaillées",
+        "overtime_hours": "Heures sup."
       },
       "hours": {
         "wrk": "Travaillées",
         "sch": "Prévues",
         "var": "Écart",
-        "avg": "Moy. par jour"
+        "avg": "Moy. par jour",
+        "hours": "Heures travaillées"
       },
       "lateness": {
         "n": "Arrivées tardives",
         "min": "Minutes de retard",
         "avg": "Moy. minutes",
-        "ot": "Taux de ponctualité"
+        "ot": "Taux de ponctualité",
+        "late_count": "Retards",
+        "late_minutes": "Minutes de retard"
       },
       "absences": {
         "n": "Absences",
         "exc": "Justifiées",
         "unx": "Injustifiées",
-        "rate": "Taux d’absence"
+        "rate": "Taux d’absence",
+        "absent": "Absences"
       },
       "overtime": {
         "ot": "Heures sup.",
         "apr": "Validées",
         "pen": "En attente",
-        "sh": "Services de plus de 8 h"
+        "sh": "Services de plus de 8 h",
+        "overtime_hours": "Heures sup."
       },
       "leave": {
         "an": "Annuels",
@@ -4077,20 +4223,27 @@
         "n": "Alertes",
         "apr": "Validées",
         "rej": "Rejetées",
-        "open": "Encore ouvertes"
+        "open": "Encore ouvertes",
+        "flagged": "Alertes"
       },
       "site": {
         "exp": "Attendus",
         "pres": "Présents",
         "rate": "Présence",
         "late": "Retards",
-        "fl": "Alertes"
+        "fl": "Alertes",
+        "records": "Pointages",
+        "hours": "Heures travaillées",
+        "late_count": "Retards",
+        "absent": "Absences",
+        "flagged": "Alertes"
       },
       "proxy": {
         "n": "Pointages pour autrui",
         "qr": "Par badge QR",
         "man": "Manuels (responsable)",
-        "dl": "Délai moyen"
+        "dl": "Délai moyen",
+        "proxy": "Pointages par délégation"
       }
     },
     "units": {
@@ -4201,7 +4354,9 @@
       "total": "Total · {count} {noun}",
       "noColumns": "Sélectionnez au moins une colonne pour voir le rapport.",
       "fixRange": "Corrigez la période pour voir le rapport.",
-      "noMatch": "Rien ne correspond à ce périmètre. Élargissez-le ou réinitialisez-le."
+      "noMatch": "Rien ne correspond à ce périmètre. Élargissez-le ou réinitialisez-le.",
+      "loading": "Chargement…",
+      "loadFailed": "Impossible d’exécuter le rapport."
     },
     "scope": {
       "title": "Périmètre du rapport",
@@ -4224,7 +4379,8 @@
       "cancel": "Annuler",
       "save": "Enregistrer",
       "update": "Mettre à jour",
-      "saved": "Rapport enregistré"
+      "saved": "Rapport enregistré",
+      "failed": "Impossible d’enregistrer le rapport."
     },
     "schedule": {
       "title": "Programmer l’envoi par e-mail",
@@ -4327,6 +4483,29 @@
       "monthly": "mensuelle",
       "yearly": "annuelle"
     },
-    "trialEnds": "Fin de l’essai gratuit le {date}"
+    "trialEnds": "Fin de l’essai gratuit le {date}",
+    "billingUnavailable": "La facturation n’est pas encore configurée sur ce serveur.",
+    "checkoutFailed": "Impossible de lancer le paiement."
+  },
+  "Chat": {
+    "title": "Messagerie",
+    "search": "Rechercher une conversation",
+    "newChat": "Nouvelle conversation",
+    "searchPeople": "Rechercher une personne",
+    "noPeople": "Personne trouvée",
+    "noConversations": "Aucune conversation. Commencez-en une avec le bouton ci-dessus.",
+    "pickOne": "Choisissez une conversation, ou démarrez-en une.",
+    "emptyThread": "Aucun message. Dites bonjour.",
+    "write": "Écrire un message",
+    "send": "Envoyer",
+    "attach": "Joindre photos, vidéos, notes vocales ou PDF",
+    "removeFile": "Retirer le fichier",
+    "older": "Afficher les messages plus anciens",
+    "siteGroup": "Groupe du site · {count, plural, one {# personne} other {# personnes}}",
+    "direct": "Message direct",
+    "offline": "reconnexion…",
+    "back": "Retour",
+    "loadFailed": "Impossible de charger la conversation.",
+    "sendFailed": "Impossible d’envoyer votre message. Réessayez."
   }
 }

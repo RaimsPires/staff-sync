@@ -2,38 +2,16 @@
 
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Modal, KeepMounted } from "@/components/ui/overlay";
-import { controlClass } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
-import { INVOICES } from "@/data/settings";
+import { isBillingUnavailable, loadInvoices, openBillingPortal, type Invoice } from "@/services/billing";
 import { localized, planPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { useCurrentPlan, usePlans } from "@/store/plans";
 import { useDateFormat } from "@/lib/preferences";
 
 const card = "overflow-hidden rounded-xl border border-border bg-surface shadow-card";
-
-function CardModal({ onClose }: { onClose: () => void }) {
-  const t = useTranslations("Settings.billing.card");
-  const tc = useTranslations("Settings");
-  const toast = useToast();
-  const [num, setNum] = useState("");
-  const [exp, setExp] = useState("");
-  const [tried, setTried] = useState(false);
-  const badNum = num.replace(/\s/g, "").length < 13;
-  const badExp = !/^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
-  const save = () => { if (badNum || badExp) return setTried(true); toast(t("updated")); onClose(); };
-  return (
-    <Modal open onClose={onClose} title={t("title")} className="max-w-[460px]" footer={<><Button onClick={onClose}>{tc("cancel")}</Button><Button variant="primary" onClick={save}>{t("save")}</Button></>}>
-      <div className="flex flex-col gap-3.5">
-        <label className="flex flex-col gap-1.5 text-[12.5px] font-medium text-text-2">{t("number")}<input value={num} onChange={(e) => setNum(e.target.value)} inputMode="numeric" autoComplete="off" placeholder="4242 4242 4242 4242" aria-invalid={tried && badNum} className={controlClass(tried && badNum)} />{tried && badNum && <span className="text-[12px] font-normal text-bad">{t("numberError")}</span>}</label>
-        <label className="flex flex-col gap-1.5 text-[12.5px] font-medium text-text-2">{t("expiry")}<input value={exp} onChange={(e) => setExp(e.target.value)} placeholder="08/28" autoComplete="off" aria-invalid={tried && badExp} className={cn(controlClass(tried && badExp), "w-[120px]")} />{tried && badExp && <span className="text-[12px] font-normal text-bad">{t("expiryError")}</span>}</label>
-      </div>
-    </Modal>
-  );
-}
 
 export function BillingSection() {
   const t = useTranslations("Settings.billing");
@@ -44,7 +22,29 @@ export function BillingSection() {
   const numericDate = useDateFormat();
   const { subscription } = usePlans();
   const current = useCurrentPlan();
-  const [card2, setCard] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[] | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  useEffect(() => {
+    let live = true;
+    loadInvoices().then(
+      (list) => live && setInvoices(list),
+      (e: unknown) => {
+        if (!live) return;
+        setInvoices([]);
+        setUnavailable(isBillingUnavailable(e));
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+  const portal = async () => {
+    try {
+      await openBillingPortal();
+    } catch (e) {
+      toast(isBillingUnavailable(e) ? t("unavailable") : e instanceof Error ? e.message : t("portalFailed"), "bad");
+    }
+  };
   const used = subscription.seatsUsed;
   const cap = current.employeeCap;
   const money = (n: number) => format.number(n, { style: "currency", currency: "EUR" });
@@ -73,26 +73,28 @@ export function BillingSection() {
       </section>
 
       <section className={card}>
-        <div className="flex items-center gap-3 border-b border-border px-[18px] py-3.5"><h2 className="m-0 flex-1 text-[14.5px] font-semibold">{t("payment")}</h2><Button size="sm" onClick={() => setCard(true)}>{t("update")}</Button></div>
-        <div className="flex items-center gap-3.5 px-[18px] py-3.5"><div className="grid h-8 w-12 place-items-center rounded-md bg-info-bg text-[11px] font-bold text-info">VISA</div><div><div className="text-[13.5px] font-medium">{t("cardEnding", { last4: "4242" })}</div><div className="text-[12.5px] text-text-3">{t("cardExpiry", { date: "08/2028", name: "Claire Vasseur" })}</div></div></div>
+        <div className="flex items-center gap-3 px-[18px] py-3.5">
+          <div className="min-w-0 flex-1"><h2 className="m-0 text-[14.5px] font-semibold">{t("payment")}</h2><p className="mt-0.5 text-[12.5px] text-text-3">{unavailable ? t("unavailable") : t("portalHint")}</p></div>
+          <Button size="sm" onClick={portal} disabled={unavailable}>{t("managePayment")}</Button>
+        </div>
       </section>
 
       <section className={card}>
         <div className="border-b border-border px-[18px] py-3.5"><h2 className="m-0 text-[14.5px] font-semibold">{t("invoices")}</h2></div>
         <div className="overflow-x-auto"><div className="min-w-[520px]">
-          {INVOICES.map((inv) => (
+          {(invoices ?? []).map((inv) => (
             <div key={inv.id} className="grid grid-cols-[130px_1fr_100px_90px_90px] items-center gap-2.5 border-t border-border px-[18px] py-[11px] text-[13px] first:border-t-0">
-              <span className="font-mono text-[12.5px]">{inv.id}</span>
+              <span className="font-mono text-[12.5px]">{inv.number ?? inv.id}</span>
               <span className="text-text-2">{numericDate(inv.date)}</span>
-              <span className="font-mono">{money(inv.amount)}</span>
-              <span><span className="rounded-md bg-ok-bg px-2 py-0.5 text-[12px] font-medium text-ok">{t("paid")}</span></span>
-              <button onClick={() => toast(t("downloading", { id: inv.id }))} className="border-0 bg-transparent p-0 text-right text-[12.5px] text-accent">{t("download")}</button>
+              <span className="font-mono">{format.number(inv.amountDue / 100, { style: "currency", currency: inv.currency })}</span>
+              <span><span className={cn("rounded-md px-2 py-0.5 text-[12px] font-medium", inv.status === "paid" ? "bg-ok-bg text-ok" : "bg-warn-bg text-warn")}>{inv.status === "paid" ? t("paid") : inv.status}</span></span>
+              {inv.pdf || inv.url ? <a href={inv.pdf ?? inv.url ?? "#"} target="_blank" rel="noreferrer" className="text-right text-[12.5px] text-accent">{t("download")}</a> : <span />}
             </div>
           ))}
+          {invoices !== null && invoices.length === 0 && <div className="px-[18px] py-8 text-center text-[13px] text-text-3">{unavailable ? t("unavailable") : t("noInvoices")}</div>}
         </div></div>
       </section>
 
-      <KeepMounted show={!!card2}>{card2 && <CardModal onClose={() => setCard(false)} />}</KeepMounted>
     </>
   );
 }

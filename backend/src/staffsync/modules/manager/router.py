@@ -17,7 +17,7 @@ from staffsync.modules.employees.models import Employee, EmployeeSite
 from staffsync.modules.employees.service import EmployeeRepository
 from staffsync.modules.leave import service as leave_service
 from staffsync.modules.leave.models import LeaveRequest
-from staffsync.modules.schedules.models import Shift
+from staffsync.modules.schedules.models import LIVE_SHIFT, Shift
 from staffsync.modules.sites.models import Site
 from staffsync.modules.sites.service import SiteRepository
 
@@ -77,7 +77,7 @@ async def by_badge(token: str, site_id: UUID, ctx=require(Perm.ATTENDANCE_PROXY)
 @router.get("/employees/{employee_id}/shifts")
 async def employee_shifts(employee_id: UUID, start: date, end: date, ctx=require(Perm.ATTENDANCE_VIEW)):
     emp = await EmployeeRepository(ctx).get(employee_id)
-    rows = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp.id, Shift.status != "cancelled", Shift.starts_at >= datetime.combine(start, datetime.min.time(), UTC),
+    rows = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp.id, Shift.status.in_(LIVE_SHIFT), Shift.starts_at >= datetime.combine(start, datetime.min.time(), UTC),
                                                        Shift.starts_at < datetime.combine(end + timedelta(days=1), datetime.min.time(), UTC)).order_by(Shift.starts_at))).all()
     return [{"date": s.starts_at.date(), "start": s.starts_at.strftime("%H:%M"), "end": s.ends_at.strftime("%H:%M")} for s in rows]
 

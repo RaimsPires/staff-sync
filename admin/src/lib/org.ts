@@ -30,16 +30,9 @@ export function buildOrg(managedSites: ManagedSite[], managedBranches: ManagedBr
   const branches = managedBranches.filter((b) => !b.archived).map((b) => branchFor(b, sites));
   const allBranches = managedBranches.map((b) => branchFor(b, allSites));
 
-  const siteById = (id: string): Site => {
-    const site = allSites.find((s) => s.id === id);
-    if (!site) throw new Error(`Unknown site: ${id}`);
-    return site;
-  };
-  const branchOfSite = (siteId: string): Branch => {
-    const branch = allBranches.find((b) => b.siteIds.includes(siteId));
-    if (!branch) throw new Error(`Site without branch: ${siteId}`);
-    return branch;
-  };
+  // Records from modules not yet on the API can still point at ids that no longer exist: show a blank, don't crash.
+  const siteById = (id: string): Site => allSites.find((s) => s.id === id) ?? { id, name: "—", branchId: "", address: "", position: [0, 0], geofence: { kind: "circle", radius: 0 }, manager: "", phone: "", expected: 0, present: 0, late: 0, absent: 0, flagged: 0, leave: 0 };
+  const branchOfSite = (siteId: string): Branch => allBranches.find((b) => b.siteIds.includes(siteId)) ?? { id: "", name: "—", siteIds: [] };
   return {
     sites, allSites, branches, siteById, branchOfSite,
     branchById: (id) => allBranches.find((b) => b.id === id),

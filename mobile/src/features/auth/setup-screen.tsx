@@ -90,12 +90,12 @@ export function SetupScreen() {
         ? { title: t('setup.locOffTitle'), body: t('setup.locOffBody'), cta: t('setup.openSettings') }
         : loc === 'precise'
           ? { title: t('setup.preciseTitle'), body: t('setup.preciseBody'), cta: t('setup.openSettings') }
-          : { title: t('setup.confirmOnSite'), body: t('setup.locationBody'), cta: location.state === 'granted' ? t('common.continue') : t('setup.allowLocation') };
+          : { title: t('setup.confirmOnSite'), body: t('setup.locationBody'), cta: location.ready ? t('common.continue') : t('setup.allowLocation') };
     const press = async () => {
       if (loc !== 'ask') return void Linking.openSettings();
-      if (location.state === 'granted') return next();
-      const granted = await location.request();
-      if (granted) next();
+      if (location.ready) return next();
+      // Moves on only when precise location is granted; approximate access keeps the screen on "precise needed".
+      if (await location.request()) next();
     };
     return (
       <Screen scroll={false} gutter={24} contentStyle={styles.content} footer={<Button large label={copy.cta} onPress={() => void press()} />}>
@@ -139,6 +139,7 @@ export function SetupScreen() {
               onPress={() =>
                 void Notifications.requestPermissionsAsync().then((p) => {
                   setNotifications(p.granted);
+                  if (p.granted) void repos.profile.registerPushToken().catch(() => undefined);
                   next();
                 })
               }

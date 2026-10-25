@@ -3,6 +3,7 @@ from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import update as sa_update
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from staffsync.common.repository import TenantRepository
@@ -123,6 +124,7 @@ async def create(ctx: RequestContext, body: ScheduleCreate) -> Schedule:
     for e in dict.fromkeys(body.employee_ids):
         ctx.session.add(ScheduleAssignment(company_id=ctx.company_id, schedule_id=s.id, employee_id=e))
     audit(ctx, "schedule.created", "schedule", s.id, after={"title": s.title, "type": s.type})
+    await regenerate(ctx, s)  # draft schedules get draft shifts so the planner can show them
     return s
 
 
@@ -146,8 +148,7 @@ async def update(ctx: RequestContext, s: Schedule, body: ScheduleUpdate) -> Sche
                 ctx.session.add(ScheduleAssignment(company_id=ctx.company_id, schedule_id=s.id, employee_id=e))
     await ctx.session.flush()
     audit(ctx, "schedule.updated", "schedule", s.id, after=data and {k: str(v) for k, v in data.items()})
-    if s.status == "published":
-        await regenerate(ctx, s, notify=True)
+    await regenerate(ctx, s, notify=s.status == "published")
     return s
 
 
@@ -162,6 +163,7 @@ async def regenerate(ctx: RequestContext, s: Schedule, *, notify: bool = False) 
     wanted: set[tuple[UUID, datetime]] = set()
     changed: set[UUID] = set()
     now_utc = datetime.now(UTC)
+    initial = "scheduled" if s.status == "published" else "draft"
     for emp in emps:
         for o in occs:
             if o.ends_at < now_utc and (emp, o.starts_at) not in by_key:
@@ -171,11 +173,11 @@ async def regenerate(ctx: RequestContext, s: Schedule, *, notify: bool = False) 
             sh = by_key.get(key)
             if sh is None:
                 ctx.session.add(Shift(company_id=ctx.company_id, employee_id=emp, site_id=s.site_id, schedule_id=s.id, starts_at=o.starts_at, ends_at=o.ends_at, grace_min=s.grace_min,
-                                      early_leave_tol_min=s.early_leave_tol_min, break_min=s.break_min, is_intervention=s.type == "intervention"))
+                                      early_leave_tol_min=s.early_leave_tol_min, break_min=s.break_min, is_intervention=s.type == "intervention", status=initial))
                 changed.add(emp)
             elif not sh.exception:
                 if sh.status == "cancelled":
-                    sh.status = "scheduled"
+                    sh.status = initial
                 sh.ends_at, sh.grace_min, sh.early_leave_tol_min, sh.break_min, sh.site_id = o.ends_at, s.grace_min, s.early_leave_tol_min, s.break_min, s.site_id
     now = datetime.now(UTC)
     for key, sh in by_key.items():
@@ -205,6 +207,7 @@ async def publish(ctx: RequestContext, ids: list[UUID], notify: bool, confirm: b
     for s in rows:
         s.status = "published"
         ctx.session.add(s)
+        await ctx.session.execute(sa_update(Shift).where(Shift.schedule_id == s.id, Shift.status == "draft").values(status="scheduled"))
         n += await regenerate(ctx, s, notify=notify)
         audit(ctx, "schedule.published", "schedule", s.id)
         emit(ctx.session, ctx.company_id, "SchedulePublished", {"id": str(s.id)})
@@ -233,22 +236,61 @@ async def restore_schedule(ctx: RequestContext, s: Schedule) -> Schedule:
     return s
 
 
-async def move_shift(ctx: RequestContext, sh: Shift, starts_at: datetime | None, ends_at: datetime | None, notify: bool) -> Shift:
+async def _has_attendance(ctx: RequestContext, shift_id: UUID) -> bool:
+    from staffsync.modules.attendance.models import AttendanceRecord
+
+    return (await ctx.session.exec(select(AttendanceRecord.id).where(AttendanceRecord.shift_id == shift_id))).first() is not None
+
+
+async def move_shift(
+    ctx: RequestContext, sh: Shift, starts_at: datetime | None, ends_at: datetime | None, notify: bool, *, employee_id: UUID | None = None, site_id: UUID | None = None
+) -> Shift:
+    """Change one shift's times, employee or site. The shift becomes an exception: the schedule rule no longer overwrites it."""
     if sh.status == "cancelled":
         raise BusinessRule("Shift is cancelled")
     new_start, new_end = starts_at or sh.starts_at, ends_at or sh.ends_at
     if new_end <= new_start:
         raise ValidationFailed("End must be after start")
+    previous_employee = sh.employee_id
+    if employee_id and employee_id != sh.employee_id or site_id and site_id != sh.site_id:
+        if await _has_attendance(ctx, sh.id):
+            raise BusinessRule("This shift already has a check-in; it can't be reassigned", code="SHIFT_HAS_ATTENDANCE")
+        if employee_id:
+            await _check_employees(ctx, [employee_id])
+        if site_id:
+            await site_tz(ctx, site_id)
+        sh.employee_id, sh.site_id = employee_id or sh.employee_id, site_id or sh.site_id
     if new_start != sh.starts_at:
         sh.previous_starts_at = sh.starts_at
     sh.starts_at, sh.ends_at, sh.exception, sh.updated_by_admin = new_start, new_end, True, True
     ctx.session.add(sh)
+    try:
+        await ctx.session.flush()
+    except IntegrityError as exc:
+        raise Conflict("That employee already has this shift", code="DUPLICATE_SHIFT") from exc
     audit(ctx, "shift.moved", "shift", sh.id, employee_id=sh.employee_id)
-    if notify:
+    if notify and sh.status != "draft":
+        for emp_id in {sh.employee_id, previous_employee}:
+            emp = await ctx.session.get(Employee, emp_id)
+            if emp:
+                push_in_app(ctx.session, ctx.company_id, emp.user_id, "schedule_change", N_("Your shift was updated"), "", href=f"/schedule/{sh.id}")
+    return sh
+
+
+async def cancel_shift(ctx: RequestContext, sh: Shift, reason: str, notify: bool) -> None:
+    """Cancel a single occurrence. It stays cancelled when the schedule is regenerated."""
+    if sh.status == "cancelled":
+        return
+    if await _has_attendance(ctx, sh.id):
+        raise BusinessRule("This shift already has a check-in; it can't be cancelled", code="SHIFT_HAS_ATTENDANCE")
+    was_draft = sh.status == "draft"
+    sh.status, sh.exception = "cancelled", True
+    ctx.session.add(sh)
+    audit(ctx, "shift.cancelled", "shift", sh.id, reason=reason, employee_id=sh.employee_id)
+    if notify and not was_draft:
         emp = await ctx.session.get(Employee, sh.employee_id)
         if emp:
-            push_in_app(ctx.session, ctx.company_id, emp.user_id, "schedule_change", N_("Your shift was updated"), "", href=f"/schedule/{sh.id}")
-    return sh
+            push_in_app(ctx.session, ctx.company_id, emp.user_id, "schedule_change", N_("Your shift was cancelled"), "", href="/schedule")
 
 
 async def copy_week(ctx: RequestContext, from_week: date, to_week: date, site_id: UUID | None, employee_ids: list[UUID] | None) -> int:
@@ -266,7 +308,8 @@ async def copy_week(ctx: RequestContext, from_week: date, to_week: date, site_id
         if dup:
             continue
         ctx.session.add(Shift(company_id=ctx.company_id, employee_id=sh.employee_id, site_id=sh.site_id, schedule_id=sh.schedule_id, starts_at=ns, ends_at=sh.ends_at + delta,
-                              grace_min=sh.grace_min, early_leave_tol_min=sh.early_leave_tol_min, break_min=sh.break_min, is_intervention=sh.is_intervention, exception=True))
+                              grace_min=sh.grace_min, early_leave_tol_min=sh.early_leave_tol_min, break_min=sh.break_min, is_intervention=sh.is_intervention, exception=True,
+                              status="draft" if sh.status == "draft" else "scheduled"))
         n += 1
     audit(ctx, "schedule.week_copied", "schedule", None, after={"from": from_week.isoformat(), "to": to_week.isoformat(), "shifts": n})
     return n

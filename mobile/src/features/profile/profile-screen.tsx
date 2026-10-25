@@ -1,14 +1,16 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { useSession } from '@/core/session/session-store';
+import { repos } from '@/data';
 import { useTheme } from '@/core/theme/theme-provider';
 import { radius, spacing } from '@/core/theme/tokens';
-import { Icon, Screen, Text, initialsOf } from '@/ui';
+import { BottomSheet, Button, Icon, Screen, Text, initialsOf, useToast } from '@/ui';
 
 export function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -25,14 +27,47 @@ export function ProfileScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const user = useSession((s) => s.user);
-  const [photo, setPhoto] = useState<string>();
+  const [picked, setPicked] = useState<string | null | undefined>(); // undefined: show the saved photo
+  const { data: saved, refetch } = useQuery({ queryKey: ['profile', 'photo'], queryFn: () => repos.profile.getPhotoUrl(), staleTime: 30 * 60_000 });
+  const photo = picked === undefined ? saved ?? undefined : picked ?? undefined;
+  const toast = useToast();
+  // Show the new photo straight away, save it in the background, and put the old one back if saving fails.
+  const savePhoto = (uri: string | null) => {
+    setPicked(uri);
+    repos.profile.setPhoto(uri).then(
+      () => void refetch().then(() => setPicked(undefined)),
+      () => {
+        setPicked(undefined);
+        toast.show(t('profile.photoFailed'));
+      },
+    );
+  };
+  const [sheet, setSheet] = useState(false);
+  const [cameraBlocked, setCameraBlocked] = useState(false);
 
   if (!user) return null;
 
-  // The picked photo is held in memory for this session only; there is no upload endpoint yet.
-  const changePhoto = async () => {
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7 });
-    if (!res.canceled) setPhoto(res.assets[0].uri);
+  const pickerOptions: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7 };
+  const closeSheet = () => {
+    setSheet(false);
+    setCameraBlocked(false);
+  };
+
+  // The photo is saved to the account (see `savePhoto`); the camera needs its own permission, the gallery picker does not.
+  const fromCamera = async () => {
+    // The camera needs its own permission; ask now, and send the user to Settings if it was refused for good.
+    let perm = await ImagePicker.getCameraPermissionsAsync();
+    if (!perm.granted && perm.canAskAgain) perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) return setCameraBlocked(true);
+    closeSheet();
+    const res = await ImagePicker.launchCameraAsync({ ...pickerOptions, cameraType: ImagePicker.CameraType.front });
+    if (!res.canceled) savePhoto(res.assets[0].uri);
+  };
+  // The system photo picker only hands over the photo the user chooses, so it needs no library permission.
+  const fromGallery = async () => {
+    closeSheet();
+    const res = await ImagePicker.launchImageLibraryAsync(pickerOptions);
+    if (!res.canceled) savePhoto(res.assets[0].uri);
   };
 
   const card = [styles.card, { backgroundColor: colors.card, borderColor: colors.line }];
@@ -62,7 +97,7 @@ export function ProfileScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('profile.changePhoto')}
-            onPress={() => void changePhoto()}
+            onPress={() => setSheet(true)}
             style={[styles.camera, { backgroundColor: colors.primary, borderColor: colors.bg }]}>
             <Icon name="camera" size={18} tone="onPrimary" />
           </Pressable>
@@ -148,11 +183,37 @@ export function ProfileScreen() {
           </Text>
         </View>
       </View>
+
+      <BottomSheet visible={sheet} onClose={closeSheet} title={t('profile.changePhoto')} closable>
+        {cameraBlocked ? (
+          <View style={styles.sheetGap}>
+            <Text tone="muted">{t('profile.cameraBlocked')}</Text>
+            <Button label={t('setup.openSettings')} onPress={() => void Linking.openSettings()} />
+            <Button variant="ghost" label={t('profile.chooseGallery')} onPress={() => void fromGallery()} />
+          </View>
+        ) : (
+          <View style={styles.sheetGap}>
+            <Button variant="outlinePrimary" icon="camera-outline" label={t('profile.takePhoto')} onPress={() => void fromCamera()} />
+            <Button variant="outlinePrimary" icon="images-outline" label={t('profile.chooseGallery')} onPress={() => void fromGallery()} />
+            {photo ? (
+              <Button
+                variant="ghost"
+                label={t('profile.removePhoto')}
+                onPress={() => {
+                  savePhoto(null);
+                  closeSheet();
+                }}
+              />
+            ) : null}
+          </View>
+        )}
+      </BottomSheet>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  sheetGap: { gap: spacing.sm, marginTop: spacing.sm },
   flex: { flex: 1 },
   content: { gap: 14 },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

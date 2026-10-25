@@ -4,14 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Download, LocateFixed, MapPin, Printer, Search, TriangleAlert, ZoomIn, ZoomOut } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLocale, useTranslations } from "next-intl";
+import { useEmployees } from "@/store/employees";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { GeofenceEditor } from "@/components/map/geofence-editor";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
-import { EMPLOYEES } from "@/data/employees";
-import { MANAGER_POOL, TIMEZONES_EU } from "@/data/sites";
+import { TIMEZONES_EU } from "@/data/sites";
+import { setSiteMembers } from "@/services/org";
+import { useUsers } from "@/store/users";
 import { distanceMeters, formatArea, formatLength, geofenceMetrics, hexagonAround } from "@/lib/geo";
 import { downloadText } from "@/lib/export";
 import { useDebounced } from "@/lib/use-debounced";
@@ -54,11 +56,11 @@ interface Form {
 }
 
 /** A new site starts from the company-wide rules in Settings; existing sites keep their own values. */
-function initial(site: ManagedSite | null, defaults: SettingsValues): Form {
+function initial(site: ManagedSite | null, defaults: SettingsValues, assigned: string[]): Form {
   const poly = site?.geofence.kind === "polygon";
   return {
     name: site?.name ?? "", code: site?.code ?? "", codeTouched: !!site, branchId: site?.branchId ?? "lyon", timezone: site?.timezone ?? defaults.tz,
-    address: site?.address ?? "", managers: site ? [...site.managers] : [], assigned: [], hoursStart: site?.hours.start ?? "08:00", hoursEnd: site?.hours.end ?? "16:00",
+    address: site?.address ?? "", managers: site ? [...site.managers] : [], assigned, hoursStart: site?.hours.start ?? "08:00", hoursEnd: site?.hours.end ?? "16:00",
     breakMinutes: String(site?.hours.breakMinutes ?? 30), requireSelfie: site?.requireSelfie ?? defaults.selfie, requireQr: site?.requireQr ?? defaults.qr,
     registeredDeviceOnly: site?.registeredDeviceOnly ?? false, allowOffline: site?.allowOffline ?? defaults.offline, minAccuracy: String(site?.minAccuracy ?? defaults.gps), active: site?.active ?? true,
     shape: poly ? "polygon" : "circle", center: site && !poly ? site.position : null,
@@ -76,6 +78,9 @@ export function SiteEditor({ siteId }: { siteId: string | null }) {
 function Editor({ site }: { site: ManagedSite | null }) {
   const t = useTranslations("Sites.editor");
   const tc = useTranslations("Sites");
+  const employees = useEmployees((s) => s.employees);
+  const users = useUsers((s) => s.users);
+  const managerPool = users.filter((u) => u.status === "active");
   const locale = useLocale();
   const router = useRouter();
   const toast = useToast();
@@ -84,7 +89,7 @@ function Editor({ site }: { site: ManagedSite | null }) {
   const saveSite = useSites((s) => s.saveSite);
   const defaults = useSettings((s) => s.values);
 
-  const [f, setF] = useState<Form>(() => initial(site, defaults));
+  const [f, setF] = useState<Form>(() => initial(site, defaults, site ? employees.filter((e) => e.siteIds.includes(site.id)).map((e) => e.name) : []));
   const [tried, setTried] = useState(false);
   const [satellite, setSatellite] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -167,7 +172,7 @@ function Editor({ site }: { site: ManagedSite | null }) {
     );
   };
 
-  const save = () => {
+  const save = async () => {
     setTried(true);
     if (Object.keys(errors()).length > 0 || !geofence || !position || !metrics) return;
     const geo: Geofence = geofence.kind === "polygon" ? { ...geofence, hectares: Math.round((metrics.area / 10_000) * 10) / 10 } : geofence;
@@ -177,9 +182,17 @@ function Editor({ site }: { site: ManagedSite | null }) {
       requireSelfie: f.requireSelfie, requireQr: f.requireQr, registeredDeviceOnly: f.registeredDeviceOnly, allowOffline: f.allowOffline, minAccuracy: Number(f.minAccuracy),
       active: f.active, hours: { start: f.hoursStart, end: f.hoursEnd, breakMinutes: Number(f.breakMinutes) || 0 },
     };
-    const id = saveSite(saved);
-    toast(isNew ? tc("toasts.created", { name: saved.name }) : tc("toasts.updated"));
-    router.push(`/sites/${id}`);
+    try {
+      const id = await saveSite(saved);
+      // The site call only carries the site itself; managers and assigned people are separate lists on the API.
+      const managerIds = f.managers.map((n) => users.find((u) => u.name === n)?.id).filter((x): x is string => !!x);
+      const employeeNos = f.assigned.map((n) => employees.find((e) => e.name === n)?.id).filter((x): x is string => !!x);
+      await setSiteMembers(id, { managerIds, employeeNos });
+      toast(isNew ? tc("toasts.created", { name: saved.name }) : tc("toasts.updated"));
+      router.push(`/sites/${id}`);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : tc("toasts.failed"), "info");
+    }
   };
 
   const code = f.code.trim().toUpperCase();
@@ -192,7 +205,7 @@ function Editor({ site }: { site: ManagedSite | null }) {
   };
 
   const hint = f.shape === "circle" ? (f.center ? t("hint.circleSet") : t("hint.circleEmpty")) : f.drawing ? (f.points.length < 3 ? t("hint.polyDrawing", { count: f.points.length }) : t("hint.polyClose")) : t("hint.polyEdit");
-  const empMatches = EMPLOYEES.filter((e) => e.name.toLowerCase().includes(empQuery.toLowerCase()));
+  const empMatches = employees.filter((e) => e.name.toLowerCase().includes(empQuery.toLowerCase()));
   const toggles = [
     ["requireSelfie", "selfie"], ["requireQr", "qr"], ["registeredDeviceOnly", "device"], ["allowOffline", "offline"],
   ] as const;
@@ -271,7 +284,7 @@ function Editor({ site }: { site: ManagedSite | null }) {
           <section className={cn(card, "flex flex-col gap-3 p-[18px]")}>
             <h2 className="m-0 text-[14.5px] font-semibold">{t("managers")}</h2>
             <div className="flex flex-wrap gap-1.5">
-              {MANAGER_POOL.map((m) => {
+              {managerPool.map((m) => {
                 const on = f.managers.includes(m.name);
                 return <button key={m.name} type="button" aria-pressed={on} onClick={() => set("managers", on ? f.managers.filter((n) => n !== m.name) : [...f.managers, m.name])} className={cn("h-8 rounded-full border border-solid px-3 text-[12.5px] font-medium", on ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2")}>{m.name}</button>;
               })}

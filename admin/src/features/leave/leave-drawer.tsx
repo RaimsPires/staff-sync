@@ -1,15 +1,15 @@
 "use client";
 
-import { Check, Download, Minus, Plus, X } from "lucide-react";
+import { Check, Download, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
 import { useOrg } from "@/lib/org";
-import { hashOf } from "@/features/employees/profile/profile-model";
 import { useEscape } from "@/components/ui/overlay";
 import { cn } from "@/lib/utils";
 import { type Decision, useLeave } from "@/store/leave";
+import { loadLeaveAttachments, loadLeaveCoverage, loadLeaveDetail, recommendLeave } from "@/services/leave";
 import { useAccess } from "@/store/use-access";
 import type { LeaveRequest } from "@/types/leave";
 import { DAY_MS, parseIso, STATUS_STYLE, weekdayOf } from "./model";
@@ -41,11 +41,16 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
   const all = useLeave((s) => s.requests);
   const decide = useLeave((s) => s.decide);
   const [mode, setMode] = useState<Decision | null>(null);
+  const [advice, setAdvice] = useState<"approve" | "reject" | null>(null);
   const [text, setText] = useState("");
   const [notify, setNotify] = useState(true);
-  const [page, setPage] = useState(1);
-  const [zoom, setZoom] = useState(100);
+  const [files, setFiles] = useState<{ key: string; url: string }[]>([]);
   useEscape(true, onClose);
+  // The approval trail and any rejection reason come from the detail endpoint.
+  useEffect(() => {
+    void loadLeaveDetail(r.id).catch(() => undefined);
+    if (r.attachment) void loadLeaveAttachments(r.id).then(setFiles).catch(() => undefined);
+  }, [r.id, r.attachment]);
 
   const site = org.siteById(r.site);
   const first = r.name.split(" ")[0];
@@ -66,19 +71,34 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
   const coverage = maxOff >= 2 ? "short" : maxOff === 1 ? "tight" : "good";
   const overlaps = sameBranch.filter((o) => parseIso(o.from) <= to && parseIso(o.to) >= from);
 
-  const affected: { t: number; intervention: boolean; early: boolean }[] = [];
-  for (let d = from; d <= to && affected.length < 7; d += DAY_MS) {
-    if (weekdayOf(d) >= 5) continue;
-    const h = hashOf(r.id + d) % 7;
-    affected.push({ t: d, intervention: h === 0, early: h % 2 === 0 });
-  }
+  const [shiftsOff, setShiftsOff] = useState<{ t: number; intervention: boolean; early: boolean }[]>([]);
+  useEffect(() => {
+    let live = true;
+    loadLeaveCoverage(r.id).then((list) => live && setShiftsOff(list), () => live && setShiftsOff([]));
+    return () => {
+      live = false;
+    };
+  }, [r.id]);
+  const affected = shiftsOff.slice(0, 7);
 
   const pending = r.status === "pending";
   const canDecide = pending && r.stage !== "chg" && perms.approve;
   const canCancel = r.status === "approved" && perms.approve;
+  // A site manager cannot decide, but can recommend; the approver then sees the opinion on the request.
+  const canRecommend = pending && r.stage !== "chg" && perms.recommend && !perms.approve;
   const tooShort = text.trim().length < 3;
   const needText = mode !== null && mode !== "approve";
   const day = (d: number) => format.dateTime(new Date(d), { day: "numeric", month: "short" });
+
+  const sendAdvice = () => {
+    if (!advice || tooShort) return;
+    recommendLeave(r.id, advice, text.trim()).then(
+      () => toast(t(`recommend.sent.${advice}`)),
+      (e: unknown) => toast(e instanceof Error ? e.message : t("recommend.failed"), "bad"),
+    );
+    setAdvice(null);
+    setText("");
+  };
 
   const go = () => {
     if (!mode || (needText && tooShort)) return;
@@ -105,9 +125,6 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
     .concat([{ type: "annual" as const, range: leaveFormat.range("2026-07-21", "2026-08-01"), days: "10 d", status: "approved" as const }, { type: "rtt" as const, range: leaveFormat.range("2026-08-14", "2026-08-14"), days: "1 d", status: "approved" as const }]).slice(0, 4);
 
   const weekdayShort = Array.from({ length: 7 }, (_, i) => format.dateTime(new Date(Date.UTC(2026, 9, 12 + i)), { weekday: "narrow", timeZone: "UTC" }));
-  const isPdf = r.type === "sick";
-  const w = Math.round((150 * zoom) / 100);
-  const h = Math.round((190 * zoom) / 100);
 
   return (
     <div onClick={onClose} className="fixed inset-0 z-[55] flex justify-end bg-overlay">
@@ -130,17 +147,11 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
               ))}
             </dl>
             <div className="rounded-[10px] border border-border bg-surface-2 px-3 py-2.5 text-[13px]"><div className="mb-0.5 text-[11.5px] text-text-3">{t("reasonFrom", { name: first })}</div>{t(`reasons.${r.type}`)}</div>
-            {r.attachment && (
-              <div className="overflow-hidden rounded-[10px] border border-border">
-                <div className="flex items-center gap-2 border-b border-border bg-surface-2 px-3 py-2 text-[12.5px]">
-                  <span className="flex-1 font-medium">{isPdf ? "Medical certificate.pdf" : "Event invitation.jpg"}</span>
-                  {isPdf && <><button onClick={() => setPage(Math.max(1, page - 1))} aria-label={t("previousPage")} className="size-6 rounded-md border-0 bg-transparent text-text-2">‹</button><span className="font-mono text-text-2">{page}/2</span><button onClick={() => setPage(Math.min(2, page + 1))} aria-label={t("nextPage")} className="size-6 rounded-md border-0 bg-transparent text-text-2">›</button></>}
-                  <button onClick={() => setZoom(Math.max(50, zoom - 25))} aria-label={t("zoomOut")} className="grid size-6 place-items-center rounded-md border-0 bg-transparent text-text-2"><Minus size={13} /></button>
-                  <span className="w-[38px] text-center font-mono text-text-2">{zoom}%</span>
-                  <button onClick={() => setZoom(Math.min(200, zoom + 25))} aria-label={t("zoomIn")} className="grid size-6 place-items-center rounded-md border-0 bg-transparent text-text-2"><Plus size={13} /></button>
-                  <button onClick={() => toast(t("downloadStarted"), "info")} className="flex h-6 items-center gap-1 rounded-md border border-solid border-border-strong bg-surface px-2 text-[12px] text-text"><Download size={12} />{t("download")}</button>
-                </div>
-                <div className="grid h-[190px] place-items-center overflow-auto bg-hover p-3.5"><div className="grid flex-none place-items-center rounded bg-[repeating-linear-gradient(135deg,var(--surface)_0_10px,var(--surface-2)_10px_20px)] font-mono text-[11px] text-text-3" style={{ width: isPdf ? w : Math.round(w * 1.5), height: isPdf ? h : Math.round(h * 0.8) }}>{isPdf ? t("pdfPage", { page }) : t("image")}</div></div>
+            {files.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                {files.map((f, i) => (
+                  <a key={f.key} href={f.url} target="_blank" rel="noreferrer" className="flex h-8 items-center gap-2 rounded-lg border border-solid border-border-strong bg-surface px-3 text-[12.5px] font-medium text-text no-underline hover:bg-hover"><Download size={13} />{t("attachmentFile", { n: i + 1 })}</a>
+                ))}
               </div>
             )}
           </section>
@@ -212,11 +223,32 @@ function Body({ request: r, onClose }: { request: LeaveRequest; onClose: () => v
                 <button onClick={go} disabled={needText && tooShort} className={cn("flex h-9 items-center gap-1.5 rounded-[9px] border-0 px-4 text-[13px] font-medium text-white disabled:opacity-45", mode === "approve" ? "bg-ok-dot" : mode === "changes" ? "bg-accent" : "bg-bad-dot")}>{mode === "approve" && <Check size={14} />}{t(`modes.${mode}.confirm`)}</button>
               </div>
             </>
+          ) : advice ? (
+            <>
+              <div className="text-[13.5px] font-semibold">{t(`recommend.title.${advice}`)}</div>
+              <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} autoFocus placeholder={t("recommend.placeholder", { name: first })} className="resize-y rounded-[9px] border border-solid border-border-strong bg-surface p-2.5 text-[13px] text-text outline-none focus:border-accent" />
+              <div className="flex justify-end gap-2">
+                <button onClick={() => { setAdvice(null); setText(""); }} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-3.5 text-[13px] text-text">{t("cancel")}</button>
+                <button onClick={sendAdvice} disabled={tooShort} className={cn("h-9 rounded-[9px] border-0 px-4 text-[13px] font-medium text-white disabled:opacity-45", advice === "approve" ? "bg-ok-dot" : "bg-bad-dot")}>{t("recommend.send")}</button>
+              </div>
+            </>
+          ) : canRecommend ? (
+            <div className="flex flex-col gap-2">
+              {r.recommendation && <div className="rounded-[9px] bg-surface-2 px-3 py-2 text-[12.5px] text-text-2">{t(`recommend.given.${r.recommendation.decision}`)}{r.recommendation.comment ? ` — “${r.recommendation.comment}”` : ""}</div>}
+              <div className="flex flex-wrap justify-end gap-2">
+                <button onClick={() => setAdvice("reject")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-3.5 text-[13px] font-medium text-bad">{t("recommend.against")}</button>
+                <button onClick={() => setAdvice("approve")} className="h-9 rounded-[9px] border-0 bg-ok-dot px-4 text-[13px] font-medium text-white">{t("recommend.for")}</button>
+              </div>
+              <div className="text-center text-[12px] text-text-3">{t("recommend.note")}</div>
+            </div>
           ) : canDecide ? (
+            <div className="flex flex-col gap-2">
+              {r.recommendation && <div className="rounded-[9px] bg-surface-2 px-3 py-2 text-[12.5px] text-text-2">{t(`recommend.given.${r.recommendation.decision}`)}{r.recommendation.comment ? ` — “${r.recommendation.comment}”` : ""}</div>}
             <div className="flex flex-wrap justify-end gap-2">
               <button onClick={() => setMode("changes")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-3.5 text-[13px] font-medium text-text">{t("modes.changes.title")}</button>
               <button onClick={() => setMode("reject")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-3.5 text-[13px] font-medium text-bad">{t("modes.reject.title")}</button>
               <button onClick={() => setMode("approve")} className="h-9 rounded-[9px] border-0 bg-ok-dot px-4 text-[13px] font-medium text-white">{t("modes.approve.title")}</button>
+            </div>
             </div>
           ) : canCancel ? (
             <div className="flex justify-end"><button onClick={() => setMode("cancel")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-3.5 text-[13px] font-medium text-bad">{t("modes.cancel.title")}</button></div>

@@ -16,9 +16,10 @@ export interface Workspace {
   role: Role;
   /** Branch or site name; omitted when the role covers the whole company. */
   scopeName?: string;
-  employees: number;
-  sites: number;
-  lastAccess: LastAccess;
+  /** Headcount and site count; unknown until the company's own data is loaded. */
+  employees?: number;
+  sites?: number;
+  lastAccess?: LastAccess;
   isLastUsed?: boolean;
   /** Trial ended: the workspace cannot be opened until a plan is chosen. */
   suspended?: boolean;

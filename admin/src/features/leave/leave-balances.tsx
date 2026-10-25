@@ -2,13 +2,15 @@
 
 import { ChevronLeft, ChevronRight, Download, Minus, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/misc";
 import { Modal } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
 import { useOrg } from "@/lib/org";
-import { hashOf } from "@/features/employees/profile/profile-model";
+import { adjustBalance, loadBalances } from "@/services/leave";
+import { alertRoleOf } from "@/services/alerts";
+import { useEmployees } from "@/store/employees";
 import { exportCsv } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useLeave } from "@/store/leave";
@@ -31,9 +33,10 @@ export function LeaveBalances() {
   const tRoles = useTranslations("Alerts.roles");
   const toast = useToast();
   const { siteIds } = useAccess();
-  const requests = useLeave((s) => s.requests);
+  const balances = useLeave((s) => s.balances);
+  const employees = useEmployees((s) => s.employees);
 
-  const [year, setYear] = useState(2026);
+  const [year, setYear] = useState(new Date().getFullYear());
   const [query, setQuery] = useState("");
   const [branch, setBranch] = useState("all");
   const [site, setSite] = useState("all");
@@ -42,24 +45,22 @@ export function LeaveBalances() {
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
   const [adjusting, setAdjusting] = useState<{ name: string; type: LeaveType; days: string; reason: string; tried: boolean } | null>(null);
 
-  const people = useMemo(() => [...new Map(requests.filter((r) => siteIds.includes(r.site)).map((r) => [r.name, { name: r.name, site: r.site, role: r.role }])).values()], [requests, siteIds]);
+  const people = useMemo(
+    () => employees.filter((e) => e.status !== "deactivated" && e.siteIds[0] && siteIds.includes(e.siteIds[0])).map((e) => ({ name: e.name, site: e.siteIds[0], role: alertRoleOf(e.title) })),
+    [employees, siteIds],
+  );
+  // Each year is loaded when it is first shown.
+  useEffect(() => {
+    void loadBalances(year).catch(() => undefined);
+  }, [year]);
   const types = type === "all" ? balanceTypes : [type];
 
+  const rowOf = (name: string, tp: LeaveType, y: number) => balances[`${name}|${tp}|${y}`];
   const balance = (name: string, tp: LeaveType, y: number): Balance => {
-    const adj = adjustments.filter((a) => a.year === y && a.name === name && a.type === tp).reduce((sum, a) => sum + a.days, 0);
-    const entitled = leaveTypes.get(tp).allowance + adj;
-    const h = hashOf(name + tp + y);
-    const raw = tp === "annual" ? 8 + (h % 10) : tp === "rtt" ? h % 5 : tp === "sick" ? h % 3 : h % 2;
-    let used = Math.min(entitled, Math.round(raw * (y === 2026 && tp === "annual" ? 0.8 : 1)));
-    let pending = 0;
-    if (y === 2026) {
-      requests.filter((r) => r.name === name && r.type === tp && r.from.startsWith("2026")).forEach((r) => {
-        if (r.status === "approved" && r.from > "2026-10-15") used += r.days;
-        else if (r.status === "pending") pending += r.days;
-      });
-    }
-    if (y === 2027) { used = 0; pending = 0; }
-    return { entitled, used, pending, remaining: entitled - used - pending };
+    const row = rowOf(name, tp, y);
+    if (row) return { entitled: row.entitled + row.adjusted, used: row.used, pending: row.pending, remaining: row.remaining };
+    const allowance = leaveTypes.get(tp).allowance;
+    return { entitled: allowance, used: 0, pending: 0, remaining: allowance };
   };
   const isLow = (name: string) => types.some((tp) => balance(name, tp, year).remaining <= (tp === "annual" ? 3 : 1));
 
@@ -83,9 +84,16 @@ export function LeaveBalances() {
   const okDelta = !Number.isNaN(delta) && delta !== 0;
   const okReason = !!adjusting && adjusting.reason.trim().length >= 3;
   const bump = (d: number) => adjusting && setAdjusting({ ...adjusting, days: round1((parseFloat(adjusting.days) || 0) + d) });
-  const apply = () => {
+  const apply = async () => {
     if (!adjusting) return;
     if (!okDelta || !okReason) return setAdjusting({ ...adjusting, tried: true });
+    const row = rowOf(adjusting.name, adjusting.type, year);
+    if (!row) return toast(t("adjustFailed"), "bad");
+    try {
+      await adjustBalance(row.id, delta, adjusting.reason.trim(), year);
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("adjustFailed"), "bad");
+    }
     setAdjustments((a) => [{ name: adjusting.name, type: adjusting.type, days: delta, reason: adjusting.reason.trim(), year }, ...a]);
     toast(t("adjusted", { type: leaveTypes.label(adjusting.type), days: `${delta > 0 ? "+" : "−"}${round1(Math.abs(delta))}` }));
     setAdjusting(null);

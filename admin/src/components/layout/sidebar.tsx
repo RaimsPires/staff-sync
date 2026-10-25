@@ -14,6 +14,7 @@ import { useSession } from "@/store/session";
 import { localized } from "@/lib/plans";
 import { usePresence } from "@/lib/use-presence";
 import { useCurrentPlan, usePlans } from "@/store/plans";
+import { totalUnread, useChat } from "@/services/chat";
 import { useAccess } from "@/store/use-access";
 
 
@@ -32,7 +33,9 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const collapsed = hydrated && storedCollapsed;
   const backdrop = usePresence(open, 200);
 
+  const chatUnread = useChat((s) => totalUnread(s.conversations));
   const counts = {
+    chat: chatUnread,
     alerts: today.filter((r) => siteIds.includes(r.site) && ((r.flag && !r.cleared && !r.fraud) || r.status === "missing")).length,
     leave: pendingIn(leaveRequests, siteIds).length,
   };

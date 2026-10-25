@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { downloadText, toCsv } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useEmployees } from "@/store/employees";
-import { CSV_HEADERS, CSV_TEMPLATE, DEFAULT_MAP, IMPORT_FIELDS, rowToEmployee, SAMPLE_CSV, validateRows, type ColumnMap, type ImportField } from "./model";
+import { CSV_HEADERS, CSV_TEMPLATE, DEFAULT_MAP, IMPORT_FIELDS, draftFromEmployee, rowToEmployee, SAMPLE_CSV, validateRows, type ColumnMap, type ImportField } from "./model";
 
 const STEPS = ["upload", "map", "preview", "result"] as const;
 
@@ -42,7 +42,8 @@ function Wizard({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const org = useOrg();
   const employees = useEmployees((s) => s.employees);
-  const addMany = useEmployees((s) => s.addMany);
+  const upsert = useEmployees((s) => s.upsert);
+  const [busy, setBusy] = useState(false);
 
   const [step, setStep] = useState(1);
   const [fileName, setFileName] = useState("");
@@ -71,16 +72,28 @@ function Wizard({ onClose }: { onClose: () => void }) {
     setMap({ name: guess(["name", "nom"], 0), id: guess(["id"], 1), phone: guess(["phone", "mobile", "tel"], 2), branch: guess(["branch", "agence"], 3), site: guess(["site"], 4), title: guess(["title", "role", "job", "poste"], 5) });
   };
 
-  const next = () => {
+  const next = async () => {
     if (step === 1 && fileName) setStep(2);
     else if (step === 2 && !missingRequired) setStep(3);
     else if (step === 3 && ok.length > 0) {
-      addMany(ok.map((p) => rowToEmployee(p, org)));
-      setImported(ok.length);
+      // One employee at a time so a bad row (for example a phone number without a country code) doesn't stop the others.
+      setBusy(true);
+      let done = 0;
+      for (const p of ok) {
+        try {
+          await upsert(draftFromEmployee(rowToEmployee(p, org)));
+          done += 1;
+        } catch {
+          // counted below
+        }
+      }
+      setBusy(false);
+      if (done < ok.length) toast(t("someFailed", { count: ok.length - done }), "bad");
+      setImported(done);
       setStep(4);
     } else if (step === 4) onClose();
   };
-  const disabled = (step === 1 && !fileName) || (step === 2 && missingRequired) || (step === 3 && ok.length === 0);
+  const disabled = busy || (step === 1 && !fileName) || (step === 2 && missingRequired) || (step === 3 && ok.length === 0);
   const label = step === 3 ? t("importCount", { count: ok.length }) : t(`next.${step}`);
 
   return (

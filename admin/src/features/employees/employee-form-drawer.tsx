@@ -1,7 +1,6 @@
 "use client";
 
-import { Printer, RefreshCw, TriangleAlert } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,21 +38,19 @@ interface Form {
   siteIds: string[];
   smartphone: boolean;
   selfie: Employee["selfie"];
-  pin: string;
   policy: LeavePolicy;
   balances: Record<string, number>;
   sms: boolean;
   mail: boolean;
 }
 
-const newPin = () => String(1000 + Math.floor(Math.random() * 9000));
 
 function initialForm(emp: Employee | null, balances: Record<string, number>): Form {
   const [first = "", ...rest] = emp ? emp.name.split(" ") : [];
   return {
     first, last: rest.join(" "), idMode: emp ? "manual" : "auto", id: emp?.id ?? "", phone: emp && emp.phone !== "—" ? emp.phone : "", email: emp?.email ?? "",
     branchId: emp?.branchId ?? "", title: emp?.title ?? "", access: emp?.access ?? "employee", scope: "", startDate: emp?.startDate ?? "", contract: emp?.contract ?? "cdi",
-    siteIds: emp ? [...emp.siteIds] : [], smartphone: emp ? emp.app !== "none" : true, selfie: emp?.selfie ?? "inherit", pin: emp?.pin ?? newPin(),
+    siteIds: emp ? [...emp.siteIds] : [], smartphone: emp ? emp.app !== "none" : true, selfie: emp?.selfie ?? "inherit",
     policy: "std", balances: { ...balances }, sms: true, mail: false,
   };
 }
@@ -107,14 +104,19 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
   const err = (k: string) => (errs[k] ? t(`errors.${errs[k]}`) : undefined);
   const errCount = Object.keys(errs).length;
 
-  const save = (another: boolean) => {
+  const save = async (another: boolean) => {
     setTried(true);
     if (Object.keys(errors()).length > 0 || atLimit || f.title === "") return;
     const draft: EmployeeDraft = {
       id: finalId, name: `${f.first.trim()} ${f.last.trim()}`, branchId: f.branchId, siteIds: f.siteIds, title: f.title, phone: f.phone.trim(), email: f.email || undefined,
-      smartphone: f.smartphone, invite: f.smartphone && (f.sms || f.mail), access: f.access, contract: f.contract, startDate: f.startDate, selfie: f.selfie, pin: f.pin,
+      smartphone: f.smartphone, invite: f.smartphone && (f.sms || f.mail), access: f.access, contract: f.contract, startDate: f.startDate, selfie: f.selfie,
     };
-    upsert(draft, employee?.id);
+    try {
+      await upsert(draft, employee?.id);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("saveFailed"), "info");
+      return;
+    }
     toast(isAdd ? t("added", { name: draft.name }) + (draft.invite ? ` · ${t("inviteSent")}` : "") : t("updated", { name: draft.name }));
     if (another) {
       setF(initialForm(null, policyBalances("std", leaveTypes.types)));
@@ -281,24 +283,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
             <Switch checked={f.smartphone} onChange={(v) => set("smartphone", v)} label={t("hasSmartphone")} />
           </div>
           {!f.smartphone && (
-            <div className="flex items-center gap-4 rounded-xl border border-border bg-surface-2 p-4">
-              <div className="rounded-lg bg-white p-2">
-                <QRCodeSVG value={`staffsync://badge/${finalId}?pin=${f.pin}`} size={96} level="M" />
-              </div>
-              <div className="flex-1">
-                <div className="text-[13px] font-semibold">{t("badge")}</div>
-                <div className="mb-2 text-[12.5px] text-text-3">{t("badgeHint")}</div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 font-mono text-[18px] font-semibold tracking-[0.2em]">{f.pin}</span>
-                  <button type="button" onClick={() => set("pin", newPin())} title={t("newPin")} aria-label={t("newPin")} className="grid size-8 place-items-center rounded-lg border border-solid border-border-strong bg-surface text-text-2">
-                    <RefreshCw size={14} />
-                  </button>
-                  <button type="button" onClick={() => toast(t("badgePrinted"))} className="flex h-8 items-center gap-1.5 rounded-lg border border-solid border-border-strong bg-surface px-2.5 text-[12.5px] font-medium text-text">
-                    <Printer size={14} /> {t("print")}
-                  </button>
-                </div>
-              </div>
-            </div>
+            <div className="rounded-xl border border-border bg-surface-2 p-4 text-[12.5px] text-text-3">{t("badgeAfterSave")}</div>
           )}
           <div className="flex flex-col gap-1.5">
             <span className="text-[13px] font-medium">{t("selfie")}</span>

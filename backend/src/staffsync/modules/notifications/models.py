@@ -19,3 +19,4 @@ class Notification(IdMixin, TimestampMixin, TenantMixin, SQLModel, table=True):
     href: str | None = None
     payload: dict = Field(default_factory=dict, sa_column=Column(JSONB, nullable=False, server_default="{}"))
     read_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))
+    pushed_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))  # when the phone was notified

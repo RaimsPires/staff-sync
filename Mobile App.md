@@ -269,3 +269,15 @@ Most problems come from location settings, a changed phone, or a forgotten check
 | I don't have a smartphone | Your site manager checks you in with your badge or PIN |
 
 Is my location tracked all day? No. Location is read only to show distance on the map while the app is open, to send the arrival prompt if enabled, and at the moment of check-in or check-out.
+
+## Appendix: running against the real backend (Oct 24, 2026)
+
+- `mobile/.env` holds `EXPO_PUBLIC_API_URL` (the API on your computer's LAN address, ending in `/api/v1`) and `EXPO_PUBLIC_USE_MOCK` (`0` for the real API, `1` for built-in demo data). The file is not committed.
+- Native modules are compiled into the app. After adding or upgrading a package that has native code (for example the date picker), rebuild with `npx expo run:ios`; reloading JavaScript is not enough and the app will crash on launch.
+- Sign-in is e-mail or phone number plus password, then a one-time code sent to the account's e-mail address (by SMS when there is none). An account without a password signs in with the code alone once and is asked to create a password straight after.
+- The Messages tab holds direct conversations with colleagues and the group of each site the person is assigned to, with photos, videos and PDFs, live over a WebSocket and by push notification.
+- A `426` answer from the API shows a blocking "Update required" screen.
+- Proxy check-ins carry one idempotency key per attempt, and queued ones reuse the queue id, so a retry never records twice.
+- A check-in outside any shift gets `UNSCHEDULED`; the app offers "check in anyway" and sends it flagged for review.
+- Leave and correction attachments upload through the API's upload endpoints; the push token is registered after the user allows notifications.
+- Without `S3_BUCKET` the backend keeps uploaded files on its own disk (`LOCAL_STORAGE_DIR`), so they work in development; set the bucket in production.

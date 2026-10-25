@@ -1,4 +1,4 @@
-import { QR_RECORD_IDS, DEMO_TODAY } from "@/data/live";
+import { DEMO_TODAY } from "@/data/live";
 import type { Org } from "@/lib/org";
 import { parseTime } from "@/lib/time";
 import type { AttendanceRecord, RecordStatus } from "@/types/domain";
@@ -17,7 +17,7 @@ export const statusOf = (r: AttendanceRecord): RecordStatus => (r.fraud ? "flagg
 
 export function methodOf(r: AttendanceRecord): Method {
   if (r.method === "behalf") return "proxy";
-  if (r.method === "qr" || (r.method === "app" && r.date === DEMO_TODAY && QR_RECORD_IDS.includes(r.id))) return "qr";
+  if (r.method === "qr") return "qr";
   return r.method;
 }
 

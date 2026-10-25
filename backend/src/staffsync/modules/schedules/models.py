@@ -7,6 +7,9 @@ from sqlmodel import Column, Field, Integer, SQLModel
 
 from staffsync.common.models import IdMixin, SoftDeleteMixin, TenantMixin, TimestampMixin
 
+# Shift statuses that count as real: draft shifts belong to an unpublished schedule and are only visible in the planner.
+LIVE_SHIFT = ("scheduled", "on_leave")
+
 
 class Schedule(IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin, SQLModel, table=True):
     __tablename__ = "schedules"
@@ -55,7 +58,7 @@ class Shift(IdMixin, TimestampMixin, TenantMixin, SQLModel, table=True):
     early_leave_tol_min: int = 10
     break_min: int = 0
     is_intervention: bool = False
-    status: str = "scheduled"  # scheduled | on_leave | cancelled
+    status: str = "scheduled"  # draft | scheduled | on_leave | cancelled
     exception: bool = False  # moved/resized individually
     updated_by_admin: bool = False
     previous_starts_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))

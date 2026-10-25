@@ -63,6 +63,8 @@ class RecordRead(BaseModel):
     flag_outcome: str | None
     employee_comment: str | None
     admin_note: str | None
+    approved_by: str | None = None  # who signed the record off (flag review or a plain approval)
+    approved_at: datetime | None = None
     offline_synced: bool
     distance_m: float | None = None
     in_accuracy_m: float | None = None
@@ -143,6 +145,8 @@ class NoteIn(BaseModel):
 
 
 class RosterRow(BaseModel):
+    approved_by: str | None = None
+    approved_at: datetime | None = None
     employee_id: UUID
     name: str
     phone: str | None

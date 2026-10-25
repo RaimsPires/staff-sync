@@ -1,4 +1,4 @@
-export type ReportType = "timesheet" | "hours" | "lateness" | "absences" | "overtime" | "leave" | "flagged" | "site" | "proxy";
+export type ReportType = "timesheet" | "hours" | "lateness" | "absences" | "overtime" | "flagged" | "site" | "proxy";
 export type GroupBy = "employee" | "site" | "branch" | "day";
 export type RangeKey = "month" | "last" | "7" | "q" | "custom";
 export type ExportKind = "csv" | "xlsx" | "pdf";

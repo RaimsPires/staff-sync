@@ -46,5 +46,4 @@ export interface EmployeeDraft {
   contract: Contract;
   startDate: string;
   selfie: Employee["selfie"];
-  pin: string;
 }

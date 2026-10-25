@@ -19,6 +19,9 @@ type Mode = 'phone' | 'email';
 
 export function errorKey(e: unknown): string {
   if (e instanceof AppError) {
+    if (e.code === 'PASSWORD_REQUIRED') return 'auth.passwordRequired';
+    if (e.code === 'INVALID_CREDENTIALS') return 'auth.wrongPassword';
+    if (e.code === 'ACCOUNT_LOCKED') return 'auth.accountLocked';
     if (e.code === 'ACCOUNT_NOT_FOUND') return 'auth.notInvitedBody';
     if (e.code === 'ACCOUNT_DISABLED') return 'auth.deactivatedBody';
   }
@@ -44,6 +47,9 @@ export function LoginScreen() {
   const [pickingCountry, setPickingCountry] = useState(false);
   const [local, setLocal] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string>();
   const [invalid, setInvalid] = useState(false);
   const [busy, setBusy] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -57,16 +63,20 @@ export function LoginScreen() {
     const mail = mode === 'email' ? emailSchema.safeParse(email) : undefined;
     if (mode === 'phone' ? !phone : !mail?.success) return setInvalid(true);
     setInvalid(false);
+    // New accounts have no password yet and create one after the first code; everyone else must type it.
+    setPasswordError(undefined);
 
     const identifier = phone ? phone.e164 : (mail?.data as string);
     const display = phone ? maskPhone(country.dial, phone.national) : maskEmail(mail?.data as string);
     setBusy(true);
     try {
-      await repos.auth.requestOtp(identifier);
-      setFlow({ identifier, display, mode });
+      const { passwordSetupRequired } = await repos.auth.requestOtp(identifier, password || undefined);
+      setFlow({ identifier, password, display, mode, passwordSetupRequired });
       router.push('/otp');
     } catch (e) {
-      if (e instanceof AppError && e.code === 'ACCOUNT_NOT_FOUND') router.push('/not-invited');
+      if (e instanceof AppError && (e.code === 'PASSWORD_REQUIRED' || e.code === 'INVALID_CREDENTIALS' || e.code === 'ACCOUNT_LOCKED')) {
+        setPasswordError(t(errorKey(e)));
+      } else if (e instanceof AppError && e.code === 'ACCOUNT_NOT_FOUND') router.push('/not-invited');
       else if (e instanceof AppError && e.code === 'ACCOUNT_DISABLED') router.push({ pathname: '/deactivated', params: { company: e.meta?.company ?? '' } });
       else setInvalid(true);
     } finally {
@@ -173,6 +183,41 @@ export function LoginScreen() {
           <Text variant="caption" tone="muted">{mode === 'phone' ? t('auth.smsHint') : t('auth.mailHint')}</Text>
         )}
       </View>
+      <View style={styles.field}>
+        <Text variant="caption" style={styles.label}>{t('auth.passwordLabel')}</Text>
+        <View>
+          <TextInput
+            value={password}
+            onChangeText={(v) => {
+              setPassword(v);
+              setPasswordError(undefined);
+            }}
+            placeholder={t('auth.passwordPlaceholder')}
+            placeholderTextColor={colors.muted}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="go"
+            onSubmitEditing={() => void submit()}
+            accessibilityLabel={t('auth.passwordLabel')}
+            style={[styles.input, styles.passwordInput, { backgroundColor: colors.card, color: colors.ink, borderColor: passwordError ? colors.danger : colors.fieldBorder }]}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+            onPress={() => setShowPassword((v) => !v)}
+            style={styles.eye}>
+            <Text variant="subheading" tone="primary">{showPassword ? t('auth.hide') : t('auth.show')}</Text>
+          </Pressable>
+        </View>
+        {passwordError ? (
+          <Text variant="caption" tone="danger" accessibilityRole="alert">{passwordError}</Text>
+        ) : (
+          <Text variant="caption" tone="muted">{t('auth.passwordHint')}</Text>
+        )}
+      </View>
       <CountryPicker
         visible={pickingCountry}
         selected={countryCode}
@@ -199,6 +244,8 @@ const styles = StyleSheet.create({
   dialText: { fontSize: 18, fontWeight: '700' },
   input: { height: 60, borderRadius: radius.field, borderWidth: 2, paddingHorizontal: spacing.lg, fontSize: 18, fontWeight: '600' },
   phoneInput: { flex: 1, minWidth: 0, fontSize: 20 },
+  passwordInput: { paddingRight: 84 },
+  eye: { position: 'absolute', right: 0, top: 0, bottom: 0, minWidth: 72, alignItems: 'center', justifyContent: 'center' },
   flag: { fontSize: 20 },
   trouble: { alignItems: 'center', justifyContent: 'center', minHeight: 44, paddingVertical: spacing.sm },
 });

@@ -99,6 +99,8 @@ class DeleteScheduleIn(BaseModel):
 class ShiftMove(BaseModel):
     starts_at: datetime | None = None
     ends_at: datetime | None = None
+    employee_id: UUID | None = None
+    site_id: UUID | None = None
     notify: bool = True
 
 

@@ -28,7 +28,10 @@ EXPR = {
 }
 
 
-async def build(ctx: RequestContext, rtype: str, date_from: date, date_to: date, group_by: str, site_ids: list[UUID] | None, columns: list[str] | None) -> dict:
+async def build(
+    ctx: RequestContext, rtype: str, date_from: date, date_to: date, group_by: str, site_ids: list[UUID] | None, columns: list[str] | None,
+    branch_ids: list[UUID] | None = None, employee_ids: list[UUID] | None = None,
+) -> dict:
     if rtype not in TYPES or group_by not in GROUPS:
         raise ValidationFailed("Unknown report type or grouping")
     if (date_to - date_from).days > 366:
@@ -40,10 +43,15 @@ async def build(ctx: RequestContext, rtype: str, date_from: date, date_to: date,
     sql = (f"SELECT {key} AS key, {label} AS label, " + ", ".join(f"{EXPR[c]} AS {c}" for c in cols) +
            " FROM attendance_records r JOIN sites s ON s.id=r.site_id JOIN branches b ON b.id=s.branch_id JOIN employees e ON e.id=r.employee_id JOIN users u ON u.id=e.user_id "
            f"WHERE r.company_id=:cid AND r.deleted_at IS NULL AND {TYPES[rtype]['where']} AND (r.occurred_at AT TIME ZONE s.timezone)::date BETWEEN :d1 AND :d2 "
-           + ("AND r.site_id = ANY(:sites) " if sites is not None else "") + "GROUP BY 1, 2 ORDER BY 2")
+           + ("AND r.site_id = ANY(:sites) " if sites is not None else "") + ("AND s.branch_id = ANY(:branches) " if branch_ids else "")
+           + ("AND r.employee_id = ANY(:emps) " if employee_ids else "") + "GROUP BY 1, 2 ORDER BY 2")
     params: dict = {"cid": ctx.company_id, "d1": date_from, "d2": date_to}
     if sites is not None:
         params["sites"] = sites or [UUID(int=0)]
+    if branch_ids:
+        params["branches"] = branch_ids
+    if employee_ids:
+        params["emps"] = employee_ids
     rows = [dict(r._mapping) for r in (await ctx.session.execute(text(sql), params)).all()]
     for r in rows:
         r["key"] = str(r["key"])
@@ -53,13 +61,48 @@ async def build(ctx: RequestContext, rtype: str, date_from: date, date_to: date,
     return {"type": rtype, "group_by": group_by, "columns": cols, "rows": rows, "totals": totals}
 
 
-async def export(ctx: RequestContext, report: dict, fmt: str) -> str:
+async def file_for(ctx: RequestContext, report: dict, fmt: str) -> tuple[bytes, str]:
+    """The report as a file: -> (bytes, media type). Used by exports and by the scheduled e-mails."""
     from staffsync.modules.attendance.admin import to_csv, to_xlsx
 
     flat = [{"group": r["label"], **{c: r[c] for c in report["columns"]}} for r in report["rows"]] or [{"group": ""}]
     if fmt == "pdf":
-        raise ValidationFailed("PDF export is not available on this server", code="PDF_UNAVAILABLE")
-    data = to_xlsx(flat) if fmt == "xlsx" else to_csv(flat)
+        return await to_pdf(report), MEDIA["pdf"]
+    return (to_xlsx(flat) if fmt == "xlsx" else to_csv(flat)), MEDIA.get(fmt, MEDIA["csv"])
+
+
+MEDIA = {"csv": "text/csv", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "pdf": "application/pdf"}
+
+
+async def to_pdf(report: dict) -> bytes:
+    """A simple printable table: title, one row per group, totals at the bottom."""
+    import asyncio
+    import html
+
+    cols = report["columns"]
+    head = "".join(f"<th>{html.escape(c.replace('_', ' ').title())}</th>" for c in cols)
+    fmt = lambda v: f"{v:g}" if isinstance(v, (int, float)) else html.escape(str(v))  # noqa: E731
+    body = "".join(f"<tr><td>{html.escape(str(r['label']))}</td>" + "".join(f"<td class=n>{fmt(r[c])}</td>" for c in cols) + "</tr>" for r in report["rows"])
+    total = "<tr class=t><td>Total</td>" + "".join(f"<td class=n>{fmt(report['totals'][c])}</td>" for c in cols) + "</tr>"
+    page = (
+        "<html><head><meta charset=utf-8><style>@page{size:A4 landscape;margin:18mm}body{font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#111}"
+        "h1{font-size:18px;margin:0 0 4px}p{color:#555;margin:0 0 14px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:5px 8px;text-align:left}"
+        "th{background:#f3f4f6;font-size:10px;text-transform:uppercase;letter-spacing:.04em}.n{text-align:right}.t td{font-weight:700;border-top:2px solid #111}</style></head><body>"
+        f"<h1>{html.escape(report['type'].replace('_', ' ').title())}</h1><p>Grouped by {html.escape(report['group_by'])}</p>"
+        f"<table><thead><tr><th>{html.escape(report['group_by'].title())}</th>{head}</tr></thead><tbody>{body}{total}</tbody></table></body></html>"
+    )
+
+    def render() -> bytes:
+        from weasyprint import HTML
+
+        return HTML(string=page).write_pdf()
+
+    return await asyncio.to_thread(render)
+
+
+async def export(ctx: RequestContext, report: dict, fmt: str) -> str:
+
+    data, _ = await file_for(ctx, report, fmt)
     eid = uuid4().hex
     await get_redis().set(f"export:{ctx.company_id}:{eid}", json.dumps({"fmt": fmt}), ex=7 * 86400)
     import base64

@@ -1,5 +1,6 @@
 "use client";
 
+import { useHeadcounts } from "./use-headcounts";
 import { Archive, ChevronDown, ChevronRight, Pencil, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -23,6 +24,7 @@ const sum = (sites: ManagedSite[], k: "employees" | "expected" | "present") => s
 const tone = (rate: number) => (rate >= 93 ? "var(--ok-dot)" : rate >= 85 ? "var(--warn-dot)" : "var(--bad-dot)");
 
 export function BranchesScreen() {
+  useHeadcounts();
   const t = useTranslations("Sites.branches");
   const toast = useToast();
   const { perms } = useAccess();
@@ -186,14 +188,18 @@ function BranchForm({ target, onClose, onSaved }: { target: ManagedBranch | "new
   }, [d, others]);
   const err = (k: string) => (tried && errors[k] ? t(`errors.${errors[k]}`) : undefined);
 
-  const save = () => {
+  const save = async () => {
     setTried(true);
     if (Object.keys(errors).length > 0) return;
     const id = isNew ? `b-${d.code.trim().toLowerCase()}` : d.id;
-    saveBranch({ ...d, id, name: d.name.trim(), code: d.code.trim(), address: d.address.trim() });
-    toast(isNew ? t("created", { name: d.name.trim() }) : t("updated"));
-    onSaved(id);
-    onClose();
+    try {
+      const savedId = await saveBranch({ ...d, id, name: d.name.trim(), code: d.code.trim(), address: d.address.trim() });
+      toast(isNew ? t("created", { name: d.name.trim() }) : t("updated"));
+      onSaved(savedId);
+      onClose();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("failed"), "info");
+    }
   };
   return (
     <Modal open onClose={onClose} title={isNew ? t("addTitle") : t("editTitle")} className="max-w-[560px]" footer={<><Button onClick={onClose}>{tb("cancel")}</Button><Button variant="primary" onClick={save}>{isNew ? t("create") : t("save")}</Button></>}>

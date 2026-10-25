@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { WEBHOOK_EVENTS } from "@/data/settings";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/store/settings";
+import { useSyncError } from "@/store/sync-error";
 import type { ApiKey, Webhook } from "@/types/settings";
 import { EditFieldsModal, useOptionLabel } from "./form-card";
 import { SSO_OPTIONS, type FieldSpec } from "./model";
@@ -33,7 +34,7 @@ function KeyModal({ onClose }: { onClose: () => void }) {
   const bad = !name.trim();
   return (
     <Modal open onClose={onClose} title={t(secret ? "createdTitle" : "createTitle")} className="max-w-[460px]"
-      footer={secret ? <Button variant="primary" onClick={onClose}>{t("done")}</Button> : <><Button onClick={onClose}>{tc("cancel")}</Button><Button variant="primary" onClick={() => (bad ? setTried(true) : setSecret(createKey(name.trim())))}>{t("create")}</Button></>}>
+      footer={secret ? <Button variant="primary" onClick={onClose}>{t("done")}</Button> : <><Button onClick={onClose}>{tc("cancel")}</Button><Button variant="primary" onClick={() => (bad ? setTried(true) : void createKey(name.trim()).then(setSecret, (e: unknown) => useSyncError.getState().report(e instanceof Error ? e.message : t("failed"))))}>{t("create")}</Button></>}>
       {secret ? (
         <div className="flex flex-col gap-3"><div className="rounded-[10px] bg-warn-bg px-3 py-2.5 text-[13px] text-warn">{t("copyNow")}</div><SecretBox label={t("secret")} value={secret} /></div>
       ) : (
@@ -56,7 +57,7 @@ function HookModal({ onClose }: { onClose: () => void }) {
   const badEvents = events.length === 0;
   return (
     <Modal open onClose={onClose} title={t(secret ? "createdTitle" : "addTitle")} className="max-w-[460px]"
-      footer={secret ? <Button variant="primary" onClick={onClose}>{t("done")}</Button> : <><Button onClick={onClose}>{tc("cancel")}</Button><Button variant="primary" onClick={() => (badUrl || badEvents ? setTried(true) : setSecret(addHook(url.trim(), events)))}>{t("add")}</Button></>}>
+      footer={secret ? <Button variant="primary" onClick={onClose}>{t("done")}</Button> : <><Button onClick={onClose}>{tc("cancel")}</Button><Button variant="primary" onClick={() => (badUrl || badEvents ? setTried(true) : void addHook(url.trim(), events).then(setSecret, (e: unknown) => useSyncError.getState().report(e instanceof Error ? e.message : t("failed"))))}>{t("add")}</Button></>}>
       {secret ? (
         <div className="flex flex-col gap-3"><div className="rounded-[10px] bg-warn-bg px-3 py-2.5 text-[13px] text-warn">{t("copyNow")}</div><SecretBox label={t("secret")} value={secret} /></div>
       ) : (

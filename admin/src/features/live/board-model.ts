@@ -1,4 +1,3 @@
-import { QR_RECORD_IDS } from "@/data/live";
 import type { AttendanceRecord } from "@/types/domain";
 
 /** Where an employee is right now, independent of the day's final status. */
@@ -12,7 +11,7 @@ export const isFlagged = (r: AttendanceRecord): boolean => !!r.flag && !r.cleare
 export type BoardMethod = "app" | "proxy" | "qr" | "admin" | "";
 
 export const methodOf = (r: AttendanceRecord): BoardMethod =>
-  r.method === "behalf" ? "proxy" : r.method === "qr" || (r.method === "app" && QR_RECORD_IDS.includes(r.id)) ? "qr" : r.method;
+  r.method === "behalf" ? "proxy" : r.method;
 
 /** Display order inside a site: waiting first, people on leave last. */
 export const PRESENCE_ORDER: Record<Presence, number> = { not: 0, present: 1, absent: 2, left: 3, leave: 4 };

@@ -1,9 +1,13 @@
 import { parseTime } from "@/lib/time";
 import type { JobTitle } from "@/types/employee";
 
-/** Day 0 is Monday 12 October 2026; "today" (Thu 15 Oct) is day 3. */
-export const BASE_UTC = Date.UTC(2026, 9, 12);
-export const TODAY_INDEX = 3;
+/** Day 0 is the Monday of the week the app was opened in; day indexes count from there (negative = earlier weeks). */
+const NOW = new Date();
+const LOCAL_TODAY_UTC = Date.UTC(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+export const BASE_UTC = LOCAL_TODAY_UTC - ((NOW.getDay() + 6) % 7) * 86_400_000;
+export const TODAY_INDEX = Math.round((LOCAL_TODAY_UTC - BASE_UTC) / 86_400_000);
+/** Today's date as `YYYY-MM-DD`. */
+export const TODAY_ISO = new Date(LOCAL_TODAY_UTC).toISOString().slice(0, 10);
 const DAY_MS = 86_400_000;
 
 export const dateOf = (d: number): Date => new Date(BASE_UTC + d * DAY_MS);
@@ -50,28 +54,29 @@ export interface Planned {
   site: string;
 }
 
-export const HOLIDAYS: Record<number, "allSaints" | "armistice"> = { 20: "allSaints", 30: "armistice" };
+/** Public holidays by day index. Empty until the holiday calendar is loaded from the API; the server reports holiday conflicts when publishing. */
+export const HOLIDAYS: Record<number, string> = {};
 
-/** Approved leave by employee: day indexes. */
-export const LEAVE_DAYS: Record<string, number[]> = {
-  "Karim Benali": [15, 16], "Léa Moreau": [14], "Hugo Petit": [17, 18], "Nora Diallo": [22, 23], "Sofia Rossi": [8],
-};
+/** Approved leave by employee name: day indexes. Refreshed from the leave requests (see `syncPlannerCalendar`). */
+export const LEAVE_DAYS: Record<string, number[]> = {};
 
-export const PLANNED: Planned[] = [
-  { name: "Amélie Fontaine", title: "machinist", site: "sd" }, { name: "Karim Benali", title: "forkliftOperator", site: "rl" },
-  { name: "Léa Moreau", title: "cleaner", site: "pd" }, { name: "Thomas Girard", title: "technician", site: "cf" },
-  { name: "Inès Haddad", title: "electrician", site: "pv" }, { name: "Paul Lambert", title: "driver", site: "sd" },
-  { name: "Sofia Rossi", title: "loader", site: "rl" }, { name: "Hugo Petit", title: "machinist", site: "sd" },
-  { name: "Nora Diallo", title: "inspector", site: "cf" }, { name: "Elena Marchand", title: "cleaner", site: "cf" },
-];
-export const plannedBy = (name: string): Planned | undefined => PLANNED.find((p) => p.name === name);
+/** Rebuild `LEAVE_DAYS` and `HOLIDAYS` from approved leave and the holiday calendar. The planner re-reads them when leave changes. */
+export function syncPlannerCalendar(requests: { name: string; from: string; to: string; status: string }[], holidays: Record<string, string>): void {
+  for (const k of Object.keys(LEAVE_DAYS)) delete LEAVE_DAYS[k];
+  for (const k of Object.keys(HOLIDAYS)) delete HOLIDAYS[Number(k)];
+  for (const r of requests) {
+    if (r.status !== "approved") continue;
+    for (let d = indexOfIso(r.from); d <= indexOfIso(r.to); d++) (LEAVE_DAYS[r.name] ??= []).push(d);
+  }
+  for (const [iso, name] of Object.entries(holidays)) HOLIDAYS[indexOfIso(iso)] = name;
+}
 
-export const GROUPS: Record<string, string[]> = {
-  "Saint-Denis day crew": ["Amélie Fontaine", "Paul Lambert", "Hugo Petit"],
-  "Lyon cleaning team": ["Léa Moreau", "Elena Marchand"],
-  "Logistics loaders": ["Karim Benali", "Sofia Rossi"],
-  Technicians: ["Thomas Girard", "Inès Haddad", "Nora Diallo"],
-};
+/** Someone who can be planned: derived from the employees list. */
+export const plannedFrom = (employees: { name: string; title: JobTitle; siteIds: string[]; status: string }[]): Planned[] =>
+  employees.filter((e) => e.status !== "deactivated" && e.siteIds.length > 0).map((e) => ({ name: e.name, title: e.title, site: e.siteIds[0] }));
+
+/** Saved groups of employees. The API has none yet. */
+export const GROUPS: Record<string, string[]> = {};
 
 /** Day-view timeline: 06:00–21:00 at 56px per hour. */
 export const PX_PER_HOUR = 56;
@@ -80,33 +85,10 @@ export const DAY_END = 1260;
 export const TRACK_WIDTH = ((DAY_END - DAY_START) / 60) * PX_PER_HOUR;
 
 export function initialShifts(): Shift[] {
-  const out: Shift[] = [];
-  let n = 0;
-  const add = (d: number, emp: string, site: string, s: number, e: number, type: ShiftType, title = "") => out.push({ id: `s${n++}`, d, emp, site, s, e, type, title });
-  PLANNED.forEach((p, i) => {
-    const days = i % 3 === 2 ? [0, 1, 3] : [0, 1, 2, 3, 4];
-    const hours = i % 4 === 1 ? [600, 1080] : i % 4 === 3 ? [360, 840] : [480, 960];
-    for (let d = -14; d <= 34; d++) {
-      if (!days.includes(weekdayOf(d)) || HOLIDAYS[d]) continue;
-      if ((LEAVE_DAYS[p.name] ?? []).includes(d) && d !== 16) continue;
-      add(d, p.name, p.site, hours[0], hours[1], "rec");
-    }
-  });
-  add(15, "Amélie Fontaine", "sd", 1020, 1200, "int", "Night prep");
-  add(16, "Thomas Girard", "cf", 780, 1020, "int", "Chiller repair");
-  add(17, "Inès Haddad", "pv", 1020, 1140, "int", "Evening crane check");
-  add(9, "Paul Lambert", "sd", 1020, 1140, "int", "Fleet check");
-  add(21, "Hugo Petit", "sd", 1020, 1140, "int", "Press maintenance");
-  return out;
+  return [];
 }
 
-export const INITIAL_INTERVENTIONS: OpenIntervention[] = [
-  { id: "u1", title: "Boiler failure", site: "pd", d: 14, s: 840, e: 1080 },
-  { id: "u2", title: "Evening patrol", site: "sd", d: 15, s: 1080, e: 1380 },
-  { id: "u3", title: "Dock inspection", site: "pv", d: 17, s: 540, e: 660 },
-  { id: "u4", title: "Fire-door audit", site: "cf", d: 16, s: 600, e: 720 },
-  { id: "u5", title: "Cargo scan", site: "rl", d: 18, s: 420, e: 600 },
-];
+export const INITIAL_INTERVENTIONS: OpenIntervention[] = [];
 
 export type Conflict = { kind: "leave"; emp: string } | { kind: "overlap"; site: string; from: number; to: number };
 

@@ -54,12 +54,15 @@ class MfaVerifyIn(BaseModel):
 
 
 class OtpRequestIn(BaseModel):
-    identifier: str = Field(min_length=3, max_length=200)
+    identifier: str = Field(min_length=3, max_length=200)  # e-mail address or phone number
+    password: str | None = Field(default=None, max_length=128)  # required once the account has one
 
 
 class OtpRequestOut(BaseModel):
     sent: bool = True
     resend_after_s: int
+    # The account has no password yet: the app asks for one right after the code is confirmed.
+    password_setup_required: bool = False
 
 
 class OtpVerifyIn(BaseModel):
@@ -95,6 +98,7 @@ class MeUpdateIn(BaseModel):
     locale: str | None = Field(default=None, pattern="^(en|fr)$")
     theme: str | None = Field(default=None, pattern="^(light|dark|system)$")
     notification_prefs: dict | None = None
+    avatar_key: str | None = Field(default=None, max_length=300)  # from POST /uploads/avatar; null removes the photo
 
 
 class PasswordChangeIn(BaseModel):
@@ -152,6 +156,11 @@ class OtpVerifyOut(BaseModel):
     companies: list[CompanyBrief]
     tokens: TokenPair
     user: UserProfileOut | None = None
+    needs_password: bool = False
+
+
+class PasswordSetIn(BaseModel):
+    new_password: str = Field(min_length=10, max_length=128)
 
 
 class MeOut(BaseModel):
@@ -162,6 +171,8 @@ class MeOut(BaseModel):
     locale: str
     theme: str
     totp_enabled: bool
+    notification_prefs: dict | None = None
+    avatar_url: str | None = None
     company_id: UUID | None
     companies: list[CompanyBrief]
     roles: list[str]

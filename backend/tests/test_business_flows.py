@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from tests.helpers import SITE_LAT, TZ, event, make_employee, publish_daily_schedule, seed_org, signup_owner
 
@@ -225,11 +225,13 @@ async def test_absence_detection_marks_no_shows(client, mailbox):
     admin = await signup_owner(client, mailbox)
     ids = await seed_org(admin)
     emp = await make_employee(admin, mailbox, ids)
-    await publish_daily_schedule(admin, ids, [emp.id], grace=10, started_min_ago=90)  # started 90 min ago, nobody came
+    await publish_daily_schedule(admin, ids, [emp.id], grace=10, started_min_ago=90)
+    # look at the clock two hours later, so the shift is long past its start whatever time of day the test runs
+    later = datetime.now(UTC) + timedelta(hours=2)
     async with session_scope(bypass=True) as s:
-        assert await tasks.detect_absences(s) == 1
+        assert await tasks.detect_absences(s, now=later) == 1
     async with session_scope(bypass=True) as s:
-        assert await tasks.detect_absences(s) == 0  # idempotent
+        assert await tasks.detect_absences(s, now=later) == 0  # idempotent
     recs = (await admin.get("/attendance?status=absent")).json()["items"]
     assert len(recs) == 1 and recs[0]["base_status"] == "absent"
 
@@ -270,3 +272,211 @@ async def test_ws_ticket_single_use_and_stripe_webhook_signature(client, mailbox
     assert ok.status_code == 200 and ok.json()["duplicate"] is False
     dup = await client.post("/billing/webhook", content=payload, headers={"Stripe-Signature": f"t={ts},v1={sig}"})
     assert dup.json()["duplicate"] is True
+
+
+async def _planner(admin) -> list[dict]:
+    now = datetime.now(TZ)
+    r = await admin.get("/shifts", params={"from": (now - timedelta(days=2)).isoformat(), "to": (now + timedelta(days=3)).isoformat()})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+async def test_draft_schedule_shows_in_the_planner_but_not_to_employees_until_published(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    start = datetime.now(TZ) - timedelta(minutes=30)
+    hhmm = start.strftime("%H:%M")
+    body = {"type": "recurring", "site_id": ids["site_id"], "title": "Daily", "days_of_week": [0, 1, 2, 3, 4, 5, 6], "start_time": hhmm, "end_time": hhmm, "crosses_midnight": True,
+            "valid_from": (start.date() - timedelta(days=1)).isoformat(), "employee_ids": [emp.id]}
+    created = await admin.post("/schedules", body)
+    assert created.status_code == 201, created.text
+
+    shifts = await _planner(admin)
+    assert shifts and {s["status"] for s in shifts} == {"draft"}
+    assert (await emp.get("/me/shifts/today")).json() == []  # employees do not see drafts
+    live = (await admin.get("/attendance/live")).json()
+    assert all(site["rows"] == [] for site in live)  # nor does the live board
+
+    assert (await admin.post("/schedules/publish", {"schedule_ids": [created.json()["id"]], "notify": False, "confirm_conflicts": True})).status_code == 200
+    assert {s["status"] for s in await _planner(admin)} == {"scheduled"}
+    assert len((await emp.get("/me/shifts/today")).json()) == 1
+
+
+async def test_a_single_shift_can_be_reassigned_and_cancelled(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    first = await make_employee(admin, mailbox, ids)
+    second = await make_employee(admin, mailbox, ids, phone="+237670000002", name="Sam Second", no="E-2")
+    await publish_daily_schedule(admin, ids, [first.id])
+    shift = (await _planner(admin))[0]
+    assert shift["employee_id"] == first.id
+
+    moved = await admin.patch(f"/shifts/{shift['id']}", {"employee_id": second.id, "notify": False})
+    assert moved.status_code == 200, moved.text
+    assert moved.json()["employee_id"] == second.id
+    assert len((await second.get("/me/shifts/today")).json()) == 1 and (await first.get("/me/shifts/today")).json() == []
+
+    assert (await admin.delete(f"/shifts/{shift['id']}", {"reason": "not needed"})).status_code == 204
+    assert all(s["id"] != shift["id"] for s in await _planner(admin))
+    assert (await second.get("/me/shifts/today")).json() == []
+
+
+async def test_a_shift_with_a_check_in_cannot_be_reassigned_or_cancelled(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    first = await make_employee(admin, mailbox, ids)
+    second = await make_employee(admin, mailbox, ids, phone="+237670000002", name="Sam Second", no="E-2")
+    await publish_daily_schedule(admin, ids, [first.id])
+    assert (await first.post("/attendance/check-in", event("evt-draft-0001"))).status_code == 200
+    shift = next(s for s in await _planner(admin) if s["employee_id"] == first.id)
+    assert (await admin.patch(f"/shifts/{shift['id']}", {"employee_id": second.id})).status_code == 422
+    assert (await admin.delete(f"/shifts/{shift['id']}", {"reason": "nope nope"})).status_code == 422
+
+
+async def test_report_preview_filters_by_employee_and_branch(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    first = await make_employee(admin, mailbox, ids)
+    second = await make_employee(admin, mailbox, ids, phone="+237670000002", name="Sam Second", no="E-2")
+    await publish_daily_schedule(admin, ids, [first.id, second.id])
+    assert (await first.post("/attendance/check-in", event("evt-report-0001"))).status_code == 200
+    assert (await second.post("/attendance/check-in", event("evt-report-0002"))).status_code == 200
+    today = datetime.now(TZ).date().isoformat()
+    base = {"type": "timesheet", "date_from": today, "date_to": today, "group_by": "employee"}
+
+    everyone = (await admin.post("/reports/preview", base)).json()
+    assert {r["label"] for r in everyone["rows"]} == {"Emma Employee", "Sam Second"}
+
+    only_first = (await admin.post("/reports/preview", {**base, "employee_ids": [first.id]})).json()
+    assert [r["label"] for r in only_first["rows"]] == ["Emma Employee"]
+
+    other_branch = (await admin.post("/reports/preview", {**base, "branch_ids": ["00000000-0000-0000-0000-000000000001"]})).json()
+    assert other_branch["rows"] == []
+    in_branch = (await admin.post("/reports/preview", {**base, "branch_ids": [ids["branch_id"]]})).json()
+    assert len(in_branch["rows"]) == 2
+
+
+async def test_a_revoked_dashboard_user_stays_listed_and_can_be_restored(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    viewer = next(r for r in (await admin.get("/roles")).json() if r["key"] == "viewer")
+    invited = await admin.post("/users/invite", {"email": "hr@example.com", "full_name": "Hana Resources", "role_id": viewer["id"], "scope_type": "company", "scope_ids": []})
+    assert invited.status_code == 201, invited.text
+    user_id = next(u["id"] for u in (await admin.get("/users")).json() if u["email"] == "hr@example.com")
+
+    assert (await admin.post(f"/users/{user_id}/revoke")).status_code == 204
+    listed = {u["email"]: u for u in (await admin.get("/users")).json()}
+    assert listed["hr@example.com"]["status"] == "revoked" and listed["hr@example.com"]["roles"] == []
+
+    restored = await admin.post(f"/users/{user_id}/restore", {"role_id": viewer["id"], "scope_type": "company", "scope_ids": []})
+    assert restored.status_code == 204, restored.text
+    back = {u["email"]: u for u in (await admin.get("/users")).json()}["hr@example.com"]
+    assert back["status"] == "active" and back["roles"][0]["role"] == viewer["name"]
+    assert (await admin.post(f"/users/{user_id}/restore", {"role_id": viewer["id"], "scope_type": "company", "scope_ids": []})).status_code == 404  # no longer revoked
+
+
+async def test_resending_an_invitation_replaces_the_old_link(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    viewer = next(r for r in (await admin.get("/roles")).json() if r["key"] == "viewer")
+    assert (await admin.post("/users/invite", {"email": "ops@example.com", "full_name": "Ops Person", "role_id": viewer["id"], "scope_type": "company", "scope_ids": []})).status_code == 201
+    user_id = next(u["id"] for u in (await admin.get("/users")).json() if u["email"] == "ops@example.com")
+    assert (await admin.post(f"/users/{user_id}/resend-invite")).status_code == 204
+    assert len([m for m in mailbox if m.to == "ops@example.com"]) == 2
+    unknown = "00000000-0000-0000-0000-000000000000"
+    assert (await admin.post(f"/users/{unknown}/resend-invite")).status_code == 404
+
+
+async def test_leave_edit_keeps_attachments_when_field_omitted(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    lt = await leave_type(admin)
+    mon = next_monday()
+    draft = {"leave_type_id": lt, "start_date": mon.isoformat(), "end_date": mon.isoformat(), "attachment_keys": ["k1"]}
+    req = (await emp.post("/me/leave/requests", draft)).json()
+    omitted = {k: v for k, v in draft.items() if k != "attachment_keys"}
+    kept = await emp.patch(f"/me/leave/requests/{req['id']}", {**omitted, "reason": "updated"})
+    assert kept.status_code == 200 and kept.json()["attachment_keys"] == ["k1"]
+    cleared = await emp.patch(f"/me/leave/requests/{req['id']}", {**omitted, "attachment_keys": ["k2"]})
+    assert cleared.json()["attachment_keys"] == ["k2"]
+
+
+async def test_managing_a_site_grants_and_removes_the_site_manager_role(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    mgr = await make_employee(admin, mailbox, ids, phone="+237670000009", name="Mia Manager", no="M-1")
+    uid = (await mgr.get("/me")).json()["id"]
+    roles_of = lambda me: set(me["roles"])  # noqa: E731
+    assert "Site manager" not in roles_of((await mgr.get("/me")).json())
+    assert (await admin.put(f"/sites/{ids['site_id']}/managers", {"ids": [uid]})).status_code == 200
+    assert "Site manager" in roles_of((await mgr.get("/me")).json())
+    # unassigning takes the role back
+    assert (await admin.put(f"/sites/{ids['site_id']}/managers", {"ids": []})).status_code == 200
+    assert "Site manager" not in roles_of((await mgr.get("/me")).json())
+
+
+async def test_archived_branch_can_be_restored(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    b = (await admin.post("/branches", {"name": "Spare", "code": "SP"})).json()
+    arch = await admin.post(f"/branches/{b['id']}/archive")
+    assert arch.status_code == 200 and arch.json()["status"] == "archived"
+    back = await admin.post(f"/branches/{b['id']}/restore")
+    assert back.status_code == 200 and back.json()["status"] == "active"
+    # a branch that is not archived or deleted has nothing to restore
+    assert (await admin.post(f"/branches/{b['id']}/restore")).status_code == 409
+
+
+async def test_roster_shows_a_note_left_on_the_employee_today(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    await publish_daily_schedule(admin, ids, [emp.id])
+    live = (await admin.get("/attendance/live", params={"site_id": ids["site_id"]})).json()[0]
+    assert live["rows"][0]["note"] is None
+    assert (await admin.post(f"/employees/{emp.id}/notes", {"body": "wrong badge, checked by hand"})).status_code == 201
+    live = (await admin.get("/attendance/live", params={"site_id": ids["site_id"]})).json()[0]
+    assert live["rows"][0]["note"] == "wrong badge, checked by hand"
+
+
+async def test_site_manager_can_recommend_under_one_level_approval(client, mailbox):
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    lt = await leave_type(admin)
+    mon = next_monday()
+    req = (await emp.post("/me/leave/requests", {"leave_type_id": lt, "start_date": mon.isoformat(), "end_date": mon.isoformat()})).json()
+    assert req["status"] == "pending"
+    # the default policy has one approval level; the recommendation is advice and the request stays with the approver
+    rec = await admin.post(f"/leave/requests/{req['id']}/recommend", {"decision": "approve", "comment": "covered that day"})
+    assert rec.status_code == 200 and rec.json()["status"] == "pending"
+    assert rec.json()["recommendation"] == "approve"
+    rej = await admin.post(f"/leave/requests/{req['id']}/recommend", {"decision": "reject", "comment": "short staffed"})
+    assert rej.status_code == 200 and rej.json()["status"] == "pending" and rej.json()["recommendation"] == "reject"
+    tl = (await admin.get(f"/leave/requests/{req['id']}")).json()["request"]["timeline"]
+    assert [t["action"] for t in tl].count("recommended") == 2
+    assert (await admin.post(f"/leave/requests/{req['id']}/approve", {"comment": "ok"})).json()["status"] == "approved"
+    # once decided there is nothing left to recommend on
+    assert (await admin.post(f"/leave/requests/{req['id']}/recommend", {"decision": "approve", "comment": "late"})).status_code == 409
+
+
+async def test_local_storage_round_trip_through_signed_urls(client, mailbox, tmp_path, monkeypatch):
+    from staffsync.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "local_storage_dir", str(tmp_path))
+    admin = await signup_owner(client, mailbox)
+    ids = await seed_org(admin)
+    emp = await make_employee(admin, mailbox, ids)
+    target = (await emp.post("/uploads/leave-attachment", {"content_type": "image/png", "size_bytes": 12})).json()
+    assert target["method"] == "PUT" and "/files/" in target["url"]
+    path = target["url"].split("/api/v1", 1)[1]
+    # the wrong content type and a tampered token are refused
+    assert (await client.put(path, content=b"x", headers={"content-type": "image/jpeg"})).status_code == 400
+    assert (await client.put(path[:-3] + "abc", content=b"x", headers={"content-type": "image/png"})).status_code == 401
+    assert (await client.put(path, content=b"\x89PNG-bytes!", headers={"content-type": "image/png"})).status_code == 204
+    # a download URL for the stored key serves the same bytes; an upload URL cannot be used to read
+    from staffsync.core.adapters import get_storage
+
+    url = (await get_storage().presign_get(target["key"])).split("/api/v1", 1)[1]
+    got = await client.get(url)
+    assert got.status_code == 200 and got.content == b"\x89PNG-bytes!" and got.headers["content-type"] == "image/png"
+    assert (await client.get(path)).status_code == 404

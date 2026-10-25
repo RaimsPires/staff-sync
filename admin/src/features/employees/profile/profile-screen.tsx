@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, MessageSquare, MoreHorizontal, Phone } from "lucide-re
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Avatar, EmptyState } from "@/components/ui/misc";
 import { Chip } from "@/components/ui/chip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -15,12 +15,13 @@ import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useEmployees } from "@/store/employees";
-import { useWorkspace, useWorkspaces } from "@/store/employee-workspace";
+import { inviteEmployee, issueBadge, loadMonth, loadPersonSchedules, removeSchedule, saveSchedule } from "@/services/employee-profile";
+import { Modal } from "@/components/ui/overlay";
+import { useLoaded } from "./use-employee-data";
 import { EmployeeFormDrawer } from "../employee-form-drawer";
 import { statusTone } from "../model";
 import { ActivityTab, DeviceTab, DocsTab, LeaveTab, ScheduleTab } from "./manage-tabs";
 import { AttendanceTab, OverviewTab } from "./overview-tabs";
-import { defaultSchedules, monthRecords } from "./profile-model";
 
 const TABS = ["overview", "attendance", "schedule", "leave", "device", "docs", "activity"] as const;
 type Tab = (typeof TABS)[number];
@@ -45,29 +46,41 @@ function Profile({ id }: { id: string }) {
   const te = useTranslations("Employees");
   const tTitles = useTranslations("Employees.titles");
   const toast = useToast();
-  const { perms, me } = useAccess();
+  const { perms } = useAccess();
   const emp = useEmployees((s) => s.employees.find((e) => e.id === id))!;
   const setStatus = useEmployees((s) => s.setStatus);
 
   const [tab, setTab] = useState<Tab>("overview");
   const [editing, setEditing] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
-  const ws = useWorkspace(id);
-  const patch = useWorkspaces((s) => s.patch);
-  const schedules = useMemo(() => ws.schedules ?? defaultSchedules(emp), [ws.schedules, emp]);
-  const { adjustments, unbound, log } = ws;
-  const records = useMemo(() => monthRecords(emp), [emp]);
+  const month = useLoaded(() => loadMonth(emp.id), [], `${emp.id}:month`);
+  const personal = useLoaded(() => loadPersonSchedules(emp.id), [], `${emp.id}:schedules`);
+  const records = month.value;
+  const [badge, setBadge] = useState<{ pin: string; qrSvg: string } | null>(null);
   const canManage = perms.admin || perms.edit;
 
-  const addLog = (action: string, detail: string) => patch(id, (w) => ({ log: [{ action, detail, when: t("justNow") }, ...w.log] }));
   const noPhone = emp.phone === "—";
   const contact = (kind: "call" | "message" | "email") =>
     toast(kind === "email" ? t("toasts.email", { name: emp.name }) : noPhone ? t("toasts.noPhone") : t(kind === "call" ? "toasts.calling" : "toasts.messaging", { name: emp.name }));
 
   const reactivate = () => {
     setStatus(emp.id, emp.app === "invited" ? "invited" : "active");
-    addLog("reactivated", t("by", { name: me.name }));
     toast(te("reactivated", { name: emp.name }));
+  };
+  const newBadge = async () => {
+    try {
+      setBadge(await issueBadge(emp.id));
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
+    }
+  };
+  const resendInvite = async () => {
+    try {
+      await inviteEmployee(emp.id);
+      toast(t("toasts.invited", { name: emp.name }));
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
+    }
   };
 
   return (
@@ -109,7 +122,8 @@ function Profile({ id }: { id: string }) {
                   <>
                     <button onClick={() => { close(); setEditing(true); }} className={cn(item, "text-text")}>{t("menu.edit")}</button>
                     {emp.app === "installed" && <button onClick={() => { close(); setTab("device"); }} className={cn(item, "text-text")}>{t("menu.resetDevice")}</button>}
-                    {emp.app === "none" && <button onClick={() => { close(); addLog("badgeRegenerated", t("newPin")); toast(t("toasts.badge")); }} className={cn(item, "text-text")}>{t("menu.badge")}</button>}
+                    {emp.app === "none" && <button onClick={() => { close(); void newBadge(); }} className={cn(item, "text-text")}>{t("menu.badge")}</button>}
+                    {emp.app === "invited" && <button onClick={() => { close(); void resendInvite(); }} className={cn(item, "text-text")}>{t("menu.resendInvite")}</button>}
                     {emp.status === "deactivated"
                       ? <button onClick={() => { close(); reactivate(); }} className={cn(item, "text-ok")}>{t("menu.reactivate")}</button>
                       : <button onClick={() => { close(); setDeactivating(true); }} className={cn(item, "text-bad")}>{t("menu.deactivate")}</button>}
@@ -131,12 +145,29 @@ function Profile({ id }: { id: string }) {
 
       {tab === "overview" && <OverviewTab emp={emp} records={records} />}
       {tab === "attendance" && <AttendanceTab emp={emp} records={records} />}
-      {tab === "schedule" && <ScheduleTab emp={emp} schedules={schedules} onChange={(next) => patch(id, () => ({ schedules: next }))} addLog={addLog} />}
-      {tab === "leave" && <LeaveTab emp={emp} adjustments={adjustments} onAdjust={(k, d) => patch(id, (w) => ({ adjustments: { ...w.adjustments, [k]: (w.adjustments[k] ?? 0) + d } }))} addLog={addLog} />}
-      {tab === "device" && <DeviceTab emp={emp} unbound={unbound} onReset={() => patch(id, () => ({ unbound: true }))} addLog={addLog} actor={me.name} />}
-      {tab === "docs" && <DocsTab empId={id} addLog={addLog} actor={me.name} />}
-      {tab === "activity" && <ActivityTab emp={emp} log={log} actor={me.name} />}
+      {tab === "schedule" && (
+        <ScheduleTab
+          emp={emp}
+          schedules={personal.value}
+          onSave={async (draft) => { await saveSchedule(emp.id, draft); personal.reload(); }}
+          onRemove={async (sch) => { await removeSchedule(sch.uuid); personal.reload(); }}
+        />
+      )}
+      {tab === "leave" && <LeaveTab emp={emp} />}
+      {tab === "device" && <DeviceTab emp={emp} onChanged={() => undefined} />}
+      {tab === "docs" && <DocsTab emp={emp} />}
+      {tab === "activity" && <ActivityTab emp={emp} />}
 
+      <Modal open={badge !== null} onClose={() => setBadge(null)} title={t("badge.title")} className="max-w-[380px]" footer={<Button variant="primary" onClick={() => setBadge(null)}>{t("badge.done")}</Button>}>
+        {badge && (
+          <div className="flex flex-col items-center gap-3 text-center">
+            <p className="m-0 text-[13px] text-text-2">{t("badge.hint", { name: emp.name })}</p>
+            <div className="size-40 [&>svg]:size-full" dangerouslySetInnerHTML={{ __html: badge.qrSvg }} />
+            <div className="text-[12px] text-text-3">{t("badge.pin")}</div>
+            <div className="font-mono text-[28px] font-semibold tracking-[.3em]">{badge.pin}</div>
+          </div>
+        )}
+      </Modal>
       <EmployeeFormDrawer open={editing} employee={emp} onClose={() => setEditing(false)} />
       <ConfirmDialog
         open={deactivating}
@@ -146,7 +177,7 @@ function Profile({ id }: { id: string }) {
         cancelLabel={te("deactivate.cancel")}
         okLabel={te("deactivate.confirm")}
         onCancel={() => setDeactivating(false)}
-        onOk={() => { setStatus(emp.id, "deactivated"); addLog("deactivated", t("by", { name: me.name })); toast(te("deactivated", { name: emp.name })); setDeactivating(false); }}
+        onOk={() => { setStatus(emp.id, "deactivated"); toast(te("deactivated", { name: emp.name })); setDeactivating(false); }}
       />
     </div>
   );

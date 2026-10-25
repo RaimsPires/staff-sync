@@ -1,6 +1,5 @@
 import type { Org } from "@/lib/org";
-import { DEMO_TODAY, METHOD_SPLIT } from "@/data/live";
-import type { Site } from "@/types/domain";
+import type { AttendanceRecord, Site } from "@/types/domain";
 
 export type Tone = "ok" | "warn" | "bad";
 
@@ -18,34 +17,27 @@ export interface SiteDay {
   flagged: number;
 }
 
-/** Past days vary around today's figures so the date picker has something to show. */
-export const dayFactor = (day: number): number => (day === DEMO_TODAY ? 1 : 1 + (((day * 37) % 9) - 4) / 60);
-
-/** `lateShift` is today's change in late arrivals caused by the grace period in Settings. */
-export function siteDay(site: Site, day: number, lateShift = 0): SiteDay {
-  const today = day === DEMO_TODAY;
-  const vf = dayFactor(day);
-  const present = today ? site.present : Math.min(site.expected, Math.round(site.present * vf));
+/** One site's figures for a day, counted from that day's attendance records. */
+export function siteDay(site: Site, records: AttendanceRecord[]): SiteDay {
+  const mine = records.filter((r) => r.site === site.id && r.status !== "holiday");
   return {
     id: site.id,
     name: site.name,
     branchId: site.branchId,
     address: site.address,
-    expected: site.expected,
-    present,
-    late: Math.min(present, Math.max(0, Math.round((site.late + lateShift) * (today ? 1 : vf)))),
-    absent: Math.max(0, site.expected - present - site.leave),
-    leave: site.leave,
-    flagged: today ? site.flagged : Math.round(site.flagged * vf),
+    expected: mine.length,
+    present: mine.filter((r) => r.in).length,
+    late: mine.filter((r) => r.status === "late").length,
+    absent: mine.filter((r) => r.status === "absent").length,
+    leave: mine.filter((r) => r.status === "leave").length,
+    flagged: mine.filter((r) => r.flag && !r.cleared).length,
   };
 }
 
 export const sumBy = (rows: SiteDay[], key: "expected" | "present" | "late" | "absent" | "leave" | "flagged"): number =>
   rows.reduce((total, r) => total + r[key], 0);
 
-/** Typical day-over-day change, scaled to the size of the scope. */
-const KPI_DELTA = { expected: 4, present: -6, late: 3, absent: 2, leave: -1, flagged: 2, pending: 1 } as const;
-export type KpiKey = keyof typeof KPI_DELTA;
+export type KpiKey = "expected" | "present" | "late" | "absent" | "leave" | "flagged" | "pending";
 
 /** Whether a rising value is good news. "neutral" never turns red or green. */
 export type Polarity = "up" | "down" | "neutral";
@@ -56,18 +48,13 @@ export interface KpiDelta {
   tone: "ok" | "bad" | "neutral";
 }
 
-export function kpiDelta(key: KpiKey, value: number, scopeExpected: number, day: number, polarity: Polarity): KpiDelta {
-  const scale = scopeExpected / 198;
-  let delta = Math.round(KPI_DELTA[key] * scale * dayFactor(day));
-  if (delta > 0) delta = Math.min(delta, value);
+/** Change against `previous` (yesterday); no comparison available means a flat, neutral delta. */
+export function kpiDelta(value: number, previous: number | undefined, polarity: Polarity): KpiDelta {
+  const delta = previous === undefined ? 0 : value - previous;
   const up = delta > 0;
   const neutral = delta === 0 || polarity === "neutral";
   const good = polarity === "up" ? up : !up;
-  return {
-    value: delta,
-    direction: delta > 0 ? "up" : delta < 0 ? "down" : "flat",
-    tone: neutral ? "neutral" : good ? "ok" : "bad",
-  };
+  return { value: delta, direction: delta > 0 ? "up" : delta < 0 ? "down" : "flat", tone: neutral ? "neutral" : good ? "ok" : "bad" };
 }
 
 /** 0 = on track, 1 = watch, 2 = at risk. */
@@ -80,27 +67,11 @@ export function siteHealth(s: Pick<SiteDay, "present" | "expected" | "flagged">)
 
 export interface TrendPoint {
   index: number;
-  /** Day of October (may be zero or negative for ranges reaching into September). */
+  /** Day of month, kept for the chart's fallback labels. */
   day: number;
+  /** `YYYY-MM-DD`. */
+  iso: string;
   rate: number;
-}
-
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-
-/** Smooth, deterministic attendance-rate series ending on `day`. */
-export function trendSeries(rows: SiteDay[], day: number, length: number): { points: TrendPoint[]; average: number; delta: number } {
-  const meanRatio = rows.reduce((a, r) => a + r.present / r.expected, 0) / Math.max(1, rows.length);
-  const offset = (meanRatio - 0.86) * 40;
-  const rate = (i: number) =>
-    clamp(89.5 + offset + 2.6 * Math.sin((i + day) * 0.73) + 1.4 * Math.sin((i + day) * 2.1) - (i % 13 === 4 ? 3 : 0), 72, 99);
-  const values = Array.from({ length }, (_, j) => rate(length - 1 - j));
-  const previous = Array.from({ length }, (_, j) => rate(2 * length - 1 - j));
-  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-  return {
-    points: values.map((v, j) => ({ index: j, day: day - (length - 1 - j), rate: v })),
-    average: mean(values),
-    delta: mean(values) - mean(previous),
-  };
 }
 
 export interface MethodShare {
@@ -110,16 +81,18 @@ export interface MethodShare {
   total: number;
 }
 
-export function methodCounts(rows: SiteDay[]): MethodShare {
-  const raw = [0, 0, 0];
-  for (const r of rows) {
-    const split = METHOD_SPLIT[r.id] ?? [1, 0, 0];
-    split.forEach((share, i) => (raw[i] += r.present * share));
+/** Check-ins by how they were made, from the day's records. */
+export function methodCounts(records: AttendanceRecord[]): MethodShare {
+  let self = 0;
+  let proxy = 0;
+  let qr = 0;
+  for (const r of records) {
+    if (!r.in) continue;
+    if (r.method === "behalf" || r.method === "admin") proxy++;
+    else if (r.method === "qr") qr++;
+    else self++;
   }
-  const total = rows.reduce((a, r) => a + r.present, 0);
-  const proxy = Math.round(raw[1]);
-  const qr = Math.round(raw[2]);
-  return { self: Math.max(0, total - proxy - qr), proxy, qr, total };
+  return { self, proxy, qr, total: self + proxy + qr };
 }
 
 export interface PunctualityRow {

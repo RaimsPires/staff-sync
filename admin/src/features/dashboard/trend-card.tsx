@@ -3,7 +3,6 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Segmented } from "@/components/ui/tabs";
-import { DEMO_MONTH, DEMO_YEAR } from "@/data/live";
 import { cn } from "@/lib/utils";
 import type { TrendPoint } from "./metrics";
 
@@ -21,10 +20,9 @@ interface Props {
 export function TrendCard({ points, average, delta, range, onRange }: Props) {
   const t = useTranslations("Dashboard.trend");
   const format = useFormatter();
-  const dateOf = (day: number) => new Date(DEMO_YEAR, DEMO_MONTH, day);
-  const positive = delta >= 0;
+    const positive = delta >= 0;
 
-  const data = points.map((p) => ({ ...p, date: dateOf(p.day) }));
+  const data = points.map((p) => ({ ...p, date: new Date(`${p.iso}T12:00:00`) }));
   const ticks = (range === 7 ? data.map((_, i) => i) : range === 30 ? [0, 7, 14, 21, 29] : [0, 30, 60, 89]).filter((i) => i < data.length);
   const tickLabel = (i: number) =>
     range === 7

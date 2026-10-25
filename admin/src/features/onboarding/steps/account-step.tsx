@@ -24,22 +24,18 @@ export function AccountStep() {
   const toast = useToast();
   const form = useOnboarding((s) => s.form);
   const set = useOnboarding((s) => s.set);
-  const sso = useOnboarding((s) => s.sso);
   const { error } = useStepErrors(1);
   const [showPw, setShowPw] = useState(false);
 
   const score = passwordScore(form.password);
   const rules = [
-    { key: "length", ok: form.password.length >= 8 },
+    { key: "length", ok: form.password.length >= 10 },
     { key: "case", ok: /[a-z]/.test(form.password) && /[A-Z]/.test(form.password) },
     { key: "number", ok: /\d/.test(form.password) },
     { key: "symbol", ok: /[^A-Za-z0-9]/.test(form.password) },
   ] as const;
 
-  const signUpWith = () => {
-    sso();
-    toast(t("ssoSignedIn"));
-  };
+  const signUpWith = () => toast(t("ssoUnavailable"), "info");
 
   return (
     <FormCard>

@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# LAN dev server address
+.env

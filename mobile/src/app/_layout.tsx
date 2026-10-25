@@ -5,13 +5,15 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useUpdateRequired } from '@/core/update-required';
 import { useSession } from '@/core/session/session-store';
 import { useSettings } from '@/core/settings/settings-store';
 import { ThemeProvider, useTheme } from '@/core/theme/theme-provider';
-import { Splash, ToastProvider } from '@/ui';
+import { EmptyState, Screen, Splash, ToastProvider } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -22,6 +24,8 @@ function RootStack() {
   const onboardingDone = useSettings((s) => s.onboardingDone);
   const status = useSession((s) => s.status);
   const restore = useSession((s) => s.restore);
+  const updateRequired = useUpdateRequired((s) => s.required);
+  const { t } = useTranslation();
 
   useEffect(() => {
     void restore();
@@ -34,6 +38,13 @@ function RootStack() {
   }, []);
 
   if (!ready) return <Splash />;
+  if (updateRequired) {
+    return (
+      <Screen>
+        <EmptyState icon="cloud-download-outline" title={t('common.updateTitle')} body={t('common.updateBody')} />
+      </Screen>
+    );
+  }
 
   return (
     <>

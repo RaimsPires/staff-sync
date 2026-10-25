@@ -7,6 +7,7 @@ from staffsync.modules.audit.models import AuditLog  # noqa: F401
 from staffsync.modules.auth.models import CompanyMember, Invitation, RefreshToken, User  # noqa: F401
 from staffsync.modules.billing.models import StripeEvent  # noqa: F401
 from staffsync.modules.branches.models import Branch  # noqa: F401
+from staffsync.modules.chat.models import Conversation, Message, ReadMark  # noqa: F401
 from staffsync.modules.companies.models import ApiKey, Company  # noqa: F401
 from staffsync.modules.corrections.models import CorrectionRequest  # noqa: F401
 from staffsync.modules.employees.models import Device, Employee, EmployeeNote, EmployeeSite  # noqa: F401

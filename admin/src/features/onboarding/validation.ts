@@ -1,5 +1,4 @@
 import { passwordScore } from "@/lib/password";
-import { FREE_EMAIL } from "./constants";
 import type { FieldErrors, OnboardingForm, Person } from "./types";
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
@@ -31,16 +30,14 @@ export function validateStep(step: number, f: OnboardingForm, code: string[]): F
       else if (f.name.trim().split(/\s+/).length < 2) e.name = "nameFull";
       if (!f.email.trim()) e.email = "emailRequired";
       else if (!EMAIL_RE.test(f.email)) e.email = "emailInvalid";
-      else if (FREE_EMAIL.test(f.email)) e.email = "emailPersonal";
       if (!f.password) e.password = "passwordRequired";
-      else if (passwordScore(f.password) < 2) e.password = "passwordWeak";
+      else if (f.password.length < 10 || passwordScore(f.password) < 2) e.password = "passwordWeak";
       if (f.phone.replace(/\D/g, "").length < 8) e.phone = "phoneInvalid";
       if (!f.terms) e.terms = "termsRequired";
       break;
     case 2: {
       const c = code.join("");
       if (c.length < 6) e.code = "codeIncomplete";
-      else if (c === "000000") e.code = "codeWrong";
       break;
     }
     case 3:

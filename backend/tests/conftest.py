@@ -60,9 +60,9 @@ async def client():
 
 @pytest.fixture
 def mailbox():
-    from staffsync.core.adapters import ConsoleNotifier, get_notifier
+    from staffsync.core.adapters import RoutingNotifier, get_notifier
 
     notifier = get_notifier()
-    assert isinstance(notifier, ConsoleNotifier)
-    notifier.sent.clear()
-    return notifier.sent
+    assert isinstance(notifier, RoutingNotifier) and not notifier.providers, "tests must never reach real e-mail, SMS or push providers"
+    notifier.console.sent.clear()
+    return notifier.console.sent

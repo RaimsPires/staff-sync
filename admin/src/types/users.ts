@@ -10,6 +10,8 @@ export type RoleScopeKind = ScopeKind | "any";
 
 export interface AccessRole {
   id: string;
+  /** Server key of a built-in role (owner, branch_admin, site_manager, viewer, employee). */
+  key?: string;
   /** Built-in roles are translated and read-only; custom roles carry their own text. */
   builtIn: boolean;
   name: string;

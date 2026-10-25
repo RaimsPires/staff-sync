@@ -27,6 +27,7 @@ class Perm(StrEnum):
     AUDIT_VIEW = "audit.view"
     SETTINGS_MANAGE = "settings.manage"
     BILLING_MANAGE = "billing.manage"
+    CHAT_SITES = "chat.sites"  # write in the chat group of any site in scope, without being attached to it
 
 
 class ScopeType(StrEnum):

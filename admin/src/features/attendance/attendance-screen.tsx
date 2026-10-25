@@ -12,6 +12,7 @@ import { exportTable, type ExportFormat, type Table } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useData } from "@/store/data";
+import { approveRecords, markRecordsAbsent } from "@/services/attendance";
 import type { AttendanceRecord, RecordStatus } from "@/types/domain";
 import { AddRecordDialog } from "./add-record-dialog";
 import { ALL_COLUMNS, FiltersBar, STATUS_OPTIONS, type Column } from "./filters-bar";
@@ -30,7 +31,6 @@ interface SavedView {
 }
 
 const PER_PAGE = [10, 25, 50];
-const NOW_AT = "15 Oct 10:42";
 
 export interface AttendanceInitial {
   /** Preset from a dashboard card or map link. */
@@ -58,7 +58,6 @@ export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
   const { siteIds, perms, scope, me } = useAccess();
   const today = useRuledRecords(useData((s) => s.today));
   const history = useRuledRecords(useData((s) => s.history));
-  const updateRecord = useData((s) => s.updateRecord);
   const numericDate = useDateFormat();
 
   const [filters, setFilters] = useState<Filters>(() => initialFilters(initial));
@@ -129,14 +128,22 @@ export function AttendanceScreen({ initial }: { initial: AttendanceInitial }) {
     }
   };
 
-  const bulkApprove = () => {
-    selectedRecords.forEach((r) => updateRecord(r.id, { approved: me.name, approvedAt: NOW_AT, ...(isFlagged(r) ? { cleared: true, status: r.lateBy ? "late" : "ontime" } : {}) }));
+  const bulkApprove = async () => {
+    try {
+      await approveRecords(selectedRecords.map((r) => r.id));
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("bulk.failed"), "bad");
+    }
     toast(t("bulk.approved", { count: selectedRecords.length }));
     setSelected(new Set());
   };
-  const bulkAbsent = () => {
+  const bulkAbsent = async () => {
     const targets = selectedRecords.filter((r) => r.status !== "leave" && r.status !== "holiday");
-    targets.forEach((r) => updateRecord(r.id, { status: "absent", in: "", out: "", worked: "", flag: undefined, edit: { by: me.name, at: NOW_AT } }));
+    try {
+      await markRecordsAbsent(targets.map((r) => r.id));
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("bulk.failed"), "bad");
+    }
     toast(`${t("bulk.absent", { count: targets.length })}${selectedRecords.length - targets.length ? ` · ${t("bulk.leaveSkipped")}` : ""}`, "bad");
     setSelected(new Set());
   };

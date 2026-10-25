@@ -15,6 +15,9 @@ from staffsync.core.redis import get_redis
 from staffsync.core.security import create_access_token, new_opaque_token, sha256
 from staffsync.modules.auth.models import RefreshToken
 
+# How long after a rotation the previous refresh token is still accepted (see rotate_refresh).
+REUSE_GRACE = timedelta(seconds=30)
+
 
 class TokenPair(BaseModel):
     access_token: str
@@ -77,14 +80,18 @@ async def rotate_refresh(session: AsyncSession, raw: str, *, ip: str | None, use
     now = datetime.now(UTC)
     if row is None:
         raise Unauthenticated("Invalid refresh token", code="INVALID_REFRESH")
-    if row.rotated_at is not None or row.revoked_at is not None:
+    # A browser can drop the response of a refresh (reload, hot reload, two tabs) after the server rotated the
+    # token. Presenting the old token again within a few seconds is that race, not theft: let it through.
+    just_rotated = row.revoked_at is None and row.rotated_at is not None and now - row.rotated_at <= REUSE_GRACE
+    if (row.rotated_at is not None or row.revoked_at is not None) and not just_rotated:
         # An already-used token is being replayed: assume theft and kill the whole family.
         async with session_scope(bypass=True) as other:  # separate transaction: the caller's rolls back on the error
             await revoke_family(other, row.family_id)
         raise Unauthenticated("Refresh token reuse detected", code="REFRESH_REUSE")
     if row.expires_at < now:
         raise Unauthenticated("Refresh token expired", code="INVALID_REFRESH")
-    row.rotated_at = now
+    if row.rotated_at is None:
+        row.rotated_at = now
     row.last_used_at = now
     session.add(row)
     pair = await issue_tokens(

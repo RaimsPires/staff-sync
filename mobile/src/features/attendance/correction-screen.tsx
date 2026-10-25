@@ -32,7 +32,7 @@ export function CorrectionScreen() {
   const [kind, setKind] = useState<CorrectionKind>('forgot_checkout');
   const [time, setTime] = useState('17:00');
   const [comment, setComment] = useState('');
-  const [file, setFile] = useState<{ name: string; size: string }>();
+  const [file, setFile] = useState<{ name: string; size: string; uri: string; type?: string }>();
   const [busy, setBusy] = useState(false);
   const [tried, setTried] = useState(false);
 
@@ -45,7 +45,7 @@ export function CorrectionScreen() {
     const picked = res.assets?.[0];
     if (!picked) return;
     if ((picked.size ?? 0) > MAX_ATTACHMENT_BYTES) return toast.show(t('attendance.attachTooBig'));
-    setFile({ name: picked.name, size: sizeLabel(picked.size) });
+    setFile({ name: picked.name, size: sizeLabel(picked.size), uri: picked.uri, type: picked.mimeType });
   };
 
   const submit = async () => {
@@ -59,6 +59,8 @@ export function CorrectionScreen() {
         proposedTime: needsTime ? time : undefined,
         comment: comment.trim(),
         attachmentName: file?.name,
+        attachmentUri: file?.uri,
+        attachmentType: file?.type,
       });
       await qc.invalidateQueries({ queryKey: ['attendance'] });
       toast.show(t('attendance.correctionSent'));

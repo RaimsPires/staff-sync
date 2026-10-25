@@ -3,9 +3,11 @@
 import { CalendarCheck, CalendarX, Check, LogOut, ShieldAlert, UserX, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { AlertItem } from "@/data/alerts";
+import { editRecord, reviewFlag } from "@/services/attendance";
+import { loadAlerts, onNewFlag, resolveAlert } from "@/services/alerts";
 import { useToast } from "@/components/ui/toast";
-import { UNCOVERED, UNSCHEDULED } from "@/data/live";
 import { useOrg } from "@/lib/org";
 import { RejectLeaveDialog } from "@/features/leave/reject-leave-dialog";
 import { useLeaveFormat } from "@/features/leave/use-leave-format";
@@ -47,19 +49,43 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
   const org = useOrg();
   const t = useTranslations("Dashboard.attention");
   const leaveTypes = useLeaveTypes();
-  const tData = useTranslations("Data.interventions");
   const router = useRouter();
   const toast = useToast();
   const leaveFormat = useLeaveFormat();
   const today = useRuledRecords(useData((s) => s.today));
   const leaveRequests = useLeave((s) => s.requests);
   const handled = useData((s) => s.handled);
-  const updateRecord = useData((s) => s.updateRecord);
   const decide = useLeave((s) => s.decide);
   const { me } = useAccessStore();
   const markHandled = useData((s) => s.markHandled);
   const [tab, setTab] = useState<TabKey>("all");
   const [rejecting, setRejecting] = useState<string | null>(null);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+
+  // Unscheduled check-ins and uncovered interventions are alerts on the server.
+  useEffect(() => {
+    let live = true;
+    const reload = () => loadAlerts().then((list) => live && setAlerts(list.filter((a) => a.status === "open")), () => undefined);
+    void reload();
+    const stop = onNewFlag(() => void reload());
+    const timer = setInterval(() => void reload(), 60_000);
+    return () => {
+      live = false;
+      stop();
+      clearInterval(timer);
+    };
+  }, []);
+  const settle = useCallback(
+    async (action: () => Promise<void>, done: () => void) => {
+      try {
+        await action();
+      } catch (e) {
+        return toast(e instanceof Error ? e.message : t("failed"), "bad");
+      }
+      done();
+    },
+    [toast, t],
+  );
 
   const items = useMemo<Item[]>(() => {
     const list: Item[] = [];
@@ -79,10 +105,7 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
                 { label: t("review"), primary: true, run: () => router.push(`/attendance?drawer=${r.id}&date=today`) },
                 {
                   label: t("dismiss"),
-                  run: () => {
-                    updateRecord(r.id, { cleared: true, status: r.lateBy ? "late" : "ontime" });
-                    toast(t("fraud.dismissed"));
-                  },
+                  run: () => settle(() => reviewFlag(r.id, "approved", "Dismissed from the dashboard"), () => toast(t("fraud.dismissed"))),
                 },
               ]
             : [view(`/attendance?drawer=${r.id}&date=today`)],
@@ -100,10 +123,7 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
             ...(perms.edit
               ? [{
                   label: t("missing.setOut"), primary: true,
-                  run: () => {
-                    updateRecord(r.id, { out: "06:00", status: "ontime", worked: "8h 05m" });
-                    toast(t("missing.done", { name: r.name }));
-                  },
+                  run: () => settle(() => editRecord(r.id, { out: r.sched.split("–")[1], reason: "Check-out set to the scheduled end" }), () => toast(t("missing.done", { name: r.name }))),
                 }]
               : []),
             { label: t("remind"), run: () => { markHandled(`m${r.id}`); toast(t("reminderSent")); } },
@@ -111,18 +131,20 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
         }),
       );
 
-    UNSCHEDULED.filter((u) => siteIds.includes(u.site)).forEach((u) =>
-      list.push({
-        id: `s${u.id}`, type: "unsched", title: t("unsched.title", { name: u.name }),
-        description: `${t("unsched.description")} · ${siteName(u.site)}`, time: u.time,
-        actions: perms.edit
-          ? [
-              { label: t("unsched.add"), primary: true, run: () => { markHandled(`s${u.id}`); toast(t("unsched.added", { name: u.name })); } },
-              { label: t("reject"), run: () => { markHandled(`s${u.id}`); toast(t("unsched.rejected"), "bad"); } },
-            ]
-          : [view("/attendance")],
-      }),
-    );
+    alerts
+      .filter((a) => a.tab === "uns" && siteIds.includes(a.site))
+      .forEach((a) =>
+        list.push({
+          id: `s${a.id}`, type: "unsched", title: t("unsched.title", { name: a.name }),
+          description: `${t("unsched.description")} · ${siteName(a.site)}`, time: a.time,
+          actions: perms.edit
+            ? [
+                { label: t("unsched.add"), primary: true, run: () => settle(() => resolveAlert(a.id, "approved", "Added to the schedule from the dashboard"), () => { setAlerts((l) => l.filter((x) => x.id !== a.id)); toast(t("unsched.added", { name: a.name })); }) },
+                { label: t("reject"), run: () => settle(() => resolveAlert(a.id, "rejected", "Rejected from the dashboard"), () => { setAlerts((l) => l.filter((x) => x.id !== a.id)); toast(t("unsched.rejected"), "bad"); }) },
+              ]
+            : [view("/attendance")],
+        }),
+      );
 
     pendingIn(leaveRequests, siteIds).forEach((l) =>
         list.push({
@@ -138,19 +160,21 @@ export function AttentionPanel({ siteIds, perms }: { siteIds: string[]; perms: P
         }),
       );
 
-    UNCOVERED.filter((u) => siteIds.includes(u.site)).forEach((u) =>
-      list.push({
-        id: `u${u.id}`, type: "uncov", title: t("uncov.title"),
-        description: `${tData(u.kind)} · ${siteName(u.site)}`,
-        time: u.time === "yesterday" ? t("yesterday") : u.time,
-        actions: [
-          { label: t("uncov.assign"), primary: true, run: () => router.push("/schedules") },
-          { label: t("uncov.notify"), run: () => { markHandled(`u${u.id}`); toast(t("uncov.notified")); } },
-        ],
-      }),
-    );
+    alerts
+      .filter((a) => a.tab === "unc" && siteIds.includes(a.site))
+      .forEach((a) =>
+        list.push({
+          id: `u${a.id}`, type: "uncov", title: t("uncov.title"),
+          description: `${a.description ?? ""} · ${siteName(a.site)}`,
+          time: a.time,
+          actions: [
+            { label: t("uncov.assign"), primary: true, run: () => router.push("/schedules") },
+            { label: t("uncov.notify"), run: () => { markHandled(`u${a.id}`); toast(t("uncov.notified")); } },
+          ],
+        }),
+      );
     return list.filter((i) => !handled[i.id]);
-  }, [today, leaveRequests, handled, siteIds, perms, t, leaveTypes, tData, router, toast, leaveFormat, updateRecord, decide, me.name, markHandled, org]);
+  }, [today, alerts, leaveRequests, handled, siteIds, perms, t, leaveTypes, router, toast, leaveFormat, decide, me.name, markHandled, org, settle]);
 
   const visibleTabs = TABS.filter((k) => k === "all" || k === tab || items.some((i) => i.type === k));
   const shown = tab === "all" ? items : items.filter((i) => i.type === tab);

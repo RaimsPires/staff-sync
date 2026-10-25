@@ -20,7 +20,11 @@ def next_status(current: str, action: str, *, levels: int = 1) -> str:
     if action == "approve" and levels == 2 and current == "pending":
         raise Conflict("Two-level approval: the site manager must recommend first", code="RECOMMENDATION_REQUIRED")
     if action == "recommend" and levels == 1:
-        raise Conflict("This company uses one-level approval", code="INVALID_TRANSITION")
+        # One-level approval has no recommend step, but a site manager can still give an opinion: the request
+        # stays pending for the approver, with the recommendation attached.
+        if current != "pending":
+            raise Conflict(f"Cannot recommend a {current.replace('_', ' ')} request", code="INVALID_TRANSITION")
+        return "pending"
     try:
         return TRANSITIONS[current][action]
     except KeyError:

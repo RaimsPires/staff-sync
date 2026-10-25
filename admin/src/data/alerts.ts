@@ -54,6 +54,13 @@ export interface AlertItem {
   resolution?: { by: string; outcome?: RejectOutcome };
   /** Overrides the default iPhone device label. */
   deviceLabel?: string;
+  /** Set on alerts that come from the API; the texts below replace the per-id demo translations. */
+  real?: true;
+  employeeId?: string;
+  title?: string;
+  slot?: string;
+  description?: string;
+  resolutionNote?: string;
 }
 
 /** Geofence radius used to decide whether a check-in was outside (meters, per site). */

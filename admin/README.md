@@ -11,7 +11,11 @@ yarn install
 yarn dev            # http://localhost:3000
 ```
 
-Sign in with any email and password on the demo sign-in page, pick a workspace, and you land on the Overview. Everything runs on in-memory sample data, so a refresh resets it.
+The dashboard talks to the StaffSync API. Start the backend first (`../scripts/dev.sh --seed` starts everything), then sign in with `owner@staffsync.app` / `staffsync-demo-1`, pick a workspace, and you land on the Overview.
+
+The API address comes from `NEXT_PUBLIC_API_URL` (default `http://localhost:8000/api/v1`; see `.env.local`). Each screen keeps its data in a store and reads and writes it through a `services/*.ts` module; `src/data/` now holds mostly constants and type tables (such as the live-board date helpers, alert and audit labels); any sample records left there are only the initial state before the API data loads.
+
+Single sign-on buttons call the API, which answers "not configured" until Google or Microsoft credentials are set up. Live updates (the live board, dashboard feed) use the API's WebSocket.
 
 | Script | What it does |
 | --- | --- |

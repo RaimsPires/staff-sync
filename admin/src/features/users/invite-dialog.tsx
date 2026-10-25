@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/toast";
 import { controlClass } from "@/components/ui/text-field";
 import type { ScopeKind } from "@/types/auth";
 import { cn } from "@/lib/utils";
-import { activeAdmins, useUsers } from "@/store/users";
+import { activeAdmins, isOwnerRole, useUsers } from "@/store/users";
 import type { DashboardUser } from "@/types/users";
 import { useRoleText, useScopeOptions } from "./model";
 
@@ -55,17 +55,21 @@ function InviteForm({ target, onClose }: { target: NonNullable<InviteTarget>; on
     set({ roleId: id, kind: r ? (r.scope === "any" ? (d.kind === "company" ? "branch" : d.kind) : r.scope) : d.kind, ids: [] });
   };
 
-  const submit = () => {
+  const submit = async () => {
     const bad = (isNew && (!email || !EMAIL.test(email) || taken)) || (needKind !== "company" && d.ids.length === 0);
     if (bad || !role) return set({ tried: true });
     const scope = { kind: needKind, ids: needKind === "company" ? [] : d.ids };
-    if (isNew) {
-      invite(email, role.id, scope);
-      toast(t("toasts.sent", { email }));
-    } else if (target.mode === "edit") {
-      if (target.user.roleId === "admin" && role.id !== "admin" && activeAdmins(users).length <= 1) return toast(t("toasts.keepAdmin"), "bad");
-      assign(target.user.id, role.id, scope);
-      toast(t("toasts.changed", { name: target.user.name, role: roleText.name(role) }));
+    try {
+      if (isNew) {
+        await invite(email, role.id, scope);
+        toast(t("toasts.sent", { email }));
+      } else if (target.mode === "edit") {
+        if (isOwnerRole(roles, target.user.roleId) && role.key !== "owner" && activeAdmins(users, roles).length <= 1) return toast(t("toasts.keepAdmin"), "bad");
+        await assign(target.user.id, role.id, scope);
+        toast(t("toasts.changed", { name: target.user.name, role: roleText.name(role) }));
+      }
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("toasts.failed"), "bad");
     }
     onClose();
   };

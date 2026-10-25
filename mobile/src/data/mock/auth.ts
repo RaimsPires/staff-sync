@@ -16,6 +16,7 @@ export const mockAuth: AuthRepository = {
     if (!account) throw new AppError('ACCOUNT_NOT_FOUND');
     if (!account.active) throw new AppError('ACCOUNT_DISABLED', { company: COMPANIES[0].name });
     db.otpAttempts = 0;
+    return { passwordSetupRequired: false };
   },
 
   async verifyOtp(identifier, code) {
@@ -28,7 +29,11 @@ export const mockAuth: AuthRepository = {
     const account = ACCOUNTS.find((a) => a.identifiers.some((i) => norm(i) === norm(identifier)));
     if (!account) throw new AppError('ACCOUNT_NOT_FOUND');
     db.signedIn = account.profile;
-    return { companies: COMPANIES.filter((c) => account.companies.includes(c.id)), session: sessionFor() };
+    return { companies: COMPANIES.filter((c) => account.companies.includes(c.id)), session: sessionFor(), needsPassword: false };
+  },
+
+  async setInitialPassword() {
+    await delay();
   },
 
   async selectCompany() {

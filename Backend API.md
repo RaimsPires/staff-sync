@@ -667,3 +667,54 @@ The two biggest risks are one company seeing another's data and employees faking
 - CI (GitHub Actions): lint, type check, security scans, tests, build image; Alembic migrations run as a separate release step before rollout.
 - Environments: dev, staging, production, each with its own secrets and data.
 - Horizontal scaling: stateless API instances; WebSocket fan-out through Redis; workers scaled by queue length.
+
+## 18. Appendix: differences between this document and the code (checked Oct 24, 2026, updated Oct 25)
+
+Every route in this document was compared with the running API's OpenAPI schema. All documented routes exist; the lists below are what the code has beyond the sections above, and how some behaviour differs.
+
+**Sign-in (mobile)**
+- `POST /auth/otp/request` takes `identifier` (e-mail or phone) and `password`. Once an account has a password it is required (`401 PASSWORD_REQUIRED`, `401 INVALID_CREDENTIALS`, `429 ACCOUNT_LOCKED` after repeated failures). The one-time code is sent to the account's e-mail address, or by SMS when it has none. An account without a password yet gets `password_setup_required: true`.
+- `POST /auth/otp/verify` answers `needs_password: true` for such accounts; the app then calls `POST /me/password/initial` once (no current password needed, `409` if one is already set). Web sign-in is unchanged (e-mail and password, two-factor optional).
+- Refresh tokens: a token rotated in the last 30 seconds is still accepted once more, because a browser can drop the response of a refresh (reload, hot reload, two tabs). A replay later than that is treated as theft and revokes the whole session.
+
+**Dashboard single sign-on** (Google and Microsoft, only for people who already have an account)
+- `GET /auth/sso/{provider}/authorize` returns `{url}` and sets a short-lived cookie that ties the sign-in to the browser; `GET /auth/sso/{provider}/callback` finishes it and redirects to `{DASHBOARD_URL}/sso` (or `/sign-in?sso_error=...`). `403 SSO_NOT_CONFIGURED` until the provider's client id and secret are set. The provider's own two-factor replaces ours.
+
+**Chat** (every company member; permission `chat.sites` only for reaching site groups without being attached)
+- `GET /chat/conversations`, `GET /chat/people?q=`, `POST /chat/conversations/direct {user_id}`, `GET|POST /chat/conversations/{id}/messages`, `POST /chat/conversations/{id}/read`, `POST /chat/ticket` (single-use ticket for `WS /ws?ticket=`), `POST /uploads/chat-attachment`.
+- Two kinds of conversation. *Direct*: any two active people of the company. *Site*: one group per active site; members are the employees assigned to the site and its managers, and a user with `chat.sites` can also read and write in every site group inside their scope without being attached (how an administrator passes information to a site). Anyone else gets `404`.
+- Messages carry text and up to 6 attachments (photos, short videos, voice notes, PDFs; keys must come from `/uploads/chat-attachment`). New messages are pushed live over the WebSocket and to phones as push notifications.
+
+**Files and profile**
+- Storage is S3-compatible when `S3_BUCKET` is set; otherwise files live on local disk and are served by `PUT|GET /files/{token}` (a signed, short-lived capability, like a presigned URL).
+- `POST /uploads/avatar` then `PATCH /me {avatar_key}` sets the profile photo; `GET /me` returns `avatar_url`.
+- `GET /leave/requests/{id}` returns `attachments: [{key, url}]`.
+
+**Data protection and reports**
+- `POST /employees/{id}/erase {password}` permanently removes a person's personal data (owner-level, asks for the administrator's password again); attendance and leave records stay but no longer name anyone. A person who also works for another company keeps their account there.
+- `POST /company/export` builds a ZIP of CSV files (no secrets), stores it, returns a one-hour download link and e-mails it; limited to once an hour.
+- Report exports can be `csv`, `xlsx` or `pdf`. A saved report with `schedule {frequency: weekly|monthly, recipients, format}` is e-mailed as a 7-day download link by the worker (weekly: the previous Monday-Sunday; monthly: the previous calendar month), once per period.
+
+**Delivery**
+- E-mail goes over SMTP, SMS through Twilio or Africa's Talking, push through Expo's push service, all switched on by environment variables listed in `backend/.env.example`. With none set, messages are only written to the server log. A provider failure is logged and never fails the request.
+- Attestation: Google Play Integrity tokens are verified when `PLAY_INTEGRITY_PACKAGE_NAME` and `GOOGLE_SERVICE_ACCOUNT_FILE` are set. iOS App Attest verification is not built; the mobile app does not send attestation tokens yet.
+
+**Other routes added during integration**
+
+| Area | Endpoints |
+| --- | --- |
+| Leave | `GET/POST /leave/types`, `PATCH/DELETE /leave/types/{id}`, `GET /me/leave/approved`. `PATCH /me/leave/requests/{id}` keeps the existing `attachment_keys` when the field is omitted. `POST /leave/requests/{id}/recommend` also works under one-level approval, as advice: the request stays pending and the approver sees the recommendation. |
+| Users | `POST /users/{id}/resend-invite`, `POST /users/{id}/restore` (body: role and scope), `GET /invitations/{token}` |
+| Employees | `GET/POST /employees/{id}/notes`, `POST /employees/{id}/reactivate`, `PUT /employees/import/{job_id}/mapping` |
+| Attendance | `POST /attendance/proxy/verify-pin`, `POST /attendance/{id}/notes`, `GET /me/attendance/week-summary`, `GET /me/attendance/for-shift/{shift_id}`. Check-in bodies accept `accept_unscheduled`; without it a check-in outside any shift answers `422 UNSCHEDULED`. |
+| Roster | `GET /manager/sites`, `GET /manager/sites/{id}/roster`, `/summary`, `/leave`, `GET /manager/badges/{token}`, `GET /manager/employees/{id}/shifts`. A note left on an employee today appears on the roster when the attendance record has none. |
+| Sites | `POST /sites/{id}/activate`, `GET /org/tree`, `GET /search` |
+| Settings | `GET/PATCH /settings/attendance`, `/settings/leave-policy`, `/settings/notifications`; `GET/POST/DELETE /settings/api-keys` |
+| Reports | `GET/POST /reports/saved`, `PATCH/DELETE /reports/saved/{id}` |
+| Holidays | `GET/POST /holidays`, `DELETE /holidays/{id}`, `GET/POST /holidays/calendars`, `GET /me/holidays` |
+| Webhooks | `GET/POST /webhooks`, `PATCH/DELETE /webhooks/{id}`, `GET /webhooks/events`, deliveries and retry |
+| Mobile | `GET /me/profile`, `GET /me/shifts/{id}`, `GET /devices/me`, `POST /me/corrections/{id}/cancel`, `GET /dashboard/activity`, uploads for `correction-attachment`, `proxy-photo`, `avatar` |
+
+**Behaviour worth knowing**
+- Revoked dashboard users stay in `GET /users` with status `revoked` and can be restored.
+- Site managers receive the `site_manager` role scoped to the sites they manage when assigned through `PUT /sites/{id}/managers`; unassigning removes it. A user who already holds a different role is never downgraded.

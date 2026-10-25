@@ -45,7 +45,8 @@ describe('offline queue', () => {
     q.enqueueProxy(proxy);
     const result = await useOfflineQueue.getState().sync();
     expect(note).toHaveBeenCalledWith('u-paul', 'late');
-    expect(check).toHaveBeenCalledWith(proxy.input);
+    // The queued id doubles as the idempotency key, so a replay after a lost response is not recorded twice.
+    expect(check).toHaveBeenCalledWith({ ...proxy.input, clientEventId: proxy.id });
     expect(result).toEqual({ synced: 2, remaining: 0 });
     expect(selectPending(useOfflineQueue.getState())).toBe(0);
   });

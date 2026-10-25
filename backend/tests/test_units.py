@@ -96,8 +96,10 @@ def test_leave_state_machine():
         next_status("pending", "approve", levels=2)  # needs the site manager's recommendation first
     with pytest.raises(Conflict):
         next_status("rejected", "approve")
+    # one-level approval has no recommend step, but a site manager may still advise on a pending request
+    assert next_status("pending", "recommend", levels=1) == "pending"
     with pytest.raises(Conflict):
-        next_status("pending", "recommend", levels=1)
+        next_status("approved", "recommend", levels=1)
     assert next_status("approved", "request_cancellation") == "cancellation_requested"
 
 
@@ -157,3 +159,12 @@ def test_geometry_validation_and_distance():
         validate_polygon(tiny)  # below the minimum area
     assert 110_000 < haversine_m(4.0, 9.0, 5.0, 9.0) < 112_000
     assert circle_polygon(9.0, 4.0, 100).is_valid
+
+
+def test_worker_jobs_are_registered_under_distinct_names():
+    """ARQ keys jobs by qualified name; sharing one name made only a single job run (the outbox relay never did)."""
+    from staffsync.workers.settings import WorkerSettings
+
+    names = [f.__qualname__ for f in WorkerSettings.functions]
+    assert len(set(names)) == len(names) == 8
+    assert "relay_outbox" in names

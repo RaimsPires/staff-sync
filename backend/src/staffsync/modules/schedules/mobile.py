@@ -12,7 +12,7 @@ from staffsync.modules.auth.models import User
 from staffsync.modules.branches.models import Branch
 from staffsync.modules.employees.models import Employee
 from staffsync.modules.leave.models import Holiday
-from staffsync.modules.schedules.models import Schedule, Shift
+from staffsync.modules.schedules.models import LIVE_SHIFT, Schedule, Shift
 from staffsync.modules.schedules.schemas import AssignmentRead
 from staffsync.modules.sites import geo_queries
 from staffsync.modules.sites.models import Site, SiteManager
@@ -47,13 +47,13 @@ async def to_assignments(ctx: RequestContext, rows: list[Shift]) -> list[Assignm
 async def my_range(ctx: RequestContext, start: date, end: date) -> list[AssignmentRead]:
     emp = ctx.require_employee()
     lo, hi = datetime.combine(start - timedelta(days=1), datetime.min.time(), UTC), datetime.combine(end + timedelta(days=2), datetime.min.time(), UTC)
-    rows = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp, Shift.status != "cancelled", Shift.starts_at >= lo, Shift.starts_at < hi).order_by(Shift.starts_at))).all()
+    rows = (await ctx.session.exec(select(Shift).where(Shift.employee_id == emp, Shift.status.in_(LIVE_SHIFT), Shift.starts_at >= lo, Shift.starts_at < hi).order_by(Shift.starts_at))).all()
     res = await to_assignments(ctx, list(rows))
     return [a for a in res if start <= a.date <= end]
 
 
 async def my_shift(ctx: RequestContext, shift_id: UUID) -> AssignmentRead:
-    sh = (await ctx.session.exec(select(Shift).where(Shift.id == shift_id, Shift.employee_id == ctx.require_employee()))).first()
+    sh = (await ctx.session.exec(select(Shift).where(Shift.id == shift_id, Shift.employee_id == ctx.require_employee(), Shift.status.in_(LIVE_SHIFT)))).first()
     if sh is None:
         raise NotFound()
     return (await to_assignments(ctx, [sh]))[0]

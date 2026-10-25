@@ -10,7 +10,8 @@ import { controlClass } from "@/components/ui/text-field";
 import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import type { ExportKind, Frequency, ReportConfig, ReportSchedule } from "@/types/reports";
-import { EMAIL, EXPORT_KINDS, FREQUENCIES, MONTH_DAYS, REPORT_PEOPLE, WEEKDAYS } from "./model";
+import { EMAIL, EXPORT_KINDS, FREQUENCIES, MONTH_DAYS, WEEKDAYS } from "./model";
+import { useEmployees } from "@/store/employees";
 
 const chip = (on: boolean) => cn("h-[30px] rounded-full border border-solid px-3 text-[12.5px] font-medium", on ? "border-accent bg-accent text-white" : "border-border-strong bg-surface text-text-2");
 const seg = (on: boolean) => cn("h-[34px] flex-1 border-0 text-[13px]", on ? "bg-accent text-white" : "bg-surface text-text-2");
@@ -22,7 +23,8 @@ export function ScopeDialog({ config, onChange, onClose }: { config: ReportConfi
   const [query, setQuery] = useState("");
   const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const sites = org.sites.filter((s) => !config.branches.length || config.branches.includes(s.branchId));
-  const people = REPORT_PEOPLE.filter(([n]) => n.toLowerCase().includes(query.toLowerCase()));
+  const employees = useEmployees((st) => st.employees);
+  const people = employees.filter((e) => e.status !== "deactivated" && e.name.toLowerCase().includes(query.toLowerCase())).map((e) => [e.name] as const);
 
   return (
     <Modal open onClose={onClose} title={<div><div>{t("title")}</div><div className="text-[12.5px] font-normal text-text-3">{t("hint")}</div></div>} className="max-w-[520px]"

@@ -66,7 +66,7 @@ export const useOfflineQueue = create<QueueState>()(
           let syncedProxies = 0;
           for (const p of proxies) {
             try {
-              await repos.manager.proxyCheck(p.input as ProxyInput);
+              await repos.manager.proxyCheck({ ...(p.input as ProxyInput), clientEventId: p.id });
               syncedProxies += 1;
               set((s) => ({ proxies: s.proxies.filter((x) => x.id !== p.id) }));
             } catch (e) {

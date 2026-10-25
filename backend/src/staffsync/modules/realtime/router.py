@@ -35,15 +35,17 @@ async def ws(websocket: WebSocket, ticket: str):
     info = json.loads(raw)
     await websocket.accept()
     pubsub = r.pubsub()
+    extra = info.get("extra") or []  # chat channels, from /chat/ticket
     if info["sites"] is None:
         await pubsub.psubscribe(f"company:{info['company_id']}:site:*")
+        await pubsub.subscribe(f"company:{info['company_id']}:all")
     elif info["sites"]:
         await pubsub.subscribe(*[channel(info["company_id"], s) for s in info["sites"]])
-    else:
+    elif not extra:
         await websocket.close(code=4403)
         return
-    if info["sites"] is None:
-        await pubsub.subscribe(f"company:{info['company_id']}:all")
+    if extra:
+        await pubsub.subscribe(*extra)
 
     async def pump():
         async for msg in pubsub.listen():

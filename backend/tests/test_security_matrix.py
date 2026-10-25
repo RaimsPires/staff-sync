@@ -3,12 +3,11 @@
 import re
 import uuid
 
-
 from tests.helpers import make_employee, seed_org, signup_owner
 
-PUBLIC = re.compile(r"^/api/v1/(auth/|invitations/|\.well-known|health/|billing/webhook)")
+PUBLIC = re.compile(r"^/api/v1/(auth/|invitations/|\.well-known|health/|billing/webhook|files/)")
 # endpoints any signed-in member may call (scoped to their own data or harmless)
-MEMBER_OK = re.compile(r"^/api/v1/(me|devices|uploads|attendance/(check-in|check-out|sync)|company$|company/onboarding|org/tree|search|leave/types$|billing/plans|ws/|auth)")
+MEMBER_OK = re.compile(r"^/api/v1/(me|devices|uploads|chat/|attendance/(check-in|check-out|sync)|company$|company/onboarding|org/tree|search|leave/types$|billing/plans|ws/|auth)")
 
 
 def routes():

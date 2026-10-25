@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Phone, Plus, QrCode, Trash2 } from "lucide-react";
+import { useHeadcounts } from "./use-headcounts";
+import { ArrowLeft, Plus, QrCode, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
@@ -12,14 +13,20 @@ import { Chip } from "@/components/ui/chip";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
 import { DEMO_MONTH, DEMO_YEAR } from "@/data/live";
-import { MANAGER_POOL } from "@/data/sites";
 import { geofenceMetrics, offsetMeters } from "@/lib/geo";
-import { formatTime } from "@/lib/time";
+import { formatTime, parseTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useAccess } from "@/store/use-access";
 import { useSites } from "@/store/sites";
 import type { ManagedSite } from "@/types/site";
-import { historyFor, NOW_MINUTES, POOL, rosterFor, weekFor, type RosterEntry, type RosterStatus } from "./site-model";
+import { historyFor, nowMinutes, rosterFor, weekFor, type RosterEntry, type RosterStatus } from "./site-model";
+import { proxyCheck } from "@/services/attendance";
+import { setSiteEmployees, setSiteManager } from "@/services/org";
+import { useData } from "@/store/data";
+import { useEmployees } from "@/store/employees";
+import { useSchedule } from "@/store/schedule";
+import { useUsers } from "@/store/users";
+import { dateOf, TODAY_INDEX } from "@/features/schedules/model";
 import { SiteQrDialog } from "./site-qr-dialog";
 
 const card = "rounded-xl border border-border bg-surface shadow-card";
@@ -29,6 +36,7 @@ const STATUS_TONE: Record<RosterStatus, "ok" | "warn" | "neutral" | "bad" | "inf
 const POINT_COLOR: Partial<Record<RosterStatus, string>> = { in: "#16A34A", late: "#E59A00", out: "#97A1B0", flagged: "#E5372A" };
 
 export function SiteDetailScreen({ id }: { id: string }) {
+  useHeadcounts();
   const site = useSites((s) => s.sites.find((x) => x.id === id));
   const { role, siteIds } = useAccess();
   if (!site) notFound();
@@ -45,17 +53,24 @@ function Detail({ site }: { site: ManagedSite }) {
   const branch = useSites((s) => s.branches.find((b) => b.id === site.branchId));
   const [tab, setTab] = useState<Tab>("today");
   const [qr, setQr] = useState(false);
-  const roster0 = useMemo(() => rosterFor(site), [site]);
-  const [roster, setRoster] = useState(roster0);
-  const rate = site.active && site.expected ? Math.round(88 + ((roster0.length * 7) % 9)) : 0;
-  const lates = roster.filter((r) => r.status === "late").length + Math.round(roster.length * 1.6);
-  const flags = roster.filter((r) => r.status === "flagged").length + Math.round(roster.length * 0.4);
+  const today = useData((s) => s.today);
+  const history = useData((s) => s.history);
+  const employees = useEmployees((s) => s.employees);
+  const roster = useMemo(() => rosterFor(site, today, employees), [site, today, employees]);
+  // This month so far at this site: earlier days plus today.
+  const month = useMemo(() => [...history, ...today].filter((r) => r.site === site.id && r.status !== "holiday" && r.status !== "leave"), [history, today, site.id]);
+  const counted = month.filter((r) => r.in || r.status === "absent");
+  const rate = counted.length ? Math.round((counted.filter((r) => r.in).length / counted.length) * 100) : 0;
+  const lates = month.filter((r) => r.status === "late").length;
+  const flags = month.filter((r) => r.flag && !r.cleared).length;
+  const arrivals = month.filter((r) => r.in).map((r) => r.in);
+  const meanArrival = arrivals.length ? Math.round(arrivals.reduce((a, b) => a + parseTime(b), 0) / arrivals.length) : null;
   const canManage = perms.admin || perms.org;
   const fence = site.geofence.kind === "circle" ? tc("fence.circle", { radius: site.geofence.radius }) : tc("fence.polygon", { area: site.geofence.hectares });
 
   const stats = [
-    { k: "rate", v: site.active && roster.length ? `${rate}%` : "—", tone: rate >= 93 ? "text-ok" : "text-text", hint: t("stats.thisMonth") },
-    { k: "arrival", v: site.active && roster.length ? "07:56" : "—", tone: "text-text", hint: t("stats.fourBefore") },
+    { k: "rate", v: site.active && counted.length ? `${rate}%` : "—", tone: rate >= 93 ? "text-ok" : "text-text", hint: t("stats.thisMonth") },
+    { k: "arrival", v: site.active && meanArrival !== null ? formatTime(meanArrival) : "—", tone: "text-text", hint: t("stats.fourBefore") },
     { k: "lates", v: site.active ? lates : "—", tone: "text-text", hint: t("stats.thisMonth") },
     { k: "flags", v: site.active ? flags : "—", tone: flags > 2 ? "text-bad" : "text-text", hint: t("stats.thisMonth") },
   ];
@@ -95,10 +110,10 @@ function Detail({ site }: { site: ManagedSite }) {
         ))}
       </div>
 
-      {tab === "today" && <TodayTab roster={roster} onRoster={setRoster} />}
-      {tab === "employees" && <EmployeesTab roster={roster0} site={site} />}
-      {tab === "schedule" && <ScheduleTab roster={roster0} site={site} />}
-      {tab === "history" && <HistoryTab roster={roster0} site={site} />}
+      {tab === "today" && <TodayTab roster={roster} />}
+      {tab === "employees" && <EmployeesTab site={site} />}
+      {tab === "schedule" && <ScheduleTab site={site} />}
+      {tab === "history" && <HistoryTab site={site} />}
       {tab === "managers" && <ManagersTab site={site} />}
       {tab === "settings" && <SettingsTab site={site} />}
       <SiteQrDialog site={qr ? site : null} onClose={() => setQr(false)} />
@@ -128,23 +143,22 @@ function MapCard({ site, roster }: { site: ManagedSite; roster: RosterEntry[] })
   );
 }
 
-function TodayTab({ roster, onRoster }: { roster: RosterEntry[]; onRoster: (r: RosterEntry[]) => void }) {
+function TodayTab({ roster }: { roster: RosterEntry[] }) {
   const t = useTranslations("Sites.detail");
   const ts = useTranslations("Sites.detail.rosterStatus");
   const tj = useTranslations("Employees.titles");
   const toast = useToast();
-  const { me } = useAccess();
   const [proxy, setProxy] = useState<{ id: string; type: "in" | "out"; time: string; reason: string; tried: boolean } | null>(null);
   const counts = (["in", "late", "flagged", "out", "expected", "absent"] as const).map((k) => [k, roster.filter((r) => r.status === k).length] as const).filter(([, n]) => n > 0);
 
-  const confirm = () => {
+  const confirm = async () => {
     if (!proxy) return;
     if (!proxy.reason.trim()) return setProxy({ ...proxy, tried: true });
-    const [h, m] = proxy.time.split(":").map(Number);
-    const minutes = h * 60 + m;
-    onRoster(roster.map((r) => (r.id !== proxy.id ? r : proxy.type === "in"
-      ? { ...r, status: minutes > r.shiftStart + 5 ? "late" : "in", inMin: minutes, method: "proxy", proxyBy: me.name, distance: 0.3 }
-      : { ...r, status: "out", outMin: minutes })));
+    try {
+      await proxyCheck(Number(proxy.id), proxy.type, { time: proxy.time, reason: proxy.reason.trim(), note: "" });
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("proxy.failed"), "bad");
+    }
     toast(t(proxy.type === "in" ? "proxy.doneIn" : "proxy.doneOut"));
     setProxy(null);
   };
@@ -180,7 +194,7 @@ function TodayTab({ roster, onRoster }: { roster: RosterEntry[]; onRoster: (r: R
                         <div className="flex gap-2"><Button size="sm" variant="primary" onClick={confirm}>{t("proxy.confirm")}</Button><Button size="sm" onClick={() => setProxy(null)}>{t("proxy.cancel")}</Button></div>
                       </div>
                     ) : canProxy ? (
-                      <Button size="sm" onClick={() => setProxy({ id: r.id, type: isIn ? "out" : "in", time: formatTime(NOW_MINUTES), reason: "", tried: false })}>{t(isIn ? "proxy.checkOut" : "proxy.checkIn")}</Button>
+                      <Button size="sm" onClick={() => setProxy({ id: r.id, type: isIn ? "out" : "in", time: formatTime(nowMinutes()), reason: "", tried: false })}>{t(isIn ? "proxy.checkOut" : "proxy.checkIn")}</Button>
                     ) : null}
                   </td>
                 </tr>
@@ -193,34 +207,43 @@ function TodayTab({ roster, onRoster }: { roster: RosterEntry[]; onRoster: (r: R
   );
 }
 
-function EmployeesTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+function EmployeesTab({ site }: { site: ManagedSite }) {
   const t = useTranslations("Sites.detail.team");
   const tj = useTranslations("Employees.titles");
   const toast = useToast();
-  const [team, setTeam] = useState(roster.map((r) => ({ name: r.name, title: r.title })));
+  const employees = useEmployees((st) => st.employees);
+  const team = employees.filter((e) => e.siteIds.includes(site.id) && e.status !== "deactivated");
+  const available = employees.filter((e) => !e.siteIds.includes(site.id) && e.status !== "deactivated");
   const [pick, setPick] = useState("");
   const [removing, setRemoving] = useState<string | null>(null);
-  const available = POOL.filter(([n]) => !team.some((m) => m.name === n));
+  const save = async (nos: string[], done: string) => {
+    try {
+      await setSiteEmployees(site.id, nos);
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("failed"), "bad");
+    }
+    toast(done);
+  };
   return (
     <section className={cn(card, "px-[18px] py-4")}>
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <h2 className="m-0 mr-auto text-[14.5px] font-semibold">{t("assigned", { count: team.length })}</h2>
         <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("add")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
           <option value="">{t("add")}</option>
-          {available.map(([n, j]) => <option key={n} value={n}>{n} · {tj(j)}</option>)}
+          {available.map((e) => <option key={e.id} value={e.id}>{e.name} · {tj(e.title)}</option>)}
         </select>
-        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { const x = POOL.find(([n]) => n === pick); if (!x) return; setTeam([...team, { name: x[0], title: x[1] }]); setPick(""); toast(t("added", { name: x[0], site: site.name })); }}><Plus size={14} /> {t("addButton")}</Button>
+        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { const who = available.find((e) => e.id === pick); if (!who) return; void save([...team.map((m) => m.id), who.id], t("added", { name: who.name, site: site.name })); setPick(""); }}><Plus size={14} /> {t("addButton")}</Button>
       </div>
       {team.length === 0 && <div className="py-8 text-center text-[13px] text-text-3">{t("none")}</div>}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
         {team.map((m) => (
-          <div key={m.name} className="flex items-center gap-2.5 rounded-[10px] border border-border px-3 py-2.5">
+          <div key={m.id} className="flex items-center gap-2.5 rounded-[10px] border border-border px-3 py-2.5">
             <Avatar name={m.name} size={34} />
             <div className="min-w-0 flex-1"><div className="truncate text-[13.5px] font-medium">{m.name}</div><div className="text-[12px] text-text-3">{tj(m.title)}</div></div>
-            {removing === m.name ? (
-              <span className="flex gap-1.5"><Button size="sm" variant="danger" onClick={() => { setTeam(team.filter((x) => x.name !== m.name)); setRemoving(null); toast(t("removed", { name: m.name })); }}>{t("confirmRemove")}</Button><Button size="sm" onClick={() => setRemoving(null)}>{t("cancel")}</Button></span>
+            {removing === m.id ? (
+              <span className="flex gap-1.5"><Button size="sm" variant="danger" onClick={() => { void save(team.filter((x) => x.id !== m.id).map((x) => x.id), t("removed", { name: m.name })); setRemoving(null); }}>{t("confirmRemove")}</Button><Button size="sm" onClick={() => setRemoving(null)}>{t("cancel")}</Button></span>
             ) : (
-              <button onClick={() => setRemoving(m.name)} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><Trash2 size={14} /></button>
+              <button onClick={() => setRemoving(m.id)} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><X size={14} /></button>
             )}
           </div>
         ))}
@@ -229,19 +252,23 @@ function EmployeesTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSi
   );
 }
 
-function ScheduleTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+function ScheduleTab({ site }: { site: ManagedSite }) {
   const t = useTranslations("Sites.detail.schedule");
   const format = useFormatter();
-  const team = roster.map((r) => ({ name: r.name }));
-  const week = weekFor(site, team, roster);
-  const days = Array.from({ length: 7 }, (_, i) => new Date(DEMO_YEAR, DEMO_MONTH, 12 + i));
+  const employees = useEmployees((st) => st.employees);
+  const shifts = useSchedule((st) => st.shifts);
+  const team = employees.filter((e) => e.siteIds.includes(site.id) && e.status !== "deactivated").map((e) => ({ name: e.name }));
+  const monday = 0; // day 0 of the planner is this week's Monday
+  const week = weekFor(team, shifts.filter((x) => x.site === site.id), monday);
+  const todayWeekday = TODAY_INDEX;
+  const days = Array.from({ length: 7 }, (_, i) => dateOf(monday + i));
   return (
     <section className={cn(card, "overflow-x-auto")}>
       <table className="w-full min-w-[760px] border-collapse text-[13px]">
         <thead>
           <tr className="text-left text-[12px] text-text-3">
             <th className="h-9 border-b border-border px-4 font-medium">{t("employee")}</th>
-            {days.map((d, i) => <th key={i} className={cn("h-9 border-b border-border px-2 text-center font-medium", i === 3 && "text-accent")}>{format.dateTime(d, { weekday: "short", day: "numeric" })}</th>)}
+            {days.map((d, i) => <th key={i} className={cn("h-9 border-b border-border px-2 text-center font-medium", i === todayWeekday && "text-accent")}>{format.dateTime(d, { weekday: "short", day: "numeric", timeZone: "UTC" })}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -250,7 +277,7 @@ function ScheduleTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSit
               <td className="whitespace-nowrap px-4 py-2 font-medium">{row.name}</td>
               {row.cells.map((c, i) => (
                 <td key={i} className="p-1.5">
-                  <div className={cn("rounded-md px-1.5 py-1.5 text-center font-mono text-[12px]", i === 3 && "outline outline-[1.5px] outline-accent", c.kind === "shift" || c.kind === "half" ? "bg-accent-soft text-accent" : c.kind === "leave" ? "bg-violet-bg text-violet" : "text-text-3")}>
+                  <div className={cn("rounded-md px-1.5 py-1.5 text-center font-mono text-[12px]", i === todayWeekday && "outline outline-[1.5px] outline-accent", c.kind === "shift" || c.kind === "half" ? "bg-accent-soft text-accent" : c.kind === "leave" ? "bg-violet-bg text-violet" : "text-text-3")}>
                     {c.kind === "off" ? t("off") : c.kind === "leave" ? t("leave") : `${c.from}–${c.to}`}
                   </div>
                 </td>
@@ -263,12 +290,13 @@ function ScheduleTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSit
   );
 }
 
-function HistoryTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite }) {
+function HistoryTab({ site }: { site: ManagedSite }) {
   const t = useTranslations("Sites.detail.history");
   const format = useFormatter();
   const [filter, setFilter] = useState<"all" | "in" | "late" | "absent" | "flagged">("all");
   const [query, setQuery] = useState("");
-  const all = useMemo(() => historyFor(site, roster), [site, roster]);
+  const history = useData((st) => st.history);
+  const all = useMemo(() => historyFor(site, history), [site, history]);
   const q = query.trim().toLowerCase();
   const rows = all.filter((h) => (filter === "all" || h.status === filter) && (!q || h.name.toLowerCase().includes(q))).slice(0, 24);
   const tone = { in: "ok", late: "warn", absent: "bad", flagged: "orange" } as const;
@@ -297,29 +325,36 @@ function HistoryTab({ roster, site }: { roster: RosterEntry[]; site: ManagedSite
 
 function ManagersTab({ site }: { site: ManagedSite }) {
   const t = useTranslations("Sites.detail.managers");
-  const tr = useTranslations("Sites.detail.managerRoles");
   const toast = useToast();
-  const patchSite = useSites((s) => s.patchSite);
+  const users = useUsers((st) => st.users);
   const [pick, setPick] = useState("");
-  const list = site.managers.map((n) => MANAGER_POOL.find((m) => m.name === n) ?? { name: n, role: "siteManager" as const, phone: "—" });
-  const pool = MANAGER_POOL.filter((m) => !site.managers.includes(m.name));
+  const list = site.managers.map((n) => ({ name: n, id: users.find((u) => u.name === n)?.id, phone: n === site.managers[0] ? site.phone || "—" : "—" }));
+  const pool = users.filter((u) => u.status === "active" && !site.managers.includes(u.name));
+  const change = async (userId: string | undefined, add: boolean, done: string) => {
+    if (!userId) return toast(t("notAUser"), "bad");
+    try {
+      await setSiteManager(site.id, userId, add);
+    } catch (e) {
+      return toast(e instanceof Error ? e.message : t("failed"), "bad");
+    }
+    toast(done);
+  };
   return (
     <section className={cn(card, "px-[18px] py-4")}>
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <h2 className="m-0 mr-auto text-[14.5px] font-semibold">{t("title")}</h2>
         <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("add")} className="h-9 rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 text-[13px] text-text">
           <option value="">{t("add")}</option>
-          {pool.map((m) => <option key={m.name}>{m.name}</option>)}
+          {pool.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
-        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { patchSite(site.id, { managers: [...site.managers, pick] }); toast(t("added", { name: pick })); setPick(""); }}><Plus size={14} /> {t("addButton")}</Button>
+        <Button size="sm" variant="primary" disabled={!pick} onClick={() => { const who = pool.find((u) => u.id === pick); void change(pick, true, t("added", { name: who?.name ?? "" })); setPick(""); }}><Plus size={14} /> {t("addButton")}</Button>
       </div>
       {list.length === 0 && <div className="py-8 text-center text-[13px] text-text-3">{t("none")}</div>}
       {list.map((m, i) => (
         <div key={m.name} className={cn("flex items-center gap-3 py-3", i > 0 && "border-t border-border")}>
           <Avatar name={m.name} size={38} />
-          <div className="min-w-0 flex-1"><div className="text-[13.5px] font-medium">{m.name}</div><div className="text-[12px] text-text-3">{tr(m.role)} · {m.phone}</div></div>
-          <Button size="sm" onClick={() => toast(t("calling", { name: m.name }), "info")}><Phone size={14} /> {t("call")}</Button>
-          <button onClick={() => { patchSite(site.id, { managers: site.managers.filter((n) => n !== m.name) }); toast(t("removed", { name: m.name })); }} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><Trash2 size={14} /></button>
+          <div className="min-w-0 flex-1"><div className="text-[13.5px] font-medium">{m.name}</div><div className="text-[12px] text-text-3">{m.phone}</div></div>
+          <button onClick={() => void change(m.id, false, t("removed", { name: m.name }))} aria-label={t("remove", { name: m.name })} className="grid size-8 place-items-center rounded-lg border border-solid border-border bg-transparent text-text-3 hover:text-bad"><X size={14} /></button>
         </div>
       ))}
     </section>

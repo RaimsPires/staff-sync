@@ -3,18 +3,19 @@
 import { KeepMounted } from "@/components/ui/overlay";
 import { Check, ChevronDown, ChevronLeft } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { Segmented } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { useOrg } from "@/lib/org";
+import { previewReport } from "@/services/reports";
 import { exportTable } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import type { ExportKind, GroupBy, RangeKey, ReportConfig } from "@/types/reports";
 import { ScopeDialog } from "./dialogs";
-import { computeReport, formatValue, GROUPS, parseDay, RANGE_KEYS, RANGES, rangeOf, REPORTS } from "./model";
+import { emptyReport, formatValue, GROUPS, parseDay, RANGE_KEYS, RANGES, rangeOf, REPORTS, type ReportData } from "./model";
 
 const trigger = "flex h-[34px] items-center gap-2 rounded-[9px] border border-solid bg-surface px-3 text-[13px] text-text";
 
@@ -45,10 +46,30 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
   const shortDay = (ms: number) => format.dateTime(new Date(ms), { day: "numeric", month: "short", timeZone: "UTC" });
   const [from, to] = rangeOf(config);
   const badRange = !from || !to || parseDay(to) < parseDay(from);
-  const data = useMemo(
-    () => computeReport(config, org, (ms) => format.dateTime(new Date(ms), { day: "numeric", month: "short", timeZone: "UTC" })),
-    [config, org, format],
-  );
+  // The numbers come from the server; a short pause after each change avoids a request per keystroke.
+  const [result, setResult] = useState<{ config: ReportConfig; data: ReportData } | null>(null);
+  const loading = result?.config !== config;
+  const data = useMemo(() => (loading || !result ? emptyReport(config) : result.data), [loading, result, config]);
+  useEffect(() => {
+    let live = true;
+    const timer = setTimeout(() => {
+      previewReport(config).then(
+        (d) => live && setResult({ config, data: d }),
+        (e: unknown) => {
+          if (!live) return;
+          setResult({ config, data: emptyReport(config) });
+          toast(e instanceof Error ? e.message : t("loadFailed"), "bad");
+        },
+      );
+    }, 250);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+    // `t` and `toast` are stable for the life of the screen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config]);
+  const keyText = (k: string) => (config.group === "day" ? format.dateTime(new Date(`${k}T12:00:00Z`), { day: "numeric", month: "short", timeZone: "UTC" }) : k);
   const label = (key: string) => tCol(`${config.type}.${key}`);
   const header = (c: (typeof data.cols)[number]) => `${label(c.key)}${c.unit === "%" ? "" : ` (${tUnit(c.unit)})`}`;
   const groupWord = tGroup(`${config.group}.plural`);
@@ -58,7 +79,8 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
   const chartRows = useMemo(() => {
     if (mi < 0) return [];
     const src = config.group === "day" ? data.rows.slice(0, 31) : [...data.rows].sort((a, b) => b.vals[mi] - a.vals[mi]).slice(0, 12);
-    return src.map((r) => ({ name: r.key.split(" ")[0], full: r.key, value: Math.round(r.vals[mi] * 10) / 10 }));
+    return src.map((r) => ({ name: keyText(r.key).split(" ")[0], full: keyText(r.key), value: Math.round(r.vals[mi] * 10) / 10 }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, mi, config.group]);
   const totals = data.cols.map((c, i) => { const arr = data.rows.map((r) => r.vals[i]); const sum = arr.reduce((a, b) => a + b, 0); return formatValue(c.sum ? sum : sum / Math.max(1, arr.length), c.unit); });
 
@@ -73,12 +95,12 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
 
   const doExport = async (kind: ExportKind) => {
     if (!data.rows.length) return toast(t("nothingToExport"), "bad");
-    const table = [[tGroup(`${config.group}.label`), ...data.cols.map(header)], ...data.rows.map((r) => [r.key, ...r.vals.map((v, i) => formatValue(v, data.cols[i].unit))])];
+    const table = [[tGroup(`${config.group}.label`), ...data.cols.map(header)], ...data.rows.map((r) => [keyText(r.key), ...r.vals.map((v, i) => formatValue(v, data.cols[i].unit))])];
     await exportTable(kind, config.type, title, table);
     toast(t("exported", { count: data.rows.length, format: tFmt(kind) }));
   };
 
-  const noRowsText = !config.cols.length ? t("noColumns") : badRange ? t("fixRange") : t("noMatch");
+  const noRowsText = loading ? t("loading") : !config.cols.length ? t("noColumns") : badRange ? t("fixRange") : t("noMatch");
   const toggleCol = (k: string) => onChange({ cols: config.cols.includes(k) ? config.cols.filter((x) => x !== k) : [...config.cols, k] });
   const optionRow = "flex h-[34px] w-full items-center gap-2 rounded-lg border-0 px-2.5 text-left text-[13px] text-text hover:bg-hover";
 
@@ -99,7 +121,7 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
           {(close) => (<>
             {RANGE_KEYS.map((k: RangeKey) => (
               <button key={k} onClick={() => { onChange(k === "custom" ? { range: k, from: from || RANGES.month.from, to: to || RANGES.month.to } : { range: k }); if (k !== "custom") close(); }} className={cn(optionRow, config.range === k && "bg-accent-soft")}>
-                <span className="w-3.5 font-bold text-accent">{config.range === k ? <Check size={13} /> : null}</span>{tRange(`${k}.label`)}{k !== "custom" && <span className="text-text-3"> · {tRange(`${k}.short`)}</span>}
+                <span className="w-3.5 font-bold text-accent">{config.range === k ? <Check size={13} /> : null}</span>{tRange(`${k}.label`)}{k !== "custom" && <span className="text-text-3"> · {`${shortDay(parseDay(RANGES[k].from))} – ${shortDay(parseDay(RANGES[k].to))}`}</span>}
               </button>
             ))}
             {config.range === "custom" && (
@@ -166,7 +188,7 @@ export function ReportView({ config, onChange, title, onBack, onSave, onSchedule
                 </div>
                 {data.rows.map((r) => (
                   <div key={r.key} className="flex border-b border-border text-[13px] hover:bg-hover">
-                    <div className="min-w-0 flex-[1.6] truncate px-4 py-2.5 font-medium">{r.key}</div>
+                    <div className="min-w-0 flex-[1.6] truncate px-4 py-2.5 font-medium">{keyText(r.key)}</div>
                     {r.vals.map((v, i) => <div key={data.cols[i].key} className="min-w-0 flex-1 px-4 py-2.5 text-right font-mono text-[12.5px] text-text-2">{formatValue(v, data.cols[i].unit)}</div>)}
                   </div>
                 ))}

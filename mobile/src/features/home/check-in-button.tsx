@@ -12,6 +12,8 @@ type Props = {
   state: CheckInButtonState;
   assignment: Assignment;
   locationGranted: boolean;
+  /** Opens the permission prompt or the system settings when location is off or only approximate. */
+  onFixLocation?: () => void;
   onCheckIn: () => void;
   onCheckOut: () => void;
 };
@@ -19,7 +21,7 @@ type Props = {
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** The five states of the main action (Mobile App.md §3), rendered as the 76px two-line design button. */
-export function CheckInButton({ state, assignment, locationGranted, onCheckIn, onCheckOut }: Props) {
+export function CheckInButton({ state, assignment, locationGranted, onFixLocation, onCheckIn, onCheckOut }: Props) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const now = useNow(1000);
@@ -28,7 +30,7 @@ export function CheckInButton({ state, assignment, locationGranted, onCheckIn, o
   let v = base;
 
   if (!locationGranted) {
-    v = { ...base, label: t('home.locationOff'), sub: t('home.gpsSub') };
+    v = { ...base, label: t('home.locationOff'), sub: t('home.locationOffSub'), onPress: onFixLocation };
   } else if (state.kind === 'waiting_gps') {
     v = { ...base, label: t('home.waitingGps'), sub: t('home.gpsSub'), note: t('home.gpsNote') };
   } else if (state.kind === 'outside') {
