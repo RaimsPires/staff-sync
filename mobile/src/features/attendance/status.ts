@@ -27,8 +27,6 @@ export const STATUS_BG: Record<AttendanceStatus, keyof ThemeColors> = {
   flagged: 'warningBg',
 };
 
-export const ALL_STATUSES = Object.keys(STATUS_TONE) as AttendanceStatus[];
-
 /** The four design filter groups; statuses outside every group (holiday) only show under "All". */
 export type StatusGroup = 'present' | 'late' | 'absent' | 'leave';
 

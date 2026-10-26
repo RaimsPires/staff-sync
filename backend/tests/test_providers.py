@@ -312,3 +312,36 @@ async def test_attestation_never_blocks_when_it_cannot_decide(settings, monkeypa
     assert await attestation.verify_attestation("ios", "token") == "unverified"  # App Attest is not checked yet
     settings(play_integrity_package_name="app.staffsync.mobile", google_service_account_file="/nonexistent.json")
     assert await attestation.verify_attestation("android", "token") == "unverified"  # credentials unreadable: no verdict, no flag
+
+
+async def test_old_app_builds_are_told_to_update(client, mailbox, settings):
+    settings(app_version_min="1.2.0")
+    old = await client.get("/me", headers={"x-app-version": "1.1.9"})
+    assert old.status_code == 426 and old.json()["code"] == "UPGRADE_REQUIRED"
+    assert (await client.get("/me", headers={"x-app-version": "1.2.0"})).status_code == 401  # up to date: reaches the normal auth check
+    assert (await client.get("/me")).status_code == 401  # the dashboard sends no version
+    assert (await client.get("/health/live")).status_code == 200  # health checks are never blocked
+    settings(app_version_min=None)
+    assert (await client.get("/me", headers={"x-app-version": "0.0.1"})).status_code == 401
+
+
+async def test_companies_past_due_become_read_only_after_the_grace_period(client, mailbox):
+    from datetime import UTC, datetime, timedelta
+    from uuid import UUID
+
+    from sqlalchemy import update
+
+    from staffsync.core.db import session_scope
+    from staffsync.modules.billing.service import enforce_grace
+    from staffsync.modules.companies.models import Company
+
+    admin = await signup_owner(client, mailbox)
+    cid = UUID((await admin.get("/me")).json()["company_id"])
+    async with session_scope(bypass=True) as s:
+        await s.exec(update(Company).values(subscription_status="past_due").where(Company.id == cid))  # type: ignore[arg-type]
+        assert await enforce_grace(s) == 0  # just became overdue: still inside the grace period
+    async with session_scope(bypass=True) as s:
+        await s.exec(update(Company).values(updated_at=datetime.now(UTC) - timedelta(days=30)).where(Company.id == cid))  # type: ignore[arg-type]
+    async with session_scope(bypass=True) as s:
+        assert await enforce_grace(s) == 1
+        assert (await s.get(Company, cid)).status == "read_only"

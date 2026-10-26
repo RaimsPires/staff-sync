@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 import structlog
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from staffsync.api import api_router, root_router
 from staffsync.core.config import get_settings
 from staffsync.core.db import engine
+from staffsync.core.deps import check_app_version
 from staffsync.core.errors import AppError, RateLimited
 from staffsync.core.i18n import set_request_locale, title_for, validation_message
 from staffsync.core.limits import limiter
@@ -109,7 +110,7 @@ def create_app() -> FastAPI:
         err.status = 500  # never leak stack traces
         return problem(request, err)
 
-    app.include_router(api_router, prefix=settings.api_prefix)
+    app.include_router(api_router, prefix=settings.api_prefix, dependencies=[Depends(check_app_version)])
     app.include_router(root_router, prefix=settings.api_prefix)
     return app
 

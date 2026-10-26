@@ -110,12 +110,6 @@ async def direct_conversation(ctx: RequestContext, other_id: UUID) -> Conversati
     return await _get_or_create(ctx, kind="direct", user_a=a, user_b=b)
 
 
-async def site_conversation(ctx: RequestContext, site_id: UUID) -> Conversation:
-    if site_id not in await chat_sites(ctx):
-        raise NotFound()
-    return await _get_or_create(ctx, kind="site", site_id=site_id)
-
-
 async def get_conversation(ctx: RequestContext, conversation_id: UUID) -> Conversation:
     """A conversation the user belongs to; anything else is a 404 so ids do not leak across people."""
     conv = (await ctx.session.exec(select(Conversation).where(Conversation.id == conversation_id, Conversation.company_id == ctx.company_id))).first()

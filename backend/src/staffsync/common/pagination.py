@@ -6,14 +6,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel
-
 from staffsync.core.errors import ValidationFailed
-
-
-class Page[T](BaseModel):
-    items: list[T]
-    next_cursor: str | None = None
 
 
 def encode_cursor(ts: datetime, id_: UUID) -> str:

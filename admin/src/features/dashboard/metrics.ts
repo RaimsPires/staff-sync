@@ -37,8 +37,6 @@ export function siteDay(site: Site, records: AttendanceRecord[]): SiteDay {
 export const sumBy = (rows: SiteDay[], key: "expected" | "present" | "late" | "absent" | "leave" | "flagged"): number =>
   rows.reduce((total, r) => total + r[key], 0);
 
-export type KpiKey = "expected" | "present" | "late" | "absent" | "leave" | "flagged" | "pending";
-
 /** Whether a rising value is good news. "neutral" never turns red or green. */
 export type Polarity = "up" | "down" | "neutral";
 

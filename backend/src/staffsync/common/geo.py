@@ -3,7 +3,6 @@
 import math
 from typing import Any
 
-from shapely import wkt
 from shapely.geometry import Point, Polygon, shape
 from shapely.validation import explain_validity
 
@@ -75,9 +74,3 @@ def check_point(lat: float, lng: float) -> Point:
     return Point(lng, lat)
 
 
-def to_wkt(geom) -> str:
-    return f"SRID=4326;{geom.wkt}"
-
-
-def from_wkt(value: str):
-    return wkt.loads(value.split(";", 1)[-1])

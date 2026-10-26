@@ -36,16 +36,6 @@ export function Avatar({ name, size = 32, className }: { name: string; size?: nu
   );
 }
 
-export function Spinner({ size = 16 }: { size?: number }) {
-  return (
-    <span
-      role="status"
-      className="inline-block animate-spin-fast rounded-full border-2 border-solid border-border-strong border-t-accent"
-      style={{ width: size, height: size }}
-    />
-  );
-}
-
 export function EmptyState({ title, hint, action }: { title: string; hint?: string; action?: React.ReactNode }) {
   return (
     <div className="rounded-[14px] border border-dashed border-border-strong bg-surface px-5 py-12 text-center">

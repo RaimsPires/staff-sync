@@ -117,5 +117,3 @@ export const scheduleMinutes = (sched: string): [number, number] => {
   return [parseTime(s), parseTime(e)];
 };
 
-export const newManualId = (existing: AttendanceRecord[]): number =>
-  Math.max(5000, ...existing.filter((r) => r.id >= 5000).map((r) => r.id + 1));

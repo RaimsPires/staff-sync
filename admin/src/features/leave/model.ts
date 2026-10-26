@@ -11,7 +11,6 @@ export const parseIso = (s: string): number => {
 export const toIso = (t: number): string => new Date(t).toISOString().slice(0, 10);
 /** 0 = Monday … 6 = Sunday */
 export const weekdayOf = (t: number): number => (new Date(t).getUTCDay() + 6) % 7;
-export const dateOfIso = (s: string): Date => new Date(parseIso(s));
 
 export const STATUS_STYLE = {
   pending: "bg-warn-bg text-warn",
@@ -19,7 +18,6 @@ export const STATUS_STYLE = {
   rejected: "bg-bad-bg text-bad",
   cancelled: "bg-neutral-bg text-neutral",
 } as const;
-
 
 /** Other pending or approved requests at the same site that overlap this one. */
 export function overlapping(r: LeaveRequest, all: LeaveRequest[]): LeaveRequest[] {

@@ -118,15 +118,3 @@ export interface UncoveredIntervention {
   time: string | "yesterday";
 }
 
-/** Simulated arrival or departure used by the live activity stream. */
-export interface LiveEvent {
-  id: string;
-  name: string;
-  site: string;
-  act: "in" | "out";
-  method: "self" | "proxy" | "qr";
-  status: "ontime" | "late" | "early" | "overtime";
-  time: string;
-  /** Tick number when it appeared, used to highlight new rows. */
-  born: number;
-}

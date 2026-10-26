@@ -15,8 +15,6 @@ export interface DayRecord {
 
 /** Monday = 0 … Sunday = 6, for a day of the current month. */
 export const weekdayIndex = (day: number): number => (new Date(DEMO_YEAR, DEMO_MONTH, day).getDay() + 6) % 7;
-export const isWeekend = (day: number): boolean => weekdayIndex(day) >= 5;
-export const daysInMonth = (): number => new Date(DEMO_YEAR, DEMO_MONTH + 1, 0).getDate();
 
 export interface MonthStats {
   rate: number;

@@ -60,8 +60,6 @@ function numberFor(ref: RowRef, key: string | null = ref.shiftId, history = fals
   return n;
 }
 
-export const refOf = (id: number): RowRef | undefined => refs.get(id);
-
 const STATUS: Record<string, RecordStatus> = {
   on_time: "ontime", late: "late", early_leave: "early", overtime: "overtime", missing_checkout: "missing", absent: "absent",
   on_leave: "leave", holiday: "holiday", flagged: "flagged", not_arrived: "scheduled",

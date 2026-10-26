@@ -40,7 +40,3 @@ export const TIMEZONES = [
 ];
 export const DATE_FORMATS = [{ value: "DD/MM/YYYY", label: "31/12/2026" }, { value: "MM/DD/YYYY", label: "12/31/2026" }, { value: "YYYY-MM-DD", label: "2026-12-31" }];
 
-export const INVOICES = [
-  { id: "INV-2026-10", date: "2026-10-01", amount: 76 }, { id: "INV-2026-09", date: "2026-09-01", amount: 76 }, { id: "INV-2026-08", date: "2026-08-01", amount: 72 },
-  { id: "INV-2026-07", date: "2026-07-01", amount: 68 }, { id: "INV-2026-06", date: "2026-06-01", amount: 64 },
-];

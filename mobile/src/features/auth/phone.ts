@@ -71,3 +71,21 @@ export function maskPhone(dial: string, national: string): string {
   const digits = national.replace(/\D/g, '');
   return `${dial} ${digits.slice(0, 2)} •• •• ${digits.slice(-2)}`;
 }
+
+/** Lower case without accents, for matching typed text against names. */
+export const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/** Countries whose name contains `q` (already normalised), best matches first. */
+export function searchByName(all: Country[], q: string): Country[] {
+  const rank = (name: string): number => {
+    const n = norm(name);
+    if (n.startsWith(q)) return 0;
+    if (n.split(/[\s'’-]+/).some((w) => w.startsWith(q))) return 1;
+    return n.includes(q) ? 2 : 3;
+  };
+  return all
+    .map((c) => ({ c, r: rank(c.name) }))
+    .filter((x) => x.r < 3)
+    .sort((a, b) => a.r - b.r)
+    .map((x) => x.c);
+}

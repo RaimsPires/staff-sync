@@ -166,5 +166,5 @@ def test_worker_jobs_are_registered_under_distinct_names():
     from staffsync.workers.settings import WorkerSettings
 
     names = [f.__qualname__ for f in WorkerSettings.functions]
-    assert len(set(names)) == len(names) == 8
+    assert len(set(names)) == len(names) == 9
     assert "relay_outbox" in names

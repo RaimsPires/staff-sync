@@ -6,11 +6,9 @@ import { useTheme } from '@/core/theme/theme-provider';
 import { radius, spacing } from '@/core/theme/tokens';
 import { BottomSheet, Icon, Text } from '@/ui';
 
-import { listCountries, PINNED, type Country, type CountryCode } from './phone';
+import { listCountries, norm, PINNED, searchByName, type Country, type CountryCode } from './phone';
 
 type Props = { visible: boolean; selected: CountryCode; lang: string; onSelect: (code: CountryCode) => void; onClose: () => void };
-
-const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Searchable country list in a bottom sheet; the launch markets are pinned on top. */
 export function CountryPicker({ visible, selected, lang, onSelect, onClose }: Props) {
@@ -21,7 +19,8 @@ export function CountryPicker({ visible, selected, lang, onSelect, onClose }: Pr
   const rows = useMemo(() => {
     const all = listCountries(lang);
     const q = norm(query.trim());
-    if (q) return all.filter((c) => norm(c.name).includes(q) || c.dial.includes(q) || c.code.toLowerCase() === q);
+    // Search is by country name only (accents ignored). Names that begin with, or have a word beginning with, what was typed come first.
+    if (q) return searchByName(all, q);
     const pinned = PINNED.map((code) => all.find((c) => c.code === code)).filter((c): c is Country => !!c);
     return [...pinned, ...all.filter((c) => !PINNED.includes(c.code))];
   }, [lang, query]);
@@ -51,6 +50,7 @@ export function CountryPicker({ visible, selected, lang, onSelect, onClose }: Pr
         keyExtractor={(c) => c.code}
         style={styles.list}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         initialNumToRender={16}
         ListEmptyComponent={
           <Text tone="muted" style={styles.empty}>
@@ -70,7 +70,9 @@ export function CountryPicker({ visible, selected, lang, onSelect, onClose }: Pr
               <Text variant="bodyStrong" style={styles.name} numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text tone="muted">{item.dial}</Text>
+              <Text variant="bodyStrong" tone="primary" style={styles.dial}>
+                {item.dial}
+              </Text>
               {on ? <Icon name="checkmark" size={18} tone="primary" /> : <View style={styles.tick} />}
             </Pressable>
           );
@@ -87,6 +89,7 @@ const styles = StyleSheet.create({
   row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   flag: { fontSize: 24 },
   name: { flex: 1 },
+  dial: { minWidth: 56, textAlign: 'right' },
   tick: { width: 18 },
   empty: { textAlign: 'center', paddingVertical: spacing.xl },
 });

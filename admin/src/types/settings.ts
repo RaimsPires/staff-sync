@@ -1,5 +1,4 @@
 export type NotifEvent = "fraud" | "noshow" | "miss" | "lvnew" | "lvdec" | "unc";
-export type NotifRole = "admin" | "hr" | "branch" | "site" | "employee";
 
 export interface NotifRule {
   /** In-app, push, email, SMS. */

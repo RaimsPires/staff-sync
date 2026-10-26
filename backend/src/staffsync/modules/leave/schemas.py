@@ -96,10 +96,6 @@ class DecisionIn(BaseModel):
     comment: str | None = Field(default=None, max_length=1000)
 
 
-class ReasonRequired(BaseModel):
-    reason: str = Field(min_length=3, max_length=1000)
-
-
 class RecommendIn(BaseModel):
     decision: Literal["approve", "reject"]
     comment: str = Field(min_length=1, max_length=1000)

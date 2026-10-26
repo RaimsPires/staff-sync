@@ -114,7 +114,3 @@ export function useLivePosition(enabled: boolean) {
 
   return fix;
 }
-
-export function distanceToSite(fix: LatLng | undefined, fence: Geofence): number | undefined {
-  return fix ? Math.round(distanceToGeofenceM(fix, fence)) : undefined;
-}

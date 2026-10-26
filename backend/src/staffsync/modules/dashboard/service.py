@@ -17,11 +17,6 @@ from staffsync.modules.sites.models import Site
 from staffsync.modules.sites.service import SiteRepository
 
 
-def _scope_sites(ctx: RequestContext):
-    ids = ctx.scope.site_ids
-    return None if ids is None else list(ids)
-
-
 async def overview(ctx: RequestContext, days: int, site_id: UUID | None, branch_id: UUID | None) -> dict:
     company = await ctx.session.get(Company, ctx.company_id)
     tz = ZoneInfo(company.timezone if company else "UTC")

@@ -40,8 +40,6 @@ export const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as con
 /** Lyon, Part-Dieu: the map opens here until an address is chosen. */
 export const DEFAULT_PIN: LatLng = [45.7605, 4.859];
 
-export const FREE_EMAIL = /@(gmail|yahoo|hotmail|outlook|live|icloud|orange|free|laposte)\./i;
-
 export const INITIAL_FORM: OnboardingForm = {
   name: "",
   email: "",

@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatTime } from '@/core/format';
@@ -110,18 +110,22 @@ export function ChatThreadScreen() {
         </View>
       </View>
 
-      <FlatList
-        ref={list}
-        data={messages}
-        keyExtractor={(m) => m.id}
-        contentContainerStyle={styles.messages}
-        keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={!complete && messages.length > 0 ? <Button variant="ghost" label={t('chat.older')} onPress={() => void loadOlder(id)} /> : undefined}
-        ListEmptyComponent={<Text tone="muted" style={styles.none}>{t('chat.emptyThread')}</Text>}
-        renderItem={({ item, index }) => (
-          <Bubble m={item} mine={item.sender.id === me?.id} previous={messages[index - 1]} showSender={conversation?.kind === 'site'} />
-        )}
-      />
+      {/* Tapping the conversation puts the keyboard away; so does dragging it. */}
+      <Pressable accessible={false} onPress={Keyboard.dismiss} style={styles.flex}>
+        <FlatList
+          ref={list}
+          data={messages}
+          keyExtractor={(m) => m.id}
+          contentContainerStyle={styles.messages}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          ListHeaderComponent={!complete && messages.length > 0 ? <Button variant="ghost" label={t('chat.older')} onPress={() => void loadOlder(id)} /> : undefined}
+          ListEmptyComponent={<Text tone="muted" style={styles.none}>{t('chat.emptyThread')}</Text>}
+          renderItem={({ item, index }) => (
+            <Bubble m={item} mine={item.sender.id === me?.id} previous={messages[index - 1]} showSender={conversation?.kind === 'site'} />
+          )}
+        />
+      </Pressable>
 
       {drafts.length > 0 ? (
         <View style={[styles.drafts, { borderTopColor: colors.line }]}>

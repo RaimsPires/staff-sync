@@ -194,6 +194,12 @@ async def push_notifications(session: AsyncSession, batch: int = 200) -> int:
     return len(rows)
 
 
+async def billing_grace(session: AsyncSession) -> int:
+    from staffsync.modules.billing.service import enforce_grace
+
+    return await enforce_grace(session)
+
+
 async def scheduled_reports(session: AsyncSession) -> int:
     from staffsync.modules.reports.scheduled import run_due
 

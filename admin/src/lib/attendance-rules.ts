@@ -63,16 +63,3 @@ export function useRuledRecords(records: AttendanceRecord[]): AttendanceRecord[]
   return useMemo(() => records.map((r) => applyRules(r, rules)), [records, rules]);
 }
 
-/**
- * Per-site change in today's late count caused by the current rules, compared with the default
- * rules the sample headcounts were written for. Only the records we have sample data for can move it.
- */
-export function lateShiftBySite(records: AttendanceRecord[], rules: AttendanceRules): Record<string, number> {
-  const shift: Record<string, number> = {};
-  for (const r of records) {
-    const was = applyRules(r, DEFAULT_RULES).status === "late";
-    const now = applyRules(r, rules).status === "late";
-    if (was !== now) shift[r.site] = (shift[r.site] ?? 0) + (now ? 1 : -1);
-  }
-  return shift;
-}

@@ -16,16 +16,16 @@ import httpx
 from staffsync.core.adapters import get_notifier
 from staffsync.main import app
 
-OWNER_EMAIL = "owner@staffsync.app"
-OWNER_PASSWORD = "staffsync-demo-1"
+OWNER_EMAIL = "admin@admin.com"
+OWNER_PASSWORD = "admin1234"
 TZ = ZoneInfo("Africa/Douala")
 SITE_A = (9.7679, 4.0511)  # lng, lat (Bonanjo, Douala)
 SITE_B = (9.7043, 4.0483)  # lng, lat (Akwa)
 
 EMPLOYEES = [
     # name, no, phone, site key
+    ("Joseph Ewane", "E-002", "+237695681690", "a"),
     ("Amina Nkodo", "E-001", "+2250712345678", "a"),
-    ("Joseph Ewane", "E-002", "+237670000002", "a"),
     ("Paul Mbella", "E-003", "+237670000003", "b"),
     ("Grace Tabi", "E-004", "+237670000004", "b"),
 ]
@@ -83,7 +83,7 @@ async def main() -> None:
         for key in ("a", "b"):
             ids = [e["id"] for e in employees.values() if e["site_ids"] == [sites[key]]]
             sched = await post("/schedules", {"type": "recurring", "site_id": sites[key], "title": "Day shift", "days_of_week": [0, 1, 2, 3, 4, 5, 6], "start_time": "08:00", "end_time": "17:00",
-                                              "crosses_midnight": False, "grace_min": 10, "valid_from": (start.date() - timedelta(days=1)).isoformat(), "employee_ids": ids})
+                                            "crosses_midnight": False, "grace_min": 10, "valid_from": (start.date() - timedelta(days=1)).isoformat(), "employee_ids": ids})
             await post("/schedules/publish", {"schedule_ids": [sched["id"]], "notify": False, "confirm_conflicts": True})
 
     print("\nSeeded demo company 'Demo Logistics'\n")

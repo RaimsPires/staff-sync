@@ -1,9 +1,3 @@
-/** Minutes since midnight for an `HH:mm` string. */
-export function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(':').map(Number);
-  return h * 60 + m;
-}
-
 export function minutesBetween(from: Date, to: Date): number {
   return Math.round((to.getTime() - from.getTime()) / 60_000);
 }

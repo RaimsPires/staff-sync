@@ -1,14 +1,6 @@
-import type { Branch, Site } from "@/types/domain";
-
-export const SEED_BRANCHES: Branch[] = [
-  { id: "lyon", name: "Lyon", siteIds: ["pd", "cf"] },
-  { id: "pn", name: "Paris Nord", siteIds: ["sd", "rl"] },
-  { id: "mrs", name: "Marseille", siteIds: ["pv"] },
-];
+import type { Site } from "@/types/domain";
 
 export const COMPANY_NAME = "Batiplus Group";
-export const COMPANY_EMPLOYEES = 198;
-
 export const SEED_SITES: Site[] = [
   {
     id: "pd", name: "Part-Dieu Tower", branchId: "lyon", address: "17 Bd Vivier-Merle, Lyon",

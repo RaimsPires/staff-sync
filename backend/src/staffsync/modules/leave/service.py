@@ -70,10 +70,6 @@ async def balance_row(ctx: RequestContext, emp_id: UUID, lt: LeaveType, year: in
     return b
 
 
-def _year(d: date) -> int:
-    return d.year
-
-
 async def preview(ctx: RequestContext, emp: Employee, draft: LeaveDraft, exclude: UUID | None = None) -> PreviewOut:
     lt = await get_type(ctx, draft.leave_type_id)
     if (draft.start_half or draft.end_half) and not lt.half_day_allowed:

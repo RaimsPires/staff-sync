@@ -3,7 +3,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/core/theme/theme-provider';
@@ -85,52 +85,54 @@ export function CorrectionScreen() {
               <Icon name="close" size={20} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <Text variant="caption" tone="muted" style={styles.label}>
-              {t('attendance.kind')}
-            </Text>
-            <View style={styles.radios}>
-              {KINDS.map((k) => (
-                <RadioRow key={k.kind} label={t(k.key)} selected={kind === k.kind} onPress={() => setKind(k.kind)} />
-              ))}
-            </View>
-
-            {needsTime ? (
-              <TimeField
-                label={kind === 'forgot_checkout' ? t('attendance.proposedCheckoutTime') : t('attendance.proposedTimeShort')}
-                value={time}
-                onChange={setTime}
-                error={timeError}
-              />
-            ) : null}
-
-            <View style={styles.field}>
+          <ScrollView contentContainerStyle={styles.grow} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'} showsVerticalScrollIndicator={false}>
+          <Pressable accessible={false} onPress={Keyboard.dismiss} style={styles.body}>
               <Text variant="caption" tone="muted" style={styles.label}>
-                {t('attendance.comment')}
+                {t('attendance.kind')}
               </Text>
-              <TextInput
-                value={comment}
-                onChangeText={setComment}
-                multiline
-                numberOfLines={3}
-                maxLength={500}
-                placeholder={t('attendance.commentPlaceholder')}
-                placeholderTextColor={colors.muted}
-                accessibilityLabel={t('attendance.comment')}
-                style={[styles.textarea, { backgroundColor: colors.card, borderColor: colors.line, color: colors.ink }]}
-              />
-            </View>
+              <View style={styles.radios}>
+                {KINDS.map((k) => (
+                  <RadioRow key={k.kind} label={t(k.key)} selected={kind === k.kind} onPress={() => setKind(k.kind)} />
+                ))}
+              </View>
 
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => void pick()}
-              style={[styles.attach, { backgroundColor: colors.card, borderColor: colors.primary }]}>
-              <Text tone="primary" style={styles.attachLabel} numberOfLines={1}>
-                {file ? `📎 ${t('attendance.removeAttachment', file)}` : t('attendance.addAttachment')}
-              </Text>
+              {needsTime ? (
+                <TimeField
+                  label={kind === 'forgot_checkout' ? t('attendance.proposedCheckoutTime') : t('attendance.proposedTimeShort')}
+                  value={time}
+                  onChange={setTime}
+                  error={timeError}
+                />
+              ) : null}
+
+              <View style={styles.field}>
+                <Text variant="caption" tone="muted" style={styles.label}>
+                  {t('attendance.comment')}
+                </Text>
+                <TextInput
+                  value={comment}
+                  onChangeText={setComment}
+                  multiline
+                  numberOfLines={3}
+                  maxLength={500}
+                  placeholder={t('attendance.commentPlaceholder')}
+                  placeholderTextColor={colors.muted}
+                  accessibilityLabel={t('attendance.comment')}
+                  style={[styles.textarea, { backgroundColor: colors.card, borderColor: colors.line, color: colors.ink }]}
+                />
+              </View>
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => void pick()}
+                style={[styles.attach, { backgroundColor: colors.card, borderColor: colors.primary }]}>
+                <Text tone="primary" style={styles.attachLabel} numberOfLines={1}>
+                  {file ? `📎 ${t('attendance.removeAttachment', file)}` : t('attendance.addAttachment')}
+                </Text>
             </Pressable>
 
             <Button label={t('attendance.submitRequest')} onPress={() => void submit()} loading={busy} style={styles.submit} />
+          </Pressable>
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -143,6 +145,7 @@ const styles = StyleSheet.create({
   sheet: { borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, paddingTop: spacing.lg, paddingHorizontal: spacing.xl, gap: spacing.md, maxHeight: 700 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   close: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  grow: { flexGrow: 1 },
   body: { gap: 12 },
   label: { fontWeight: '800' },
   radios: { gap: spacing.sm },

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,7 +45,8 @@ export function BottomSheet({ visible, onClose, title, subtitle, closable, child
 
   return (
     <Modal visible={mounted} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
-      <View style={styles.root}>
+      {/* Inside a modal the keyboard does not resize anything by itself, so the sheet has to move up to stay above it. */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.root}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }, scrim]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel="Close" />
         </Animated.View>
@@ -73,9 +74,11 @@ export function BottomSheet({ visible, onClose, title, subtitle, closable, child
               ) : null}
             </View>
           ) : null}
-          {children}
+          <Pressable accessible={false} onPress={Keyboard.dismiss} style={styles.body}>
+            {children}
+          </Pressable>
         </Animated.View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -91,6 +94,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     maxHeight: '90%',
   },
+  body: { gap: spacing.lg },
   handle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3 },
   header: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
   close: {

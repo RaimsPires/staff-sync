@@ -1,197 +1,326 @@
-# StaffSync: what to test yourself in the UI
+# StaffSync: UI test guide (admin dashboard and mobile app)
 
-Written for: you, running the admin dashboard in a browser and the mobile app on a simulator or phone.
+Written for: you, testing the admin dashboard in a browser and the mobile app on a simulator or phone.
 
-I could not click through either UI from my side. What I did check is listed at the end, so you know what is already covered and where to look first if something breaks. Tick the boxes as you go. When something fails, note the screen, what you did, and the error text; the API log (`backend` terminal) shows the matching request.
+Nothing in the admin or mobile screens has been clicked through by anyone yet. The API behind them is covered by automated tests (list at the end), so when something fails the screen is the first suspect, then the matching request in the API terminal. Tick the boxes as you go. For each failure write down: the screen, what you did, what you expected, and the error text.
+
+How to use this guide: do **0 Set up**, then the **15-minute smoke test**. After that work through Part A (admin), Part B (mobile) and Part C (flows that need both), in any order.
+
+---
 
 ## 0. Set up
 
-1. Start from a clean database so old test data and device bindings are gone:
+1. Clean start (wipes old data and device bindings):
    ```bash
-   cd backend && make reset      # wipes the dev database
+   cd backend && make reset
    cd .. && ./scripts/dev.sh --seed --lan
    ```
-   `--lan` lets the phone reach the API and rewrites `mobile/.env` with your computer's address. Run `ifconfig`/System Settings if you want to check the address it picked.
-2. Mobile (second terminal): `cd mobile && npx expo run:ios` the first time, or after any package with native code was added. Later: `npx expo start`. If the app closes on launch, rebuild with `run:ios`; reloading JavaScript does not fix a missing native module.
-3. Time matters. The seed's shifts run **08:00 to 17:00 in Douala (UTC+1)**. Outside those hours a check-in is "unscheduled" and goes to review (this is intended). Easiest: in the admin, create an all-day schedule (section 7) before testing check-ins.
-4. Codes and links are not emailed or texted. Look for `notify` lines in the API terminal: login codes (`Your StaffSync code is 123456`), invitation links, password reset links, verification codes.
+   `--seed` loads the demo company, `--lan` lets the phone reach the API and writes `mobile/.env`. The script runs the migrations, the API (:8000), the worker and the dashboard (:3000). Keep the terminal visible: it shows every login code, invitation link and reset link.
+2. Phone app (second terminal): `cd mobile && npx expo run:ios`. Use `run:ios` again whenever a package with native code was added; reloading JavaScript is not enough. Later runs: `npx expo start`.
+3. **Time matters.** The seeded shifts run **08:00 to 17:00 in Douala (UTC+1)**. Outside those hours a check-in is "unscheduled" and goes to review (intended). For an all-day test, first create an all-day schedule (section A8).
+4. **Simulator location:** Features > Location > Custom Location, `4.0511, 9.7679` (Bonanjo Tower). Akwa Warehouse is `4.0483, 9.7043`. Both have a 150 m circle.
+5. **Codes and links:** until you put SMTP/Twilio keys in `backend/.env`, nothing is really sent. Look for `notify` lines in the terminal.
+   - The seeded employees have **no e-mail address**, so their codes go out as SMS (a log line). To test the e-mail path, open an employee in the dashboard, add an e-mail address, save, and use that address to sign in.
+   - Asking for a code twice within a minute is refused ("please wait").
 
-Logins from the seed
+### Logins
 
-| Who | Where | Login |
+| Who | App | Login | Role |
+| --- | --- | --- | --- |
+| Owner "Claire Vasseur" | Admin | `owner@staffsync.app` / `staffsync-demo-1` | Super admin (everything) |
+| Amina Nkodo | Mobile | phone `+2250712345678` | Employee |
+| Joseph Ewane | Mobile | phone `+237670000002` | Employee |
+| Paul Mbella | Mobile | phone `+237670000003` | Employee |
+| Grace Tabi | Mobile | phone `+237670000004` | Employee |
+| Karim Mbarga | Mobile | phone `+2250511223344` | Site manager |
+
+Employees have **no password yet**: the first phone sign-in is the code alone, then the app asks them to create a password (details in B1). People you invite to the dashboard choose their password on the invitation page.
+
+---
+
+## Smoke test (15 minutes)
+
+If any of these fails, stop and tell me before testing further.
+
+- [ ] Dashboard: sign in as the owner, reload the page twice quickly: still signed in.
+- [ ] Dashboard: Overview, Live board, Attendance, Employees, Sites, Schedules, Leave, Reports, Users & roles, Settings, Chat all open without an error page.
+- [ ] Phone: opens (no crash), sign in as Amina (code only), create a password, finish setup, reach Home.
+- [ ] Phone: Settings opens (Profile, gear icon) and the Language/Theme sheets work.
+- [ ] Phone: check in at Bonanjo Tower (all-day schedule or inside 08:00-17:00): the Live board on the dashboard updates without reloading.
+- [ ] Chat: Amina sends a message in the Bonanjo Tower group; it appears in the dashboard Chat page live.
+
+---
+
+## Part A: Admin dashboard
+
+### A1. Sign-in, session and workspace
+
+- [ ] Wrong password: error message and a counter of attempts; repeated failures lock the account for a few minutes.
+- [ ] Correct password lands on the Overview. Reload: you stay signed in. Reload several times in a row: you stay signed in.
+- [ ] Sign out, then open `/employees` directly: redirected to sign-in, and back to `/employees` after signing in.
+- [ ] Workspace picker (`/workspaces`) lists "Demo Logistics"; choosing it opens the Overview. With one workspace you may skip the picker.
+- [ ] Account menu (top right): language EN/FR, light/dark/system, my profile, sign out. The choices survive a reload.
+- [ ] **Forgot password:** request a reset, take the link from the terminal, set a new password, sign in. Reuse of the old link is refused.
+- [ ] **Single sign-on buttons** (Google, Microsoft): without keys they say single sign-on isn't set up. With `GOOGLE_CLIENT_ID/SECRET` in `backend/.env` and `PUBLIC_API_URL/api/v1/auth/sso/google/callback` registered at Google: signing in with an address that has a StaffSync account lands in the dashboard; an unknown address returns to sign-in with "no StaffSync account uses this address".
+- [ ] **Two-factor:** see A14.
+
+### A2. Overview (dashboard)
+
+- [ ] KPI cards (expected, present, late, absent, on leave, flagged) show today's numbers; they change after a check-in on the phone.
+- [ ] Live map card shows the sites with their counts. Trend, check-in methods and punctuality cards render with data (empty states when there is none).
+- [ ] Activity feed and "needs attention" panel list recent events; items link to the right page.
+- [ ] Date picker changes the numbers; the scope switcher (top bar) narrows everything to one branch or site.
+- [ ] Notification bell lists in-app notifications; marking read works.
+- [ ] Global search (top bar) finds an employee, a site, a page.
+
+### A3. Live board
+
+- [ ] Rows per site with each expected person and their status (not arrived, present, late, left, absent, on leave, flagged).
+- [ ] **Realtime:** check in on the phone; the row changes within a few seconds **without** reloading, and the counters move.
+- [ ] Pause/resume stops and restarts live updates.
+- [ ] Check someone in or out on their behalf (needs a reason). A manager's note on a person shows on their row.
+- [ ] Stop the worker and check in: the board no longer updates live (it falls back to polling). Start the worker: live updates resume.
+- [ ] A check-in outside any shift (unscheduled) does not appear on the board, but creates an alert (A5).
+
+### A4. Attendance
+
+- [ ] Records list with filters (date range, site, branch, status, method, employee) and saved views.
+- [ ] Open a record: map with the geofence and the check-in point, selfie placeholder, timeline, flags, notes, edit history.
+- [ ] Edit check-in/out time with a reason: the history shows the change. Add a note.
+- [ ] Add a manual record for someone who forgot. Delete a record, then restore it.
+- [ ] Approve a flagged record. Mark selected people absent (bulk).
+- [ ] Export CSV opens in a spreadsheet; names starting with `=` are neutralised.
+
+### A5. Alerts
+
+- [ ] Tabs: flagged check-ins, missing check-ins, unscheduled, uncovered interventions. Counts match the sidebar badge.
+- [ ] Open an alert: details, previous check-ins, device, distance and accuracy. Add a note.
+- [ ] Approve, reject (with the outcome), escalate, bulk resolve.
+- [ ] Correction requests from employees appear; accept one and decline one with a reason.
+
+### A6. Chat
+
+- [ ] Sidebar "Chat" with an unread badge. The list shows each **site group** you can see and your direct conversations.
+- [ ] The owner sees every site's group (the "write in every site chat group" permission) and can write in a group without being attached to it.
+- [ ] New conversation (icon at the top of the list): search a colleague, send a message. Enter sends, Shift+Enter makes a new line.
+- [ ] Attach a photo, a short video, an audio file and a PDF (up to 6 files). Photos show inline and open on click; video and audio play; PDFs download.
+- [ ] Messages from the phone arrive live; the unread count drops when you open the conversation; "Show older messages" loads history.
+- [ ] Reconnecting: stop the API for 20 seconds and start it: the header shows "reconnecting…" and then the thread catches up.
+- [ ] A user whose role lacks the chat permission (invite an "HR / Viewer", A12) sees no site groups but can still message colleagues directly.
+
+### A7. Employees
+
+- [ ] List of employees with search and filters (branch, site, status, app status). More than 200 employees load completely (try a bigger CSV import).
+- [ ] **Add** an employee with a smartphone (invite on): an invitation line appears in the terminal. **Add** one without a smartphone: the drawer says the badge and PIN are issued from the profile after saving.
+- [ ] Row menu on an "invited" employee: **Resend invitation** works (new terminal line). On an installed employee: **Reset device** works (the phone must register again).
+- [ ] Deactivate and reactivate. A deactivated person cannot sign in on the phone.
+- [ ] **Import CSV:** upload `employees-template.csv` filled in, map columns, fix a bad row (errors are listed by row), import.
+- [ ] **Profile page** tabs: overview, attendance (month calendar), schedule, leave, notes, device, activity.
+  - Issue a **badge**: PIN and QR appear once; reload and they are gone.
+  - Add a note; reset the device; see the activity trail.
+- [ ] Erasing a person permanently has an API endpoint but no button yet (covered by tests); skip.
+
+### A8. Schedules
+
+- [ ] Weekly grid per site/person. Create a recurring schedule (days, start/end, break, grace, people or group). For an **all-day test shift** use the same start and end time with "crosses midnight".
+- [ ] Validate shows conflicts (overlaps, leave); publish makes it visible on phones within a minute. Drafts are not visible on phones until published.
+- [ ] Move a single shift to another person; cancel a single shift with a reason (the people are notified).
+- [ ] Copy last week to this week. Edit and delete a schedule; restore it from the trash.
+
+### A9. Sites and branches
+
+- [ ] Sites list with headcounts. Counts update by themselves (every minute, and when the page opens) after check-ins.
+- [ ] **New site:** draw a circle and a polygon, set address/timezone/rules (selfie, QR, registered device only, offline, minimum accuracy). Pick **managers** from the list of dashboard users and tick **employees**. Save, reopen: both lists are kept.
+- [ ] Site detail: managers tab (add/remove), employees tab (assign), QR (show and rotate), overlaps with other sites.
+- [ ] Branches: create, edit, archive (refused while it has active sites), restore.
+- [ ] Deactivate/activate a site; delete then restore.
+
+### A10. Leave
+
+- [ ] Inbox of requests with filters; calendar of who is away; balances per person and type.
+- [ ] Open a request: dates, balance, team coverage, affected shifts, approval trail, attachment shown as **"Attachment N"** with a download link.
+- [ ] **Approve**, **reject** (reason required), **request changes**, **cancel** an approved request. The employee gets a notification on the phone.
+- [ ] Bulk approve/reject several requests.
+- [ ] **Site manager view** (invite a user with the Site manager role scoped to a site, A12): pending requests from that site show **Recommend approval / Advise against** instead of Approve/Reject. Send one with a comment; the owner then sees the recommendation above the decision buttons.
+- [ ] Adjust a balance with a reason; add and remove a public holiday.
+
+### A11. Reports
+
+- [ ] Choose a report type, dates, grouping (employee/site/branch/day) and columns; preview the table with totals.
+- [ ] Export **CSV, Excel and PDF**: all three download and open.
+- [ ] Save a report, reopen it from the saved list, rename/delete it.
+- [ ] Add a **weekly or monthly schedule** with recipient e-mails. The worker sends a download link by e-mail (a terminal line without SMTP) on Monday / the 1st, or at the next hourly run after that moment.
+
+### A12. Users and roles
+
+- [ ] Tabs: Users and Roles. User statuses: active, invited, revoked.
+- [ ] **Invite** a user (e-mail, role, scope): the link appears in the terminal. Open it in a private window, choose a password, sign in. A used or expired link shows the "used/expired" message.
+- [ ] Resend an invitation, revoke a user, **restore** a revoked user (pick a role), change a user's role.
+- [ ] **Roles:** system roles listed; create a custom role, pick permissions and scope, duplicate, edit, delete and restore it. The "Chat" row grants writing in every site chat group.
+- [ ] Preview a role (sidebar, pages and buttons change to that role). A user with a narrow role does not see menu items or buttons they cannot use.
+
+### A13. Audit log
+
+- [ ] Your actions appear (role created, record edited, leave decided, export…). Filter by date, actor, action, target type; export.
+
+### A14. My profile, security and sessions
+
+- [ ] Change name, language and theme; change password (the current password is required).
+- [ ] **Two-factor:** turn it on (scan the QR with an authenticator app, confirm a code, keep the backup codes). Sign out and in: the code step appears. A backup code works once. Turn it off with your password.
+- [ ] Sessions list: this browser is marked; revoke another session.
+
+### A15. Settings
+
+- [ ] **Company:** name, logo, timezone, formats (date, time, week start).
+- [ ] **Attendance rules:** grace period, early-leave tolerance, missing check-out handling, selfie/QR defaults. Reload to confirm they persist; new check-ins use them.
+- [ ] **Leave:** one or two approval levels (two levels: a site manager must recommend first), leave types (create, edit, delete, restore), accrual.
+- [ ] **Notifications**, **API keys** (shown once; delete), **Webhooks** (create, see deliveries, retry).
+- [ ] **Billing and plans:** plan list and current plan. Checkout and invoices say billing is not configured until Stripe keys are set.
+- [ ] **Export all data:** the ZIP of CSV files downloads and a link is e-mailed (terminal line); asking again within an hour says to wait.
+- [ ] **Danger zone:** scheduling company deletion needs the exact company name (do not confirm on data you want to keep).
+
+### A16. Sign-up wizard (new company)
+
+- [ ] In a private window open the sign-up/onboarding page: create an owner, enter the 6-digit code from the terminal.
+- [ ] Walk the steps (company, first branch, first site, first employees, invite teammates, plan). The new owner lands in an empty workspace and can add an employee.
+
+---
+
+## Part B: Mobile app
+
+### B0. Keyboard (try this on every screen with a field)
+
+Screens with fields: sign-in, code entry, create password, check-in comment, new leave request (reason), leave detail (cancel reason), correction request, manager roster (search and note), leave recommendation, proxy check-in (PIN and note), new conversation (search), chat thread, and every bottom sheet with a field (country list search, notes).
+
+- [ ] Tap a field: the keyboard opens and **the field and the main button are not hidden behind it** (the button rises above the keyboard; a field low on a long form scrolls into view).
+- [ ] Tap **empty space** (not a button or field) anywhere on the screen: the keyboard closes.
+- [ ] **Drag/scroll** a long form or the chat list: the keyboard closes (on iOS you can also pull it down by dragging).
+- [ ] Tap a button or another field while the keyboard is open: that one tap works (the keyboard does not eat the first tap).
+- [ ] Bottom sheets (country search on sign-in, roster note, leave reason): the whole sheet rises above the keyboard, and tapping the sheet's empty space closes the keyboard without closing the sheet.
+- [ ] Chat: the message box stays just above the keyboard; tapping a message bubble or blank area closes the keyboard.
+- [ ] Rotate or use a small phone (iPhone SE size) and a large text size: the field and button still fit above the keyboard.
+
+### B1. First launch and sign-in
+
+- [ ] The app opens (no crash). Onboarding slides, then the sign-in screen with a language toggle.
+- [ ] **Employee, first time:** enter Amina's phone, leave the password **empty**, continue. The code (terminal) is accepted, then the **Create your password** screen asks for 10+ characters twice. Short or mismatching passwords are refused.
+- [ ] Sign out and in again with the **same phone and the password**, then the code. A wrong password shows an error; repeated failures show a lock message. Signing in with an e-mail address works the same (switch the tab).
+- [ ] Known gap: if you kill the app at the create-password screen, the account still has no password and the next sign-in can use the code alone. Tell me if that bothers you.
+- [ ] **Country picker** (flag and code button next to the phone field): each row shows the flag, the country name and its calling code (+237…). Search by **name only** (accents and case ignored, names starting with your text first); typing digits like `237` finds nothing. The launch countries are pinned on top when the search is empty.
+- [ ] Number not in the system: "not invited" screen. Deactivate an employee in the dashboard and try: "deactivated" screen. Airplane mode: "offline" screen.
+- [ ] Code screen: a wrong code shows attempts left; 5 wrong codes lock; "resend" is available after 60 seconds.
+- [ ] If the person belongs to several companies, the company picker appears.
+
+### B2. Setup flow (first sign-in on a phone)
+
+- [ ] **Location:** Allow. Choosing "approximate" (iOS: Precise Location off / Android: Approximate) is **not accepted**: the screen says precise location is needed and offers Settings. Denying shows how to enable it.
+- [ ] **Notifications:** Allow or Not now. **Camera:** Allow or Maybe later.
+- [ ] Device registration: this phone becomes the employee's device. A second phone for the same person is refused until the dashboard resets the device (A7).
+- [ ] First-shift summary, then Home.
+
+### B3. Home
+
+- [ ] Today's shift card(s): site, time, status. The map card shows your position; it says "Finding your position…" and after 12 seconds a hint if there is no signal (set the simulator location).
+- [ ] The big button: "Turn on precise location" when location is off (tapping it opens the prompt or Settings), "Waiting for GPS", "Outside site" with distance, or **Check in** when inside the geofence.
+- [ ] Quick actions (schedule, leave, notifications). Week summary. Notification bell with unread count.
+- [ ] Pull to refresh. Offline banner when the network is off.
+
+### B4. Check in and check out
+
+- [ ] Inside the site: Check in, confirm. Selfie/QR steps appear only when the site requires them (the site QR is shown in A9). Success screen.
+- [ ] Check in again: "already checked in" (no duplicate).
+- [ ] Set the simulator ~1 km away: the app says you are outside; "check in anyway" is possible and the record is flagged for review.
+- [ ] Check out. Leaving the day open: the "forgotten check-out" flow offers to request a correction.
+- [ ] Not scheduled today: the app offers "check in anyway" (flagged, appears under Alerts).
+
+### B5. Map
+
+- [ ] Full map from the Home card: site geofence, your dot, distance. **Recenter** zooms to your position (about 200 m across). The directions sheet opens the maps app.
+
+### B6. Attendance tab
+
+- [ ] Month list with status chips and a status filter; week summary.
+- [ ] Open a record: times, worked hours, flags, map, comments.
+- [ ] **Request a correction** (wrong time, forgot check-out, flagged by mistake) with a comment and an optional attachment (photo or PDF). It shows as pending, and as accepted/declined after the dashboard decides (A5).
+
+### B7. Schedule and leave
+
+- [ ] Schedule: list by week/day, open a shift for details; add to calendar (asks calendar permission only then).
+- [ ] **New leave request:** pick type and dates; the preview shows days, balance and warnings (short notice, overlap, document required). Attach a file when a type requires one. Submit.
+- [ ] Leave list and detail: status banner, approval timeline (submitted → recommended → approved…), edit a pending request (the attachment is kept if you don't pick a new file), cancel, request cancellation of an approved one.
+- [ ] Balances per type. Public holidays show in the calendar.
+
+### B8. Messages (chat)
+
+- [ ] **Messages tab** with an unread badge. Your site's group appears (with "N people on this site"); direct conversations appear after the first message.
+- [ ] Open the group, send text. Messages from the dashboard or colleagues arrive live. Opening a conversation clears its unread count.
+- [ ] **New conversation** (pencil): search a colleague, send a direct message.
+- [ ] **Attach** (paperclip): take a photo or video (the camera permission prompt appears the first time; refusing for good shows a Settings shortcut), choose from the gallery (several allowed), or pick a PDF/audio file. Attachments show as chips before sending; photos show in the thread and open on tap; video, audio and PDF open in the system viewer.
+- [ ] Push: with the app in the background, a message from someone else produces a notification (needs `EXPO_PUSH_ENABLED=true` and notifications allowed on the phone).
+- [ ] Network off: sending fails with a message (messages are not queued offline). The header says reconnecting; it catches up when the network returns.
+- [ ] An employee not attached to a site does not see that site's group.
+
+### B9. Profile and Settings
+
+- [ ] Profile: name, title, branch, site(s), manager contact. **Camera icon** opens a sheet: take a photo / choose from gallery (square crop) / remove. The photo shows at once and is still there after you close and reopen the app. Refusing the camera permission shows the Settings shortcut.
+- [ ] **Settings** (gear): **Language** and **Theme** are rows that open a bottom sheet; **Remind before** (15/30/60 min) also. Toggles for shift reminders, arrival prompt, leave updates.
+- [ ] Offline queue section lists queued check-ins; "Sync now" sends them. Device card shows model, registered and last active (a dash when empty).
+- [ ] Privacy and FAQ rows expand; Contact opens e-mail; About shows the version. **Log out** asks for confirmation and warns about unsynced items.
+
+### B10. Notifications
+
+- [ ] List by type (shift reminder, schedule change, leave decision, correction result, announcement…), swipe to delete, mark all read; tapping opens the related screen.
+
+### B11. Site manager (sign in as Karim)
+
+- [ ] The tab bar changes: **Manager** and **Roster** appear. Manager home shows the site summary (expected, present, late, absent).
+- [ ] **Roster:** people with status and times; open a person for details; **add a note** (it shows back on the roster row and in the employee's notes in the dashboard).
+- [ ] **Leave requests** inbox: open one, see coverage, **Recommend approval / Advise against** with a comment (works under one- and two-level approval).
+- [ ] **Proxy check-in** (for people without a smartphone): pick from the roster or scan the badge QR; verify with the PIN (a wrong PIN shows attempts left; 5 wrong PINs lock the PIN and require a photo) or take a photo; confirm the location; success. A person not scheduled today gets "check in anyway".
+- [ ] Offline proxy: with the network off, a proxy check-in **with a photo** is queued; when the network returns it syncs once, with no duplicate.
+
+### B12. Offline behaviour and updates
+
+- [ ] Airplane mode: check in at the site: "saved, will sync". The queued item shows in Settings.
+- [ ] Network back: it syncs and the record appears in the dashboard with the original time. Do it twice in a row: no duplicates.
+- [ ] Queue an item, force-quit the app, reopen: the item is still queued.
+- [ ] Leave the app open past 15 minutes and use it: the session refreshes silently, no sign-out.
+- [ ] Forced update: set `APP_VERSION_MIN=9.0.0` in `backend/.env`, restart the API, open the app: the blocking **Update required** screen appears. Remove the setting afterwards.
+
+---
+
+## Part C: Flows that need both apps
+
+| # | Flow | What to check |
 | --- | --- | --- |
-| Owner (admin) | Admin | `owner@staffsync.app` / `staffsync-demo-1` |
-| Amina Nkodo | Mobile, employee | phone `+2250712345678` |
-| Joseph Ewane | Mobile, employee | phone `+237670000002` |
-| Paul Mbella | Mobile, employee | phone `+237670000003` |
-| Grace Tabi | Mobile, employee | phone `+237670000004` |
-| Karim Mbarga | Mobile, site manager | phone `+2250511223344` |
+| C1 | Check-in → live board → alert | A phone check-in appears on the board; an out-of-fence or unscheduled check-in creates an alert; approving it clears the flag on the phone record. |
+| C2 | Schedule → phone | Publish a schedule in A8; the shift appears on the phone (pull to refresh). Move/cancel a shift: the phone is notified. |
+| C3 | Leave round trip | Request on the phone → decide in the dashboard (A10) → notification and balance change on the phone. With two-level approval: Karim recommends first (B11), then the owner approves. |
+| C4 | Correction round trip | Request on the phone (B6) → accept/decline in the dashboard (A5) → the result shows on the phone. |
+| C5 | Chat both ways | Group and direct messages with attachments flow in both directions live; unread badges agree on both sides. |
+| C6 | Proxy check-in | Create a no-smartphone employee in A7, issue the badge, schedule them, then do the B11 proxy check-in. It appears on the board as a proxy check-in. |
+| C7 | Device reset | Reset an employee's device in A7; the phone must register again; a different phone is refused before that. |
+| C8 | Invite → sign in | Invite a dashboard user (A12); open the link; sign in. Add an e-mail to an employee (A7) and sign in on the phone with it: the code arrives as an e-mail line in the terminal. |
+| C9 | Roles at a glance | Compare what each person sees: Super admin (everything), Branch admin (own branches, no billing/roles), HR/Viewer (read-only, no site chat groups), Site manager (own sites, recommend only), Employee (own data). |
+| C10 | Languages and theme | Walk the main screens of both apps in French and in dark mode: no English leftovers, nothing cut off, larger text sizes still fit. |
 
-Sites: Bonanjo Tower (9.7679, 4.0511) and Akwa Warehouse (9.7043, 4.0483), 150 m circles. On the simulator set a location: Features > Location > Custom Location, `4.0511, 9.7679`. Requesting a code twice within a minute is rate limited ("please wait").
-
-## 1. Admin: sign-in and organisation
-
-- [ ] Sign in with the owner login. You land on the Overview. Wrong password shows an error and counts attempts; refresh keeps you signed in.
-- [ ] Sign out, then open a deep link such as `/employees`: you are sent to sign-in and returned afterwards.
-- [ ] Workspace picker shows "Demo Logistics".
-- [ ] Switch language EN/FR and light/dark from the account menu; the choice survives a refresh.
-- [ ] Sites page: both sites are listed with a headcount; open one, check the map, QR, managers and employees tabs.
-- [ ] Create a branch, then a site in it (draw a circle and a polygon). Pick a manager and tick some employees in the editor, save, and reopen: the manager and employees are still there (this was newly wired).
-- [ ] Edit a site and change the manager list; the list on the site page updates. Archive then restore a branch (a branch with active sites cannot be archived: expected message).
-- [ ] Sites headcounts change after a check-in without reloading (they refresh every minute while a sites screen is open).
-
-## 2. Employees
-
-- [ ] List shows the five seeded people. Search and filters work. More than 200 employees load fully (try the CSV import below with a bigger file if you want to check).
-- [ ] Add an employee **with** a smartphone: leave "send invite" on. The API log shows an invite. Add one **without** a smartphone: the drawer explains that the badge and PIN are issued from the profile after saving.
-- [ ] Open that profile and issue the badge: PIN and QR appear once. Reload: the PIN is not shown again.
-- [ ] Row menu on an employee with status "invited": **Resend invitation** shows a success message and a new `notify` line appears in the API log.
-- [ ] Row menu on an installed employee: **Reset device** succeeds. On the phone, that person must register the device again on next login.
-- [ ] Deactivate and reactivate an employee. A deactivated person cannot log in on mobile.
-- [ ] Import CSV: upload, map columns, fix a bad row, import. Rows with problems are reported by row.
-- [ ] Profile tabs: overview, attendance, schedule, leave, notes, device, activity all open without errors.
-
-## 3. Mobile: login, device, check-in
-
-- [ ] Onboarding screens, then sign in with Amina's phone number. Her account has no password yet: leave the password empty, the code arrives (API log, or her e-mail once SMTP is set). After the code the app asks you to **create a password** (10 characters minimum). Sign out and sign in again: now the password field is required, then the code. A wrong password shows an error and repeated failures lock the account for a few minutes.
-- [ ] Try signing in with the e-mail address instead of the phone number: same result. The code goes to the e-mail address when the account has one, otherwise by SMS.
-- [ ] Setup: location permission, notification permission (the push token is registered after you allow notifications). The app opens on Today.
-- [ ] Today shows the shift (if inside 08:00 to 17:00 or you created an all-day schedule). Check in with the simulator location at the site: success, status on time or late.
-- [ ] Check in again: it says you are already checked in (no duplicate).
-- [ ] Set the location about 1 km away and check out: the record is flagged, but the check-out is still accepted.
-- [ ] Turn on a fake location (real phone with a mock-location app) and check in: flagged as mock location.
-- [ ] Log out and log in as Joseph on the same simulator. I have not checked what the server does when a second person uses a device already registered to someone else; note the result (a "device already bound" message is the likely, intended one).
-
-## 4. Live board and realtime
-
-Open Admin > Live board and the mobile app side by side.
-
-- [ ] Amina or Joseph checks in on the phone: the live board row updates within a few seconds without reloading, and the counters change.
-- [ ] The Overview feed and the "needs attention" queue show the event.
-- [ ] Stop the worker (`make worker` terminal) and check in: the board does not update live. Restart the worker; events resume. This confirms the board depends on the worker.
-- [ ] A check-in outside any shift (unscheduled) does not appear on the board, but it creates an alert (section 6).
-
-## 5. Attendance edits (admin)
-
-- [ ] Attendance page lists today's records. Filter by site, status, date.
-- [ ] Open a record: map, selfie placeholder, timeline, notes. Edit the check-in time with a reason: the history shows the change.
-- [ ] Add a note. Add a manual record for someone who forgot. Delete then restore a record.
-- [ ] Approve a flagged record. Mark someone absent (bulk).
-- [ ] Export CSV downloads a file.
-
-## 6. Alerts and corrections
-
-- [ ] Alerts tab shows the flagged or unscheduled check-ins. Open one, add a note, approve or reject, escalate.
-- [ ] On the phone, open a past record and request a correction (wrong time or forgot check-out), with an attachment picked from photos. The attachment upload works (the dev server does not keep the file, see "Known limits").
-- [ ] In the admin, the correction appears; accept one and decline one. The employee gets a notification on the phone.
-
-## 7. Schedules
-
-- [ ] Create a recurring schedule for one site and several people (for an all-day test: start and end the same time, "crosses midnight" on). Validate shows conflicts if any. Publish.
-- [ ] The phone shows the new shift under Schedule within a minute (pull to refresh).
-- [ ] Reassign a single shift to someone else; cancel a single shift with a reason. The affected people are notified.
-- [ ] Copy last week's schedule to this week.
-- [ ] Draft schedules do not show on the phone until published.
-
-## 8. Proxy check-in (site manager)
-
-This is for people without a smartphone.
-
-- [ ] Admin: create an employee without a smartphone, assign them to Bonanjo Tower, schedule them, issue the badge and note the PIN.
-- [ ] Phone: log in as Karim (site manager). The manager tabs appear: roster, leave inbox, proxy.
-- [ ] Proxy > pick the person (or scan the badge QR from the profile). Enter the PIN: success. Enter a wrong PIN: error with attempts left; after 5 wrong PINs the PIN locks and the photo option is required.
-- [ ] Complete the check-in. It appears on the admin live board marked as a proxy check-in; check out the same way.
-- [ ] Try a person who is not scheduled today: the app offers "check in anyway" and the record is flagged for review.
-- [ ] Add a note to a person from the roster. It shows under their row afterwards (newly wired) and in the employee's notes in the admin.
-- [ ] Put the phone in airplane mode and do a proxy check-in with a photo instead of a PIN: it is queued. Turn the network back on: the queue syncs once and no duplicate record appears.
-
-## 9. Leave round trip
-
-- [ ] Phone (Amina): new request, pick dates; the preview shows days, balance and warnings (short notice, overlaps, document required). Attach a file for a type that needs one. Submit.
-- [ ] Edit the pending request without picking a new file: the old attachment is kept (fixed this session).
-- [ ] Admin > Leave: the request shows in the inbox and the calendar. Open the drawer: balance, team coverage, trail. The attachment shows as "Attachment 1" with a download link (the link will not open real content in dev).
-- [ ] Recommend as Karim on the phone (leave inbox), then approve in the admin. Also try request changes, reject (needs a reason) and cancel.
-- [ ] The phone gets a notification for each decision, and the balance on the phone changes (pending, then used).
-- [ ] Adjust a balance from the admin with a reason. Add and remove a holiday.
-
-## 10. Offline sync (phone)
-
-- [ ] Airplane mode, check in at the site: "saved, will sync". The settings screen shows the queued item.
-- [ ] Network back on: it syncs, the record appears in the admin with the original time. Do it twice quickly to check nothing duplicates.
-- [ ] Queue a check-in, then force-quit the app and reopen it: the queued item is still there.
-- [ ] Leave the app idle until the access token expires (15 minutes) and use it: it refreshes silently and does not log you out.
-
-## 11. Settings, users and roles, reports, audit, billing
-
-- [ ] Settings: change attendance rules (grace period, selfie, offline), leave policy (one or two approval levels), notification settings. Reload to confirm they persist. A second level of approval changes how a leave request moves (site recommend, then HR approve).
-- [ ] Users and roles: invite a user (the link is in the API log). Open it in a private window, set a password, sign in. Resend an invitation, revoke a user, then **Restore** (pick a role) a revoked user. Create a custom role, edit its permissions, delete it, restore it. A user with a narrow role should not see menu items they cannot use.
-- [ ] Reports: preview each type, export CSV, save a report and reopen it. PDF and scheduled emails are not built yet.
-- [ ] Audit log: your actions appear (role created, record edited, and so on); filter and export.
-- [ ] Billing: plans list shows; the checkout and invoices pages say billing is not configured (no Stripe keys). That is expected.
-- [ ] API keys and webhooks: create a key (shown once), delete it.
-
-## 12. Profile, MFA, sign-up and recovery
-
-- [ ] Profile: change name, language, theme, password (the old password is required). Sessions list shows this browser; revoke another one.
-- [ ] Turn on two-factor: scan the QR with an authenticator app, enter the code, save the backup codes. Sign out and in again: the code step appears. Turn it off with your password.
-- [ ] Sign-up wizard (private window): create a company. The verification code is in the API log. Finish the steps: company, first branch and site, first employee, invite a teammate. The new owner lands in an empty workspace.
-- [ ] Forgot password: request a reset, open the link from the API log, set a new password, sign in. The old link no longer works.
-- [ ] Invitation page: open an invitation after it has been used or after it expired; you should see the "used" or "expired" message, not the form.
-- [ ] Single sign-on buttons (Google, Microsoft): expect "Single sign-on isn't available yet". Not configured.
-
-## 13. Chat (admin and phone)
-
-Set up: the seeded employees are attached to a site, so each sees that site's group. Open the dashboard as the owner and Amina or Joseph on the phone.
-
-- [ ] Phone: the Messages tab shows the group of your site ("N people on this site"). Open it, send a text: it appears at once on the dashboard (Chat in the sidebar) without reloading, and the sidebar badge counts unread messages.
-- [ ] Dashboard: send a message in that site's group as the owner, who is not attached to the site (the owner has the "write in every site chat group" permission). The phone receives it live, and a push notification arrives when the app is in the background (needs `EXPO_PUSH_ENABLED=true`).
-- [ ] Phone: attach a photo from the gallery, a photo or video from the camera (the camera permission prompt appears the first time; if you refuse permanently the sheet sends you to Settings), and a PDF. They appear in the thread; tapping a photo opens it. On the dashboard, attach a photo and a PDF the same way.
-- [ ] New conversation (pencil on the phone, button at the top of the dashboard list): pick a colleague and send a direct message; it appears for them live, and the unread count goes away once they open it.
-- [ ] A person not attached to a site does not see that site's group. A dashboard user whose role lacks the chat permission (for example the HR / Viewer role) sees no site groups, but can still send direct messages.
-- [ ] Users and roles: the role editor has a new "Chat" row that grants writing in every site group. Create a role with it, give it to someone, and check they now see all site groups in their scope.
-- [ ] Kill the phone's network, send nothing, restore it: the thread catches up. Messages sent while offline are not queued (the send fails with a message).
-
-## 14. Leave recommendation by a site manager
-
-- [ ] With the default one-level approval, sign in to the dashboard as a user who has the Site manager role (invite one, scope: a site). Open a pending leave request from that site: "Recommend approval" and "Advise against" appear instead of Approve/Reject. Send one with a comment.
-- [ ] As the owner, open the same request: the recommendation and comment show above the decision buttons. Approve or reject as usual.
-- [ ] Phone, as Karim (site manager): the leave inbox recommend and advise-against buttons now work under one-level approval too.
-
-## 15. Profile photo and single sign-on
-
-- [ ] Phone: profile, camera icon, "Choose from gallery" or "Take a photo". The photo shows at once and is still there after you close and reopen the app. "Remove photo" works.
-- [ ] Dashboard sign-in page: Google and Microsoft buttons. Without credentials they say single sign-on isn't set up. With `GOOGLE_CLIENT_ID/SECRET` set (and `PUBLIC_API_URL` registered as the redirect address at Google), signing in with an address that belongs to an existing user lands in the dashboard; an unknown address returns to sign-in with "no StaffSync account uses this address".
-- [ ] Refresh the dashboard while signed in (and a few times quickly): you stay signed in.
-
-## 16. Data and reports
-
-- [ ] Reports: export to PDF, CSV and XLSX; all three download and open. Save a report with a weekly schedule and recipient e-mails; the worker sends it on Monday (or on the next run after the period starts) as a download link.
-- [ ] Settings, "Export all data": the ZIP of CSV files downloads and the link is e-mailed to you; asking again within an hour says to wait.
-- [ ] Erasing a person permanently has an API endpoint (`POST /employees/{id}/erase`, asks for the administrator's password) but no button in the dashboard yet; it is covered by an automated test.
-
-## 17. Languages and theme
-
-- [ ] Walk the main screens in French on both admin and phone: no English leftovers and no overflowing buttons.
-- [ ] Dark mode on both. Dynamic text size larger on the phone: layouts still fit.
+---
 
 ## Known limits (not bugs)
 
-- E-mail, SMS and push really send only when their credentials are set in `backend/.env` (see `.env.example`); without them everything appears in the API log.
-- Without `S3_BUCKET` uploaded files are kept on the backend's own disk (`backend/.storage`), which is fine for testing but not for production.
-- Not built: iOS App Attest verification (Android Play Integrity is, but the app does not send attestation tokens yet), voice-note recording in chat (audio files can be attached), message editing and deleting, typing indicators, and Stripe checkout needs your keys.
-- Geofences are circles or polygons on the server; the phone draws circles as polygons, which only affects how they look.
+- E-mail, SMS and push are really sent only when their credentials are in `backend/.env` (see `backend/.env.example`); otherwise they appear in the terminal.
+- Without `S3_BUCKET` files (selfies, attachments, chat media, photos, exports) are stored on the backend's disk in `backend/.storage`: fine for testing, not for production.
+- **Not built:** iOS App Attest verification (Android Play Integrity is, but the app does not send attestation tokens yet), recording voice notes inside chat (audio files can be attached), editing or deleting chat messages, typing indicators, a dashboard button to erase a person (the API exists), Stripe checkout without your keys.
+- Messages are not queued offline; check-ins, notes and proxy check-ins are.
+- Geofences are circles or polygons on the server; the phone draws circles as polygons (looks only).
+- Address search uses the public OpenStreetMap service and is rate-limited.
 - Production needs the dashboard and the API on the same site (the refresh cookie is `SameSite=Strict`) and the dashboard's address in `CORS_ORIGINS`.
 
-## What I already verified (API level, against a fresh seeded database, plus automated tests)
+## What is already verified (automated, not by clicking)
 
-- Admin sign-in, token refresh, 35 read endpoints, org tree, sites, employees including the first 200+ pagination loop.
-- Mobile login by code, device registration, push token, scheduled and unscheduled check-in, idempotent replay, check-out, offline sync batch.
-- Live counters and the WebSocket event on check-in (received within seconds).
-- Proxy check-in with PIN, wrong PIN, idempotent replay, badge lookup, roster, manager note, proxy check-out.
-- Schedules: create, validate, publish, reassign, cancel, copy week. Corrections: create and accept. Leave: preview, create, edit (attachments kept), approve.
-- Users: invite, accept, login, resend, revoke, restore, change role. Password reset, two-factor setup and login, password change. Sign-up and email verification, onboarding branch and site.
-- Reports preview, export and saved reports; audit log and export; settings writes; API keys; CSV import upload.
-- Chat rules and live delivery, sign-in with password then code, single sign-on (with a faked provider), file upload and download through signed links, profile photos, company export, erasure, PDF and scheduled reports, e-mail/SMS/push request shapes (with faked providers), leave recommendations: all covered by backend tests.
-- Admin production build compiles; mobile type check and 70 unit tests pass; the full backend test suite passes.
+- **Backend (the full test suite passes):** sign-in with password then code, create-password, lockout, token refresh (including a dropped refresh response), roles and scopes on every route, the check-in pipeline (geofence, flags, offline sync, idempotency), proxy check-in with PIN lockout, schedules (publish, move, cancel), leave (two levels, recommendation under one level, attachments kept on edit), corrections, alerts, reports (CSV, Excel, PDF, scheduled e-mails), company export, erasure, single sign-on with a faked provider, signed file upload and download, profile photos, chat rules and live delivery, push preferences, e-mail/SMS/push request shapes with faked providers, forced update (426), billing grace, French translations.
+- **Admin:** type check, lint, English/French key checks, production build.
+- **Mobile:** type check and 72 unit tests (mappers, offline queue, domain rules).
+- **API walk-throughs against a seeded database:** the flows in Part C at the request level, including the WebSocket push on check-in.
 
-Not verified by me, so these are the most likely places to find problems: every visual screen in the browser, drag and drop and map drawing, the phone camera, QR scanning, permission prompts, push notifications, real GPS, airplane-mode behaviour, token refresh after 15 minutes on a device, and the French translations in context.
+**Most likely places to find problems** (never run for real): every visual screen in a browser, map drawing, the phone camera and QR scanning, permission prompts, push notifications, real GPS, airplane-mode behaviour, token refresh after 15 minutes on a device, French text in context, and any real e-mail, SMS or single sign-on provider.

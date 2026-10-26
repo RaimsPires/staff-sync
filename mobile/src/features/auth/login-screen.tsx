@@ -54,7 +54,6 @@ export function LoginScreen() {
   const [busy, setBusy] = useState(false);
   const [focused, setFocused] = useState(false);
 
-  const otherLanguage = i18n.language === 'fr' ? 'en' : 'fr';
   const country = findCountry(countryCode, i18n.language);
 
   const submit = async () => {
@@ -97,16 +96,7 @@ export function LoginScreen() {
           </Pressable>
         </>
       }>
-      <View style={styles.top}>
-        <Wordmark />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={otherLanguage === 'fr' ? 'Français' : 'English'}
-          onPress={() => setLanguage(otherLanguage)}
-          style={[styles.lang, { backgroundColor: colors.card, borderColor: colors.line }]}>
-          <Text variant="subheading">{otherLanguage === 'fr' ? 'Français' : 'English'}</Text>
-        </Pressable>
-      </View>
+      <Wordmark />
 
       <View style={styles.titles}>
         <Text variant="display">{t('auth.welcomeBack')}</Text>
@@ -234,8 +224,6 @@ export function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.md },
-  lang: { minHeight: 44, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1, justifyContent: 'center' },
   titles: { gap: spacing.sm, marginTop: spacing.xxxl + spacing.lg },
   field: { gap: spacing.sm, marginTop: spacing.sm },
   label: { fontWeight: '700' },

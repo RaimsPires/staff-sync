@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/core/theme/theme-provider';
@@ -37,20 +37,28 @@ export function Screen({ children, scroll = true, edges, contentStyle, footer, g
   const bottom = edges?.bottom === false ? 0 : insets.bottom;
   const body = [styles.content, { paddingHorizontal: gutter }, contentStyle];
 
+  // Tapping empty space (not a button or field) puts the keyboard away. Taps on controls still reach the controls.
   return (
-    <View style={[styles.root, { backgroundColor: dark ? cameraColors.bg : colors.bg, paddingTop: top }]}>
+    // The whole screen, footer included, rises above the keyboard so a primary button is never hidden behind it.
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.root, { backgroundColor: dark ? cameraColors.bg : colors.bg, paddingTop: top }]}>
       {hideOfflineBanner ? null : <OfflineBanner />}
       {header}
       {scroll ? (
         <ScrollView
-          contentContainerStyle={body}
+          contentContainerStyle={styles.grow}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
           refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} /> : undefined}>
-          {children}
+          <Pressable accessible={false} onPress={Keyboard.dismiss} style={body}>
+            {children}
+          </Pressable>
         </ScrollView>
       ) : (
-        <View style={[styles.flex, body]}>{children}</View>
+        <Pressable accessible={false} onPress={Keyboard.dismiss} style={[styles.flex, body]}>
+          {children}
+        </Pressable>
       )}
       {footer ? (
         <View
@@ -62,13 +70,14 @@ export function Screen({ children, scroll = true, edges, contentStyle, footer, g
           {footer}
         </View>
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
+  grow: { flexGrow: 1 },
   content: { padding: spacing.xl, gap: spacing.lg, flexGrow: 1 },
   footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, gap: spacing.sm },
 });

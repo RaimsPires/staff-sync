@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import Depends, Header, Request
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from starlette.requests import HTTPConnection
 
 from staffsync.common.enums import Perm
 from staffsync.core.config import get_settings
@@ -124,13 +125,10 @@ def require(*perms: Perm, employee: bool = False):
     return Depends(checker, scope="function")
 
 
-def employee_only():
-    return require(employee=True)
-
-
-def check_app_version(request: Request) -> None:
+def check_app_version(conn: HTTPConnection) -> None:
+    """Answer 426 to a mobile build older than APP_VERSION_MIN. Requests without the header (the dashboard, scripts) pass."""
     minimum = get_settings().app_version_min
-    got = request.headers.get("x-app-version")
+    got = conn.headers.get("x-app-version")
     if minimum and got:
         parse = lambda v: tuple(int(p) for p in v.split(".")[:3] if p.isdigit())  # noqa: E731
         if parse(got) < parse(minimum):

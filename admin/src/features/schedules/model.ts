@@ -1,4 +1,3 @@
-import { parseTime } from "@/lib/time";
 import type { JobTitle } from "@/types/employee";
 
 /** Day 0 is the Monday of the week the app was opened in; day indexes count from there (negative = earlier weeks). */
@@ -114,4 +113,3 @@ export interface Filters {
 }
 export const DEFAULT_FILTERS: Filters = { branch: "all", site: "all", emp: "all", type: "all" };
 
-export const minutesOf = parseTime;

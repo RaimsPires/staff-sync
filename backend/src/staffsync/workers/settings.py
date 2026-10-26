@@ -18,12 +18,12 @@ def _job(fn):
     return run
 
 
-relay, deliver, absences, checkouts, shifts, retention, pushes, reports = (_job(f) for f in (tasks.relay_outbox, tasks.deliver_webhooks, tasks.detect_absences, tasks.missing_checkouts, tasks.extend_shifts, tasks.retention, tasks.push_notifications, tasks.scheduled_reports))
+relay, deliver, absences, checkouts, shifts, retention, pushes, reports, grace = (_job(f) for f in (tasks.relay_outbox, tasks.deliver_webhooks, tasks.detect_absences, tasks.missing_checkouts, tasks.extend_shifts, tasks.retention, tasks.push_notifications, tasks.scheduled_reports, tasks.billing_grace))
 
 
 class WorkerSettings:
     redis_settings = RedisSettings.from_dsn(get_settings().redis_url)
-    functions = [relay, deliver, absences, checkouts, shifts, retention, pushes, reports]
+    functions = [relay, deliver, absences, checkouts, shifts, retention, pushes, reports, grace]
     cron_jobs = [
         cron(relay, second={0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55}),
         cron(deliver, second={0, 30}),
@@ -33,4 +33,5 @@ class WorkerSettings:
         cron(shifts, hour={2}, minute={0}),
         cron(retention, hour={3}, minute={30}),
         cron(reports, minute={10}),
+        cron(grace, hour={4}, minute={0}),
     ]

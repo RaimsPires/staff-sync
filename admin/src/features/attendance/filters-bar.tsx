@@ -7,7 +7,7 @@ import { Popover } from "@/components/ui/popover";
 import { DEMO_MONTH, DEMO_TODAY, DEMO_YEAR } from "@/data/live";
 import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
-import { activeFilterCount, RANGE_DAYS, rangeOf, type Filters, type RangeKey } from "./model";
+import { activeFilterCount, RANGE_DAYS, rangeOf, type Filters } from "./model";
 import type { RecordStatus } from "@/types/domain";
 
 export const ALL_COLUMNS = ["date", "employee", "site", "scheduled", "in", "out", "worked", "status", "method", "flag", "edited"] as const;
@@ -294,4 +294,3 @@ export function FiltersBar({
   );
 }
 
-export const isRangeKey = (v: string): v is RangeKey => ["today", "yesterday", "7d", "month", "custom"].includes(v);

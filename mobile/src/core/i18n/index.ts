@@ -7,8 +7,6 @@ import { useSettings, type Language } from '@/core/settings/settings-store';
 import { en } from './en';
 import { fr } from './fr';
 
-export const SUPPORTED_LANGUAGES: readonly Language[] = ['en', 'fr'];
-
 export function detectDeviceLanguage(): Language {
   const code = getLocales()[0]?.languageCode;
   return code === 'fr' ? 'fr' : 'en';
