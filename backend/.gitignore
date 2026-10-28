@@ -53,3 +53,4 @@ dump.rdb
 *.swp
 .DS_Store
 .storage/
+.email-preview/

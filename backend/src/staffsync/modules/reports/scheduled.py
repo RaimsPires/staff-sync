@@ -10,6 +10,7 @@ from staffsync.core.adapters import get_storage, notify
 from staffsync.core.context import RequestContext
 from staffsync.core.i18n import gettext_, recipient_locale
 from staffsync.core.logging import get_logger
+from staffsync.core.mailing import EmailContent
 from staffsync.modules.auth.models import User
 from staffsync.modules.reports import service
 from staffsync.modules.reports.models import SavedReport
@@ -69,4 +70,10 @@ async def _send_one(session: AsyncSession, rep: SavedReport, sched: dict, recipi
     for to in recipients:
         lang = recipient_locale(owner.locale if owner else "en")
         body = gettext_("Your scheduled report %(name)s for %(start)s to %(end)s is ready (the link works for 7 days): %(link)s", lang, name=rep.name, start=d1.isoformat(), end=d2.isoformat(), link=link)
-        await notify("email", to, body, subject=gettext_("Scheduled report: %(name)s", lang, name=rep.name), link=link)
+        content = EmailContent(
+            heading=gettext_("Scheduled report: %(name)s", lang, name=rep.name),
+            paragraphs=[gettext_("Your scheduled report for %(start)s to %(end)s is ready.", lang, start=d1.isoformat(), end=d2.isoformat())],
+            button=(gettext_("Download the report", lang), link),
+            note=gettext_("The link works for 7 days.", lang),
+        )
+        await notify("email", to, body, subject=gettext_("Scheduled report: %(name)s", lang, name=rep.name), email=content, lang=lang, link=link)

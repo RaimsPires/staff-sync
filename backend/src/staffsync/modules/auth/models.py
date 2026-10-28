@@ -22,6 +22,7 @@ class User(IdMixin, TimestampMixin, SoftDeleteMixin, SQLModel, table=True):
     phone: str | None = None  # E.164
     email_verified: bool = False
     password_hash: str | None = None
+    must_change_password: bool = False  # the password was generated and sent to the person: they choose their own at first sign-in
     totp_secret: str | None = None  # encrypted at rest
     totp_enabled: bool = False
     backup_codes: list[str] | None = Field(default=None, sa_column=Column("backup_codes", JSONB))

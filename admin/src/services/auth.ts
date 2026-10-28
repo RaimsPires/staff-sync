@@ -12,13 +12,15 @@ import { useAuth, type CompanyBrief, type Me } from "@/store/auth";
 import { useSession } from "@/store/session";
 import type { Role, Scope } from "@/types/auth";
 
-export type AuthResult = "ok" | "wrong" | "deactivated" | "locked" | "unverified" | "mfa" | "offline";
+/** "change": the password was given to them (a temporary one), so they must choose their own before anything else. */
+export type AuthResult = "ok" | "wrong" | "deactivated" | "locked" | "unverified" | "mfa" | "change" | "offline";
 
 interface LoginOut {
   mfa_required: boolean;
   mfa_ticket?: string | null;
   tokens?: { access_token: string };
   companies: CompanyBrief[];
+  must_change_password?: boolean;
 }
 
 /** Held between the password step and the two-factor code step. */
@@ -32,6 +34,7 @@ export async function authenticate(email: string, password: string): Promise<Aut
       mfaTicket = out.mfa_ticket ?? null;
       return "mfa";
     }
+    if (out.must_change_password) return "change";
     markSignedIn();
     return "ok";
   } catch (e) {
@@ -92,6 +95,18 @@ export async function bootstrap(): Promise<boolean> {
   }
 }
 
+/** Replace a temporary password. They are signed in already (with the temporary one), so no current password is asked. */
+export async function chooseNewPassword(newPassword: string): Promise<"ok" | "same"> {
+  try {
+    await api.post("/me/password/initial", { new_password: newPassword });
+    markSignedIn();
+    return "ok";
+  } catch (e) {
+    if (e instanceof ApiError && e.code === "PASSWORD_UNCHANGED") return "same";
+    throw e;
+  }
+}
+
 /** Pick a company: the backend issues a token scoped to it. */
 export async function selectCompany(companyId: string): Promise<void> {
   const out = await api.post<{ tokens: { access_token: string } }>("/auth/select-company", { company_id: companyId });
@@ -111,13 +126,14 @@ export async function signOut(): Promise<void> {
 }
 
 /** Second sign-in step: the code from the authenticator app (or a backup code). */
-export async function verifyMfa(code: string, trustDevice: boolean): Promise<"ok" | "wrong" | "expired"> {
+export async function verifyMfa(code: string, trustDevice: boolean): Promise<"ok" | "change" | "wrong" | "expired"> {
   if (!mfaTicket) return "expired";
   try {
-    const out = await api.post<{ tokens?: { access_token: string } }>("/auth/mfa/verify", { mfa_ticket: mfaTicket, code, trust_device: trustDevice }, { public: true });
+    const out = await api.post<{ tokens?: { access_token: string }; must_change_password?: boolean }>("/auth/mfa/verify", { mfa_ticket: mfaTicket, code, trust_device: trustDevice }, { public: true });
     if (!out.tokens) return "wrong";
     api.setAccessToken(out.tokens.access_token);
     mfaTicket = null;
+    if (out.must_change_password) return "change";
     markSignedIn();
     return "ok";
   } catch (e) {

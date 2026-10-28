@@ -45,6 +45,7 @@ class LoginOut(BaseModel):
     mfa_ticket: str | None = None
     tokens: TokenPair | None = None
     companies: list[CompanyBrief] = []
+    must_change_password: bool = False  # the dashboard then asks for a new password before anything else
 
 
 class MfaVerifyIn(BaseModel):

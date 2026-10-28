@@ -71,12 +71,15 @@ export interface RequestOptions extends AxiosRequestConfig {
   retry?: boolean | number;
   /** Skip the Authorization header and the refresh-on-401 flow (login, forgot password...). */
   public?: boolean;
+  /** `true` never shows the full-screen waiting indicator for this request; `false` forces it. By default saves show it and reads do not. */
+  silent?: boolean;
 }
 
 declare module "axios" {
   interface AxiosRequestConfig {
     retry?: boolean | number;
     public?: boolean;
+    silent?: boolean;
     _attempt?: number;
     _refreshed?: boolean;
   }
@@ -92,6 +95,8 @@ export interface ApiClientConfig {
   onSignedOut?: () => void;
   /** Called for every failed request after normalization (global toasts, logging). Not called for canceled ones. */
   onError?: (error: ApiError, request: AxiosRequestConfig) => void;
+  /** A save (anything but a read) started or ended and the person should wait for it: drives the full-screen indicator. */
+  onActivity?: (state: "start" | "end") => void;
   /** Called for every successful response. */
   onSuccess?: (response: { status: number; data: unknown }, request: AxiosRequestConfig) => void;
   /** Test seam / custom transport. */
@@ -103,6 +108,11 @@ const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
 /** 401 codes that mean "wrong input", not "expired session": never trigger a refresh. */
 const NO_REFRESH_CODES = new Set(["INVALID_CREDENTIALS", "ACCOUNT_LOCKED", "MFA_INVALID", "OTP_INVALID", "REFRESH_REUSE", "INVALID_REFRESH", "ACCOUNT_DISABLED"]);
 const REFRESH_PATH = "/auth/refresh";
+/**
+ * Requests that must not cover the screen: background work, live previews while editing, chat (it shows its own sending state)
+ * and sign-in style forms that already have a spinner on their button.
+ */
+const QUIET = /^\/(auth\/(refresh|login|mfa\/verify|logout|password\/(forgot|reset)|verify-email|signup)|invitations\/|me\/password\/initial|ws\/ticket|chat\/|uploads\/chat-attachment|devices\/|me\/notifications|reports\/preview|roles\/preview|schedules\/validate|leave\/requests\/preview|search)/;
 const CSRF_COOKIE = "ss_csrf";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -189,6 +199,8 @@ export class ApiClient {
 
   /** Resolves with the response body; rejects with `ApiError`. */
   async request<T>(options: RequestOptions): Promise<T> {
+    const waits = this.shouldShowActivity(options);
+    if (waits) this.config.onActivity?.("start");
     try {
       const res = await this.http.request<T>(options);
       this.config.onSuccess?.({ status: res.status, data: res.data }, options);
@@ -197,7 +209,16 @@ export class ApiClient {
       const error = this.toApiError(raw);
       if (error.code !== "CANCELED") this.config.onError?.(error, options);
       throw error;
+    } finally {
+      if (waits) this.config.onActivity?.("end");
     }
+  }
+
+  /** Saves, deletions and sends make the person wait; reads, background refreshes and live previews do not. */
+  private shouldShowActivity(options: RequestOptions): boolean {
+    if (options.silent !== undefined) return !options.silent;
+    if (!options.method || ["get", "head", "options"].includes(options.method.toLowerCase())) return false;
+    return !QUIET.test(options.url ?? "");
   }
 
   // --- internals --------------------------------------------------------------------------------

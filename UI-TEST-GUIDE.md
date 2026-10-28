@@ -27,14 +27,16 @@ How to use this guide: do **0 Set up**, then the **15-minute smoke test**. After
 
 | Who | App | Login | Role |
 | --- | --- | --- | --- |
-| Owner "Claire Vasseur" | Admin | `owner@staffsync.app` / `staffsync-demo-1` | Super admin (everything) |
-| Amina Nkodo | Mobile | phone `+2250712345678` | Employee |
-| Joseph Ewane | Mobile | phone `+237670000002` | Employee |
-| Paul Mbella | Mobile | phone `+237670000003` | Employee |
-| Grace Tabi | Mobile | phone `+237670000004` | Employee |
-| Karim Mbarga | Mobile | phone `+2250511223344` | Site manager |
+| Owner "Claire Vasseur" | Admin | `admin@admin.com` / `admin12345` | Super admin (everything) |
+| Joseph Ewane | Mobile | phone `+237695681690` / `admin12345` | Employee |
+| Amina Nkodo | Mobile | phone `+2250712345678` / `admin12345` | Employee |
+| Paul Mbella | Mobile | phone `+237670000003` / `admin12345` | Employee |
+| Grace Tabi | Mobile | phone `+237670000004` / `admin12345` | Employee |
+| Karim Mbarga | Mobile | phone `+2250511223344` / `admin12345` | Site manager |
 
-Employees have **no password yet**: the first phone sign-in is the code alone, then the app asks them to create a password (details in B1). People you invite to the dashboard choose their password on the invitation page.
+The seed gives everyone the **same fixed password** (`admin12345`, set in `backend/scripts/seed_dev.py`). On the phone you enter the number and the password, then the 6-digit code (shown in the terminal; the seeded employees have no e-mail, so it arrives as an SMS line).
+
+People **you create** are different: a new employee or invited dashboard user gets a **random temporary password by e-mail** (SMS if the employee has no e-mail) and must choose their own at first sign-in. See A7, A12 and B1.
 
 ---
 
@@ -53,6 +55,25 @@ If any of these fails, stop and tell me before testing further.
 
 ## Part A: Admin dashboard
 
+### A0. Messages (alerts) and the waiting indicator
+
+- [ ] **Messages appear as alerts in the top-right corner**, newest on top, coloured by type (green check = done, blue = information, red warning = problem), with a close button. They disappear by themselves after about 5 seconds (8 for problems) and stay while the mouse is over them. At most 4 are shown at once. Trigger a few: save an employee (green), save with a mistake or while the API is stopped (red), copy something (blue).
+- [ ] **Saving shows a full-screen waiting indicator:** a dimmed layer with a spinner and "Working…" in the middle appears whenever a save, delete or send takes more than a fraction of a second (try: add an employee, save a site, approve leave, invite a user, export reports, change settings, import a CSV). It sits above drawers and dialogs, blocks clicks so a form can't be submitted twice, and disappears when the answer arrives. Very quick saves show nothing, so nothing flashes.
+- [ ] To see it clearly, throttle the network in the browser (developer tools, Network, "Slow 3G") and save something.
+- [ ] It does **not** appear for reading pages, live updates, chat, previews while you edit filters, or the sign-in forms (those have their own spinner on the button).
+
+### A0b. E-mails (Mailtrap)
+
+Needs `SMTP_*` set in `backend/.env` and the API **restarted**; the start-up log line `delivery … sending_for_real: ["email"]` confirms it. Open your Mailtrap inbox after each action.
+
+- [ ] Every e-mail has the **same design**: the StaffSync logo and name on top, a white card with a green-to-blue top bar, the heading, the text, and a small footer ("If you did not expect this e-mail…", "Sent to …", "StaffSync · Attendance for job sites"). Check the HTML tab, the "Text" tab (plain version) and, in Mailtrap, **Device previews** (phone and desktop).
+- [ ] **New employee with an e-mail:** "Welcome to StaffSync", the login, and the **temporary password in a large highlighted box**.
+- [ ] **Invite a dashboard user:** "You're invited", the temporary password box and an **Open the invitation** button; the address is repeated in small print under the button.
+- [ ] **Sign-in code** (phone sign-in by e-mail) and **sign-up verification code**: the 6-digit code large in the box, with how long it stays valid.
+- [ ] **Forgot password:** a **Choose a new password** button. **Settings, Export all data:** a **Download the export** button. A scheduled report: **Download the report**.
+- [ ] Change the language of the recipient (their profile language) to French and trigger one: heading, text, button and footer are all in French.
+- [ ] To see every design without sending anything: `cd backend && uv run python scripts/preview_emails.py && open .email-preview/index.html` (English and French).
+
 ### A1. Sign-in, session and workspace
 
 - [ ] Wrong password: error message and a counter of attempts; repeated failures lock the account for a few minutes.
@@ -60,6 +81,7 @@ If any of these fails, stop and tell me before testing further.
 - [ ] Sign out, then open `/employees` directly: redirected to sign-in, and back to `/employees` after signing in.
 - [ ] Workspace picker (`/workspaces`) lists "Demo Logistics"; choosing it opens the Overview. With one workspace you may skip the picker.
 - [ ] Account menu (top right): language EN/FR, light/dark/system, my profile, sign out. The choices survive a reload.
+- [ ] **Temporary password:** a user created by an admin signs in with the e-mailed password and must pick their own on the "Choose your password" screen (10+ characters, different from the temporary one) before reaching the workspace.
 - [ ] **Forgot password:** request a reset, take the link from the terminal, set a new password, sign in. Reuse of the old link is refused.
 - [ ] **Single sign-on buttons** (Google, Microsoft): without keys they say single sign-on isn't set up. With `GOOGLE_CLIENT_ID/SECRET` in `backend/.env` and `PUBLIC_API_URL/api/v1/auth/sso/google/callback` registered at Google: signing in with an address that has a StaffSync account lands in the dashboard; an unknown address returns to sign-in with "no StaffSync account uses this address".
 - [ ] **Two-factor:** see A14.
@@ -111,8 +133,16 @@ If any of these fails, stop and tell me before testing further.
 ### A7. Employees
 
 - [ ] List of employees with search and filters (branch, site, status, app status). More than 200 employees load completely (try a bigger CSV import).
-- [ ] **Add** an employee with a smartphone (invite on): an invitation line appears in the terminal. **Add** one without a smartphone: the drawer says the badge and PIN are issued from the profile after saving.
-- [ ] Row menu on an "invited" employee: **Resend invitation** works (new terminal line). On an installed employee: **Reset device** works (the phone must register again).
+- [ ] **Add** an employee with a smartphone, an e-mail address and "Send sign-in details" on: the terminal shows an **e-mail** to that address with a **temporary password** (12 characters). Add another with **only a phone**: the same text appears as an **SMS** line. Either an e-mail or a phone is enough; the form says where the details will go.
+- [ ] **Phone field with country selector:** next to the phone input is a button with a flag and the calling code (for example 🇨🇲 +237).
+  - It opens a list with a **search box**; type part of a **country name** (accents and case ignored, in the current language: "cote" finds Côte d'Ivoire, "allem" or "germ" finds Germany) or a code starting with `+` (`+237`). Names starting with your text come first. With nothing typed, Cameroon, Côte d'Ivoire, Senegal and France are on top.
+  - Choosing a country keeps what you typed and changes the code. The field starts on the country most of your employees' numbers belong to (Cameroon in the demo data).
+  - Type the local number (spaces appear as you type, a leading 0 is dropped); **paste a full international number** (`+33 6 12 34 56 78`) into the field and the country switches by itself.
+  - An invalid number for the chosen country shows "Enter a valid phone number for the selected country" and the employee is not saved. With a smartphone, an e-mail **or** a phone is required.
+  - Open an existing employee: the country and local number show correctly; saving stores the number in international form (`+237695681690`).
+- [ ] Adding someone whose e-mail already belongs to an account (for example a dashboard admin) reuses that account and **keeps their password** (they get a plain invitation, no temporary password).
+- [ ] **Add** an employee without a smartphone: the drawer says the badge and PIN are issued from the profile after saving; no password is sent.
+- [ ] Row menu on an "invited" employee: **Resend invitation** works (new terminal line). If the person has not yet chosen their own password, this issues a **new temporary password** and the old one stops working; after they have chosen one it only sends a reminder. On an installed employee: **Reset device** works (the phone must register again).
 - [ ] Deactivate and reactivate. A deactivated person cannot sign in on the phone.
 - [ ] **Import CSV:** upload `employees-template.csv` filled in, map columns, fix a bad row (errors are listed by row), import.
 - [ ] **Profile page** tabs: overview, attendance (month calendar), schedule, leave, notes, device, activity.
@@ -154,7 +184,10 @@ If any of these fails, stop and tell me before testing further.
 ### A12. Users and roles
 
 - [ ] Tabs: Users and Roles. User statuses: active, invited, revoked.
-- [ ] **Invite** a user (e-mail, role, scope): the link appears in the terminal. Open it in a private window, choose a password, sign in. A used or expired link shows the "used/expired" message.
+- [ ] **Invite** a user (e-mail, role, scope): the terminal shows **one e-mail with the link and a temporary password**. Two ways in:
+  - open the link in a private window, choose a password, sign in (no forced change afterwards); or
+  - skip the link, sign in at the dashboard with the e-mail and the temporary password: you are taken to **"Choose your password"** first, and the invitation counts as accepted.
+  A used or expired link shows the "used/expired" message; after 7 days the temporary password stops working too (sign-in answers that the invitation expired), and **Resend invitation** issues a new link and a new password.
 - [ ] Resend an invitation, revoke a user, **restore** a revoked user (pick a role), change a user's role.
 - [ ] **Roles:** system roles listed; create a custom role, pick permissions and scope, duplicate, edit, delete and restore it. The "Chat" row grants writing in every site chat group.
 - [ ] Preview a role (sidebar, pages and buttons change to that role). A user with a narrow role does not see menu items or buttons they cannot use.
@@ -203,9 +236,11 @@ Screens with fields: sign-in, code entry, create password, check-in comment, new
 ### B1. First launch and sign-in
 
 - [ ] The app opens (no crash). Onboarding slides, then the sign-in screen with a language toggle.
-- [ ] **Employee, first time:** enter Amina's phone, leave the password **empty**, continue. The code (terminal) is accepted, then the **Create your password** screen asks for 10+ characters twice. Short or mismatching passwords are refused.
-- [ ] Sign out and in again with the **same phone and the password**, then the code. A wrong password shows an error; repeated failures show a lock message. Signing in with an e-mail address works the same (switch the tab).
-- [ ] Known gap: if you kill the app at the create-password screen, the account still has no password and the next sign-in can use the code alone. Tell me if that bothers you.
+- [ ] **Seeded employee:** enter Joseph's phone `+237695681690` and the password `admin12345`, continue; the code (terminal) is accepted and you go straight into setup. A wrong password shows an error; leaving it empty asks for it.
+- [ ] **Employee you created in the dashboard (A7):** enter their e-mail (or phone) and the **temporary password** from the e-mail/SMS, then the code. The **Choose your own password** screen appears (10+ characters twice, different from the temporary one); afterwards the temporary password no longer works.
+- [ ] An employee who was created without an invitation has no password yet: the password field can stay empty once, the code is accepted, then the same "Choose your own password" screen appears.
+- [ ] Sign out and in again with the **number and your password**, then the code. Repeated wrong passwords show a lock message. Signing in with the e-mail address instead of the phone number works the same (switch the tab); the code is e-mailed when the account has an address.
+- [ ] Known gap: if you kill the app at the "choose your password" screen, you can sign in again with the temporary password (or the code alone, if there was never a password) and will be asked again.
 - [ ] **Country picker** (flag and code button next to the phone field): each row shows the flag, the country name and its calling code (+237…). Search by **name only** (accents and case ignored, names starting with your text first); typing digits like `237` finds nothing. The launch countries are pinned on top when the search is empty.
 - [ ] Number not in the system: "not invited" screen. Deactivate an employee in the dashboard and try: "deactivated" screen. Airplane mode: "offline" screen.
 - [ ] Code screen: a wrong code shows attempts left; 5 wrong codes lock; "resend" is available after 60 seconds.

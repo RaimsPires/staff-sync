@@ -1,4 +1,5 @@
 import { ApiClient } from "./api-client";
+import { busyEnd, busyStart } from "@/store/busy";
 import { markSignedOut } from "./auth-cookie";
 import { LOCALE_COOKIE } from "@/i18n/config";
 
@@ -20,6 +21,7 @@ function currentLocale(): string | undefined {
 export const api = new ApiClient({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1",
   getLocale: currentLocale,
+  onActivity: (state) => (state === "start" ? busyStart() : busyEnd()),
   onSignedOut: () => {
     markSignedOut();
     if (typeof window !== "undefined") window.location.assign("/sign-in");

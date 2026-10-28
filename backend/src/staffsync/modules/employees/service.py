@@ -14,9 +14,10 @@ from staffsync.core.audit import audit
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, Conflict, NotFound, ValidationFailed
 from staffsync.core.i18n import gettext_, recipient_locale
+from staffsync.core.mailing import EmailContent
 from staffsync.core.messages import N_
 from staffsync.core.outbox import emit
-from staffsync.core.security import hash_device_id, hash_password
+from staffsync.core.security import hash_device_id, hash_password, new_temporary_password
 from staffsync.modules.auth.models import CompanyMember, User
 from staffsync.modules.auth.service import find_user, normalize_identifier
 from staffsync.modules.auth.tokens import revoke_user_sessions
@@ -126,7 +127,14 @@ async def create(ctx: RequestContext, body: EmployeeCreate) -> tuple[Employee, s
         raise ValidationFailed("An email or phone number is required so the employee can sign in", code="CONTACT_REQUIRED")
     phone = _phone(body.phone)
     email = body.email.lower() if body.email else None
-    user = (await find_user(ctx.session, "phone", phone) if phone else None) or (await find_user(ctx.session, "email", email) if email else None)
+    # E-mail identifies a person better than a phone number (numbers get reassigned), so it is tried first.
+    user = (await find_user(ctx.session, "email", email) if email else None) or (await find_user(ctx.session, "phone", phone) if phone else None)
+    if user is not None:  # fill what the existing account is missing, when nobody else already uses it
+        if email and not user.email and await find_user(ctx.session, "email", email) is None:
+            user.email = email
+        if phone and not user.phone and await find_user(ctx.session, "phone", phone) is None:
+            user.phone = phone
+        ctx.session.add(user)
     if user is None:
         user = User(full_name=body.full_name, email=email, phone=phone)
         ctx.session.add(user)
@@ -153,27 +161,69 @@ async def create(ctx: RequestContext, body: EmployeeCreate) -> tuple[Employee, s
     audit(ctx, "employee.created", "employee", emp.id, after={"employee_no": emp.employee_no, "name": user.full_name}, employee_id=emp.id)
     emit(ctx.session, ctx.company_id, "EmployeeCreated", {"id": str(emp.id)})
     if body.send_invite and body.has_smartphone:
-        await send_invite(ctx, emp, user)
+        temporary = None
+        if user.password_hash is None:  # a person who already has a password keeps it
+            temporary = new_temporary_password()
+            user.password_hash = hash_password(temporary)
+            user.must_change_password = True
+            ctx.session.add(user)
+        await send_invite(ctx, emp, user, temporary_password=temporary)
     return emp, pin
 
 
-async def send_invite(ctx: RequestContext, emp: Employee, user: User | None = None) -> None:
+async def send_invite(ctx: RequestContext, emp: Employee, user: User | None = None, *, temporary_password: str | None = None) -> None:
+    """Tell the person how to sign in: by e-mail when they have an address, otherwise by SMS. The text carries the temporary
+    password when one was just issued (they must replace it at first sign-in)."""
     user = user or await ctx.session.get(User, emp.user_id)
     assert user is not None
     company = await ctx.session.get(Company, ctx.company_id)
     lang = recipient_locale(user.locale, company.locale if company else None)
-    text = gettext_(
-        "%(company)s invites you to StaffSync. Download the app and sign in with %(login)s.",
-        lang,
-        company=company.name if company else gettext_("Your company", lang),
-        login=user.phone or user.email,
-    )
-    if user.phone:
+    name = company.name if company else gettext_("Your company", lang)
+    login = user.email or user.phone
+    if temporary_password:
+        text = gettext_(
+            "%(company)s created your StaffSync account. Sign in with %(login)s and this temporary password: %(password)s. You will choose your own password the first time you sign in. Download the StaffSync app to get started.",
+            lang, company=name, login=login, password=temporary_password,
+        )
+    else:
+        text = gettext_("%(company)s invites you to StaffSync. Download the app and sign in with %(login)s.", lang, company=name, login=login)
+    if user.email:
+        if temporary_password:
+            content = EmailContent(
+                heading=gettext_("Welcome to StaffSync", lang),
+                paragraphs=[
+                    gettext_("%(company)s created your StaffSync account.", lang, company=name),
+                    gettext_("Download the StaffSync app and sign in with the details below. You will choose your own password the first time you sign in.", lang),
+                ],
+                details=[(gettext_("Sign in with", lang), login or "")],
+                highlight=(gettext_("Temporary password", lang), temporary_password),
+                note=gettext_("Keep this e-mail private: the temporary password only works until you choose your own.", lang),
+            )
+        else:
+            content = EmailContent(
+                heading=gettext_("Join StaffSync", lang),
+                paragraphs=[gettext_("%(company)s invites you to StaffSync. Download the app and sign in with %(login)s.", lang, company=name, login=login)],
+                details=[(gettext_("Sign in with", lang), login or "")],
+            )
+        await notify("email", user.email, text, subject=gettext_("Your StaffSync account", lang) if temporary_password else gettext_("Join StaffSync", lang), email=content, lang=lang)
+    elif user.phone:
         await notify("sms", user.phone, text, subject=None)
-    elif user.email:
-        await notify("email", user.email, text, subject=gettext_("Join StaffSync", lang))
     else:
         raise ValidationFailed("No contact to invite")
+
+
+async def resend_invite(ctx: RequestContext, emp: Employee) -> None:
+    """Send the sign-in details again. Someone who has not set a password of their own yet gets a fresh temporary one
+    (the earlier one stops working); anyone else just gets the plain invitation."""
+    user = await ctx.session.get(User, emp.user_id)
+    assert user is not None
+    temporary = None
+    if user.must_change_password or (user.password_hash is None and user.last_login_at is None):
+        temporary = new_temporary_password()
+        user.password_hash = hash_password(temporary)
+        user.must_change_password = True
+        ctx.session.add(user)
+    await send_invite(ctx, emp, user, temporary_password=temporary)
 
 
 async def update(ctx: RequestContext, emp: Employee, body: EmployeeUpdate, if_match: int | None) -> Employee:

@@ -12,6 +12,11 @@ os.environ.update(
     DATABASE_URL=f"postgresql+asyncpg://staffsync_app:staffsync_app@localhost:5433/{TEST_DB}",
     MIGRATION_DATABASE_URL=f"postgresql+asyncpg://staffsync:staffsync@localhost:5433/{TEST_DB}",
     REDIS_URL="redis://localhost:6380/15",
+    # Real provider keys in your .env (Mailtrap, Twilio, S3, Google...) must never be used by tests: blank them here,
+    # environment variables win over the .env file.
+    SMTP_HOST="", SMS_PROVIDER="console", EXPO_PUSH_ENABLED="false", S3_BUCKET="", APP_VERSION_MIN="",
+    GOOGLE_CLIENT_ID="", GOOGLE_CLIENT_SECRET="", MICROSOFT_CLIENT_ID="", MICROSOFT_CLIENT_SECRET="",
+    STRIPE_SECRET_KEY="", STRIPE_WEBHOOK_SECRET="", PLAY_INTEGRITY_PACKAGE_NAME="", GOOGLE_SERVICE_ACCOUNT_FILE="",
 )
 
 import asyncpg  # noqa: E402

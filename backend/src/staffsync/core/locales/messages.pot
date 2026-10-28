@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-25 00:09+0100\n"
+"POT-Creation-Date: 2026-10-26 17:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,6 +66,18 @@ msgid "No access to this company"
 msgstr ""
 
 msgid "Please update the app"
+msgstr ""
+
+msgid "If the button does not work, copy this address into your browser:"
+msgstr ""
+
+msgid "Attendance for job sites"
+msgstr ""
+
+msgid "If you did not expect this e-mail, you can safely ignore it."
+msgstr ""
+
+msgid "Sent to"
 msgstr ""
 
 msgid "We couldn't process this request. Please check your input and try again."
@@ -379,11 +391,20 @@ msgstr ""
 msgid "This phone number is already used by another account"
 msgstr ""
 
-#, python-format
-msgid "Your StaffSync verification code is %(code)s"
+msgid "Verify your email"
 msgstr ""
 
-msgid "Verify your email"
+msgid "Use this code to finish creating your StaffSync account."
+msgstr ""
+
+msgid "Verification code"
+msgstr ""
+
+msgid "The code is valid for 15 minutes."
+msgstr ""
+
+#, python-format
+msgid "Your StaffSync verification code is %(code)s"
 msgstr ""
 
 msgid "Invalid code"
@@ -401,6 +422,9 @@ msgstr ""
 msgid "Verify your email first"
 msgstr ""
 
+msgid "This invitation has expired. Ask for a new one."
+msgstr ""
+
 msgid "Invalid ticket"
 msgstr ""
 
@@ -416,21 +440,44 @@ msgstr ""
 msgid "Daily code limit reached"
 msgstr ""
 
-#, python-format
-msgid "Your StaffSync code is %(code)s"
+msgid "Your login code"
 msgstr ""
 
-msgid "Your login code"
+msgid "Enter this code in the StaffSync app to finish signing in."
+msgstr ""
+
+msgid "Sign-in code"
+msgstr ""
+
+#, python-format
+msgid "The code is valid for %(minutes)s minutes. Never share it with anyone."
+msgstr ""
+
+#, python-format
+msgid "Your StaffSync code is %(code)s"
 msgstr ""
 
 msgid "Company not found"
 msgstr ""
 
-#, python-format
-msgid "Reset your StaffSync password: %(link)s"
+msgid "Reset your password"
 msgstr ""
 
-msgid "Reset your password"
+msgid ""
+"We received a request to reset the password of your StaffSync account. "
+"Choose a new one with the button below."
+msgstr ""
+
+msgid "Choose a new password"
+msgstr ""
+
+msgid ""
+"The link is valid for one hour. If you did not ask for this, nothing "
+"changes and you can ignore this e-mail."
+msgstr ""
+
+#, python-format
+msgid "Reset your StaffSync password: %(link)s"
 msgstr ""
 
 msgid "Invalid or expired reset link"
@@ -439,13 +486,13 @@ msgstr ""
 msgid "Invitation not found"
 msgstr ""
 
-msgid "This invitation has expired. Ask for a new one."
-msgstr ""
-
 msgid "Current password is incorrect"
 msgstr ""
 
 msgid "A password is already set"
+msgstr ""
+
+msgid "Choose a password different from the temporary one"
 msgstr ""
 
 msgid "Start the setup again"
@@ -525,6 +572,18 @@ msgstr ""
 msgid "An export was already made in the last hour"
 msgstr ""
 
+msgid "Your data export is ready"
+msgstr ""
+
+msgid "The ZIP file with your company's data is ready to download."
+msgstr ""
+
+msgid "Download the export"
+msgstr ""
+
+msgid "The link works for one hour."
+msgstr ""
+
 #, python-format
 msgid ""
 "Your StaffSync data export is ready (the link works for one hour): "
@@ -600,16 +659,49 @@ msgstr ""
 msgid "This employee number is already used"
 msgstr ""
 
+msgid "Your company"
+msgstr ""
+
+#, python-format
+msgid ""
+"%(company)s created your StaffSync account. Sign in with %(login)s and "
+"this temporary password: %(password)s. You will choose your own password "
+"the first time you sign in. Download the StaffSync app to get started."
+msgstr ""
+
 #, python-format
 msgid ""
 "%(company)s invites you to StaffSync. Download the app and sign in with "
 "%(login)s."
 msgstr ""
 
-msgid "Your company"
+msgid "Welcome to StaffSync"
+msgstr ""
+
+#, python-format
+msgid "%(company)s created your StaffSync account."
+msgstr ""
+
+msgid ""
+"Download the StaffSync app and sign in with the details below. You will "
+"choose your own password the first time you sign in."
+msgstr ""
+
+msgid "Sign in with"
+msgstr ""
+
+msgid "Temporary password"
+msgstr ""
+
+msgid ""
+"Keep this e-mail private: the temporary password only works until you "
+"choose your own."
 msgstr ""
 
 msgid "Join StaffSync"
+msgstr ""
+
+msgid "Your StaffSync account"
 msgstr ""
 
 msgid "No contact to invite"
@@ -704,6 +796,16 @@ msgstr ""
 
 #, python-format
 msgid "Scheduled report: %(name)s"
+msgstr ""
+
+#, python-format
+msgid "Your scheduled report for %(start)s to %(end)s is ready."
+msgstr ""
+
+msgid "Download the report"
+msgstr ""
+
+msgid "The link works for 7 days."
 msgstr ""
 
 msgid "Unknown report type or grouping"
@@ -808,14 +910,47 @@ msgstr ""
 msgid "Site outside your scope"
 msgstr ""
 
-msgid "This person already has dashboard access"
+#, python-format
+msgid ""
+"%(name)s invited you to StaffSync. Open this link to choose your "
+"password: %(link)s Or sign in with your e-mail address and this temporary"
+" password: %(password)s You will be asked to choose your own password. "
+"The link and the temporary password stop working in 7 days."
+msgstr ""
+
+msgid "You're invited to StaffSync"
+msgstr ""
+
+#, python-format
+msgid "%(name)s invited you to StaffSync."
+msgstr ""
+
+msgid ""
+"Open the invitation to choose your password now. Or sign in with your "
+"e-mail address and the temporary password below; you will then be asked "
+"to choose your own."
+msgstr ""
+
+msgid "Open the invitation"
+msgstr ""
+
+msgid "The link and the temporary password stop working in 7 days."
 msgstr ""
 
 #, python-format
 msgid "%(name)s invited you to StaffSync: %(link)s"
 msgstr ""
 
+msgid "Open the invitation to set up your access."
+msgstr ""
+
+msgid "The link stops working in 7 days."
+msgstr ""
+
 msgid "You're invited"
+msgstr ""
+
+msgid "This person already has dashboard access"
 msgstr ""
 
 msgid "The company needs at least one owner"

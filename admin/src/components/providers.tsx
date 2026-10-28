@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
+import { BusyOverlay } from "@/components/ui/busy-overlay";
 import { ToastProvider } from "@/components/ui/toast";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={client}>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <BusyOverlay />
+        </ToastProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

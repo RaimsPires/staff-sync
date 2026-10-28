@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Hash, MessageSquarePlus, Paperclip, Search, Send, 
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/misc";
+import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import {
@@ -210,7 +211,7 @@ function Thread({ c }: { c: Conversation }) {
             aria-label={t("write")}
             className="max-h-32 min-h-9 flex-1 resize-none rounded-[10px] border border-solid border-border-strong bg-surface px-3 py-2 text-[13.5px] text-text outline-none focus:border-accent"
           />
-          <button onClick={() => void submit()} disabled={sending || (!text.trim() && files.length === 0)} aria-label={t("send")} title={t("send")} className="grid size-9 flex-none place-items-center rounded-lg border-0 bg-accent text-white disabled:opacity-45"><Send size={16} /></button>
+          <button onClick={() => void submit()} disabled={sending || (!text.trim() && files.length === 0)} aria-label={t("send")} title={t("send")} className="grid size-9 flex-none place-items-center rounded-lg border-0 bg-accent text-white disabled:opacity-45">{sending ? <Spinner size={16} className="border-white/40 border-t-white" /> : <Send size={16} />}</button>
         </div>
       </footer>
     </>

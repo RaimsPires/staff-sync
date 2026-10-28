@@ -51,7 +51,7 @@ fi
 cat <<MSG
 
   API      http://localhost:8000/api/v1/docs
-  Admin    http://localhost:3000   (owner@staffsync.app / staffsync-demo-1 after --seed)
+  Admin    http://localhost:3000   (admin@admin.com / admin12345 after --seed)
   Mobile   cd mobile && npx expo run:ios      (first run, or after adding native packages)
           cd mobile && npx expo start        (later runs)
   Stop     Ctrl+C

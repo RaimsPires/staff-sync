@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: staffsync 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-25 00:09+0100\n"
+"POT-Creation-Date: 2026-10-26 17:48+0100\n"
 "PO-Revision-Date: 2026-10-23 11:52+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -64,6 +64,18 @@ msgstr "Vous n'avez pas accès à cette entreprise."
 
 msgid "Please update the app"
 msgstr "Veuillez mettre à jour l'application."
+
+msgid "If the button does not work, copy this address into your browser:"
+msgstr "Si le bouton ne fonctionne pas, copiez cette adresse dans votre navigateur :"
+
+msgid "Attendance for job sites"
+msgstr "La présence sur vos chantiers"
+
+msgid "If you did not expect this e-mail, you can safely ignore it."
+msgstr "Si vous n'attendiez pas cet e-mail, vous pouvez l'ignorer."
+
+msgid "Sent to"
+msgstr "Envoyé à"
 
 msgid "We couldn't process this request. Please check your input and try again."
 msgstr "Nous n'avons pas pu traiter cette demande. Vérifiez vos informations et réessayez."
@@ -374,12 +386,21 @@ msgstr "Un compte existe déjà avec cet e-mail."
 msgid "This phone number is already used by another account"
 msgstr "Ce numéro de téléphone est déjà utilisé par un autre compte"
 
+msgid "Verify your email"
+msgstr "Vérifiez votre adresse e-mail"
+
+msgid "Use this code to finish creating your StaffSync account."
+msgstr "Utilisez ce code pour terminer la création de votre compte StaffSync."
+
+msgid "Verification code"
+msgstr "Code de vérification"
+
+msgid "The code is valid for 15 minutes."
+msgstr "Le code est valable 15 minutes."
+
 #, python-format
 msgid "Your StaffSync verification code is %(code)s"
 msgstr "Votre code de vérification StaffSync est %(code)s"
-
-msgid "Verify your email"
-msgstr "Vérifiez votre adresse e-mail"
 
 msgid "Invalid code"
 msgstr "Code incorrect."
@@ -396,6 +417,9 @@ msgstr "E-mail ou mot de passe incorrect."
 msgid "Verify your email first"
 msgstr "Vérifiez d'abord votre adresse e-mail."
 
+msgid "This invitation has expired. Ask for a new one."
+msgstr "Cette invitation a expiré. Demandez-en une nouvelle."
+
 msgid "Invalid ticket"
 msgstr "Cette demande est invalide. Veuillez recommencer."
 
@@ -411,22 +435,45 @@ msgstr "Patientez un instant avant de demander un nouveau code."
 msgid "Daily code limit reached"
 msgstr "Limite quotidienne de codes atteinte."
 
+msgid "Your login code"
+msgstr "Votre code de connexion"
+
+msgid "Enter this code in the StaffSync app to finish signing in."
+msgstr "Saisissez ce code dans l'application StaffSync pour terminer votre connexion."
+
+msgid "Sign-in code"
+msgstr "Code de connexion"
+
+#, python-format
+msgid "The code is valid for %(minutes)s minutes. Never share it with anyone."
+msgstr "Le code est valable %(minutes)s minutes. Ne le communiquez à personne."
+
 #, python-format
 msgid "Your StaffSync code is %(code)s"
 msgstr "Votre code StaffSync est %(code)s"
 
-msgid "Your login code"
-msgstr "Votre code de connexion"
-
 msgid "Company not found"
 msgstr "Entreprise introuvable."
+
+msgid "Reset your password"
+msgstr "Réinitialisez votre mot de passe"
+
+msgid "We received a request to reset the password of your StaffSync account. Choose a new one with the button below."
+msgstr ""
+"Nous avons reçu une demande de réinitialisation du mot de passe de votre compte StaffSync. Choisissez-en un nouveau "
+"avec le bouton ci-dessous."
+
+msgid "Choose a new password"
+msgstr "Choisir un nouveau mot de passe"
+
+msgid "The link is valid for one hour. If you did not ask for this, nothing changes and you can ignore this e-mail."
+msgstr ""
+"Le lien est valable une heure. Si vous n'êtes pas à l'origine de cette demande, rien ne change et vous pouvez ignorer"
+" cet e-mail."
 
 #, python-format
 msgid "Reset your StaffSync password: %(link)s"
 msgstr "Réinitialisez votre mot de passe StaffSync : %(link)s"
-
-msgid "Reset your password"
-msgstr "Réinitialisez votre mot de passe"
 
 msgid "Invalid or expired reset link"
 msgstr "Ce lien de réinitialisation est invalide ou a expiré."
@@ -434,14 +481,14 @@ msgstr "Ce lien de réinitialisation est invalide ou a expiré."
 msgid "Invitation not found"
 msgstr "Invitation introuvable."
 
-msgid "This invitation has expired. Ask for a new one."
-msgstr "Cette invitation a expiré. Demandez-en une nouvelle."
-
 msgid "Current password is incorrect"
 msgstr "Le mot de passe actuel est incorrect."
 
 msgid "A password is already set"
 msgstr "Un mot de passe est déjà défini."
+
+msgid "Choose a password different from the temporary one"
+msgstr "Choisissez un mot de passe différent du mot de passe temporaire."
 
 msgid "Start the setup again"
 msgstr "Recommencez la configuration."
@@ -520,6 +567,18 @@ msgstr "Pièce jointe inconnue."
 msgid "An export was already made in the last hour"
 msgstr "Un export a déjà été réalisé durant la dernière heure."
 
+msgid "Your data export is ready"
+msgstr "Votre export de données est prêt"
+
+msgid "The ZIP file with your company's data is ready to download."
+msgstr "Le fichier ZIP contenant les données de votre entreprise est prêt à être téléchargé."
+
+msgid "Download the export"
+msgstr "Télécharger l'export"
+
+msgid "The link works for one hour."
+msgstr "Le lien est valable une heure."
+
 #, python-format
 msgid "Your StaffSync data export is ready (the link works for one hour): %(link)s"
 msgstr "Votre export de données StaffSync est prêt (le lien est valable une heure) : %(link)s"
@@ -593,15 +652,52 @@ msgstr "Cette personne est déjà employée."
 msgid "This employee number is already used"
 msgstr "Ce numéro d'employé est déjà utilisé."
 
+msgid "Your company"
+msgstr "Votre entreprise"
+
+#, python-format
+msgid ""
+"%(company)s created your StaffSync account. Sign in with %(login)s and this temporary password: %(password)s. You "
+"will choose your own password the first time you sign in. Download the StaffSync app to get started."
+msgstr ""
+"%(company)s a créé votre compte StaffSync. Connectez-vous avec %(login)s et ce mot de passe temporaire : "
+"%(password)s. Vous choisirez votre propre mot de passe à votre première connexion. Téléchargez l'application "
+"StaffSync pour commencer."
+
 #, python-format
 msgid "%(company)s invites you to StaffSync. Download the app and sign in with %(login)s."
 msgstr "%(company)s vous invite à rejoindre StaffSync. Téléchargez l'application et connectez-vous avec %(login)s."
 
-msgid "Your company"
-msgstr "Votre entreprise"
+msgid "Welcome to StaffSync"
+msgstr "Bienvenue sur StaffSync"
+
+#, python-format
+msgid "%(company)s created your StaffSync account."
+msgstr "%(company)s a créé votre compte StaffSync."
+
+msgid ""
+"Download the StaffSync app and sign in with the details below. You will choose your own password the first time you "
+"sign in."
+msgstr ""
+"Téléchargez l'application StaffSync et connectez-vous avec les informations ci-dessous. Vous choisirez votre propre "
+"mot de passe à votre première connexion."
+
+msgid "Sign in with"
+msgstr "Se connecter avec"
+
+msgid "Temporary password"
+msgstr "Mot de passe temporaire"
+
+msgid "Keep this e-mail private: the temporary password only works until you choose your own."
+msgstr ""
+"Gardez cet e-mail confidentiel : le mot de passe temporaire ne fonctionne que jusqu'à ce que vous choisissiez le "
+"vôtre."
 
 msgid "Join StaffSync"
 msgstr "Rejoignez StaffSync"
+
+msgid "Your StaffSync account"
+msgstr "Votre compte StaffSync"
 
 msgid "No contact to invite"
 msgstr "Aucun contact à inviter."
@@ -694,6 +790,16 @@ msgstr "Votre rapport programmé %(name)s du %(start)s au %(end)s est prêt (le 
 #, python-format
 msgid "Scheduled report: %(name)s"
 msgstr "Rapport programmé : %(name)s"
+
+#, python-format
+msgid "Your scheduled report for %(start)s to %(end)s is ready."
+msgstr "Votre rapport programmé du %(start)s au %(end)s est prêt."
+
+msgid "Download the report"
+msgstr "Télécharger le rapport"
+
+msgid "The link works for 7 days."
+msgstr "Le lien est valable 7 jours."
 
 msgid "Unknown report type or grouping"
 msgstr "Type de rapport ou regroupement inconnu."
@@ -797,15 +903,51 @@ msgstr "Cette agence est en dehors de votre périmètre."
 msgid "Site outside your scope"
 msgstr "Ce site est en dehors de votre périmètre."
 
-msgid "This person already has dashboard access"
-msgstr "Cette personne a déjà accès au tableau de bord."
+#, python-format
+msgid ""
+"%(name)s invited you to StaffSync. Open this link to choose your password: %(link)s Or sign in with your e-mail "
+"address and this temporary password: %(password)s You will be asked to choose your own password. The link and the "
+"temporary password stop working in 7 days."
+msgstr ""
+"%(name)s vous a invité sur StaffSync. Ouvrez ce lien pour choisir votre mot de passe : %(link)s Ou connectez-vous "
+"avec votre adresse e-mail et ce mot de passe temporaire : %(password)s On vous demandera de choisir votre propre mot "
+"de passe. Le lien et le mot de passe temporaire cessent de fonctionner dans 7 jours."
+
+msgid "You're invited to StaffSync"
+msgstr "Vous êtes invité sur StaffSync"
+
+#, python-format
+msgid "%(name)s invited you to StaffSync."
+msgstr "%(name)s vous a invité sur StaffSync."
+
+msgid ""
+"Open the invitation to choose your password now. Or sign in with your e-mail address and the temporary password "
+"below; you will then be asked to choose your own."
+msgstr ""
+"Ouvrez l'invitation pour choisir votre mot de passe maintenant. Ou connectez-vous avec votre adresse e-mail et le mot"
+" de passe temporaire ci-dessous ; on vous demandera ensuite de choisir le vôtre."
+
+msgid "Open the invitation"
+msgstr "Ouvrir l'invitation"
+
+msgid "The link and the temporary password stop working in 7 days."
+msgstr "Le lien et le mot de passe temporaire cessent de fonctionner dans 7 jours."
 
 #, python-format
 msgid "%(name)s invited you to StaffSync: %(link)s"
 msgstr "%(name)s vous a invité à rejoindre StaffSync : %(link)s"
 
+msgid "Open the invitation to set up your access."
+msgstr "Ouvrez l'invitation pour configurer votre accès."
+
+msgid "The link stops working in 7 days."
+msgstr "Le lien cesse de fonctionner dans 7 jours."
+
 msgid "You're invited"
 msgstr "Vous êtes invité"
+
+msgid "This person already has dashboard access"
+msgstr "Cette personne a déjà accès au tableau de bord."
 
 msgid "The company needs at least one owner"
 msgstr "L'entreprise doit conserver au moins un propriétaire."

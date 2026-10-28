@@ -14,6 +14,7 @@ from staffsync.core.config import get_settings
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import AppError, Conflict, Forbidden, NotFound, RateLimited, Unauthenticated, ValidationFailed
 from staffsync.core.i18n import gettext_, recipient_locale
+from staffsync.core.mailing import EmailContent
 from staffsync.core.redis import get_redis
 from staffsync.core.security import (
     decrypt_field,
@@ -174,7 +175,13 @@ async def signup(session: AsyncSession, body: SignupIn) -> None:
     code = f"{secrets.randbelow(10**6):06d}"
     await get_redis().set(f"emailcode:{email}", sha256(code + str(user.id)), ex=900)
     lang = recipient_locale(user.locale)
-    await notify("email", email, gettext_("Your StaffSync verification code is %(code)s", lang, code=code), subject=gettext_("Verify your email", lang), code=code)
+    content = EmailContent(
+        heading=gettext_("Verify your email", lang),
+        paragraphs=[gettext_("Use this code to finish creating your StaffSync account.", lang)],
+        highlight=(gettext_("Verification code", lang), code),
+        note=gettext_("The code is valid for 15 minutes.", lang),
+    )
+    await notify("email", email, gettext_("Your StaffSync verification code is %(code)s", lang, code=code), subject=gettext_("Verify your email", lang), email=content, lang=lang, code=code)
 
 
 async def verify_email(session: AsyncSession, email: str, code: str, *, ip: str | None, ua: str | None) -> TokenPair:
@@ -213,6 +220,10 @@ async def login(session: AsyncSession, email: str, password: str, *, trusted_coo
         raise Unauthenticated("Invalid email or password", code="INVALID_CREDENTIALS")
     if user.status != "active":
         raise AccountError("This account has been deactivated")
+    if user.must_change_password:
+        # The temporary password was delivered to this person's own address, so using it proves they own it and accepts
+        # any invitation still waiting for them. Their roles were granted when they were invited.
+        await _accept_with_temporary_password(session, user)
     if not user.email_verified:
         raise Forbidden("Verify your email first", code="EMAIL_NOT_VERIFIED")
     user.failed_logins = 0
@@ -229,6 +240,23 @@ async def login(session: AsyncSession, email: str, password: str, *, trusted_coo
         if not trusted:
             return LoginOut(mfa_required=True, mfa_ticket=sign_ticket("mfa", str(user.id), 300))
     return await finish_login(session, user, companies, ip=ip, ua=ua)
+
+
+async def _accept_with_temporary_password(session: AsyncSession, user: User) -> None:
+    now = datetime.now(UTC)
+    pending = (await session.exec(select(Invitation).where(Invitation.user_id == user.id, Invitation.accepted_at.is_(None)))).all()  # type: ignore[union-attr]
+    live = [i for i in pending if i.expires_at >= now]
+    if pending and not live:
+        active = (await session.exec(select(CompanyMember).where(CompanyMember.user_id == user.id, CompanyMember.status == "active"))).first()
+        if active is None:  # only expired invitations: the temporary password expired with them
+            raise Forbidden("This invitation has expired. Ask for a new one.", code="INVITE_EXPIRED")
+    for inv in live:
+        inv.accepted_at = now
+        member = (await session.exec(select(CompanyMember).where(CompanyMember.user_id == user.id, CompanyMember.company_id == inv.company_id))).first()
+        if member and member.status == "invited":
+            member.status = "active"
+    if user.email:
+        user.email_verified = True
 
 
 async def _register_failure(user_id: UUID) -> None:
@@ -250,7 +278,7 @@ async def finish_login(session: AsyncSession, user: User, companies: list[Compan
     last = (await session.exec(select(CompanyMember).where(CompanyMember.user_id == user.id, CompanyMember.status == "active").order_by(CompanyMember.last_active_at.desc().nullslast()))).first()  # type: ignore[union-attr]
     cid = last.company_id if last else companies[0].id
     tokens = await issue_tokens(session, user_id=user.id, company_id=cid, ip=ip, user_agent=ua)
-    return LoginOut(tokens=tokens, companies=companies)
+    return LoginOut(tokens=tokens, companies=companies, must_change_password=user.must_change_password)
 
 
 async def mfa_verify(session: AsyncSession, ticket: str, code: str, trust: bool, *, ip: str | None, ua: str | None) -> tuple[LoginOut, str | None]:
@@ -308,7 +336,13 @@ async def otp_request(session: AsyncSession, identifier: str, password: str | No
     await r.set(f"otp:cool:{value}", "1", ex=s.otp_resend_s)
     lang = recipient_locale(user.locale)
     channel, to = ("email", user.email) if user.email else ("sms", user.phone or value)
-    await notify(channel, to or value, gettext_("Your StaffSync code is %(code)s", lang, code=code), subject=gettext_("Your login code", lang), code=code)
+    content = EmailContent(
+        heading=gettext_("Your login code", lang),
+        paragraphs=[gettext_("Enter this code in the StaffSync app to finish signing in.", lang)],
+        highlight=(gettext_("Sign-in code", lang), code),
+        note=gettext_("The code is valid for %(minutes)s minutes. Never share it with anyone.", lang, minutes=max(1, s.otp_ttl_s // 60)),
+    )
+    await notify(channel, to or value, gettext_("Your StaffSync code is %(code)s", lang, code=code), subject=gettext_("Your login code", lang), email=content, lang=lang, code=code)
     return s.otp_resend_s, user.password_hash is None
 
 
@@ -342,7 +376,7 @@ async def otp_verify(session: AsyncSession, identifier: str, code: str, device_i
     emp_ids = (await session.exec(select(Employee).where(Employee.user_id == user.id, Employee.status == "invited"))).all()
     for e in emp_ids:  # first successful login activates an invited employee
         e.status = "active"
-    return OtpVerifyOut(companies=companies, tokens=tokens, user=await build_profile(session, user, cid), needs_password=user.password_hash is None)
+    return OtpVerifyOut(companies=companies, tokens=tokens, user=await build_profile(session, user, cid), needs_password=user.password_hash is None or user.must_change_password)
 
 
 async def select_company(session: AsyncSession, ctx: RequestContext, company_id: UUID, *, ip: str | None, ua: str | None) -> tuple[TokenPair, UserProfileOut]:
@@ -368,7 +402,13 @@ async def forgot_password(session: AsyncSession, email: str) -> None:
     await get_redis().set(f"pwreset:{sha256(token)}", str(user.id), ex=3600)
     link = f"{get_settings().dashboard_url}/reset-password?token={token}"
     lang = recipient_locale(user.locale)
-    await notify("email", user.email or "", gettext_("Reset your StaffSync password: %(link)s", lang, link=link), subject=gettext_("Reset your password", lang), token=token, link=link)
+    content = EmailContent(
+        heading=gettext_("Reset your password", lang),
+        paragraphs=[gettext_("We received a request to reset the password of your StaffSync account. Choose a new one with the button below.", lang)],
+        button=(gettext_("Choose a new password", lang), link),
+        note=gettext_("The link is valid for one hour. If you did not ask for this, nothing changes and you can ignore this e-mail.", lang),
+    )
+    await notify("email", user.email or "", gettext_("Reset your StaffSync password: %(link)s", lang, link=link), subject=gettext_("Reset your password", lang), email=content, lang=lang, token=token, link=link)
 
 
 async def reset_password(session: AsyncSession, token: str, password: str) -> None:
@@ -393,8 +433,9 @@ async def accept_invitation(session: AsyncSession, token: str, password: str, fu
         raise Forbidden("This invitation has expired. Ask for a new one.", code="INVITE_EXPIRED")
     user = await session.get(User, inv.user_id)
     assert user is not None
-    if user.password_hash is None:  # existing accounts keep their password
+    if user.password_hash is None or user.must_change_password:  # existing accounts keep their own password
         user.password_hash = hash_password(password)
+        user.must_change_password = False
     user.email_verified = True
     if full_name:
         user.full_name = full_name
@@ -433,11 +474,17 @@ async def change_password(session: AsyncSession, ctx: RequestContext, current: s
 
 
 async def set_initial_password(session: AsyncSession, ctx: RequestContext, new: str) -> None:
-    """For accounts created without a password (invited employees): the first password needs no current one."""
-    if ctx.user.password_hash:
+    """The first real password of an account: one created without a password, or one given a temporary password.
+    It needs no current password because the person has just proved who they are (code or temporary password)."""
+    user = ctx.user
+    if user.password_hash and not user.must_change_password:
         raise Conflict("A password is already set", code="PASSWORD_ALREADY_SET")
-    ctx.user.password_hash = hash_password(new)
-    session.add(ctx.user)
+    if user.password_hash and verify_password(new, user.password_hash):
+        raise ValidationFailed("Choose a password different from the temporary one", code="PASSWORD_UNCHANGED")
+    user.password_hash = hash_password(new)
+    user.must_change_password = False
+    session.add(user)
+    await revoke_user_sessions(session, user.id, except_family=ctx.session_id)
 
 
 async def mfa_setup(ctx: RequestContext) -> tuple[str, str]:

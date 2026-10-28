@@ -9,7 +9,7 @@ import { verifyMfa } from "@/services/auth";
 import { cn } from "@/lib/utils";
 
 /** Second step of sign-in for people with two-factor turned on. */
-export function MfaStep({ onBack }: { onBack: () => void }) {
+export function MfaStep({ onBack, onChange }: { onBack: () => void; onChange: () => void }) {
   const t = useTranslations("Auth.mfa");
   const router = useRouter();
   const toast = useToast();
@@ -25,6 +25,7 @@ export function MfaStep({ onBack }: { onBack: () => void }) {
     setLoading(true);
     try {
       const result = await verifyMfa(code.trim(), trust);
+      if (result === "change") return onChange();
       if (result === "ok") return router.push("/workspaces");
       setError(result === "wrong" ? t("wrong") : t("expired"));
       if (result === "expired") setTimeout(onBack, 1500);

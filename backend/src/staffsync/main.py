@@ -37,6 +37,12 @@ async def lifespan(app: FastAPI):
         import sentry_sdk
 
         sentry_sdk.init(dsn=settings.sentry_dsn, environment=settings.app_env, traces_sample_rate=0.1)
+    # Settings are read once, at start: say what was picked up, so a forgotten restart after editing .env shows at a glance.
+    from staffsync.core.adapters import get_notifier
+
+    sending = sorted(getattr(get_notifier(), "providers", {}))
+    log = get_logger("startup")
+    log.info("delivery", sending_for_real=sending or "nothing (messages are only written to this log)", email_server=settings.smtp_host or "not set", sms=settings.sms_provider, push=settings.expo_push_enabled)
     yield
     await close_redis()
     await engine.dispose()

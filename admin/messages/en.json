@@ -369,7 +369,7 @@
       "emailPersonal": "Use your work email. Personal addresses (Gmail, Outlook…) can’t create a company workspace.",
       "passwordRequired": "Create a password.",
       "passwordWeak": "Password is too weak. Use at least 10 characters with a mix of letters and numbers.",
-      "phoneInvalid": "Enter a valid phone number.",
+      "phoneInvalid": "Enter a valid phone number for the selected country",
       "termsRequired": "You need to accept the terms to continue.",
       "codeIncomplete": "Enter all 6 digits.",
       "codeWrong": "That code is incorrect. Check the latest email or request a new code.",
@@ -433,7 +433,14 @@
     "noAccessTitle": "You do not have access to this page",
     "noAccessHint": "Ask a company admin to update your role or scope.",
     "pendingTitle": "This module is being migrated",
-    "pendingHint": "The screen will appear here as soon as its migration lands."
+    "pendingHint": "The screen will appear here as soon as its migration lands.",
+    "phone": {
+      "selectCountry": "Select country",
+      "searchCountry": "Search country by name",
+      "noCountry": "No country found"
+    },
+    "working": "Working…",
+    "close": "Close"
   },
   "Auth": {
     "brand": "StaffSync",
@@ -556,6 +563,19 @@
       "backToSignIn": "Back to sign in",
       "show": "Show password",
       "hide": "Hide password"
+    },
+    "changePassword": {
+      "title": "Choose your password",
+      "subtitle": "You signed in with a temporary password. Choose your own now ({n} characters or more); you’ll use it from now on.",
+      "newPassword": "New password",
+      "confirm": "Confirm password",
+      "show": "Show passwords",
+      "tooShort": "Use at least {n} characters.",
+      "mismatch": "The two passwords don’t match.",
+      "same": "Choose a password different from the temporary one.",
+      "save": "Save and continue",
+      "saved": "Password saved",
+      "failed": "Couldn’t save your password. Try again."
     }
   },
   "Status": {
@@ -2070,30 +2090,27 @@
         "sick": "Sick leave",
         "family": "Family events"
       },
-      "invitation": "Invitation",
+      "invitation": "Sign-in details",
       "to": "To {value}",
-      "needsPhone": "Needs a phone number",
-      "needsEmail": "Needs an email address",
-      "invite": {
-        "sms": "Send app invite by SMS",
-        "mail": "Send app invite by email"
-      },
       "errors": {
         "firstRequired": "First name is required",
         "lastRequired": "Last name is required",
         "idRequired": "ID is required",
         "idTaken": "ID already in use",
-        "phoneRequired": "Phone is required for app access",
         "phoneInvalid": "Enter a valid phone number",
         "emailInvalid": "Enter a valid email address",
-        "emailForInvite": "Email is required to send an email invite",
         "branchRequired": "Choose a branch",
         "titleRequired": "Job title is required",
         "scopeRequired": "Choose a scope",
         "startRequired": "Start date is required",
-        "sitesRequired": "Assign at least one site"
+        "sitesRequired": "Assign at least one site",
+        "contactRequired": "Enter an email address or a phone number"
       },
-      "saveFailed": "Couldn’t save. Try again."
+      "saveFailed": "Couldn’t save. Try again.",
+      "sendDetails": "Send sign-in details",
+      "detailsByEmail": "A temporary password is sent to {value}. They choose their own at first sign-in.",
+      "detailsBySms": "No email: a temporary password is sent by SMS to {value}. They choose their own at first sign-in.",
+      "detailsNeedContact": "Add an email address or a phone number to send them."
     },
     "profile": {
       "back": "Back to employees",
@@ -3203,7 +3220,8 @@
         "changed": "{name} is now {role}",
         "keepAdmin": "Keep at least one Company admin",
         "failed": "Couldn’t save. Try again."
-      }
+      },
+      "credentialsHint": "They receive an email with a link and a temporary password. They choose their own password the first time."
     },
     "roles": {
       "create": "Create role",

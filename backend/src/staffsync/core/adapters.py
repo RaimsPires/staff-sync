@@ -8,6 +8,7 @@ from typing import Any, Protocol
 
 from staffsync.core.config import get_settings
 from staffsync.core.logging import get_logger
+from staffsync.core.mailing import EmailContent, build_message, from_plain_text
 
 log = get_logger("adapters")
 
@@ -19,6 +20,9 @@ class Message:
     subject: str | None
     body: str
     data: dict[str, Any] = field(default_factory=dict)
+    #: For e-mail: the structured, branded version of the message (see core/mailing). `body` stays the plain-text form.
+    email: "EmailContent | None" = None
+    lang: str = "en"
 
 
 class Notifier(Protocol):
@@ -39,36 +43,23 @@ class ConsoleNotifier:
 
 
 class SmtpNotifier:
-    """E-mail through any SMTP server (set SMTP_HOST and friends in the environment)."""
-
-    def __init__(self) -> None:
-        from fastapi_mail import ConnectionConfig, FastMail
-
-        s = get_settings()
-        self.mail = FastMail(
-            ConnectionConfig(
-                MAIL_USERNAME=s.smtp_username or "",
-                MAIL_PASSWORD=s.smtp_password or "",  # type: ignore[arg-type]
-                MAIL_FROM=s.smtp_from_email,
-                MAIL_FROM_NAME=s.smtp_from_name,
-                MAIL_SERVER=s.smtp_host or "",
-                MAIL_PORT=s.smtp_port,
-                MAIL_STARTTLS=s.smtp_starttls and not s.smtp_ssl,
-                MAIL_SSL_TLS=s.smtp_ssl,
-                USE_CREDENTIALS=bool(s.smtp_username),
-                VALIDATE_CERTS=True,
-            )
-        )
+    """E-mail through any SMTP server (set SMTP_HOST and friends in the environment), in the StaffSync layout."""
 
     async def send(self, message: Message) -> None:
-        import html
-        import re
+        import aiosmtplib
 
-        from fastapi_mail import MessageSchema, MessageType
-
-        linked = re.sub(r"(https?://[^\s<]+)", r'<a href="\1">\1</a>', html.escape(message.body)).replace("\n", "<br>")
-        await self.mail.send_message(
-            MessageSchema(subject=message.subject or "StaffSync", recipients=[message.to], body=f"<p style=\"font-family:sans-serif;font-size:15px\">{linked}</p>", subtype=MessageType.html)  # type: ignore[arg-type]
+        s = get_settings()
+        content = message.email or from_plain_text(message.subject, message.body)
+        mail = build_message(sender=(s.smtp_from_name, s.smtp_from_email), to=message.to, subject=message.subject or "StaffSync", content=content, lang=message.lang)
+        await aiosmtplib.send(
+            mail,
+            hostname=s.smtp_host,
+            port=s.smtp_port,
+            username=s.smtp_username or None,
+            password=s.smtp_password or None,
+            start_tls=s.smtp_starttls and not s.smtp_ssl,
+            use_tls=s.smtp_ssl,
+            timeout=20,
         )
 
 
@@ -155,8 +146,9 @@ def get_notifier() -> Notifier:
     return _notifier
 
 
-async def notify(channel: str, to: str, body: str, *, subject: str | None = None, **data: Any) -> None:
-    await get_notifier().send(Message(channel, to, subject, body, data))
+async def notify(channel: str, to: str, body: str, *, subject: str | None = None, email: EmailContent | None = None, lang: str = "en", **data: Any) -> None:
+    """`body` is the plain text (used for SMS, push and the log); `email` is the branded layout used when the channel is e-mail."""
+    await get_notifier().send(Message(channel, to, subject, body, data, email, lang))
 
 
 # --- Object storage ---------------------------------------------------------------------------------

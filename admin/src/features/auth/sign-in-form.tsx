@@ -8,6 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { authenticate, requestPasswordReset } from "@/services/auth";
+import { ChangePasswordStep } from "./change-password-step";
 import { MfaStep } from "./mfa-step";
 import { useOnline } from "@/lib/use-online";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
   const [loading, setLoading] = useState(previewState === "loading");
   const [tried, setTried] = useState(false);
   const [mfa, setMfa] = useState(false);
+  const [changing, setChanging] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>(
     previewState === "wrong" || previewState === "deactivated" || previewState === "locked" ? previewState : null,
   );
@@ -103,6 +105,10 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
       redirectTimer.current = setTimeout(() => router.push("/workspaces"), 900);
       return;
     }
+    if (result === "change") {
+      setChanging(true);
+      return;
+    }
     if (result === "mfa") {
       setMfa(true);
       return;
@@ -152,7 +158,8 @@ export function SignInForm({ previewState = "default" }: { previewState?: Previe
     );
   };
 
-  if (mfa) return <MfaStep onBack={() => { setMfa(false); setPassword(""); }} />;
+  if (changing) return <ChangePasswordStep />;
+  if (mfa) return <MfaStep onBack={() => { setMfa(false); setPassword(""); }} onChange={() => { setMfa(false); setChanging(true); }} />;
 
   const buttonLabel = loading ? t("signingIn") : locked ? t("locked.button") : !online ? t("offline.button") : t("signIn");
 

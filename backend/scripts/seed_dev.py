@@ -8,16 +8,18 @@ console notifier. Re-running is safe: it stops if the demo owner already exists.
 
 import asyncio
 import re
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import httpx
 
 from staffsync.core.adapters import get_notifier
+from staffsync.core.redis import get_redis
 from staffsync.main import app
 
 OWNER_EMAIL = "admin@admin.com"
-OWNER_PASSWORD = "admin1234"
+OWNER_PASSWORD = "admin12345"  # 10+ characters, like every password in the app
+EMPLOYEE_PASSWORD = OWNER_PASSWORD  # one password to remember for every demo account
 TZ = ZoneInfo("Africa/Douala")
 SITE_A = (9.7679, 4.0511)  # lng, lat (Bonanjo, Douala)
 SITE_B = (9.7043, 4.0483)  # lng, lat (Akwa)
@@ -71,10 +73,18 @@ async def main() -> None:
         for name, no, phone, site in [*EMPLOYEES, MANAGER]:
             employees[no] = await post("/employees", {"full_name": name, "employee_no": no, "phone": phone, "branch_id": branch["id"], "site_ids": [sites[site]], "has_smartphone": True, "send_invite": False})
 
-        # The manager needs a user row to manage a site: an OTP login creates it (no device registered, the phone does that).
-        mailbox.clear()
-        await c.post("/auth/otp/request", json={"identifier": MANAGER[2]})
-        await c.post("/auth/otp/verify", json={"identifier": MANAGER[2], "code": last_code(mailbox)})
+        # Give every demo employee the fixed password, through the same two calls the phone makes: the first code
+        # sign-in, then "create your password" (no device is registered here, the phone does that).
+        for name, _no, phone, _site in [*EMPLOYEES, MANAGER]:
+            mailbox.clear()
+            r = await c.post("/auth/otp/request", json={"identifier": phone})
+            assert r.status_code == 200, f"code for {name}: {r.status_code} {r.text}"
+            v = await c.post("/auth/otp/verify", json={"identifier": phone, "code": last_code(mailbox)})
+            assert v.status_code == 200, f"sign-in for {name}: {v.status_code} {v.text}"
+            p = await c.post("/me/password/initial", headers={"authorization": f"Bearer {v.json()['tokens']['access_token']}"}, json={"new_password": EMPLOYEE_PASSWORD})
+            assert p.status_code == 204, f"password for {name}: {p.status_code} {p.text}"
+            # those code requests started the "wait a minute" timer and the daily count: clear them, the real first sign-in is still to come
+            await get_redis().delete(f"otp:cool:{phone}", f"otp:day:{phone}:{datetime.now(UTC):%Y%m%d}")
         mgr = await c.get(f"/employees/{employees[MANAGER[1]]['id']}", headers=h)
         await c.put(f"/sites/{sites['a']}/managers", headers=h, json={"ids": [mgr.json()["user_id"]]})
 
@@ -88,7 +98,7 @@ async def main() -> None:
 
     print("\nSeeded demo company 'Demo Logistics'\n")
     print(f"  Admin (web)    {OWNER_EMAIL} / {OWNER_PASSWORD}")
-    print("  Employees (mobile, OTP is printed in the API log):")
+    print(f"  Employees (mobile: phone + password {EMPLOYEE_PASSWORD}, then the 6-digit code from the API log):")
     for name, no, phone, site in [*EMPLOYEES, MANAGER]:
         print(f"    {name:<14} {phone}  {'(site manager)' if no == MANAGER[1] else ''}")
     print("  Sites: Bonanjo Tower (9.7679, 4.0511), Akwa Warehouse (9.7043, 4.0483), 150 m circles")

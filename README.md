@@ -19,7 +19,7 @@ Needs Docker, `uv` and Node with Yarn.
 cd mobile && npx expo run:ios    # first run on a simulator or device; later: npx expo start
 ```
 
-Demo login: `owner@staffsync.app` / `staffsync-demo-1` (admin). Mobile logins are the seeded phone numbers; the one-time code is printed in the API log.
+Demo login: `admin@admin.com` / `admin12345` (admin). Mobile: a seeded phone number (`+237695681690`, `+2250712345678`...) with the same password `admin12345`, then the 6-digit code printed in the API log.
 
 ## Checks
 

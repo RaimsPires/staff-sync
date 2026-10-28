@@ -18,7 +18,7 @@ uv run arq staffsync.workers.settings.WorkerSettings   # outbox relay, absences,
 
 In dev, e-mail/SMS codes are written to the server log (`notify` lines) instead of being sent.
 
-Demo data: `make seed` loads "Demo Logistics" (owner `owner@staffsync.app` / `staffsync-demo-1`, two sites, five employees; the phone numbers are printed). It stops if the demo owner already exists; `make reset` wipes the database first. `make worker` runs the background worker, which the live board needs (events reach the browser through the outbox relay).
+Demo data: `make seed` loads "Demo Logistics" (owner `admin@admin.com` / `admin12345`, two sites, five employees who all use the password `admin12345` with their phone number; the numbers are printed). Change the constants at the top of `scripts/seed_dev.py` to use others (passwords need 10+ characters). It stops if the demo owner already exists; `make reset` wipes the database first. `make worker` runs the background worker, which the live board needs (events reach the browser through the outbox relay).
 
 Whole stack in one command: `../scripts/dev.sh` (add `--seed` once, `--lan` for a phone).
 
@@ -54,3 +54,7 @@ proxy, PIN lockout), alerts/corrections, leave, audit, dashboard, reports (CSV/X
 
 Built but needs credentials to act for real: e-mail, SMS, push, S3, Google/Microsoft sign-in, Play Integrity, Stripe checkout and
 portal. Not built: iOS App Attest verification.
+
+## Passwords for new people
+
+Creating an employee (Employees > Add, with "Send sign-in details" on) or inviting a dashboard user generates a random temporary password and mails it (employees without an e-mail get it by SMS). The person must choose their own password at first sign-in. People are matched by e-mail first, then phone; an existing account keeps its password. Dashboard users' temporary passwords expire with their 7-day invitation. Without SMTP/Twilio keys the message only appears in the server log.

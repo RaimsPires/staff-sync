@@ -14,6 +14,7 @@ from staffsync.core.audit import audit
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import RateLimited
 from staffsync.core.i18n import gettext_, recipient_locale
+from staffsync.core.mailing import EmailContent
 from staffsync.core.redis import get_redis
 
 TABLES = ["branches", "sites", "employees", "employee_sites", "attendance_records", "attendance_notes", "leave_types", "leave_balances", "leave_requests", "leave_approvals",
@@ -71,6 +72,12 @@ async def export_company(ctx: RequestContext) -> dict:
     audit(ctx, "company.exported", "company", ctx.company_id)
     if ctx.user.email:
         lang = recipient_locale(ctx.user.locale)
-        await notify("email", ctx.user.email, gettext_("Your StaffSync data export is ready (the link works for one hour): %(link)s", lang, link=url), subject=gettext_("Your data export", lang), link=url)
+        content = EmailContent(
+            heading=gettext_("Your data export is ready", lang),
+            paragraphs=[gettext_("The ZIP file with your company's data is ready to download.", lang)],
+            button=(gettext_("Download the export", lang), url),
+            note=gettext_("The link works for one hour.", lang),
+        )
+        await notify("email", ctx.user.email, gettext_("Your StaffSync data export is ready (the link works for one hour): %(link)s", lang, link=url), subject=gettext_("Your data export", lang), email=content, lang=lang, link=url)
     return {"status": "ready", "download_url": url, "expires_in": DOWNLOAD_TTL_S}
 

@@ -45,6 +45,15 @@ def new_opaque_token(nbytes: int = 32) -> str:
     return secrets.token_urlsafe(nbytes)
 
 
+# No 0/O, 1/l/I: the password is read from a mail or a text message and typed on a phone.
+_TEMP_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789"
+
+
+def new_temporary_password(length: int = 12) -> str:
+    """A random password to send to someone who must replace it at first sign-in (12 characters: over the 10 minimum)."""
+    return "".join(secrets.choice(_TEMP_ALPHABET) for _ in range(length))
+
+
 def hmac_sign(key: str, message: str) -> str:
     return hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()
 

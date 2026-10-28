@@ -138,6 +138,7 @@ function InviteForm({ target, onClose }: { target: NonNullable<InviteTarget>; on
             <textarea rows={3} value={d.message} onChange={(e) => set({ message: e.target.value })} placeholder={t("messagePlaceholder")} className="resize-y rounded-[9px] border border-solid border-border-strong bg-surface px-2.5 py-[9px] text-[13px] font-normal text-text outline-none focus:border-accent" />
           </label>
         )}
+        {isNew && <p className="m-0 text-[12.5px] text-text-3">{t("credentialsHint")}</p>}
       </div>
     </Modal>
   );

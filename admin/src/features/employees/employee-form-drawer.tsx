@@ -2,13 +2,15 @@
 
 import { TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
+import { PhoneField } from "@/components/ui/phone-field";
 import { Switch } from "@/components/ui/switch";
 import { SelectField, TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
 import { JOB_TITLES, PLAN_LIMIT } from "@/data/employees";
+import { commonCountry, isValidPhone } from "@/lib/countries";
 import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
 import { useEmployees } from "@/store/employees";
@@ -40,8 +42,8 @@ interface Form {
   selfie: Employee["selfie"];
   policy: LeavePolicy;
   balances: Record<string, number>;
-  sms: boolean;
-  mail: boolean;
+  /** Send the sign-in details (a temporary password) when the person is created. */
+  invite: boolean;
 }
 
 
@@ -51,7 +53,7 @@ function initialForm(emp: Employee | null, balances: Record<string, number>): Fo
     first, last: rest.join(" "), idMode: emp ? "manual" : "auto", id: emp?.id ?? "", phone: emp && emp.phone !== "—" ? emp.phone : "", email: emp?.email ?? "",
     branchId: emp?.branchId ?? "", title: emp?.title ?? "", access: emp?.access ?? "employee", scope: "", startDate: emp?.startDate ?? "", contract: emp?.contract ?? "cdi",
     siteIds: emp ? [...emp.siteIds] : [], smartphone: emp ? emp.app !== "none" : true, selfie: emp?.selfie ?? "inherit",
-    policy: "std", balances: { ...balances }, sms: true, mail: false,
+    policy: "std", balances: { ...balances }, invite: true,
   };
 }
 
@@ -67,6 +69,8 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
   const tTitles = useTranslations("Employees.titles");
   const toast = useToast();
   const employees = useEmployees((s) => s.employees);
+  // New numbers start on the country most of the company's numbers belong to.
+  const phoneCountry = useMemo(() => commonCountry(employees.map((e) => e.phone)), [employees]);
   const upsert = useEmployees((s) => s.upsert);
   const [f, setF] = useState<Form>(() => initialForm(employee, policyBalances("std", leaveTypes.types)));
   const [tried, setTried] = useState(false);
@@ -88,11 +92,9 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
       if (!f.id.trim()) e.id = "idRequired";
       else if (taken.includes(f.id.trim())) e.id = "idTaken";
     }
-    const digits = f.phone.replace(/\D/g, "").length;
-    if (f.smartphone && !f.phone.trim()) e.phone = "phoneRequired";
-    else if (f.phone.trim() && digits < 10) e.phone = "phoneInvalid";
+    if (f.smartphone && !f.phone.trim() && !f.email.trim()) e.phone = "contactRequired";
+    else if (f.phone.trim() && !isValidPhone(f.phone)) e.phone = "phoneInvalid";
     if (f.email && !EMAIL_RE.test(f.email)) e.email = "emailInvalid";
-    else if (f.mail && f.smartphone && !f.email) e.email = "emailForInvite";
     if (!f.branchId) e.branchId = "branchRequired";
     if (!f.title) e.title = "titleRequired";
     if (NEEDS_SCOPE.includes(f.access) && !f.scope) e.scope = "scopeRequired";
@@ -109,7 +111,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
     if (Object.keys(errors()).length > 0 || atLimit || f.title === "") return;
     const draft: EmployeeDraft = {
       id: finalId, name: `${f.first.trim()} ${f.last.trim()}`, branchId: f.branchId, siteIds: f.siteIds, title: f.title, phone: f.phone.trim(), email: f.email || undefined,
-      smartphone: f.smartphone, invite: f.smartphone && (f.sms || f.mail), access: f.access, contract: f.contract, startDate: f.startDate, selfie: f.selfie,
+      smartphone: f.smartphone, invite: f.smartphone && f.invite, access: f.access, contract: f.contract, startDate: f.startDate, selfie: f.selfie,
     };
     try {
       await upsert(draft, employee?.id);
@@ -174,7 +176,7 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
           <div className="grid grid-cols-2 gap-3.5">
             <TextField label={`${t("first")} *`} value={f.first} onChange={(e) => set("first", e.target.value)} error={err("first")} />
             <TextField label={`${t("last")} *`} value={f.last} onChange={(e) => set("last", e.target.value)} error={err("last")} />
-            <TextField label={f.smartphone ? `${t("phone")} *` : t("phone")} type="tel" placeholder="06 12 34 56 78" value={f.phone} onChange={(e) => set("phone", e.target.value)} error={err("phone")} />
+            <PhoneField label={f.smartphone ? `${t("phone")} *` : t("phone")} value={f.phone} onChange={(v) => set("phone", v)} error={err("phone")} defaultCountry={phoneCountry} />
             <TextField label={t("email")} type="email" placeholder="name@company.com" value={f.email} onChange={(e) => set("email", e.target.value)} error={err("email")} />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -317,15 +319,13 @@ function FormBody({ employee, onClose }: { employee: Employee | null; onClose: (
         {f.smartphone && (
           <section className="flex flex-col gap-3 py-5 pb-0">
             <h3 className={heading}>{t("invitation")}</h3>
-            {([["sms", f.phone.trim() ? t("to", { value: f.phone }) : t("needsPhone"), false], ["mail", f.email ? t("to", { value: f.email }) : t("needsEmail"), f.mail && !f.email]] as const).map(([k, hint, bad]) => (
-              <div key={k} className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-[13.5px] font-medium">{t(`invite.${k}`)}</div>
-                  <div className={cn("text-[12.5px]", bad ? "text-bad" : "text-text-3")}>{hint}</div>
-                </div>
-                <Switch checked={f[k]} onChange={(v) => set(k, v)} label={t(`invite.${k}`)} />
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[13.5px] font-medium">{t("sendDetails")}</div>
+                <div className="text-[12.5px] text-text-3">{f.email ? t("detailsByEmail", { value: f.email }) : f.phone.trim() ? t("detailsBySms", { value: f.phone }) : t("detailsNeedContact")}</div>
               </div>
-            ))}
+              <Switch checked={f.invite} onChange={(v) => set("invite", v)} label={t("sendDetails")} />
+            </div>
           </section>
         )}
       </div>

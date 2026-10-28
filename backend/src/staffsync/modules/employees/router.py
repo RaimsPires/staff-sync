@@ -151,7 +151,7 @@ async def invite(employee_id: UUID, ctx=require(Perm.EMPLOYEES_MANAGE)):
     emp = await service.EmployeeRepository(ctx).get(employee_id)
     if not emp.has_smartphone:
         raise Conflict("This employee has no smartphone", code="NO_SMARTPHONE")
-    await service.send_invite(ctx, emp)
+    await service.resend_invite(ctx, emp)
     return {"status": "sent"}
 
 

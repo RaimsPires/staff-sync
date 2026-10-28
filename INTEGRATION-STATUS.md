@@ -259,3 +259,16 @@ Legend: `[x]` done · `[ ]` open · **NEW** = found after the first write-up.
 - Rewrote `admin/docs/KNOWN-LIMITATIONS.md`, which still described the mock-data era.
 - Left alone on purpose: `OTADD.md` (your own notes), `greenlet` and `python-multipart` (needed at runtime although never imported by name).
 - Mobile keyboard handling: `Screen` and `BottomSheet` now lift their content (footer buttons included) above the keyboard, dismiss it on tap-outside and on drag, and scroll a focused field into view; the correction sheet, chat thread and country list got the same. Type check and jest pass; **not tried on a device** (see UI-TEST-GUIDE B0).
+
+## Credentials 2026-10-26
+- New employees and invited dashboard users get a random **temporary password** by e-mail (SMS for employees without an e-mail) and must choose their own at first sign-in (mobile create-password screen, dashboard "Choose your password" step). Existing accounts keep their password. Employee lookup is e-mail first. Migration `0004` adds `users.must_change_password`. Dashboard-user temporary passwords expire with the 7-day invitation. Tests: `backend/tests/test_credentials.py`.
+- Seed: owner `admin@admin.com` / `admin12345`; every seeded employee (including `+237695681690`) has the same fixed password, set through the real endpoints; the seed also clears the "wait a minute" code timer it triggers.
+- Employee form: one "Send sign-in details" switch; e-mail or phone is enough.
+- Dashboard phone input: new reusable `PhoneField` (`admin/src/components/ui/phone-field.tsx`) with a searchable country selector (flag + calling code, name search in EN/FR, `+code` search, paste an international number to switch country), backed by `libphonenumber-js` (`admin/src/lib/countries.ts`). The employee form now sends the number in international form and validates it for the chosen country. The sign-up wizard's phone field is unchanged.
+- Dashboard feedback: toasts are now alert-style messages in the top-right corner (icon, colour by type, close button, pause on hover; `components/ui/toast.tsx`). Every save/delete/send through the API client shows a full-screen waiting overlay with a centred spinner after 300 ms (`store/busy.ts`, `components/ui/busy-overlay.tsx`; `withBusy()` for other slow work). Reads, chat, previews and sign-in forms are exempt (`QUIET` list in `lib/api-client.ts`).
+
+## E-mail design 2026-10-26
+- All e-mails use one branded layout (`backend/src/staffsync/core/mailing.py`): logo embedded in the message, dashboard theme colours as inline styles (e-mail programs ignore Tailwind classes and style sheets), a large box for codes and temporary passwords, a button with the address repeated underneath, EN/FR, plus a plain-text version. Messages with no designed content (billing notices) get the same frame.
+- Sending now uses `aiosmtplib` directly (replaces `fastapi-mail`); `email-validator` and `aiosmtplib` are declared dependencies. Real e-mails that carry designed content: sign-up code, sign-in code, password reset, dashboard invitation, employee sign-in details, company export, scheduled report.
+- `backend/scripts/preview_emails.py` writes every design to `backend/.email-preview/` for a browser. Tests: `backend/tests/test_mailing.py`.
+- Settings are read once at start: restart the API after editing `.env` (the start-up log now says what is active).

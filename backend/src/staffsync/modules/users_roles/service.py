@@ -11,7 +11,8 @@ from staffsync.core.config import get_settings
 from staffsync.core.context import RequestContext
 from staffsync.core.errors import BusinessRule, Conflict, Forbidden, NotFound, ValidationFailed
 from staffsync.core.i18n import gettext_, recipient_locale
-from staffsync.core.security import new_opaque_token, sha256
+from staffsync.core.mailing import EmailContent
+from staffsync.core.security import hash_password, new_opaque_token, new_temporary_password, sha256
 from staffsync.modules.auth.models import CompanyMember, Invitation, User
 from staffsync.modules.auth.tokens import revoke_user_sessions
 from staffsync.modules.branches.models import Branch
@@ -162,6 +163,50 @@ async def list_users(ctx: RequestContext) -> list[UserRead]:
     return out
 
 
+def _issue_temporary_password(ctx: RequestContext, user: User, *, only_if_temporary: bool = False) -> str | None:
+    """A random password the person can sign in with until they choose their own, for an account that has none (or only a
+    temporary one). A person with a password of their own keeps it."""
+    if user.password_hash is not None and not user.must_change_password:
+        return None
+    if only_if_temporary and not user.must_change_password:
+        return None
+    temporary = new_temporary_password()
+    user.password_hash = hash_password(temporary)
+    user.must_change_password = True
+    ctx.session.add(user)
+    return temporary
+
+
+async def _mail_invitation(ctx: RequestContext, user: User, token: str, temporary: str | None) -> None:
+    link = f"{get_settings().dashboard_url}/invite/{token}"
+    lang = recipient_locale(user.locale)
+    if temporary:
+        body = gettext_(
+            "%(name)s invited you to StaffSync. Open this link to choose your password: %(link)s Or sign in with your e-mail address and this temporary password: %(password)s You will be asked to choose your own password. The link and the temporary password stop working in 7 days.",
+            lang, name=ctx.user.full_name, link=link, password=temporary,
+        )
+        content = EmailContent(
+            heading=gettext_("You're invited to StaffSync", lang),
+            paragraphs=[
+                gettext_("%(name)s invited you to StaffSync.", lang, name=ctx.user.full_name),
+                gettext_("Open the invitation to choose your password now. Or sign in with your e-mail address and the temporary password below; you will then be asked to choose your own.", lang),
+            ],
+            details=[(gettext_("Sign in with", lang), user.email or "")],
+            highlight=(gettext_("Temporary password", lang), temporary),
+            button=(gettext_("Open the invitation", lang), link),
+            note=gettext_("The link and the temporary password stop working in 7 days.", lang),
+        )
+    else:
+        body = gettext_("%(name)s invited you to StaffSync: %(link)s", lang, name=ctx.user.full_name, link=link)
+        content = EmailContent(
+            heading=gettext_("You're invited to StaffSync", lang),
+            paragraphs=[gettext_("%(name)s invited you to StaffSync.", lang, name=ctx.user.full_name), gettext_("Open the invitation to set up your access.", lang)],
+            button=(gettext_("Open the invitation", lang), link),
+            note=gettext_("The link stops working in 7 days.", lang),
+        )
+    await notify("email", user.email or "", body, subject=gettext_("You're invited", lang), email=content, lang=lang, token=token, link=link)
+
+
 async def invite_user(ctx: RequestContext, body: InviteIn) -> dict:
     role = await get_role(ctx, body.role_id)
     _cannot_exceed(ctx, await _role_perms(ctx, role))
@@ -175,15 +220,14 @@ async def invite_user(ctx: RequestContext, body: InviteIn) -> dict:
     member = (await ctx.session.exec(select(CompanyMember).where(CompanyMember.company_id == ctx.company_id, CompanyMember.user_id == user.id))).first()
     if member and member.status == "active" and (await ctx.session.exec(select(UserRole).where(UserRole.user_id == user.id, UserRole.company_id == ctx.company_id))).first():
         raise Conflict("This person already has dashboard access", code="ALREADY_MEMBER")
+    temporary = _issue_temporary_password(ctx, user)
     if member is None:
         ctx.session.add(CompanyMember(company_id=ctx.company_id, user_id=user.id, status="invited"))
     ctx.session.add(UserRole(company_id=ctx.company_id, user_id=user.id, role_id=role.id, scope_type=body.scope_type.value, scope_ids=body.scope_ids))
     token = new_opaque_token()
     ctx.session.add(Invitation(company_id=ctx.company_id, user_id=user.id, token_hash=sha256(token), role_id=role.id, scope_type=body.scope_type.value,
                                invited_by=ctx.user.id, message=body.message, expires_at=datetime.now(UTC) + timedelta(days=7)))
-    link = f"{get_settings().dashboard_url}/invite/{token}"
-    lang = recipient_locale(user.locale)
-    await notify("email", email, gettext_("%(name)s invited you to StaffSync: %(link)s", lang, name=ctx.user.full_name, link=link), subject=gettext_("You're invited", lang), token=token, link=link)
+    await _mail_invitation(ctx, user, token, temporary)
     audit(ctx, "user.invited", "user", user.id, after={"email": email, "role": role.name})
     return {"user_id": user.id, "status": "invited"}
 
@@ -204,9 +248,8 @@ async def resend_invite(ctx: RequestContext, user_id: UUID) -> None:
     token = new_opaque_token()
     ctx.session.add(Invitation(company_id=ctx.company_id, user_id=user_id, token_hash=sha256(token), role_id=last.role_id, scope_type=last.scope_type, scope_ids=last.scope_ids,
                                invited_by=ctx.user.id, message=last.message, expires_at=datetime.now(UTC) + timedelta(days=7)))
-    link = f"{get_settings().dashboard_url}/invite/{token}"
-    lang = recipient_locale(user.locale)
-    await notify("email", user.email, gettext_("%(name)s invited you to StaffSync: %(link)s", lang, name=ctx.user.full_name, link=link), subject=gettext_("You're invited", lang), token=token, link=link)
+    # someone who is still on a temporary password gets a fresh one (the earlier one stops working)
+    await _mail_invitation(ctx, user, token, _issue_temporary_password(ctx, user, only_if_temporary=True))
     audit(ctx, "user.invite_resent", "user", user_id, after={"email": user.email})
 
 
